@@ -1,0 +1,191 @@
+@{
+    ViewData["Title"] = "Reporte de Pagos";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-graph-up"></i> Reporte de Pagos
+        </h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+
+    <!-- Filtro de fechas -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Reporte" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Desde</label>
+                    <input type="date" name="fechaDesde" class="form-control" value="@ViewBag.FechaDesde" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha Hasta</label>
+                    <input type="date" name="fechaHasta" class="form-control" value="@ViewBag.FechaHasta" />
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-filter"></i> Generar Reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resumen General -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-1">Total Recaudado</h6>
+                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalRecaudado ?? 0m)).ToString("N2"))</h2>
+                    <small>@ViewBag.TotalPagos pagos</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-1">Por Tarjeta</h6>
+                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalTarjeta ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-1">En Efectivo</h6>
+                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalEfectivo ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h6 class="text-uppercase mb-1">Pagos Parciales</h6>
+                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Gráfico de Pagos por Día -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Pagos por Día</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="chartPagosDia" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagos por Servicio -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Por Servicio</h5>
+                </div>
+                <div class="card-body">
+                    @{
+                        var pagosPorServicio = ViewBag.PagosPorServicio as dynamic;
+                    }
+                    @if (pagosPorServicio != null)
+                    {
+                        <ul class="list-group list-group-flush">
+                            @foreach (var item in pagosPorServicio)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@item.Servicio</strong>
+                                        <small class="text-muted d-block">@item.Cantidad pagos</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">S/. @(((decimal)item.Total).ToString("N2"))</span>
+                                </li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Desglose por Tipo -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-success display-4"></i>
+                    <h4 class="mt-2">Pagos Completos</h4>
+                    <h2 class="text-success">S/. @(((decimal)(ViewBag.TotalCompletos ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split text-warning display-4"></i>
+                    <h4 class="mt-2">Pagos Parciales</h4>
+                    <h2 class="text-warning">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <i class="bi bi-cash-stack text-info display-4"></i>
+                    <h4 class="mt-2">Pagos Restantes</h4>
+                    <h2 class="text-info">S/. @(((decimal)(ViewBag.TotalRestantes ?? 0m)).ToString("N2"))</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Gráfico de pagos por día
+        var pagosPorDia = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PagosPorDia));
+        
+        var ctx = document.getElementById('chartPagosDia').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: pagosPorDia.map(p => p.Fecha),
+                datasets: [{
+                    label: 'Total Recaudado (S/.)',
+                    data: pagosPorDia.map(p => p.Total),
+                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                    borderColor: 'rgb(40, 167, 69)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'S/. ' + value.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'S/. ' + context.raw.toFixed(2);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

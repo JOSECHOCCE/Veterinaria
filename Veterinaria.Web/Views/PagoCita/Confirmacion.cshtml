@@ -1,0 +1,169 @@
+@{
+    ViewData["Title"] = "Confirmación de Pago";
+    var cita = ViewBag.Cita as Veterinaria.Domain.Entities.Cita;
+    var pago = ViewBag.Pago as Veterinaria.Domain.Entities.Pago;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Icono de Éxito -->
+            <div class="text-center mb-4">
+                <div class="success-checkmark">
+                    <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
+                </div>
+                <h2 class="text-success mt-3">¡Pago Exitoso!</h2>
+                <p class="text-muted">Su pago ha sido procesado correctamente</p>
+            </div>
+
+            <!-- Detalles del Pago -->
+            <div class="card shadow-lg border-0 mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Comprobante de Pago</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted">Referencia:</td>
+                                    <td><strong class="text-primary">@pago?.Referencia</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Fecha de Pago:</td>
+                                    <td><strong>@pago?.FechaPago.ToString("dd/MM/yyyy HH:mm")</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Método:</td>
+                                    <td>
+                                        <i class="fas fa-credit-card text-primary me-1"></i>
+                                        <strong>@pago?.MetodoPago</strong>
+                                        @if (!string.IsNullOrEmpty(pago?.UltimosDigitosTarjeta))
+                                        {
+                                            <span class="text-muted">(**** @pago.UltimosDigitosTarjeta)</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Tipo de Pago:</td>
+                                    <td>
+                                        @if (pago?.TipoPago == "Completo")
+                                        {
+                                            <span class="badge bg-success">Pago Completo</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">Pago Parcial (50%)</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="bg-light rounded p-3 text-center">
+                                <small class="text-muted d-block">Monto Pagado</small>
+                                <h2 class="text-success mb-0">S/. @pago?.Monto.ToString("N2")</h2>
+                                @if (pago?.TipoPago == "Parcial")
+                                {
+                                    <hr>
+                                    <small class="text-muted d-block">Saldo Pendiente</small>
+                                    <h4 class="text-warning mb-0">S/. @((cita?.MontoTotal - pago?.Monto)?.ToString("N2") ?? "0.00")</h4>
+                                    <small class="text-muted">A pagar al finalizar la cita</small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detalles de la Cita -->
+            <div class="card shadow border-0 mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-calendar-check me-2"></i>Detalles de la Cita</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block"><i class="fas fa-paw me-1"></i>Mascota</small>
+                                <strong>@cita?.Mascota?.Nombre</strong>
+                                <span class="text-muted">(@cita?.Mascota?.Especie)</span>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block"><i class="fas fa-stethoscope me-1"></i>Servicio</small>
+                                <strong>@cita?.Servicio?.Nombre</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <small class="text-muted d-block"><i class="fas fa-user-md me-1"></i>Veterinario</small>
+                                <strong>@cita?.Veterinario?.Nombre</strong>
+                            </div>
+                            <div class="mb-3">
+                                <small class="text-muted d-block"><i class="fas fa-calendar-alt me-1"></i>Fecha y Hora</small>
+                                <strong>@cita?.FechaHora.ToString("dddd, dd 'de' MMMM 'de' yyyy")</strong><br>
+                                <strong>@cita?.FechaHora.ToString("hh:mm tt")</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info mt-3 mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Estado de la Cita:</strong> 
+                        <span class="badge bg-success">Confirmada</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="card border-0 bg-light">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a asp-action="DescargarComprobante" asp-route-pagoId="@pago?.Id" class="btn btn-danger w-100 py-3">
+                                <i class="fas fa-file-pdf d-block fs-3 mb-1"></i>
+                                Descargar Comprobante
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a asp-action="DescargarFicha" asp-route-citaId="@cita?.Id" class="btn btn-primary w-100 py-3">
+                                <i class="fas fa-id-card d-block fs-3 mb-1"></i>
+                                Descargar Ficha
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a asp-controller="Citas" asp-action="Index" class="btn btn-success w-100 py-3">
+                                <i class="fas fa-list d-block fs-3 mb-1"></i>
+                                Ver Mis Citas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (pago?.TipoPago == "Parcial")
+            {
+                <div class="alert alert-warning mt-4">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i>Recordatorio</h5>
+                    <p class="mb-0">
+                        Ha realizado un pago parcial del 50%. El saldo restante de <strong>S/. @((cita?.MontoTotal - pago?.Monto)?.ToString("N2") ?? "0.00")</strong> 
+                        deberá ser pagado al finalizar su cita. Podrá pagar con tarjeta o en efectivo.
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Animación del check
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkmark = document.querySelector('.success-checkmark i');
+            checkmark.style.transform = 'scale(0)';
+            setTimeout(() => {
+                checkmark.style.transition = 'transform 0.5s ease-out';
+                checkmark.style.transform = 'scale(1)';
+            }, 100);
+        });
+    </script>
+}

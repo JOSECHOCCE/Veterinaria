@@ -1,0 +1,254 @@
+@model Veterinaria.Web.Models.Dto.HistorialClinicoDto
+
+@{
+    ViewData["Title"] = "Historial Clínico - Detalle";
+    var mascota = ViewBag.Mascota as Veterinaria.Domain.Entities.Mascota;
+    var veterinario = ViewBag.Veterinario as Veterinaria.Domain.Entities.Veterinario;
+    var servicio = ViewBag.Servicio as Veterinaria.Domain.Entities.Servicio;
+    var cita = ViewBag.Cita as Veterinaria.Domain.Entities.Cita;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            @if (TempData["Info"] != null)
+            {
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    @TempData["Info"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <!-- Ficha Médica -->
+            <div class="card shadow ficha-medica-completa">
+                <!-- Encabezado tipo ficha médica -->
+                <div class="card-header bg-primary text-white">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h3 class="mb-0">
+                                <i class="bi bi-file-medical"></i> FICHA MÉDICA VETERINARIA
+                            </h3>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <span class="badge bg-light text-primary fs-6">
+                                Registro #@Model.Id
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    <!-- Sección: Datos del Paciente -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="seccion-ficha bg-light p-3 rounded">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="bi bi-heart-pulse text-danger"></i> DATOS DEL PACIENTE
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p class="mb-2"><strong>Nombre:</strong></p>
+                                        <p class="fs-4 text-primary mb-0">@mascota?.Nombre</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-2"><strong>Especie / Raza:</strong></p>
+                                        <p class="mb-0">@mascota?.Especie / @(mascota?.Raza ?? "No especificada")</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @if (mascota?.FechaNacimiento != null)
+                                        {
+                                            var edad = DateTime.Today.Year - mascota.FechaNacimiento.Value.Year;
+                                            <p class="mb-2"><strong>Edad:</strong></p>
+                                            <p class="mb-0">@edad años</p>
+                                        }
+                                    </div>
+                                </div>
+                                <hr />
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-0">
+                                            <i class="bi bi-person"></i> <strong>Propietario:</strong> 
+                                            @mascota?.Usuario?.Nombre
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-0">
+                                            <i class="bi bi-telephone"></i> <strong>Teléfono:</strong> 
+                                            @mascota?.Usuario?.Telefono
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Datos de la Consulta -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="seccion-ficha bg-light p-3 rounded">
+                                <h5 class="border-bottom pb-2 mb-3">
+                                    <i class="bi bi-calendar-check text-success"></i> DATOS DE LA CONSULTA
+                                </h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <p class="mb-2"><strong>Fecha de Consulta:</strong></p>
+                                        <p class="mb-0">@Model.FechaCita?.ToString("dddd, dd 'de' MMMM 'de' yyyy")</p>
+                                        <p class="text-muted small">@Model.FechaCita?.ToString("HH:mm") hrs</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-2"><strong>Veterinario:</strong></p>
+                                        <p class="mb-0">Dr(a). @veterinario?.Nombre</p>
+                                        <p class="text-muted small">@veterinario?.Especialidad</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-2"><strong>Tipo de Servicio:</strong></p>
+                                        <p class="mb-0">
+                                            <span class="badge bg-info fs-6">@servicio?.Nombre</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                @if (!string.IsNullOrWhiteSpace(Model.MotivoCita))
+                                {
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p class="mb-2"><strong>Motivo de Consulta:</strong></p>
+                                            <p class="mb-0 fst-italic">"@Model.MotivoCita"</p>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Diagnóstico -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="seccion-ficha p-3 rounded border-start border-primary border-4">
+                                <h5 class="text-primary mb-3">
+                                    <i class="bi bi-search"></i> DIAGNÓSTICO
+                                </h5>
+                                <p class="fs-5 mb-0">@Model.Diagnostico</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Tratamiento -->
+                    @if (!string.IsNullOrWhiteSpace(Model.Tratamiento))
+                    {
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="seccion-ficha p-3 rounded border-start border-success border-4">
+                                    <h5 class="text-success mb-3">
+                                        <i class="bi bi-bandaid"></i> TRATAMIENTO INDICADO
+                                    </h5>
+                                    <p class="fs-5 mb-0">@Model.Tratamiento</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Sección: Medicamentos -->
+                    @if (!string.IsNullOrWhiteSpace(Model.Medicamentos))
+                    {
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="seccion-ficha p-3 rounded border-start border-warning border-4">
+                                    <h5 class="text-warning mb-3">
+                                        <i class="bi bi-capsule"></i> MEDICAMENTOS RECETADOS
+                                    </h5>
+                                    <div class="bg-light p-3 rounded">
+                                        <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">@Model.Medicamentos</pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Sección: Observaciones -->
+                    @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+                    {
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="seccion-ficha p-3 rounded border-start border-secondary border-4">
+                                    <h5 class="text-secondary mb-3">
+                                        <i class="bi bi-chat-left-text"></i> OBSERVACIONES
+                                    </h5>
+                                    <p class="mb-0">@Model.Observaciones</p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pie de la ficha -->
+                <div class="card-footer bg-light">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                <i class="bi bi-clock"></i> Registro creado: @Model.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <small class="text-muted">
+                                <i class="bi bi-building"></i> Veterinaria - Sistema de Gestión
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="card shadow mt-4">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2 justify-content-between">
+                        <div>
+                            <a asp-action="Index" asp-route-mascotaId="@mascota?.Id" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver al Historial
+                            </a>
+                            <a asp-action="Details" asp-controller="Citas" asp-route-id="@Model.CitaId" class="btn btn-outline-primary">
+                                <i class="bi bi-calendar-check"></i> Ver Cita
+                            </a>
+                        </div>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            <a asp-action="DescargarPDF" asp-route-citaId="@Model.CitaId" class="btn btn-danger">
+                                <i class="bi bi-file-pdf"></i> Descargar PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .ficha-medica-completa {
+        border: 2px solid #0d6efd;
+    }
+    
+    .seccion-ficha {
+        background-color: #f8f9fa;
+    }
+    
+    @@media print {
+        .btn, .card-footer .btn {
+            display: none !important;
+        }
+        
+        .card {
+            border: 1px solid #000 !important;
+        }
+    }
+</style>

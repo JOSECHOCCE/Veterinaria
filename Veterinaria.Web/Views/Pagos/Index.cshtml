@@ -1,0 +1,223 @@
+@model X.PagedList.IPagedList<Veterinaria.Web.Models.Dto.PagoDto>
+@using X.PagedList.Mvc.Core
+@{
+    ViewData["Title"] = "Pagos";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="bi bi-credit-card"></i> Gestión de Pagos
+        </h1>
+        <a asp-action="Reporte" class="btn btn-outline-primary">
+            <i class="bi bi-graph-up"></i> Ver Reporte
+        </a>
+    </div>
+
+    <!-- Tarjetas de Resumen -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Recaudado</h6>
+                            <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalGeneral ?? 0m)).ToString("N2"))</h2>
+                        </div>
+                        <i class="bi bi-cash-stack fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Tarjeta</h6>
+                            <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalTarjeta ?? 0m)).ToString("N2"))</h2>
+                        </div>
+                        <i class="bi bi-credit-card fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Efectivo</h6>
+                            <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalEfectivo ?? 0m)).ToString("N2"))</h2>
+                        </div>
+                        <i class="bi bi-cash fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-uppercase mb-1">Total Pagos</h6>
+                            <h2 class="mb-0">@(ViewBag.TotalPagos ?? 0)</h2>
+                        </div>
+                        <i class="bi bi-receipt fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Tipo de Pago</label>
+                    <select name="tipoPago" class="form-select">
+                        <option value="">-- Todos --</option>
+                        <option value="Completo" selected="@(ViewBag.CurrentTipoPago == "Completo")">Completo</option>
+                        <option value="Parcial" selected="@(ViewBag.CurrentTipoPago == "Parcial")">Parcial</option>
+                        <option value="Restante" selected="@(ViewBag.CurrentTipoPago == "Restante")">Restante</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Método de Pago</label>
+                    <select name="metodoPago" class="form-select">
+                        <option value="">-- Todos --</option>
+                        <option value="Tarjeta" selected="@(ViewBag.CurrentMetodoPago == "Tarjeta")">Tarjeta</option>
+                        <option value="Efectivo" selected="@(ViewBag.CurrentMetodoPago == "Efectivo")">Efectivo</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fechaDesde" class="form-control" value="@ViewBag.CurrentFechaDesde" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fechaHasta" class="form-control" value="@ViewBag.CurrentFechaHasta" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="bi bi-search"></i> Filtrar
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg"></i>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Pagos -->
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Referencia</th>
+                                <th>Fecha</th>
+                                <th>Mascota / Servicio</th>
+                                <th>Tipo</th>
+                                <th>Método</th>
+                                <th class="text-end">Monto</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var pago in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <code>@pago.Referencia</code>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted d-block">@pago.FechaPago.ToString("dd/MM/yyyy")</small>
+                                        <small>@pago.FechaPago.ToString("HH:mm")</small>
+                                    </td>
+                                    <td>
+                                        <strong>@pago.MascotaNombre</strong>
+                                        <small class="text-muted d-block">@pago.ServicioNombre</small>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var tipoBadge = pago.TipoPago switch
+                                            {
+                                                "Completo" => "bg-success",
+                                                "Parcial" => "bg-warning text-dark",
+                                                "Restante" => "bg-info",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @tipoBadge">@pago.TipoPago</span>
+                                    </td>
+                                    <td>
+                                        @if (pago.MetodoPago == "Tarjeta")
+                                        {
+                                            <i class="bi bi-credit-card text-primary"></i>
+                                            <span>****@pago.UltimosDigitosTarjeta</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-cash text-success"></i>
+                                            <span>Efectivo</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">
+                                        <strong class="text-success">S/. @pago.Monto.ToString("N2")</strong>
+                                    </td>
+                                    <td class="text-center">
+                                        <a asp-action="Details" asp-route-id="@pago.Id" class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a asp-controller="PagoCita" asp-action="DescargarComprobante" asp-route-pagoId="@pago.Id" 
+                                           class="btn btn-sm btn-outline-danger" title="Descargar PDF">
+                                            <i class="bi bi-file-pdf"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <span class="text-muted">
+                        Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount pagos
+                    </span>
+                    <nav>
+                        @Html.PagedListPager(Model, page => Url.Action("Index", new { 
+                            page, 
+                            tipoPago = ViewBag.CurrentTipoPago, 
+                            metodoPago = ViewBag.CurrentMetodoPago,
+                            fechaDesde = ViewBag.CurrentFechaDesde, 
+                            fechaHasta = ViewBag.CurrentFechaHasta 
+                        }), new PagedListRenderOptions
+                        {
+                            DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                            DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            UlElementClasses = new[] { "pagination", "mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" }
+                        })
+                    </nav>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-4 text-muted"></i>
+                    <p class="text-muted mt-2">No hay pagos registrados.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

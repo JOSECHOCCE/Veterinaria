@@ -1,0 +1,165 @@
+@model X.PagedList.IPagedList<Veterinaria.Web.Models.Dto.HistorialClinicoDto>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Historial Clínico";
+    var mascota = ViewBag.Mascota as Veterinaria.Domain.Entities.Mascota;
+}
+
+<div class="container-fluid">
+    <!-- Encabezado con información de la mascota -->
+    <div class="card shadow mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="bi bi-file-medical"></i> Historial Clínico
+                </h3>
+                <a asp-action="Index" asp-controller="Mascotas" class="btn btn-light">
+                    <i class="bi bi-arrow-left"></i> Volver a Mascotas
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="text-primary">
+                        <i class="bi bi-heart-pulse"></i> @mascota?.Nombre
+                    </h4>
+                    <p class="mb-1"><strong>Especie:</strong> @mascota?.Especie</p>
+                    <p class="mb-1"><strong>Raza:</strong> @(mascota?.Raza ?? "No especificada")</p>
+                </div>
+                <div class="col-md-6">
+                    @if (mascota?.FechaNacimiento != null)
+                    {
+                        var edad = DateTime.Today.Year - mascota.FechaNacimiento.Value.Year;
+                        <p class="mb-1"><strong>Edad:</strong> @edad años</p>
+                    }
+                    <p class="mb-1"><strong>Propietario:</strong> @mascota?.Usuario?.Nombre</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Listado de historiales -->
+    @if (Model.Count == 0)
+    {
+        <div class="card shadow">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-clipboard-x display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">No hay registros en el historial clínico</h4>
+                <p class="text-muted">Esta mascota aún no tiene consultas registradas.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var historial in Model)
+            {
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm ficha-medica">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="bi bi-calendar3 text-primary"></i>
+                                <strong>@historial.FechaCita?.ToString("dddd, dd 'de' MMMM 'de' yyyy")</strong>
+                                <span class="text-muted">a las @historial.FechaCita?.ToString("HH:mm")</span>
+                            </div>
+                            <div>
+                                <a asp-action="Details" asp-route-citaId="@historial.CitaId" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> Ver Detalle
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <i class="bi bi-person-badge text-info"></i>
+                                        <strong>Veterinario:</strong> @historial.VeterinarioNombre
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <i class="bi bi-clipboard-pulse text-success"></i>
+                                        <strong>Servicio:</strong> 
+                                        <span class="badge bg-info">@historial.ServicioNombre</span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <hr />
+                            
+                            <div class="mb-3">
+                                <h6 class="text-primary"><i class="bi bi-search"></i> Diagnóstico</h6>
+                                <p class="ps-3 mb-0">@historial.Diagnostico</p>
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(historial.Tratamiento))
+                            {
+                                <div class="mb-3">
+                                    <h6 class="text-success"><i class="bi bi-bandaid"></i> Tratamiento</h6>
+                                    <p class="ps-3 mb-0">@historial.Tratamiento</p>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(historial.Medicamentos))
+                            {
+                                <div class="mb-3">
+                                    <h6 class="text-warning"><i class="bi bi-capsule"></i> Medicamentos</h6>
+                                    <p class="ps-3 mb-0">@historial.Medicamentos</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="card-footer bg-light text-muted small">
+                            <i class="bi bi-clock"></i> Registrado: @historial.FechaRegistro.ToString("dd/MM/yyyy HH:mm")
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Paginación -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="text-muted">
+                Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount registros
+            </div>
+            <nav>
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { mascotaId = ViewBag.MascotaId, page }),
+                    new PagedListRenderOptions
+                    {
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        UlElementClasses = new[] { "pagination", "mb-0" }
+                    })
+            </nav>
+        </div>
+    }
+</div>
+
+<style>
+    .ficha-medica {
+        border-left: 4px solid #0d6efd;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .ficha-medica:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>

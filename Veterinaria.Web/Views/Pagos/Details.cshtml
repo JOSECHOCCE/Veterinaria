@@ -1,0 +1,169 @@
+@model Veterinaria.Web.Models.Dto.PagoDto
+@{
+    ViewData["Title"] = "Detalle de Pago";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="bi bi-receipt"></i> Detalle de Pago
+                </h1>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Volver al listado
+                </a>
+            </div>
+
+            <div class="row">
+                <!-- Información del Pago -->
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0"><i class="bi bi-credit-card"></i> Información del Pago</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%;">Referencia:</td>
+                                    <td><code class="fs-5">@Model.Referencia</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Tipo de Pago:</td>
+                                    <td>
+                                        @{
+                                            var tipoBadge = Model.TipoPago switch
+                                            {
+                                                "Completo" => "bg-success",
+                                                "Parcial" => "bg-warning text-dark",
+                                                "Restante" => "bg-info",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @tipoBadge">@Model.TipoPago</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Método de Pago:</td>
+                                    <td>
+                                        @if (Model.MetodoPago == "Tarjeta")
+                                        {
+                                            <i class="bi bi-credit-card text-primary me-1"></i>
+                                            <span>Tarjeta</span>
+                                            @if (!string.IsNullOrEmpty(Model.UltimosDigitosTarjeta))
+                                            {
+                                                <span class="text-muted ms-1">(**** @Model.UltimosDigitosTarjeta)</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <i class="bi bi-cash text-success me-1"></i>
+                                            <span>Efectivo</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Fecha de Pago:</td>
+                                    <td>
+                                        <strong>@Model.FechaPago.ToString("dd 'de' MMMM 'de' yyyy")</strong><br/>
+                                        <small class="text-muted">@Model.FechaPago.ToString("HH:mm:ss")</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Monto:</td>
+                                    <td>
+                                        <h3 class="text-success mb-0">S/. @Model.Monto.ToString("N2")</h3>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de la Cita -->
+                <div class="col-md-6">
+                    <div class="card shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Cita Asociada</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" style="width: 40%;">Mascota:</td>
+                                    <td>
+                                        <i class="bi bi-heart-pulse text-danger me-1"></i>
+                                        <strong>@Model.MascotaNombre</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Propietario:</td>
+                                    <td>
+                                        <i class="bi bi-person text-primary me-1"></i>
+                                        @Model.PropietarioNombre
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Veterinario:</td>
+                                    <td>
+                                        <i class="bi bi-person-badge text-success me-1"></i>
+                                        @Model.VeterinarioNombre
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Servicio:</td>
+                                    <td>
+                                        <span class="badge bg-info">@Model.ServicioNombre</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Fecha de Cita:</td>
+                                    <td>
+                                        @if (Model.FechaCita.HasValue)
+                                        {
+                                            @Model.FechaCita.Value.ToString("dd/MM/yyyy HH:mm")
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <hr />
+
+                            <!-- Estado del pago de la cita -->
+                            <div class="row text-center">
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Total Cita</small>
+                                    <strong>S/. @(((decimal)(ViewBag.MontoTotalCita ?? 0m)).ToString("N2"))</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Pagado</small>
+                                    <strong class="text-success">S/. @(((decimal)(ViewBag.MontoPagadoCita ?? 0m)).ToString("N2"))</strong>
+                                </div>
+                                <div class="col-4">
+                                    <small class="text-muted d-block">Pendiente</small>
+                                    @{
+                                        var pendiente = ((decimal)(ViewBag.MontoTotalCita ?? 0m)) - ((decimal)(ViewBag.MontoPagadoCita ?? 0m));
+                                    }
+                                    <strong class="@(pendiente > 0 ? "text-danger" : "text-success")">S/. @pendiente.ToString("N2")</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acciones -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <a asp-controller="PagoCita" asp-action="DescargarComprobante" asp-route-pagoId="@Model.Id" class="btn btn-danger">
+                            <i class="bi bi-file-pdf"></i> Descargar Comprobante PDF
+                        </a>
+                        <a asp-action="DetailsByCita" asp-route-citaId="@Model.CitaId" class="btn btn-outline-primary">
+                            <i class="bi bi-list"></i> Ver todos los pagos de esta cita
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

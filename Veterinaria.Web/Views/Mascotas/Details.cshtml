@@ -1,0 +1,146 @@
+@model Veterinaria.Web.Models.Dto.MascotaDto
+
+@{
+    ViewData["Title"] = $"Detalles de {Model.Nombre}";
+    var citas = ViewBag.Citas as List<Veterinaria.Domain.Entities.Cita> ?? new List<Veterinaria.Domain.Entities.Cita>();
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Mascotas</a></li>
+            <li class="breadcrumb-item active">@Model.Nombre</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <!-- Información de la mascota -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="text-center pt-4">
+                    @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                    {
+                        <img src="@Model.FotoUrl" alt="@Model.Nombre" 
+                             class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 150px; height: 150px;">
+                            <i class="bi bi-heart-pulse text-white display-4"></i>
+                        </div>
+                    }
+                </div>
+                <div class="card-body text-center">
+                    <h3 class="card-title">@Model.Nombre</h3>
+                    <span class="badge bg-info fs-6">@Model.Especie</span>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-tag"></i> Raza</span>
+                        <strong>@(Model.Raza ?? "No especificada")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-calendar"></i> Edad</span>
+                        <strong>@(Model.Edad.HasValue ? $"{Model.Edad} años" : "No especificada")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-calendar-date"></i> Nacimiento</span>
+                        <strong>@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No especificada")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-speedometer"></i> Peso</span>
+                        <strong>@(Model.Peso.HasValue ? $"{Model.Peso} kg" : "No especificado")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-palette"></i> Color</span>
+                        <strong>@(Model.Color ?? "No especificado")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span><i class="bi bi-person"></i> Propietario</span>
+                        <strong>@(Model.UsuarioNombre ?? "No asignado")</strong>
+                    </li>
+                </ul>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a asp-action="Index" asp-controller="HistorialesClinicos" asp-route-mascotaId="@Model.Id" class="btn btn-primary">
+                            <i class="bi bi-file-medical"></i> Ver Historial Clínico
+                        </a>
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de citas -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Historial de Citas</h5>
+                </div>
+                <div class="card-body">
+                    @if (citas.Count == 0)
+                    {
+                        <div class="text-center py-5">
+                            <i class="bi bi-calendar-x display-4 text-muted"></i>
+                            <p class="text-muted mt-3">No hay citas registradas para esta mascota.</p>
+                            <a asp-controller="Citas" asp-action="Create" asp-route-mascotaId="@Model.Id" 
+                               class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Agendar Cita
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Servicio</th>
+                                        <th>Veterinario</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cita in citas)
+                                    {
+                                        <tr>
+                                            <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@cita.Servicio?.Nombre</td>
+                                            <td>@cita.Veterinario?.Nombre</td>
+                                            <td>
+                                                @{
+                                                    var badgeClass = cita.Estado switch
+                                                    {
+                                                        "Completada" => "bg-success",
+                                                        "Confirmada" => "bg-primary",
+                                                        "EnProceso" => "bg-warning text-dark",
+                                                        "Cancelada" => "bg-danger",
+                                                        _ => "bg-secondary"
+                                                    };
+                                                }
+                                                <span class="badge @badgeClass">@cita.Estado</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver a la lista
+        </a>
+    </div>
+</div>

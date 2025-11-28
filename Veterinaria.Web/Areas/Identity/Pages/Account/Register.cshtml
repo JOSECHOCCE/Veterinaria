@@ -1,0 +1,129 @@
+@page
+@model Veterinaria.Web.Areas.Identity.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Registro de Usuario";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>@ViewData["Title"]</h4>
+            </div>
+            <div class="card-body">
+                <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    
+                    <h6 class="text-muted mb-3"><i class="bi bi-person me-1"></i>Datos Personales</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label asp-for="Input.NombreCompleto" class="form-label">Nombre Completo <span class="text-danger">*</span></label>
+                            <input asp-for="Input.NombreCompleto" class="form-control" placeholder="Ingrese su nombre completo" />
+                            <span asp-validation-for="Input.NombreCompleto" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label asp-for="Input.DNI" class="form-label">DNI <span class="text-danger">*</span></label>
+                            <input asp-for="Input.DNI" class="form-control" placeholder="12345678" />
+                            <span asp-validation-for="Input.DNI" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Email" class="form-label">Correo Electrónico <span class="text-danger">*</span></label>
+                            <input asp-for="Input.Email" class="form-control" autocomplete="username" placeholder="ejemplo@correo.com" />
+                            <span asp-validation-for="Input.Email" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Telefono" class="form-label">Teléfono <span class="text-danger">*</span></label>
+                            <input asp-for="Input.Telefono" class="form-control" placeholder="999 888 777" />
+                            <span asp-validation-for="Input.Telefono" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Input.Direccion" class="form-label">Dirección <span class="text-danger">*</span></label>
+                        <input asp-for="Input.Direccion" class="form-control" placeholder="Calle, Número, Ciudad" />
+                        <span asp-validation-for="Input.Direccion" class="text-danger"></span>
+                    </div>
+                    
+                    <hr />
+                    <h6 class="text-muted mb-3"><i class="bi bi-shield-lock me-1"></i>Credenciales de Acceso</h6>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.Password" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <div class="input-group position-relative">
+                                <input asp-for="Input.Password" class="form-control pe-5" autocomplete="new-password" placeholder="Mínimo 6 caracteres" id="passwordRegister" />
+                                <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="z-index:2; cursor:pointer;" onmousedown="showPassword('passwordRegister', 'eyeIconPassword')" onmouseup="hidePassword('passwordRegister', 'eyeIconPassword')" onmouseleave="hidePassword('passwordRegister', 'eyeIconPassword')" onclick="togglePassword('passwordRegister', 'eyeIconPassword')">
+                                    <i class="bi bi-eye fs-5 text-secondary" id="eyeIconPassword"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Input.Password" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Input.ConfirmPassword" class="form-label">Confirmar Contraseña <span class="text-danger">*</span></label>
+                            <div class="input-group position-relative">
+                                <input asp-for="Input.ConfirmPassword" class="form-control pe-5" autocomplete="new-password" placeholder="Repita la contraseña" id="confirmPasswordRegister" />
+                                <span class="position-absolute top-50 end-0 translate-middle-y me-3" style="z-index:2; cursor:pointer;" onmousedown="showPassword('confirmPasswordRegister', 'eyeIconConfirm')" onmouseup="hidePassword('confirmPasswordRegister', 'eyeIconConfirm')" onmouseleave="hidePassword('confirmPasswordRegister', 'eyeIconConfirm')" onclick="togglePassword('confirmPasswordRegister', 'eyeIconConfirm')">
+                                    <i class="bi bi-eye fs-5 text-secondary" id="eyeIconConfirm"></i>
+                                </span>
+                            </div>
+                            <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-text mb-3">
+                        <small><i class="bi bi-info-circle me-1"></i>La contraseña debe tener al menos 6 caracteres, una mayúscula, una minúscula, un número y un carácter especial.</small>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button id="registerSubmit" type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Registrarse
+                        </button>
+                    </div>
+                </form>
+                
+                <hr />
+                
+                <div class="text-center">
+                    <p class="mb-0">¿Ya tiene una cuenta? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Iniciar Sesión</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        }
+        function showPassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        }
+        function hidePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    </script>
+}

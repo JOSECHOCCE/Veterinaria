@@ -1,0 +1,193 @@
+@model Veterinaria.Web.Models.ViewModels.CompletarPagoViewModel
+@{
+    ViewData["Title"] = "Completar Pago";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-warning text-dark py-3">
+                    <h4 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Completar Pago Pendiente</h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Resumen -->
+                    <div class="alert alert-info mb-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h5 class="mb-1">
+                                    <i class="fas fa-paw me-2"></i>@Model.MascotaNombre - @Model.ServicioNombre
+                                </h5>
+                                <p class="mb-0 text-muted">
+                                    <i class="fas fa-calendar me-1"></i>Cita del @Model.FechaCita.ToString("dd/MM/yyyy")
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <small class="d-block text-muted">Monto Pendiente</small>
+                                <h3 class="text-danger mb-0">S/. @Model.MontoRestante.ToString("N2")</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form asp-action="ProcesarPagoRestante" method="post" id="pagoForm">
+                        <input type="hidden" asp-for="CitaId" />
+
+                        <!-- Método de Pago -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Método de Pago</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="MetodoPago" id="metodoTarjeta" value="Tarjeta" checked>
+                                    <label class="btn btn-outline-primary w-100 py-3" for="metodoTarjeta">
+                                        <i class="fas fa-credit-card d-block fs-3 mb-1"></i>
+                                        <strong>Tarjeta</strong>
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="MetodoPago" id="metodoEfectivo" value="Efectivo">
+                                    <label class="btn btn-outline-success w-100 py-3" for="metodoEfectivo">
+                                        <i class="fas fa-money-bill-alt d-block fs-3 mb-1"></i>
+                                        <strong>Efectivo</strong>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario de Tarjeta -->
+                        <div id="formTarjeta">
+                            <div class="card border-secondary mb-3">
+                                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-credit-card me-2"></i>Datos de la Tarjeta</span>
+                                    @if (Model.TieneTarjetaGuardada)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Tarjeta guardada ****@Model.TarjetaGuardadaUltimosDigitos
+                                        </span>
+                                    }
+                                </div>
+                                <div class="card-body">
+                                    @if (Model.TieneTarjetaGuardada)
+                                    {
+                                        <div class="alert alert-success py-2 mb-3">
+                                            <i class="fas fa-magic me-2"></i>
+                                            <strong>¡Datos autocompletados!</strong> Tu tarjeta guardada terminada en <strong>****@Model.TarjetaGuardadaUltimosDigitos</strong> ha sido cargada automáticamente.
+                                        </div>
+                                    }
+                                    
+                                    <div class="mb-3">
+                                        <label asp-for="NumeroTarjeta" class="form-label"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-credit-card"></i></span>
+                                            <input asp-for="NumeroTarjeta" class="form-control" placeholder="1234 5678 9012 3456" 
+                                                   maxlength="16" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                        </div>
+                                        <span asp-validation-for="NumeroTarjeta" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="NombreTarjeta" class="form-label"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input asp-for="NombreTarjeta" class="form-control" placeholder="NOMBRE APELLIDO">
+                                        </div>
+                                        <span asp-validation-for="NombreTarjeta" class="text-danger"></span>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label asp-for="FechaVencimiento" class="form-label"></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                                <input asp-for="FechaVencimiento" class="form-control" placeholder="MM/YY" maxlength="5"
+                                                       oninput="formatExpiryDate(this)">
+                                            </div>
+                                            <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+                                        </div>
+                                        <div class="col-6">
+                                            <label asp-for="CVV" class="form-label"></label>
+                                            <div class="input-group">
+                                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                                <input asp-for="CVV" class="form-control" type="password" placeholder="•••" 
+                                                       maxlength="3" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                            </div>
+                                            <span asp-validation-for="CVV" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Checkbox para guardar/actualizar tarjeta -->
+                                    <div class="form-check mt-3 p-3 bg-light rounded">
+                                        <input class="form-check-input" type="checkbox" asp-for="GuardarTarjeta" id="guardarTarjeta">
+                                        <label class="form-check-label" for="guardarTarjeta">
+                                            <i class="fas fa-save text-primary me-1"></i>
+                                            <strong>@(Model.TieneTarjetaGuardada ? "Actualizar tarjeta guardada" : "Guardar tarjeta para futuros pagos")</strong>
+                                            <br>
+                                            <small class="text-muted">Los datos se guardarán de forma segura y se autocompletarán en tu próximo pago</small>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mensaje Efectivo -->
+                        <div id="mensajeEfectivo" style="display: none;">
+                            <div class="alert alert-success">
+                                <h5><i class="fas fa-money-bill-wave me-2"></i>Pago en Efectivo</h5>
+                                <p class="mb-0">
+                                    El monto de <strong>S/. @Model.MontoRestante.ToString("N2")</strong> será registrado como pago en efectivo.
+                                    Asegúrese de tener el monto exacto disponible.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg" id="btnPagar">
+                                <i class="fas fa-check-circle me-2"></i>Confirmar Pago de S/. @Model.MontoRestante.ToString("N2")
+                            </button>
+                            <a asp-controller="Citas" asp-action="Details" asp-route-id="@Model.CitaId" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Volver a Detalles
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function formatExpiryDate(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value.length > 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            input.value = value;
+        }
+
+        // Mostrar/ocultar formulario de tarjeta
+        document.querySelectorAll('input[name="MetodoPago"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                const formTarjeta = document.getElementById('formTarjeta');
+                const mensajeEfectivo = document.getElementById('mensajeEfectivo');
+                
+                if (this.value === 'Efectivo') {
+                    formTarjeta.style.display = 'none';
+                    mensajeEfectivo.style.display = 'block';
+                } else {
+                    formTarjeta.style.display = 'block';
+                    mensajeEfectivo.style.display = 'none';
+                }
+            });
+        });
+
+        // Animación al enviar
+        document.getElementById('pagoForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('btnPagar');
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando...';
+            btn.disabled = true;
+        });
+    </script>
+}

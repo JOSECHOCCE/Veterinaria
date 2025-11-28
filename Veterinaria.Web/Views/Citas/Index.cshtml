@@ -1,0 +1,196 @@
+@model X.PagedList.IPagedList<Veterinaria.Web.Models.Dto.CitaDto>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Citas";
+    var esAdmin = ViewBag.EsAdmin ?? false;
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-calendar-check"></i> Citas</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Cita
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select" asp-items="@ViewBag.Estados">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Veterinario</label>
+                    <select name="veterinarioId" class="form-select" asp-items="@ViewBag.Veterinarios">
+                        <option value="">-- Todos --</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Desde</label>
+                    <input type="date" name="fechaDesde" value="@ViewBag.CurrentFechaDesde" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Hasta</label>
+                    <input type="date" name="fechaHasta" value="@ViewBag.CurrentFechaHasta" class="form-control" />
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-primary me-2">Filtrar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de citas -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Count == 0)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-calendar-x display-1 text-muted"></i>
+                    <p class="text-muted mt-3">No se encontraron citas.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha/Hora</th>
+                                <th>Mascota</th>
+                                <th>Propietario</th>
+                                <th>Veterinario</th>
+                                <th>Servicio</th>
+                                <th class="text-end">Precio</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                DateTime? ultimaFecha = null;
+                            }
+                            @foreach (var cita in Model)
+                            {
+                                var fechaCita = cita.FechaHora.Date;
+                                
+                                @if (ultimaFecha != fechaCita)
+                                {
+                                    <tr class="table-secondary">
+                                        <td colspan="8" class="fw-bold">
+                                            <i class="bi bi-calendar3"></i>
+                                            @cita.FechaHora.ToString("dddd, dd 'de' MMMM 'de' yyyy")
+                                        </td>
+                                    </tr>
+                                    ultimaFecha = fechaCita;
+                                }
+
+                                <tr>
+                                    <td>
+                                        <strong>@cita.FechaHora.ToString("HH:mm")</strong>
+                                        <br />
+                                        <small class="text-muted">@cita.FechaHora.ToString("dd/MM/yyyy")</small>
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-heart-pulse text-primary"></i>
+                                        @cita.MascotaNombre
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person text-secondary me-1"></i>
+                                        @(cita.PropietarioNombre ?? "Sin propietario")
+                                    </td>
+                                    <td>
+                                        <i class="bi bi-person-badge text-info"></i>
+                                        @cita.VeterinarioNombre
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">@cita.ServicioNombre</span>
+                                    </td>
+                                    <td class="text-end">
+                                        @if (cita.PrecioServicio.HasValue)
+                                        {
+                                            <strong class="text-success">@cita.PrecioServicio.Value.ToString("C")</strong>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @{
+                                            var badgeClass = cita.Estado switch
+                                            {
+                                                "Completada" => "bg-success",
+                                                "Confirmada" => "bg-primary",
+                                                "EnProceso" => "bg-warning text-dark",
+                                                "Cancelada" => "bg-danger",
+                                                _ => "bg-secondary"
+                                            };
+                                        }
+                                        <span class="badge @badgeClass">@cita.Estado</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@cita.Id" 
+                                               class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            @if (esAdmin && cita.Estado != "Completada" && cita.Estado != "Cancelada")
+                                            {
+                                                <a asp-action="Edit" asp-route-id="@cita.Id" 
+                                                   class="btn btn-sm btn-outline-warning" title="Editar">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount citas
+                    </div>
+                    <nav>
+                        @Html.PagedListPager(Model, page => Url.Action("Index", new 
+                        { 
+                            page, 
+                            estado = ViewBag.CurrentEstado, 
+                            veterinarioId = ViewBag.CurrentVeterinarioId,
+                            fechaDesde = ViewBag.CurrentFechaDesde,
+                            fechaHasta = ViewBag.CurrentFechaHasta
+                        }),
+                            new PagedListRenderOptions
+                            {
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" },
+                                UlElementClasses = new[] { "pagination", "mb-0" }
+                            })
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>

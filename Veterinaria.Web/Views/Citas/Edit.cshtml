@@ -1,0 +1,149 @@
+@model Veterinaria.Web.Models.Dto.CitaDto
+
+@{
+    ViewData["Title"] = "Editar Cita";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Editar Estado de Cita
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Información de la cita (solo lectura) -->
+                    <div class="card mb-4 bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Información de la Cita</h5>
+                            <hr />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong><i class="bi bi-heart-pulse"></i> Mascota:</strong><br />@Model.MascotaNombre</p>
+                                    <p><strong><i class="bi bi-person"></i> Propietario:</strong><br />Info del propietario</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong><i class="bi bi-person-badge"></i> Veterinario:</strong><br />@Model.VeterinarioNombre</p>
+                                    <p><strong><i class="bi bi-clipboard-pulse"></i> Servicio:</strong><br />@Model.ServicioNombre</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong><i class="bi bi-calendar3"></i> Fecha:</strong><br />@Model.FechaHora.ToString("dddd, dd 'de' MMMM 'de' yyyy")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong><i class="bi bi-clock"></i> Hora:</strong><br />@Model.FechaHora.ToString("HH:mm")</p>
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(Model.Motivo))
+                            {
+                                <p><strong><i class="bi bi-file-text"></i> Motivo:</strong><br />@Model.Motivo</p>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Formulario de edición -->
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="MascotaId" />
+                        <input type="hidden" asp-for="VeterinarioId" />
+                        <input type="hidden" asp-for="ServicioId" />
+                        <input type="hidden" asp-for="FechaHora" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Estado" class="form-label">
+                                <i class="bi bi-flag"></i> Estado de la Cita *
+                            </label>
+                            <select asp-for="Estado" class="form-select" id="estadoSelect">
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Confirmada">Confirmada</option>
+                                <option value="EnProceso">En Proceso</option>
+                                <option value="Completada">Completada</option>
+                                <option value="Cancelada">Cancelada</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger small"></span>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle"></i> Cambie el estado según el progreso de la cita
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Motivo" class="form-label">
+                                <i class="bi bi-file-text"></i> Motivo / Observaciones
+                            </label>
+                            <textarea asp-for="Motivo" class="form-control" rows="3" 
+                                      placeholder="Actualice el motivo o agregue observaciones..."></textarea>
+                            <span asp-validation-for="Motivo" class="text-danger small"></span>
+                        </div>
+
+                        <div id="alertaEstado" class="alert d-none">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <span id="alertaEstadoTexto"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información adicional sobre estados -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Estados disponibles:</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><span class="badge bg-secondary">Pendiente</span> - La cita ha sido agendada y está esperando confirmación</li>
+                        <li><span class="badge bg-primary">Confirmada</span> - La cita ha sido confirmada por el veterinario</li>
+                        <li><span class="badge bg-warning text-dark">En Proceso</span> - El veterinario está atendiendo actualmente</li>
+                        <li><span class="badge bg-success">Completada</span> - La consulta ha finalizado (genera historial clínico)</li>
+                        <li><span class="badge bg-danger">Cancelada</span> - La cita fue cancelada</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            const estadoInicial = '@Model.Estado';
+            
+            $('#estadoSelect').on('change', function() {
+                const nuevoEstado = $(this).val();
+                const $alerta = $('#alertaEstado');
+                const $texto = $('#alertaEstadoTexto');
+                
+                $alerta.removeClass('alert-warning alert-info alert-danger d-none');
+                
+                if (nuevoEstado === 'Completada') {
+                    $alerta.addClass('alert-info');
+                    $texto.text('Al marcar como Completada, se podrá crear un historial clínico para esta cita.');
+                } else if (nuevoEstado === 'Cancelada') {
+                    $alerta.addClass('alert-warning');
+                    $texto.text('Al cancelar la cita, no se podrá volver a activar.');
+                } else if (estadoInicial === 'Completada' && nuevoEstado !== 'Completada') {
+                    $alerta.addClass('alert-danger');
+                    $texto.text('Atención: Está cambiando el estado de una cita completada. Esto puede afectar el historial clínico.');
+                } else {
+                    $alerta.addClass('d-none');
+                }
+            });
+            
+            // Mostrar alerta inicial si es necesario
+            $('#estadoSelect').trigger('change');
+        });
+    </script>
+}

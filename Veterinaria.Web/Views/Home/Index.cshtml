@@ -1,0 +1,285 @@
+﻿@{
+    ViewData["Title"] = "Clínica Veterinaria - Cuidamos a tu mascota";
+}
+
+<!-- Hero Section -->
+<section class="hero-section position-relative overflow-hidden">
+    <div class="hero-bg-gradient"></div>
+    <div class="container py-5">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 text-center text-lg-start">
+                <span class="badge bg-success-subtle text-success mb-3 px-3 py-2 rounded-pill">
+                    <i class="bi bi-heart-pulse me-1"></i> Cuidado profesional 24/7
+                </span>
+                <h1 class="display-3 fw-bold text-dark mb-4">
+                    Tu mascota merece el 
+                    <span class="text-primary">mejor cuidado</span>
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Somos una clínica veterinaria comprometida con la salud y bienestar de tus compañeros peludos. 
+                    Ofrecemos servicios de calidad con profesionales altamente capacitados.
+                </p>
+                <div class="d-flex gap-3 justify-content-center justify-content-lg-start">
+                    <a asp-controller="Citas" asp-action="Create" class="btn btn-primary btn-lg px-4 shadow-sm">
+                        <i class="bi bi-calendar-plus me-2"></i>Agendar Cita
+                    </a>
+                    <a asp-controller="Home" asp-action="Servicios" class="btn btn-outline-secondary btn-lg px-4">
+                        <i class="bi bi-arrow-right me-2"></i>Ver Servicios
+                    </a>
+                </div>
+                
+                <!-- Stats con animación -->
+                <div class="row mt-5 pt-4">
+                    <div class="col-4">
+                        <div class="counter text-primary mb-0" data-target="500">0</div>
+                        <small class="text-muted">Mascotas Atendidas</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="counter text-success mb-0" data-target="15">0</div>
+                        <small class="text-muted">Años de Experiencia</small>
+                    </div>
+                    <div class="col-4">
+                        <div class="counter text-info mb-0" data-target="98">0</div>
+                        <small class="text-muted">Clientes Satisfechos</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                <div class="hero-image-container animate-float">
+                    <div class="hero-circle-bg"></div>
+                    <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=500&h=500&fit=crop" 
+                         alt="Perro feliz en veterinaria" 
+                         class="img-fluid rounded-4 shadow-lg hero-image">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Servicios Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5 animate-on-scroll">
+            <span class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill">
+                <i class="bi bi-stars me-1"></i> Nuestros Servicios
+            </span>
+            <h2 class="display-5 fw-bold">¿Qué ofrecemos?</h2>
+            <p class="text-muted col-lg-6 mx-auto">
+                Contamos con una amplia gama de servicios veterinarios para mantener a tu mascota sana y feliz.
+            </p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center p-4">
+                        <div class="service-icon bg-primary-subtle text-primary rounded-circle mb-3 mx-auto">
+                            <i class="bi bi-heart-pulse fs-3"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Consulta General</h5>
+                        <p class="card-text text-muted small">
+                            Evaluación completa del estado de salud de tu mascota con nuestros veterinarios expertos.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center p-4">
+                        <div class="service-icon bg-success-subtle text-success rounded-circle mb-3 mx-auto">
+                            <i class="bi bi-shield-check fs-3"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Vacunación</h5>
+                        <p class="card-text text-muted small">
+                            Programa completo de vacunas para proteger a tu mascota contra enfermedades.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center p-4">
+                        <div class="service-icon bg-warning-subtle text-warning rounded-circle mb-3 mx-auto">
+                            <i class="bi bi-scissors fs-3"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Peluquería</h5>
+                        <p class="card-text text-muted small">
+                            Servicio de baño, corte y cuidado estético para que tu mascota luzca increíble.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm service-card">
+                    <div class="card-body text-center p-4">
+                        <div class="service-icon bg-info-subtle text-info rounded-circle mb-3 mx-auto">
+                            <i class="bi bi-bandaid fs-3"></i>
+                        </div>
+                        <h5 class="card-title fw-bold">Cirugía</h5>
+                        <p class="card-text text-muted small">
+                            Procedimientos quirúrgicos con tecnología de punta y cuidado post-operatorio.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a asp-controller="Home" asp-action="Servicios" class="btn btn-primary px-4">
+                Ver todos los servicios <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Cómo Funciona Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5 animate-on-scroll">
+            <span class="badge bg-success-subtle text-success mb-3 px-3 py-2 rounded-pill">
+                <i class="bi bi-lightning me-1"></i> Proceso Simple
+            </span>
+            <h2 class="display-5 fw-bold">¿Cómo funciona?</h2>
+            <p class="text-muted col-lg-6 mx-auto">
+                Agendar una cita es muy fácil. Sigue estos simples pasos.
+            </p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="text-center step-card p-4">
+                    <div class="step-number mb-3">1</div>
+                    <h5 class="fw-bold">Registra tu mascota</h5>
+                    <p class="text-muted small">
+                        Crea un perfil para tu mascota con su información básica y fotos.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center step-card p-4">
+                    <div class="step-number mb-3">2</div>
+                    <h5 class="fw-bold">Agenda tu cita</h5>
+                    <p class="text-muted small">
+                        Elige el servicio, veterinario y horario que mejor te convenga.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center step-card p-4">
+                    <div class="step-number mb-3">3</div>
+                    <h5 class="fw-bold">¡Listo!</h5>
+                    <p class="text-muted small">
+                        Recibe confirmación y recordatorios. Tu mascota está en buenas manos.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonios Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5 animate-on-scroll">
+            <span class="badge bg-warning-subtle text-warning mb-3 px-3 py-2 rounded-pill">
+                <i class="bi bi-chat-quote me-1"></i> Testimonios
+            </span>
+            <h2 class="display-5 fw-bold">Lo que dicen nuestros clientes</h2>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-primary text-white rounded-circle me-3">
+                                <i class="bi bi-person fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">María García</h6>
+                                <small class="text-muted">Dueña de Max</small>
+                            </div>
+                        </div>
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted mb-0">
+                            "Excelente atención para mi perrito Max. El Dr. González fue muy amable y profesional. ¡Totalmente recomendado!"
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-success text-white rounded-circle me-3">
+                                <i class="bi bi-person fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Carlos López</h6>
+                                <small class="text-muted">Dueño de Luna</small>
+                            </div>
+                        </div>
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                        </div>
+                        <p class="text-muted mb-0">
+                            "Llevé a mi gatita Luna para su vacunación. El proceso de agendar cita fue muy fácil y el servicio excelente."
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 animate-on-scroll">
+                <div class="card h-100 border-0 shadow-sm testimonial-card">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="testimonial-avatar bg-info text-white rounded-circle me-3">
+                                <i class="bi bi-person fs-5"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Ana Martínez</h6>
+                                <small class="text-muted">Dueña de Rocky</small>
+                            </div>
+                        </div>
+                        <div class="mb-3 text-warning">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                        <p class="text-muted mb-0">
+                            "Mi perro Rocky fue operado aquí y la recuperación fue perfecta. Muy agradecida con todo el equipo."
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 text-center text-lg-start">
+                <h2 class="fw-bold mb-2">¿Listo para cuidar a tu mascota?</h2>
+                <p class="mb-0 opacity-75">Agenda tu cita hoy y dale a tu compañero el cuidado que merece.</p>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+                <a asp-controller="Citas" asp-action="Create" class="btn btn-light btn-lg px-4 shadow">
+                    <i class="bi bi-calendar-check me-2"></i>Agendar Ahora
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

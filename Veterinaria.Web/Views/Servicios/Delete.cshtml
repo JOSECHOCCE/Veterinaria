@@ -1,0 +1,95 @@
+@model Veterinaria.Web.Models.Dto.ServicioDto
+@using Veterinaria.Web.Controllers
+
+@{
+    ViewData["Title"] = $"Eliminar {Model.Nombre}";
+    var tieneCitas = ViewBag.TieneCitas as bool? ?? false;
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Servicios</a></li>
+            <li class="breadcrumb-item active">Eliminar @Model.Nombre</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="rounded-circle bg-success d-flex align-items-center justify-content-center mx-auto mb-3" 
+                             style="width: 100px; height: 100px;">
+                            <i class="bi bi-clipboard-pulse text-white display-5"></i>
+                        </div>
+                        <h3>@Model.Nombre</h3>
+                        @if (Model.Activo)
+                        {
+                            <span class="badge bg-success">Activo</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Inactivo</span>
+                        }
+                    </div>
+
+                    @if (tieneCitas)
+                    {
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-octagon"></i>
+                            <strong>¡No se puede eliminar!</strong> Este servicio tiene citas asociadas.
+                            Puede desactivarlo en su lugar desde la lista de servicios.
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>¡Atención!</strong> Está a punto de eliminar este servicio. Esta acción no se puede deshacer.
+                        </div>
+                    }
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Duración</dt>
+                        <dd class="col-sm-8">@ServiciosController.FormatearDuracion(Model.DuracionMinutos)</dd>
+
+                        <dt class="col-sm-4">Precio</dt>
+                        <dd class="col-sm-8 text-success fw-bold">@Model.Precio.ToString("C")</dd>
+
+                        <dt class="col-sm-4">Descripción</dt>
+                        <dd class="col-sm-8">@(Model.Descripcion ?? "Sin descripción")</dd>
+                    </dl>
+
+                    <hr />
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancelar
+                        </a>
+                        @if (!tieneCitas)
+                        {
+                            <form asp-action="Delete" method="post">
+                                <input type="hidden" asp-for="Id" />
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash"></i> Eliminar Servicio
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="ToggleActivo" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-warning">
+                                    <i class="bi bi-x-circle"></i> Desactivar en su lugar
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

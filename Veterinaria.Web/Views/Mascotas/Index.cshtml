@@ -1,0 +1,132 @@
+@model X.PagedList.IPagedList<Veterinaria.Web.Models.Dto.MascotaDto>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Mascotas";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-heart-pulse"></i> Mascotas</h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nueva Mascota
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Búsqueda -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" value="@ViewBag.CurrentFilter" 
+                               class="form-control" placeholder="Buscar por nombre o especie..." />
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">Buscar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de mascotas -->
+    <div class="card">
+        <div class="card-body">
+            @if (Model.Count == 0)
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <p class="text-muted mt-3">No se encontraron mascotas.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Foto</th>
+                                <th>Nombre</th>
+                                <th>Especie</th>
+                                <th>Raza</th>
+                                <th>Edad</th>
+                                <th>Propietario</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mascota in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(mascota.FotoUrl))
+                                        {
+                                            <img src="@mascota.FotoUrl" alt="@mascota.Nombre" 
+                                                 class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center" 
+                                                 style="width: 50px; height: 50px;">
+                                                <i class="bi bi-heart-pulse text-white"></i>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><strong>@mascota.Nombre</strong></td>
+                                    <td>
+                                        <span class="badge bg-info">@mascota.Especie</span>
+                                    </td>
+                                    <td>@(mascota.Raza ?? "-")</td>
+                                    <td>@(mascota.Edad.HasValue ? $"{mascota.Edad} años" : "-")</td>
+                                    <td>@(mascota.UsuarioNombre ?? "-")</td>
+                                    <td class="text-center">
+                                        <div class="btn-group" role="group">
+                                            <a asp-action="Details" asp-route-id="@mascota.Id" 
+                                               class="btn btn-sm btn-outline-info" title="Ver detalles">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@mascota.Id" 
+                                               class="btn btn-sm btn-outline-warning" title="Editar">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@mascota.Id" 
+                                               class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginación -->
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div class="text-muted">
+                        Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount mascotas
+                    </div>
+                    <nav>
+                        @Html.PagedListPager(Model, page => Url.Action("Index", new { page, q = ViewBag.CurrentFilter }),
+                            new PagedListRenderOptions
+                            {
+                                LiElementClasses = new[] { "page-item" },
+                                PageClasses = new[] { "page-link" },
+                                UlElementClasses = new[] { "pagination", "mb-0" }
+                            })
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>

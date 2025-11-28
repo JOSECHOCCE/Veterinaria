@@ -1,0 +1,404 @@
+@model Veterinaria.Web.Models.Dto.CitaDto
+
+@{
+    ViewData["Title"] = "Nueva Cita";
+    var tieneMascotas = ViewBag.TieneMascotas ?? false;
+    var esAdmin = ViewBag.EsAdmin ?? false;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-calendar-plus"></i> Agendar Nueva Cita
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" id="citaForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        @if (!esAdmin)
+                        {
+                            <!-- Opción para cliente: Seleccionar mascota o agregar nueva -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-heart-pulse"></i> ¿Qué mascota desea agendar? *
+                                </label>
+                                <div class="btn-group w-100" role="group">
+                                    @if (tieneMascotas)
+                                    {
+                                        <input type="radio" class="btn-check" name="opcionMascota" id="opcionExistente" value="existente" checked autocomplete="off">
+                                        <label class="btn btn-outline-primary" for="opcionExistente">
+                                            <i class="bi bi-list-ul"></i> Seleccionar mi mascota
+                                        </label>
+                                    }
+                                    <input type="radio" class="btn-check" name="opcionMascota" id="opcionNueva" value="nueva" @(!tieneMascotas ? "checked" : "") autocomplete="off">
+                                    <label class="btn btn-outline-success" for="opcionNueva">
+                                        <i class="bi bi-plus-circle"></i> Registrar nueva mascota
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Panel para seleccionar mascota existente -->
+                            @if (tieneMascotas)
+                            {
+                                <div id="panelMascotaExistente" class="mb-3">
+                                    <label asp-for="MascotaId" class="form-label">
+                                        <i class="bi bi-heart-pulse"></i> Seleccione su mascota *
+                                    </label>
+                                    <select asp-for="MascotaId" class="form-select" asp-items="@ViewBag.Mascotas">
+                                        <option value="">-- Seleccione una mascota --</option>
+                                    </select>
+                                    <span asp-validation-for="MascotaId" class="text-danger small"></span>
+                                </div>
+                            }
+
+                            <!-- Panel para registrar nueva mascota -->
+                            <div id="panelMascotaNueva" class="@(tieneMascotas ? "d-none" : "")">
+                                <div class="card mb-3 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Datos de la Nueva Mascota</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label for="mascotaNombre" class="form-label">Nombre *</label>
+                                            <input type="text" class="form-control" id="mascotaNombre" name="mascotaNombre" placeholder="Ej: Max" required>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label for="mascotaEspecie" class="form-label">Especie *</label>
+                                                <select class="form-select" id="mascotaEspecie" name="mascotaEspecie" required>
+                                                    <option value="">-- Seleccione --</option>
+                                                    <option value="Perro">Perro</option>
+                                                    <option value="Gato">Gato</option>
+                                                    <option value="Ave">Ave</option>
+                                                    <option value="Conejo">Conejo</option>
+                                                    <option value="Otro">Otro</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label for="mascotaRaza" class="form-label">Raza</label>
+                                                <input type="text" class="form-control" id="mascotaRaza" name="mascotaRaza" placeholder="Ej: Golden Retriever">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="mascotaPeso" class="form-label">Peso (kg)</label>
+                                            <input type="number" step="0.1" class="form-control" id="mascotaPeso" name="mascotaPeso" placeholder="Ej: 15.5">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Panel para admin: Solo selector normal -->
+                            <div class="mb-3">
+                                <label asp-for="MascotaId" class="form-label">
+                                    <i class="bi bi-heart-pulse"></i> Mascota *
+                                </label>
+                                <select asp-for="MascotaId" class="form-select" asp-items="@ViewBag.Mascotas">
+                                    <option value="">-- Seleccione una mascota --</option>
+                                </select>
+                                <span asp-validation-for="MascotaId" class="text-danger small"></span>
+                                <div id="mascotaInfo" class="form-text"></div>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="VeterinarioId" class="form-label">
+                                <i class="bi bi-person-badge"></i> Veterinario *
+                            </label>
+                            <select asp-for="VeterinarioId" class="form-select" asp-items="@ViewBag.Veterinarios" id="veterinarioSelect">
+                                <option value="">-- Seleccione un veterinario --</option>
+                            </select>
+                            <span asp-validation-for="VeterinarioId" class="text-danger small"></span>
+                            <div id="veterinarioHorario" class="form-text"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ServicioId" class="form-label">
+                                <i class="bi bi-clipboard-pulse"></i> Servicio *
+                            </label>
+                            <select asp-for="ServicioId" class="form-select" asp-items="@ViewBag.Servicios" id="servicioSelect">
+                                <option value="">-- Seleccione un servicio --</option>
+                            </select>
+                            <span asp-validation-for="ServicioId" class="text-danger small"></span>
+                            <div id="servicioInfo" class="form-text"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="FechaHora" class="form-label">
+                                <i class="bi bi-clock"></i> Fecha y Hora *
+                            </label>
+                            <input asp-for="FechaHora" type="datetime-local" class="form-control" id="fechaHoraInput" />
+                            <span asp-validation-for="FechaHora" class="text-danger small"></span>
+                            <div id="fechaHoraInfo" class="form-text">Debe seleccionar una fecha y hora futura</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Motivo" class="form-label">
+                                <i class="bi bi-file-text"></i> Motivo de la consulta *
+                            </label>
+                            <textarea asp-for="Motivo" class="form-control" rows="3" 
+                                      placeholder="Describa el motivo de la cita..."></textarea>
+                            <span asp-validation-for="Motivo" class="text-danger small"></span>
+                        </div>
+
+                        <div id="resumenCita" class="alert alert-info d-none">
+                            <h5 class="alert-heading"><i class="bi bi-info-circle"></i> Resumen de la Cita</h5>
+                            <hr />
+                            <div id="resumenContent"></div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="btnAgendar">
+                                <i class="bi bi-check-circle"></i> Agendar Cita
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            let servicioData = null;
+            let veterinarioData = null;
+            const esAdmin = @Json.Serialize(esAdmin);
+            const tieneMascotas = @Json.Serialize(tieneMascotas);
+
+            // Manejar cambio de opción de mascota (solo para usuarios)
+            if (!esAdmin) {
+                $('input[name="opcionMascota"]').on('change', function() {
+                    const opcion = $(this).val();
+                    
+                    if (opcion === 'existente') {
+                        $('#panelMascotaExistente').removeClass('d-none');
+                        $('#panelMascotaNueva').addClass('d-none');
+                        
+                        // Hacer requeridos los campos de mascota existente
+                        $('#MascotaId').prop('required', true);
+                        $('#mascotaNombre, #mascotaEspecie').prop('required', false);
+                    } else {
+                        $('#panelMascotaExistente').addClass('d-none');
+                        $('#panelMascotaNueva').removeClass('d-none');
+                        
+                        // Hacer requeridos los campos de mascota nueva
+                        $('#MascotaId').prop('required', false);
+                        $('#mascotaNombre, #mascotaEspecie').prop('required', true);
+                    }
+                });
+
+                // Validación antes de enviar
+                $('#citaForm').on('submit', function(e) {
+                    const opcion = $('input[name="opcionMascota"]:checked').val();
+                    
+                    // Si es mascota nueva, cambiar la acción del formulario
+                    if (opcion === 'nueva') {
+                        const mascotaNombre = $('#mascotaNombre').val().trim();
+                        const mascotaEspecie = $('#mascotaEspecie').val();
+                        
+                        if (!mascotaNombre || !mascotaEspecie) {
+                            e.preventDefault();
+                            alert('Por favor complete los datos obligatorios de la mascota (Nombre y Especie)');
+                            return false;
+                        }
+                        
+                        // Cambiar acción a CrearMascotaYCita
+                        $(this).attr('action', '@Url.Action("CrearMascotaYCita", "Citas")');
+                    } else {
+                        // Validar que se haya seleccionado una mascota
+                        if (!$('#MascotaId').val()) {
+                            e.preventDefault();
+                            alert('Por favor seleccione una mascota');
+                            return false;
+                        }
+                        
+                        // Asegurar acción normal
+                        $(this).attr('action', '@Url.Action("Create", "Citas")');
+                    }
+                    
+                    // Validar fecha
+                    const fechaHora = new Date($('#fechaHoraInput').val());
+                    const ahora = new Date();
+                    
+                    if (fechaHora <= ahora) {
+                        e.preventDefault();
+                        alert('La fecha y hora debe ser futura');
+                        return false;
+                    }
+                });
+            }
+
+            // Cargar información del servicio cuando se selecciona
+            $('#servicioSelect').on('change', function() {
+                const servicioId = $(this).val();
+                
+                if (servicioId) {
+                    $.ajax({
+                        url: '@Url.Action("GetServicioInfo", "Citas")',
+                        type: 'GET',
+                        data: { servicioId: servicioId },
+                        success: function(data) {
+                            servicioData = data;
+                            
+                            $('#servicioInfo').html(
+                                '<i class="bi bi-check-circle text-success"></i> ' +
+                                '<strong>' + data.nombre + '</strong> - ' +
+                                'Duración: <strong>' + data.duracionMinutos + ' minutos</strong> - ' +
+                                'Precio: <strong>' + formatCurrency(data.precio) + '</strong>'
+                            ).addClass('text-success');
+                            
+                            actualizarResumen();
+                        },
+                        error: function() {
+                            $('#servicioInfo').html(
+                                '<i class="bi bi-exclamation-triangle text-danger"></i> Error al cargar la información del servicio'
+                            ).addClass('text-danger');
+                            servicioData = null;
+                        }
+                    });
+                } else {
+                    $('#servicioInfo').html('').removeClass('text-success text-danger');
+                    servicioData = null;
+                    actualizarResumen();
+                }
+            });
+
+            // Cargar horarios del veterinario cuando se selecciona
+            $('#veterinarioSelect').on('change', function() {
+                const veterinarioId = $(this).val();
+                
+                if (veterinarioId) {
+                    $.ajax({
+                        url: '@Url.Action("GetVeterinarioHorarios", "Citas")',
+                        type: 'GET',
+                        data: { veterinarioId: veterinarioId },
+                        success: function(data) {
+                            veterinarioData = data;
+                            
+                            $('#veterinarioHorario').html(
+                                '<i class="bi bi-clock text-info"></i> ' +
+                                'Horario de atención: <strong>' + data.horarioInicio + ' - ' + data.horarioFin + '</strong>'
+                            ).addClass('text-info');
+                            
+                            validarHorario();
+                            actualizarResumen();
+                        },
+                        error: function() {
+                            $('#veterinarioHorario').html(
+                                '<i class="bi bi-exclamation-triangle text-danger"></i> Error al cargar el horario'
+                            ).addClass('text-danger');
+                            veterinarioData = null;
+                        }
+                    });
+                } else {
+                    $('#veterinarioHorario').html('').removeClass('text-info text-danger');
+                    veterinarioData = null;
+                    actualizarResumen();
+                }
+            });
+
+            // Validar fecha y hora cuando cambia
+            $('#fechaHoraInput').on('change', function() {
+                const fechaSeleccionada = new Date($(this).val());
+                const ahora = new Date();
+                
+                if (fechaSeleccionada <= ahora) {
+                    $('#fechaHoraInfo').html(
+                        '<i class="bi bi-exclamation-triangle text-danger"></i> La fecha y hora debe ser futura'
+                    ).removeClass('text-muted').addClass('text-danger');
+                } else {
+                    $('#fechaHoraInfo').html(
+                        '<i class="bi bi-check-circle text-success"></i> Fecha válida'
+                    ).removeClass('text-muted text-danger').addClass('text-success');
+                    
+                    validarHorario();
+                }
+                
+                actualizarResumen();
+            });
+
+            // Validar que la hora esté dentro del horario del veterinario
+            function validarHorario() {
+                if (!veterinarioData || !$('#fechaHoraInput').val()) return;
+                
+                const fechaHora = new Date($('#fechaHoraInput').val());
+                const horaMinutos = fechaHora.getHours() * 60 + fechaHora.getMinutes();
+                
+                const [horaInicioH, horaInicioM] = veterinarioData.horarioInicio.split(':').map(Number);
+                const [horaFinH, horaFinM] = veterinarioData.horarioFin.split(':').map(Number);
+                
+                const horarioInicio = horaInicioH * 60 + horaInicioM;
+                const horarioFin = horaFinH * 60 + horaFinM;
+                
+                if (horaMinutos < horarioInicio || horaMinutos > horarioFin) {
+                    $('#fechaHoraInfo').html(
+                        '<i class="bi bi-exclamation-triangle text-danger"></i> ' +
+                        'La hora seleccionada está fuera del horario de atención del veterinario (' +
+                        veterinarioData.horarioInicio + ' - ' + veterinarioData.horarioFin + ')'
+                    ).removeClass('text-success').addClass('text-danger');
+                } else {
+                    $('#fechaHoraInfo').html(
+                        '<i class="bi bi-check-circle text-success"></i> Hora dentro del horario de atención'
+                    ).removeClass('text-danger').addClass('text-success');
+                }
+            }
+
+            // Actualizar resumen de la cita
+            function actualizarResumen() {
+                if (!$('#fechaHoraInput').val() || !servicioData || !veterinarioData) {
+                    $('#resumenCita').addClass('d-none');
+                    return;
+                }
+                
+                const fechaHora = new Date($('#fechaHoraInput').val());
+                const veterinarioNombre = $('#veterinarioSelect option:selected').text();
+                const mascotaNombre = $('#MascotaId option:selected').text();
+                
+                const resumenHtml = `
+                    <p class="mb-1"><strong>Mascota:</strong> ${mascotaNombre}</p>
+                    <p class="mb-1"><strong>Veterinario:</strong> ${veterinarioNombre}</p>
+                    <p class="mb-1"><strong>Servicio:</strong> ${servicioData.nombre}</p>
+                    <p class="mb-1"><strong>Fecha:</strong> ${fechaHora.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                    <p class="mb-1"><strong>Hora:</strong> ${fechaHora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p>
+                    <p class="mb-1"><strong>Duración:</strong> ${servicioData.duracionMinutos} minutos</p>
+                    <p class="mb-0"><strong>Precio:</strong> ${formatCurrency(servicioData.precio)}</p>
+                `;
+                
+                $('#resumenContent').html(resumenHtml);
+                $('#resumenCita').removeClass('d-none');
+            }
+
+            // Formatear moneda
+            function formatCurrency(value) {
+                return new Intl.NumberFormat('es-ES', {
+                    style: 'currency',
+                    currency: 'EUR'
+                }).format(value);
+            }
+
+            // Validación antes de enviar
+            $('#citaForm').on('submit', function(e) {
+                const fechaHora = new Date($('#fechaHoraInput').val());
+                const ahora = new Date();
+                
+                if (fechaHora <= ahora) {
+                    e.preventDefault();
+                    alert('La fecha y hora debe ser futura');
+                    return false;
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+@model List<Veterinaria.Domain.Entities.Cita>
+@{
+    ViewData["Title"] = "Pagos Pendientes";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            <i class="bi bi-exclamation-triangle text-warning"></i> Citas con Pago Pendiente
+        </h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Volver al listado
+        </a>
+    </div>
+
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Estas son citas que fueron atendidas pero tienen un pago parcial. El cliente debe completar el pago restante.
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cita</th>
+                                <th>Mascota / Propietario</th>
+                                <th>Servicio</th>
+                                <th>Fecha Cita</th>
+                                <th class="text-end">Pagado</th>
+                                <th class="text-end">Pendiente</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cita in Model)
+                            {
+                                var pendiente = cita.MontoTotal - cita.MontoPagado;
+                                <tr>
+                                    <td>#@cita.Id</td>
+                                    <td>
+                                        <strong>@cita.Mascota?.Nombre</strong>
+                                        <small class="text-muted d-block">@cita.Mascota?.Usuario?.Nombre</small>
+                                    </td>
+                                    <td>@cita.Servicio?.Nombre</td>
+                                    <td>@cita.FechaHora.ToString("dd/MM/yyyy")</td>
+                                    <td class="text-end text-success">S/. @cita.MontoPagado.ToString("N2")</td>
+                                    <td class="text-end text-danger fw-bold">S/. @pendiente.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <a asp-controller="PagoCita" asp-action="CompletarPago" asp-route-citaId="@cita.Id" 
+                                           class="btn btn-sm btn-warning">
+                                            <i class="bi bi-cash"></i> Completar Pago
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-secondary">
+                            <tr>
+                                <td colspan="5" class="text-end"><strong>Total Pendiente:</strong></td>
+                                <td class="text-end text-danger fw-bold">
+                                    S/. @Model.Sum(c => c.MontoTotal - c.MontoPagado).ToString("N2")
+                                </td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-check-circle display-4 text-success"></i>
+                    <h4 class="mt-3">¡Excelente!</h4>
+                    <p class="text-muted">No hay citas con pagos pendientes.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>

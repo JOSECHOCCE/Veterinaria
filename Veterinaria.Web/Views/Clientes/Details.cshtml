@@ -1,0 +1,249 @@
+@model Veterinaria.Domain.Entities.Usuario
+
+@{
+    ViewData["Title"] = $"Cliente: {Model.Nombre}";
+    var citas = ViewBag.Citas as List<Veterinaria.Domain.Entities.Cita> ?? new List<Veterinaria.Domain.Entities.Cita>();
+}
+
+<div class="mb-4">
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver a Clientes
+    </a>
+</div>
+
+<div class="row">
+    <!-- Información del Cliente -->
+    <div class="col-lg-4">
+        <div class="card shadow mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-person"></i> Información del Cliente</h5>
+            </div>
+            <div class="card-body text-center">
+                <div class="avatar-circle-lg bg-primary text-white mx-auto mb-3">
+                    @Model.Nombre.Substring(0, 1).ToUpper()
+                </div>
+                <h4>@Model.Nombre</h4>
+                <p class="text-muted mb-1">
+                    @if (Model.Activo)
+                    {
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Activo</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary"><i class="bi bi-x-circle"></i> Inactivo</span>
+                    }
+                </p>
+                <hr />
+                <div class="text-start">
+                    <p><i class="bi bi-envelope text-primary me-2"></i> @Model.Email</p>
+                    @if (!string.IsNullOrEmpty(Model.Telefono))
+                    {
+                        <p><i class="bi bi-telephone text-primary me-2"></i> @Model.Telefono</p>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Direccion))
+                    {
+                        <p><i class="bi bi-geo-alt text-primary me-2"></i> @Model.Direccion</p>
+                    }
+                    <p><i class="bi bi-calendar text-primary me-2"></i> Registrado: @Model.FechaRegistro.ToString("dd/MM/yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <h3 class="text-primary mb-0">@ViewBag.TotalCitas</h3>
+                        <small class="text-muted">Total Citas</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <h3 class="text-success mb-0">@ViewBag.CitasCompletadas</h3>
+                        <small class="text-muted">Completadas</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-warning mb-0">@ViewBag.CitasPendientes</h3>
+                        <small class="text-muted">Pendientes</small>
+                    </div>
+                    <div class="col-6">
+                        <h3 class="text-danger mb-0">@ViewBag.CitasCanceladas</h3>
+                        <small class="text-muted">Canceladas</small>
+                    </div>
+                </div>
+                <hr />
+                <div class="text-center">
+                    <p class="mb-1"><strong>Total Gastado:</strong></p>
+                    <h4 class="text-success">@(((decimal)ViewBag.TotalGastado).ToString("C"))</h4>
+                    @if ((decimal)ViewBag.PagosPendientes > 0)
+                    {
+                        <p class="text-warning mb-0">
+                            <small>Pendiente: @(((decimal)ViewBag.PagosPendientes).ToString("C"))</small>
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mascotas y Citas -->
+    <div class="col-lg-8">
+        <!-- Mascotas -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Mascotas (@Model.Mascotas.Count)</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.Mascotas.Any())
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-emoji-frown display-4 text-muted"></i>
+                        <p class="text-muted">No tiene mascotas registradas</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        @foreach (var mascota in Model.Mascotas)
+                        {
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 @(!mascota.Activo ? "bg-light" : "")">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="pet-icon me-3">
+                                                @if (mascota.Especie?.ToLower() == "perro")
+                                                {
+                                                    <i class="bi bi-emoji-smile fs-2 text-warning"></i>
+                                                }
+                                                else if (mascota.Especie?.ToLower() == "gato")
+                                                {
+                                                    <i class="bi bi-emoji-heart-eyes fs-2 text-info"></i>
+                                                }
+                                                else
+                                                {
+                                                    <i class="bi bi-heart-pulse fs-2 text-success"></i>
+                                                }
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">
+                                                    @mascota.Nombre
+                                                    @if (!mascota.Activo)
+                                                    {
+                                                        <span class="badge bg-secondary">Inactivo</span>
+                                                    }
+                                                </h6>
+                                                <small class="text-muted">
+                                                    @mascota.Especie - @mascota.Raza
+                                                </small>
+                                                <br />
+                                                <small class="text-muted">
+                                                    @(mascota.FechaNacimiento.HasValue ? 
+                                                        $"{(DateTime.Now.Year - mascota.FechaNacimiento.Value.Year)} años" : "Edad desconocida")
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Historial de Citas -->
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Últimas Citas</h5>
+                <a asp-controller="Citas" asp-action="Index" class="btn btn-sm btn-outline-dark">
+                    Ver todas
+                </a>
+            </div>
+            <div class="card-body p-0">
+                @if (!citas.Any())
+                {
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-4 text-muted"></i>
+                        <p class="text-muted">No tiene citas registradas</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Mascota</th>
+                                    <th>Servicio</th>
+                                    <th>Veterinario</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var cita in citas)
+                                {
+                                    var badgeClass = cita.Estado switch
+                                    {
+                                        "Pendiente" => "bg-secondary",
+                                        "Confirmada" => "bg-primary",
+                                        "EnProceso" => "bg-info",
+                                        "Completada" => "bg-success",
+                                        "Cancelada" => "bg-danger",
+                                        "NoAsistio" => "bg-dark",
+                                        _ => "bg-secondary"
+                                    };
+                                    var esEditable = cita.Estado == "Pendiente" || cita.Estado == "Confirmada" || cita.Estado == "EnProceso";
+                                    <tr>
+                                        <td>
+                                            <strong>@cita.FechaHora.ToString("dd/MM/yyyy")</strong>
+                                            <br />
+                                            <small class="text-muted">@cita.FechaHora.ToString("HH:mm")</small>
+                                        </td>
+                                        <td>@cita.Mascota?.Nombre</td>
+                                        <td>@cita.Servicio?.Nombre</td>
+                                        <td>@cita.Veterinario?.Nombre</td>
+                                        <td>
+                                            <span class="badge @badgeClass">@cita.Estado</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm" role="group">
+                                                <a asp-controller="Citas" asp-action="Details" asp-route-id="@cita.Id" 
+                                                   class="btn btn-outline-info" title="Ver detalles">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                @if (esEditable)
+                                                {
+                                                    <a asp-controller="Citas" asp-action="Edit" asp-route-id="@cita.Id" 
+                                                       class="btn btn-outline-warning" title="Editar cita">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .avatar-circle-lg {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 2rem;
+    }
+</style>

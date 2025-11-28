@@ -1,0 +1,261 @@
+@model X.PagedList.IPagedList<Veterinaria.Domain.Entities.Usuario>
+@using X.PagedList.Mvc.Core
+
+@{
+    ViewData["Title"] = "Clientes";
+    var citasPorUsuario = ViewBag.CitasPorUsuario as Dictionary<int, int> ?? new Dictionary<int, int>();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="bi bi-people"></i> Clientes</h1>
+    <span class="badge bg-primary fs-6">@Model.TotalItemCount clientes</span>
+</div>
+
+<!-- Filtros -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" name="buscar" class="form-control" 
+                           placeholder="Buscar por nombre, email o teléfono..." 
+                           value="@ViewBag.BuscarActual" />
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-check">
+                    <input type="checkbox" name="mostrarInactivos" value="true" 
+                           class="form-check-input" id="mostrarInactivos"
+                           @(ViewBag.MostrarInactivos ? "checked" : "") />
+                    <label class="form-check-label" for="mostrarInactivos">
+                        Mostrar inactivos
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-search"></i> Buscar
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> Limpiar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Clientes -->
+<div class="card shadow">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Cliente</th>
+                    <th>Contacto</th>
+                    <th class="text-center">Mascotas</th>
+                    <th class="text-center">Citas</th>
+                    <th>Registro</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <i class="bi bi-inbox display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No se encontraron clientes</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var usuario in Model)
+                    {
+                        var totalCitas = citasPorUsuario.ContainsKey(usuario.Id) ? citasPorUsuario[usuario.Id] : 0;
+                        <tr class="@(!usuario.Activo ? "table-secondary" : "")">
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle bg-primary text-white me-3">
+                                        @usuario.Nombre.Substring(0, 1).ToUpper()
+                                    </div>
+                                    <div>
+                                        <strong>@usuario.Nombre</strong>
+                                        @if (!usuario.Activo)
+                                        {
+                                            <span class="badge bg-secondary ms-1">Inactivo</span>
+                                        }
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div><i class="bi bi-envelope me-1 text-muted"></i> @usuario.Email</div>
+                                @if (!string.IsNullOrEmpty(usuario.Telefono))
+                                {
+                                    <div><i class="bi bi-telephone me-1 text-muted"></i> @usuario.Telefono</div>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info fs-6">@usuario.Mascotas.Count</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary fs-6">@totalCitas</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    @usuario.FechaRegistro.ToString("dd/MM/yyyy")
+                                </small>
+                            </td>
+                            <td class="text-center">
+                                @if (usuario.Activo)
+                                {
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle"></i> Activo
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">
+                                        <i class="bi bi-x-circle"></i> Inactivo
+                                    </span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group" role="group">
+                                    <a asp-action="Details" asp-route-id="@usuario.Id" 
+                                       class="btn btn-sm btn-outline-primary" title="Ver detalles">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <form asp-action="ToggleActivo" asp-route-id="@usuario.Id" 
+                                          method="post" class="d-inline">
+                                        @if (usuario.Activo)
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-warning" 
+                                                    title="Desactivar" onclick="return confirm('¿Desactivar este cliente?')">
+                                                <i class="bi bi-pause-circle"></i>
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <button type="submit" class="btn btn-sm btn-outline-success" 
+                                                    title="Activar">
+                                                <i class="bi bi-play-circle"></i>
+                                            </button>
+                                        }
+                                    </form>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            title="Eliminar" data-bs-toggle="modal" 
+                                            data-bs-target="#deleteModal-@usuario.Id">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Modal de confirmación para eliminar -->
+                                <div class="modal fade" id="deleteModal-@usuario.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-danger text-white">
+                                                <h5 class="modal-title">
+                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Eliminación
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body text-start">
+                                                <div class="alert alert-danger mb-3">
+                                                    <strong><i class="bi bi-exclamation-circle me-2"></i>¡Atención!</strong>
+                                                    <p class="mb-0 mt-2">Esta acción es <strong>irreversible</strong> y eliminará permanentemente:</p>
+                                                </div>
+                                                <ul class="list-group mb-3">
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <span><i class="bi bi-person text-primary me-2"></i>Cliente</span>
+                                                        <strong>@usuario.Nombre</strong>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <span><i class="bi bi-heart-pulse text-success me-2"></i>Mascotas</span>
+                                                        <span class="badge bg-info">@usuario.Mascotas.Count</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <span><i class="bi bi-calendar-check text-warning me-2"></i>Citas</span>
+                                                        <span class="badge bg-primary">@(citasPorUsuario.ContainsKey(usuario.Id) ? citasPorUsuario[usuario.Id] : 0)</span>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <i class="bi bi-credit-card text-danger me-2"></i>Todos los pagos asociados
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <i class="bi bi-file-medical text-info me-2"></i>Historiales clínicos
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <i class="bi bi-bell text-secondary me-2"></i>Notificaciones
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <i class="bi bi-person-x text-dark me-2"></i>Cuenta de acceso
+                                                    </li>
+                                                </ul>
+                                                <p class="text-muted small mb-0">
+                                                    <i class="bi bi-info-circle me-1"></i>
+                                                    ¿Está seguro de que desea eliminar a <strong>@usuario.Nombre</strong> y todos sus datos?
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                                </button>
+                                                <form asp-action="Delete" asp-route-id="@usuario.Id" method="post" class="d-inline">
+                                                    <button type="submit" class="btn btn-danger">
+                                                        <i class="bi bi-trash me-1"></i>Sí, Eliminar Todo
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Paginación -->
+@if (Model.PageCount > 1)
+{
+    <nav class="mt-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted">
+                Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount clientes
+            </span>
+            @Html.PagedListPager(Model, page => Url.Action("Index", new { 
+                page, 
+                buscar = ViewBag.BuscarActual,
+                mostrarInactivos = ViewBag.MostrarInactivos
+            }), new PagedListRenderOptions
+            {
+                DisplayLinkToFirstPage = PagedListDisplayMode.Always,
+                DisplayLinkToLastPage = PagedListDisplayMode.Always,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                UlElementClasses = new[] { "pagination", "justify-content-end" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" }
+            })
+        </div>
+    </nav>
+}
+
+<style>
+    .avatar-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+</style>

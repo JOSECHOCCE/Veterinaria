@@ -1,0 +1,72 @@
+@model Veterinaria.Web.Models.Dto.MascotaDto
+
+@{
+    ViewData["Title"] = $"Eliminar {Model.Nombre}";
+}
+
+<div class="container">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-action="Index">Mascotas</a></li>
+            <li class="breadcrumb-item active">Eliminar @Model.Nombre</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        @if (!string.IsNullOrEmpty(Model.FotoUrl))
+                        {
+                            <img src="@Model.FotoUrl" alt="@Model.Nombre" 
+                                 class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" 
+                                 style="width: 100px; height: 100px;">
+                                <i class="bi bi-heart-pulse text-white display-5"></i>
+                            </div>
+                        }
+                        <h3>@Model.Nombre</h3>
+                        <span class="badge bg-info">@Model.Especie</span>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>¡Atención!</strong> Está a punto de eliminar esta mascota. Esta acción no se puede deshacer.
+                    </div>
+
+                    <dl class="row">
+                        <dt class="col-sm-4">Raza</dt>
+                        <dd class="col-sm-8">@(Model.Raza ?? "No especificada")</dd>
+
+                        <dt class="col-sm-4">Edad</dt>
+                        <dd class="col-sm-8">@(Model.Edad.HasValue ? $"{Model.Edad} años" : "No especificada")</dd>
+
+                        <dt class="col-sm-4">Propietario</dt>
+                        <dd class="col-sm-8">@(Model.UsuarioNombre ?? "No asignado")</dd>
+                    </dl>
+
+                    <hr />
+
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar Mascota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

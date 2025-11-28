@@ -1,0 +1,155 @@
+@model Veterinaria.Web.Models.Dto.HistorialClinicoDto
+
+@{
+    ViewData["Title"] = "Crear Historial Clínico";
+    var cita = ViewBag.Cita as Veterinaria.Domain.Entities.Cita;
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Información de la cita -->
+            <div class="card shadow mb-4 border-success">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-check-circle"></i> Cita Completada - Registrar Historial
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p class="mb-2">
+                                <i class="bi bi-heart-pulse text-primary"></i>
+                                <strong>Mascota:</strong><br />
+                                <span class="fs-5">@cita?.Mascota?.Nombre</span><br />
+                                <small class="text-muted">@cita?.Mascota?.Especie - @(cita?.Mascota?.Raza ?? "Sin raza")</small>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2">
+                                <i class="bi bi-person-badge text-info"></i>
+                                <strong>Veterinario:</strong><br />
+                                <span class="fs-5">@cita?.Veterinario?.Nombre</span><br />
+                                <small class="text-muted">@cita?.Veterinario?.Especialidad</small>
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <p class="mb-2">
+                                <i class="bi bi-calendar3 text-warning"></i>
+                                <strong>Fecha de la Cita:</strong><br />
+                                <span class="fs-5">@cita?.FechaHora.ToString("dd/MM/yyyy")</span><br />
+                                <small class="text-muted">@cita?.FechaHora.ToString("HH:mm") hrs</small>
+                            </p>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-0">
+                                <i class="bi bi-clipboard-pulse"></i>
+                                <strong>Servicio:</strong> 
+                                <span class="badge bg-info fs-6">@cita?.Servicio?.Nombre</span>
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            @if (!string.IsNullOrWhiteSpace(cita?.Motivo))
+                            {
+                                <p class="mb-0">
+                                    <strong>Motivo de consulta:</strong> @cita?.Motivo
+                                </p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Historial Clínico -->
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-file-medical"></i> Ficha Médica
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <input type="hidden" asp-for="CitaId" />
+                        
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-4">
+                            <label asp-for="Diagnostico" class="form-label">
+                                <i class="bi bi-search text-primary"></i> Diagnóstico *
+                            </label>
+                            <textarea asp-for="Diagnostico" class="form-control form-control-lg" rows="5" 
+                                      placeholder="Describa el diagnóstico del paciente de forma detallada..."></textarea>
+                            <span asp-validation-for="Diagnostico" class="text-danger small"></span>
+                            <div class="form-text">Máximo 1000 caracteres</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Tratamiento" class="form-label">
+                                <i class="bi bi-bandaid text-success"></i> Tratamiento Indicado
+                            </label>
+                            <textarea asp-for="Tratamiento" class="form-control form-control-lg" rows="4" 
+                                      placeholder="Indique el tratamiento a seguir..."></textarea>
+                            <span asp-validation-for="Tratamiento" class="text-danger small"></span>
+                            <div class="form-text">Máximo 1000 caracteres</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Medicamentos" class="form-label">
+                                <i class="bi bi-capsule text-warning"></i> Medicamentos Recetados
+                            </label>
+                            <textarea asp-for="Medicamentos" class="form-control" rows="3" 
+                                      placeholder="Liste los medicamentos recetados con dosis y frecuencia..."></textarea>
+                            <span asp-validation-for="Medicamentos" class="text-danger small"></span>
+                            <div class="form-text">Máximo 500 caracteres. Ejemplo: "Amoxicilina 500mg - 1 cada 8 horas por 7 días"</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Observaciones" class="form-label">
+                                <i class="bi bi-chat-left-text text-secondary"></i> Observaciones Adicionales
+                            </label>
+                            <textarea asp-for="Observaciones" class="form-control" rows="3" 
+                                      placeholder="Observaciones adicionales, recomendaciones para el propietario, próxima cita sugerida, etc."></textarea>
+                            <span asp-validation-for="Observaciones" class="text-danger small"></span>
+                            <div class="form-text">Máximo 1000 caracteres</div>
+                        </div>
+
+                        <hr />
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Details" asp-controller="Citas" asp-route-id="@Model.CitaId" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-save"></i> Guardar Historial Clínico
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $(document).ready(function() {
+            // Contador de caracteres para textareas
+            $('textarea').each(function() {
+                const $textarea = $(this);
+                const maxLength = parseInt($textarea.attr('maxlength')) || 1000;
+                const $helpText = $textarea.siblings('.form-text');
+                const originalText = $helpText.text();
+                
+                $textarea.on('input', function() {
+                    const remaining = maxLength - $(this).val().length;
+                    $helpText.html(originalText + ' <span class="' + (remaining < 50 ? 'text-danger' : 'text-muted') + '">(' + remaining + ' caracteres restantes)</span>');
+                });
+            });
+        });
+    </script>
+}
