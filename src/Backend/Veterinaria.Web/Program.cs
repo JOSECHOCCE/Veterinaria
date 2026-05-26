@@ -137,13 +137,25 @@ builder.Services.AddHostedService<CitaStatusService>();
 var app = builder.Build();
 
 // Seed de datos iniciales (roles, usuarios, veterinarios, servicios, mascotas)
-using (var scope = app.Services.CreateScope())
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await DbSeeder.SeedAsync(context, userManager, roleManager, app.Environment.IsDevelopment());
+        await DbSeeder.SeedAsync(context, userManager, roleManager, app.Environment.IsDevelopment());
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine("==========================================================================");
+    Console.WriteLine($"⚠️ ADVERTENCIA: No se pudo conectar a la Base de Datos (SQL Server).");
+    Console.WriteLine($"Detalle: {ex.Message}");
+    Console.WriteLine("El servidor web seguirá funcionando, pero las funciones que dependan de la");
+    Console.WriteLine("base de datos requerirán que inicies tu instancia local de SQL Server.");
+    Console.WriteLine("==========================================================================");
 }
 
 // Configure the HTTP request pipeline.
