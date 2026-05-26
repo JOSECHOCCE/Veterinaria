@@ -1,0 +1,15 @@
+# Directivas Mandatorias de Desarrollo - VetCare Management
+
+## 1. Protocolo de Ejecución Absoluta
+* ANTES de generar código, refactorizar o proponer cambios, debes leer obligatoriamente todos los archivos dentro de la carpeta `.ai-context/`.
+* Queda prohibido tomar decisiones de diseño que contradigan las reglas de negocio, la arquitectura o las convenciones definidas en este contexto.
+
+## 2. Restricciones de Backend (.NET Core)
+* No permitas que librerías externas o acoplamientos a base de datos (como Entity Framework) ingresen a la capa `Domain`.
+* Todo endpoint expuesto en la capa `Web` debe retornar estructuras estandarizadas tipo `Response<T>`.
+* Toda lógica de validación debe residir en `Application`. Los controladores no validan datos, solo delegan.
+
+## 3. Mandato de Calidad de Software (Testing)
+* Cada vez que implementes un servicio o caso de uso, debes generar o actualizar su correspondiente archivo de pruebas unitarias/integración en el proyecto de test.
+* Toda validación de lógica de negocio o camino triste (*Sad Path*) documentado en los requerimientos debe tener una aserción explícita (`Assert.AreEqual`, `Assert.ThrowsException`).
+* Las pruebas con base de datos real deben inicializar el contexto de datos de manera limpia en el `[ClassInitialize]`, asegurando la recreación de la base de datos por cada sesión de pruebas.
