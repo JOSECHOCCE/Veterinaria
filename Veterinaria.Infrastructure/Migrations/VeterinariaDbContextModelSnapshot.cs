@@ -292,6 +292,69 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.ToTable("Citas");
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.Consentimiento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Aceptado")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("DocumentoId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("FechaAceptacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirmaDigital")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IpOrigen")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<int?>("MascotaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NombrePaciente")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("NombrePropietario")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("TipoConsentimiento")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UsuarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FechaCreacion");
+
+                    b.HasIndex("MascotaId");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Consentimientos");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.HistorialClinico", b =>
                 {
                     b.Property<int>("Id")
@@ -563,6 +626,76 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.ToTable("TarjetasGuardadas");
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.Triage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CitaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Consultorio")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Estado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime>("FechaRegistro")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("FrecuenciaCardiaca")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MascotaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MotivoConsulta")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Nivel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("PesoEstimado")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<string>("PrioridadColor")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Sintomas")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<decimal?>("Temperatura")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<int>("TiempoEsperaEstimadoMin")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CitaId");
+
+                    b.HasIndex("Estado");
+
+                    b.HasIndex("FechaRegistro");
+
+                    b.HasIndex("MascotaId");
+
+                    b.ToTable("Triages");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.Usuario", b =>
                 {
                     b.Property<int>("Id")
@@ -733,6 +866,24 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.Navigation("Veterinario");
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.Consentimiento", b =>
+                {
+                    b.HasOne("Veterinaria.Domain.Entities.Mascota", "Mascota")
+                        .WithMany()
+                        .HasForeignKey("MascotaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Veterinaria.Domain.Entities.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Mascota");
+
+                    b.Navigation("Usuario");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.HistorialClinico", b =>
                 {
                     b.HasOne("Veterinaria.Domain.Entities.Cita", "Cita")
@@ -786,6 +937,24 @@ namespace Veterinaria.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Veterinaria.Domain.Entities.Triage", b =>
+                {
+                    b.HasOne("Veterinaria.Domain.Entities.Cita", "Cita")
+                        .WithMany()
+                        .HasForeignKey("CitaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Veterinaria.Domain.Entities.Mascota", "Mascota")
+                        .WithMany()
+                        .HasForeignKey("MascotaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cita");
+
+                    b.Navigation("Mascota");
                 });
 
             modelBuilder.Entity("Veterinaria.Domain.Entities.Cita", b =>

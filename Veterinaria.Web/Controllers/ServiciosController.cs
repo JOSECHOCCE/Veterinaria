@@ -1,8 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Veterinaria.Domain.Contracts;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Web.Models.Dto;
 using X.PagedList.Extensions;
@@ -12,34 +11,21 @@ namespace Veterinaria.Web.Controllers;
 [Authorize(Roles = "Admin")]
 public class ServiciosController : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IServicioService _servicioService;
     private readonly IMapper _mapper;
 
-    public ServiciosController(IUnitOfWork unitOfWork, IMapper mapper)
+    public ServiciosController(IServicioService servicioService, IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
+        _servicioService = servicioService;
         _mapper = mapper;
     }
 
     // GET: Servicios
     public IActionResult Index(string? q, bool? mostrarInactivos, int page = 1)
     {
-        var query = _unitOfWork.Servicios.GetAll().AsQueryable();
+        var serviciosEntities = _servicioService.GetServicios(q, mostrarInactivos);
 
-        // Por defecto solo mostrar activos
-        if (mostrarInactivos != true)
-        {
-            query = query.Where(s => s.Activo);
-        }
-
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            q = q.ToLower();
-            query = query.Where(s => s.Nombre.ToLower().Contains(q) || 
-                                     (s.Descripcion != null && s.Descripcion.ToLower().Contains(q)));
-        }
-
-        var servicios = query.OrderBy(s => s.Nombre)
+        var servicios = serviciosEntities
             .Select(s => _mapper.Map<ServicioDto>(s))
             .ToPagedList(page, 10);
 
@@ -52,9 +38,7 @@ public class ServiciosController : Controller
     // GET: Servicios/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetAll()
-            .Include(s => s.Citas)
-            .FirstOrDefaultAsync(s => s.Id == id);
+        var servicio = await _servicioService.GetServicioWithCitasAsync(id);
 
         if (servicio == null)
         {
@@ -87,9 +71,7 @@ public class ServiciosController : Controller
     {
         if (ModelState.IsValid)
         {
-            // Verificar que no exista otro servicio con el mismo nombre
-            var existeNombre = await _unitOfWork.Servicios.GetAll()
-                .AnyAsync(s => s.Nombre.ToLower() == servicioDto.Nombre.ToLower());
+            var existeNombre = await _servicioService.ExistsNombreAsync(servicioDto.Nombre);
 
             if (existeNombre)
             {
@@ -100,8 +82,7 @@ public class ServiciosController : Controller
             var servicio = _mapper.Map<Servicio>(servicioDto);
             servicio.Activo = true;
 
-            await _unitOfWork.Servicios.AddAsync(servicio);
-            await _unitOfWork.CommitAsync();
+            await _servicioService.AddServicioAsync(servicio);
 
             TempData["Success"] = "Servicio creado exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -113,7 +94,7 @@ public class ServiciosController : Controller
     // GET: Servicios/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetByIdAsync(id);
+        var servicio = await _servicioService.GetServicioByIdAsync(id);
         if (servicio == null)
         {
             return NotFound();
@@ -135,9 +116,7 @@ public class ServiciosController : Controller
 
         if (ModelState.IsValid)
         {
-            // Verificar que no exista otro servicio con el mismo nombre (excluyendo el actual)
-            var existeNombre = await _unitOfWork.Servicios.GetAll()
-                .AnyAsync(s => s.Nombre.ToLower() == servicioDto.Nombre.ToLower() && s.Id != id);
+            var existeNombre = await _servicioService.ExistsNombreAsync(servicioDto.Nombre, id);
 
             if (existeNombre)
             {
@@ -145,15 +124,14 @@ public class ServiciosController : Controller
                 return View(servicioDto);
             }
 
-            var servicio = await _unitOfWork.Servicios.GetByIdAsync(id);
+            var servicio = await _servicioService.GetServicioByIdAsync(id);
             if (servicio == null)
             {
                 return NotFound();
             }
 
             _mapper.Map(servicioDto, servicio);
-            _unitOfWork.Servicios.Update(servicio);
-            await _unitOfWork.CommitAsync();
+            await _servicioService.UpdateServicioAsync(servicio);
 
             TempData["Success"] = "Servicio actualizado exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -165,9 +143,7 @@ public class ServiciosController : Controller
     // GET: Servicios/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetAll()
-            .Include(s => s.Citas)
-            .FirstOrDefaultAsync(s => s.Id == id);
+        var servicio = await _servicioService.GetServicioWithCitasAsync(id);
 
         if (servicio == null)
         {
@@ -185,24 +161,21 @@ public class ServiciosController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetAll()
-            .Include(s => s.Citas)
-            .FirstOrDefaultAsync(s => s.Id == id);
+        var deleted = await _servicioService.DeleteServicioAsync(id);
 
-        if (servicio == null)
+        if (!deleted)
         {
-            return NotFound();
+            // If it has citas, the service will return false, but maybe we should check before just in case?
+            // Actually the original code checks if it has citas and redirects with an error message
+            var servicio = await _servicioService.GetServicioWithCitasAsync(id);
+            if (servicio == null) return NotFound();
+            
+            if (servicio.Citas.Any())
+            {
+                TempData["Error"] = "No se puede eliminar el servicio porque tiene citas asociadas. Puede desactivarlo en su lugar.";
+                return RedirectToAction(nameof(Index));
+            }
         }
-
-        // Verificar si tiene citas asociadas
-        if (servicio.Citas.Any())
-        {
-            TempData["Error"] = "No se puede eliminar el servicio porque tiene citas asociadas. Puede desactivarlo en su lugar.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        _unitOfWork.Servicios.Remove(servicio);
-        await _unitOfWork.CommitAsync();
 
         TempData["Success"] = "Servicio eliminado exitosamente.";
         return RedirectToAction(nameof(Index));
@@ -213,17 +186,15 @@ public class ServiciosController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleActivo(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetByIdAsync(id);
+        var servicio = await _servicioService.GetServicioByIdAsync(id);
         if (servicio == null)
         {
             return NotFound();
         }
 
-        servicio.Activo = !servicio.Activo;
-        _unitOfWork.Servicios.Update(servicio);
-        await _unitOfWork.CommitAsync();
+        await _servicioService.ToggleActivoAsync(id);
 
-        TempData["Success"] = servicio.Activo 
+        TempData["Success"] = !servicio.Activo 
             ? "Servicio activado exitosamente." 
             : "Servicio desactivado exitosamente.";
 

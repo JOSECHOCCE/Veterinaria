@@ -2,189 +2,180 @@
     ViewData["Title"] = "Reporte de Pagos";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">
-            <i class="bi bi-graph-up"></i> Reporte de Pagos
-        </h1>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Volver al listado
-        </a>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+    <div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Análisis estadístico y financiero de recaudación.</p>
+    </div>
+    <a asp-action="Index" class="flex items-center gap-1 bg-surface border border-outline-variant text-on-surface px-md py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors shadow-sm">
+        <span class="material-symbols-outlined text-sm">arrow_back</span> Volver a Pagos
+    </a>
+</div>
+
+<!-- Filtro de fechas -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-md mb-lg">
+    <form method="get" asp-action="Reporte" class="grid grid-cols-1 md:grid-cols-3 gap-md items-end">
+        <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-xs">Fecha Desde</label>
+            <input type="date" name="fechaDesde" value="@ViewBag.FechaDesde" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+        </div>
+        <div>
+            <label class="block font-label-md text-label-md text-on-surface mb-xs">Fecha Hasta</label>
+            <input type="date" name="fechaHasta" value="@ViewBag.FechaHasta" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" />
+        </div>
+        <div>
+            <button type="submit" class="w-full bg-primary text-on-primary px-md py-2 rounded-md font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 shadow-sm">
+                <span class="material-symbols-outlined text-sm">filter_alt</span> Generar Reporte
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Resumen General -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-lg">
+    <div class="bg-secondary p-md rounded-xl shadow-sm text-on-secondary flex flex-col justify-between">
+        <h6 class="font-label-md text-label-md uppercase tracking-wider mb-2 opacity-80">Total Recaudado</h6>
+        <h2 class="font-headline-xl text-headline-xl">S/. @(((decimal)(ViewBag.TotalRecaudado ?? 0m)).ToString("N2"))</h2>
+        <span class="text-xs mt-2 bg-on-secondary/20 inline-block px-2 py-1 rounded w-max">@ViewBag.TotalPagos pagos</span>
+    </div>
+    
+    <div class="bg-primary p-md rounded-xl shadow-sm text-on-primary flex flex-col justify-between">
+        <h6 class="font-label-md text-label-md uppercase tracking-wider mb-2 opacity-80">Por Tarjeta</h6>
+        <h2 class="font-headline-xl text-headline-xl">S/. @(((decimal)(ViewBag.TotalTarjeta ?? 0m)).ToString("N2"))</h2>
+        <span class="material-symbols-outlined absolute right-6 opacity-20 text-5xl">credit_card</span>
+    </div>
+    
+    <div class="bg-surface-container-highest p-md rounded-xl shadow-sm text-on-surface flex flex-col justify-between border border-outline-variant">
+        <h6 class="font-label-md text-label-md uppercase tracking-wider mb-2 text-on-surface-variant">En Efectivo</h6>
+        <h2 class="font-headline-xl text-headline-xl text-secondary">S/. @(((decimal)(ViewBag.TotalEfectivo ?? 0m)).ToString("N2"))</h2>
+        <span class="material-symbols-outlined absolute right-6 opacity-10 text-5xl text-on-surface">payments</span>
     </div>
 
-    <!-- Filtro de fechas -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="get" asp-action="Reporte" class="row g-3 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Desde</label>
-                    <input type="date" name="fechaDesde" class="form-control" value="@ViewBag.FechaDesde" />
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label">Fecha Hasta</label>
-                    <input type="date" name="fechaHasta" class="form-control" value="@ViewBag.FechaHasta" />
-                </div>
-                <div class="col-md-4">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-filter"></i> Generar Reporte
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div class="bg-tertiary-container p-md rounded-xl shadow-sm text-on-tertiary-container flex flex-col justify-between">
+        <h6 class="font-label-md text-label-md uppercase tracking-wider mb-2 opacity-80">Pagos Parciales</h6>
+        <h2 class="font-headline-xl text-headline-xl text-tertiary">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
     </div>
+</div>
 
-    <!-- Resumen General -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card bg-success text-white">
-                <div class="card-body text-center">
-                    <h6 class="text-uppercase mb-1">Total Recaudado</h6>
-                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalRecaudado ?? 0m)).ToString("N2"))</h2>
-                    <small>@ViewBag.TotalPagos pagos</small>
-                </div>
-            </div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-md mb-lg">
+    <!-- Gráfico de Pagos por Día -->
+    <div class="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        <div class="bg-surface-container-low p-md border-b border-outline-variant">
+            <h5 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary">bar_chart</span> Recaudación por Día
+            </h5>
         </div>
-        <div class="col-md-3">
-            <div class="card bg-primary text-white">
-                <div class="card-body text-center">
-                    <h6 class="text-uppercase mb-1">Por Tarjeta</h6>
-                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalTarjeta ?? 0m)).ToString("N2"))</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-info text-white">
-                <div class="card-body text-center">
-                    <h6 class="text-uppercase mb-1">En Efectivo</h6>
-                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalEfectivo ?? 0m)).ToString("N2"))</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card bg-warning text-dark">
-                <div class="card-body text-center">
-                    <h6 class="text-uppercase mb-1">Pagos Parciales</h6>
-                    <h2 class="mb-0">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
-                </div>
+        <div class="p-md">
+            <div class="relative h-[300px] w-full">
+                <canvas id="chartPagosDia"></canvas>
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <!-- Gráfico de Pagos por Día -->
-        <div class="col-md-8">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Pagos por Día</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="chartPagosDia" height="100"></canvas>
-                </div>
-            </div>
+    <!-- Pagos por Servicio -->
+    <div class="lg:col-span-1 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden flex flex-col">
+        <div class="bg-surface-container-low p-md border-b border-outline-variant">
+            <h5 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">pie_chart</span> Ingresos por Servicio
+            </h5>
         </div>
-
-        <!-- Pagos por Servicio -->
-        <div class="col-md-4">
-            <div class="card shadow mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Por Servicio</h5>
-                </div>
-                <div class="card-body">
-                    @{
-                        var pagosPorServicio = ViewBag.PagosPorServicio as dynamic;
-                    }
-                    @if (pagosPorServicio != null)
+        <div class="p-0 flex-1 overflow-y-auto">
+            @{
+                var pagosPorServicio = ViewBag.PagosPorServicio as dynamic;
+            }
+            @if (pagosPorServicio != null)
+            {
+                <div class="divide-y divide-outline-variant">
+                    @foreach (var item in pagosPorServicio)
                     {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var item in pagosPorServicio)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <strong>@item.Servicio</strong>
-                                        <small class="text-muted d-block">@item.Cantidad pagos</small>
-                                    </div>
-                                    <span class="badge bg-success rounded-pill">S/. @(((decimal)item.Total).ToString("N2"))</span>
-                                </li>
-                            }
-                        </ul>
+                        <div class="flex justify-between items-center p-4 hover:bg-surface-container-low transition-colors">
+                            <div>
+                                <strong class="block text-sm text-on-surface">@item.Servicio</strong>
+                                <span class="text-xs text-on-surface-variant">@item.Cantidad transacciones</span>
+                            </div>
+                            <span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-semibold text-sm shadow-sm">
+                                S/. @(((decimal)item.Total).ToString("N2"))
+                            </span>
+                        </div>
                     }
                 </div>
-            </div>
+            }
+            else
+            {
+                <div class="p-6 text-center text-on-surface-variant">No hay datos disponibles para este rango.</div>
+            }
         </div>
     </div>
+</div>
 
-    <!-- Desglose por Tipo -->
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body text-center">
-                    <i class="bi bi-check-circle text-success display-4"></i>
-                    <h4 class="mt-2">Pagos Completos</h4>
-                    <h2 class="text-success">S/. @(((decimal)(ViewBag.TotalCompletos ?? 0m)).ToString("N2"))</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body text-center">
-                    <i class="bi bi-hourglass-split text-warning display-4"></i>
-                    <h4 class="mt-2">Pagos Parciales</h4>
-                    <h2 class="text-warning">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-body text-center">
-                    <i class="bi bi-cash-stack text-info display-4"></i>
-                    <h4 class="mt-2">Pagos Restantes</h4>
-                    <h2 class="text-info">S/. @(((decimal)(ViewBag.TotalRestantes ?? 0m)).ToString("N2"))</h2>
-                </div>
-            </div>
-        </div>
+<!-- Desglose por Tipo de Pago (Completo, Parcial, Restante) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg text-center">
+        <span class="material-symbols-outlined text-secondary text-5xl mb-2">task_alt</span>
+        <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Pagos Completos</h4>
+        <h2 class="font-headline-lg text-headline-lg text-secondary">S/. @(((decimal)(ViewBag.TotalCompletos ?? 0m)).ToString("N2"))</h2>
+    </div>
+    
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg text-center">
+        <span class="material-symbols-outlined text-tertiary text-5xl mb-2">hourglass_half</span>
+        <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Pagos Parciales</h4>
+        <h2 class="font-headline-lg text-headline-lg text-tertiary">S/. @(((decimal)(ViewBag.TotalParciales ?? 0m)).ToString("N2"))</h2>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg text-center">
+        <span class="material-symbols-outlined text-primary text-5xl mb-2">account_balance_wallet</span>
+        <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">Pagos Restantes</h4>
+        <h2 class="font-headline-lg text-headline-lg text-primary">S/. @(((decimal)(ViewBag.TotalRestantes ?? 0m)).ToString("N2"))</h2>
     </div>
 </div>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Gráfico de pagos por día
-        var pagosPorDia = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PagosPorDia));
-        
-        var ctx = document.getElementById('chartPagosDia').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: pagosPorDia.map(p => p.Fecha),
-                datasets: [{
-                    label: 'Total Recaudado (S/.)',
-                    data: pagosPorDia.map(p => p.Total),
-                    backgroundColor: 'rgba(40, 167, 69, 0.7)',
-                    borderColor: 'rgb(40, 167, 69)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return 'S/. ' + value.toFixed(2);
+        document.addEventListener('DOMContentLoaded', function() {
+            var pagosPorDiaStr = '@Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.PagosPorDia))';
+            if (pagosPorDiaStr && pagosPorDiaStr !== 'null') {
+                var pagosPorDia = JSON.parse(pagosPorDiaStr);
+                
+                var ctx = document.getElementById('chartPagosDia').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: pagosPorDia.map(p => p.Fecha),
+                        datasets: [{
+                            label: 'Total Recaudado (S/.)',
+                            data: pagosPorDia.map(p => p.Total),
+                            backgroundColor: '#006e1c', // secondary color
+                            borderRadius: 4,
+                            barPercentage: 0.6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) { return 'S/. ' + context.raw.toFixed(2); }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: '#c3c6d5', drawBorder: false }, // outline-variant
+                                ticks: {
+                                    callback: function(value) { return 'S/. ' + value; },
+                                    color: '#434653' // on-surface-variant
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: '#434653' }
                             }
                         }
                     }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'S/. ' + context.raw.toFixed(2);
-                            }
-                        }
-                    }
-                }
+                });
             }
         });
     </script>

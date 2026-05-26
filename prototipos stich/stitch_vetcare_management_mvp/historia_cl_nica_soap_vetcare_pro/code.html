@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Clinical History</title>
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#ffc388",
+                        "primary-fixed": "#d9e2ff",
+                        "outline-variant": "#c3c6d5",
+                        "tertiary": "#613600",
+                        "background": "#f3faff",
+                        "on-background": "#071e27",
+                        "surface-bright": "#f3faff",
+                        "on-surface": "#071e27",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed": "#002204",
+                        "surface-variant": "#cfe6f2",
+                        "secondary": "#006e1c",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#d5ecf8",
+                        "on-primary-container": "#bcceff",
+                        "inverse-primary": "#b0c6ff",
+                        "surface-container-low": "#e6f6ff",
+                        "on-surface-variant": "#434653",
+                        "surface-tint": "#1d59c1",
+                        "on-primary-fixed": "#001945",
+                        "primary": "#003c90",
+                        "error": "#ba1a1a",
+                        "inverse-on-surface": "#dff4ff",
+                        "primary-fixed-dim": "#b0c6ff",
+                        "tertiary-fixed-dim": "#ffb870",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f3faff",
+                        "on-secondary-fixed-variant": "#005313",
+                        "surface-dim": "#c7dde9",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed-variant": "#00419c",
+                        "tertiary-container": "#814b00",
+                        "primary-container": "#0f52ba",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#cfe6f2",
+                        "tertiary-fixed": "#ffdcbe",
+                        "secondary-fixed": "#94f990",
+                        "secondary-container": "#91f78e",
+                        "secondary-fixed-dim": "#78dc77",
+                        "on-secondary-container": "#00731e",
+                        "outline": "#737784",
+                        "surface-container": "#dbf1fe",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#1e333c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "lg": "40px",
+                        "margin": "32px",
+                        "base": "8px",
+                        "xl": "64px",
+                        "xs": "4px",
+                        "sm": "12px",
+                        "md": "24px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for clinical cleanliness */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d5;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737784;
+        }
+        /* Emergency chip pulse */
+        @keyframes pulse-opacity {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .animate-pulse-opacity {
+            animation: pulse-opacity 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased min-h-screen flex">
+<!-- JSON Component: SideNavBar -->
+<aside class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 p-sm z-40 bg-surface-container-low border-r border-outline-variant pt-20">
+<div class="mb-lg px-4">
+<div class="flex items-center gap-sm mb-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-primary font-bold">
+                    C
+                </div>
+<div>
+<h2 class="font-label-md text-label-md text-on-surface font-bold">Clínica Central</h2>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Turno Mañana</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Agenda</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_numbered">format_list_numbered</span>
+<span class="font-label-md text-label-md">Cola</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Clientes</span>
+</a>
+<!-- Active State Navigation -->
+<a class="flex items-center gap-sm bg-primary-container text-on-primary-container rounded-xl px-4 py-3 font-semibold translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined icon-fill" data-icon="pets">pets</span>
+<span class="font-label-md text-label-md">Mascotas</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-label-md text-label-md">Pagos</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-sm flex flex-col gap-xs">
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Configuración</span>
+</a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Cerrar Sesión</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col w-full md:pl-64 min-w-0">
+<!-- JSON Component: TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface-bright border-b border-outline-variant shadow-sm transition-all md:w-[calc(100%-16rem)] md:ml-64">
+<div class="flex items-center gap-md flex-1">
+<span class="font-headline-md text-headline-md font-bold text-primary md:hidden">VET-Core</span>
+<!-- Search Bar Placeholder -->
+<div class="hidden md:flex items-center bg-surface-container-low rounded-full px-4 h-10 w-96 border border-outline-variant focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full text-body-md placeholder:text-on-surface-variant/70 text-on-surface outline-none" placeholder="Buscar paciente, cliente o ID..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="h-10 px-4 rounded-lg bg-error text-on-error font-label-md text-label-md flex items-center gap-2 hover:bg-error/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+<span class="hidden sm:inline">Nueva Emergencia</span>
+</button>
+<div class="h-8 w-px bg-outline-variant mx-2"></div>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 pt-16 flex flex-col w-full">
+<!-- Sticky Patient Header -->
+<div class="sticky top-16 z-30 bg-surface-container-lowest px-gutter py-4 border-b border-outline-variant shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-14 h-14 rounded-xl bg-surface-variant border border-outline-variant flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-3xl icon-fill" data-icon="dog">pets</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Max</h1>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-container text-on-primary-container border border-primary/20">
+                                En Consulta
+                            </span>
+</div>
+<div class="text-on-surface-variant font-body-md mt-0.5 flex items-center gap-2 flex-wrap">
+<span>Golden Retriever, 5 Años</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span>Macho (Castrado)</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<span class="font-medium text-on-surface">Propietario: Roberto Silva</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3 self-end sm:self-auto">
+<button class="h-10 px-4 rounded-lg border border-primary text-primary font-label-md text-label-md hover:bg-primary-container transition-colors bg-surface-container-lowest">
+                        Ver Historial
+                    </button>
+<button class="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="save">save</span>
+                        Guardar SOAP
+                    </button>
+</div>
+</div>
+<!-- SOAP Form Content -->
+<div class="p-gutter max-w-5xl mx-auto w-full pb-32">
+<div class="mb-lg">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-2">Registro Clínico (SOAP)</h2>
+<p class="text-on-surface-variant text-body-md">Complete los campos secuencialmente. Todos los datos ingresados se guardan automáticamente como borrador.</p>
+</div>
+<form class="flex flex-col gap-margin">
+<!-- S - Subjective -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-surface-variant group-focus-within:bg-primary transition-colors"></div>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold font-headline-md">S</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Subjetivo</h3>
+</div>
+<div class="flex flex-col gap-4">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block" for="motivo">Motivo de Consulta principal</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all" id="motivo" placeholder="Ej: Vómitos persistentes y letargo" type="text"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block" for="anamnesis">Anamnesis / Historia clínica reciente</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-y min-h-[120px]" id="anamnesis" placeholder="Detalle los síntomas reportados por el propietario, inicio, frecuencia, cambios en dieta, etc." rows="4"></textarea>
+</div>
+</div>
+</section>
+<!-- O - Objective -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-surface-variant group-focus-within:bg-secondary transition-colors"></div>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold font-headline-md">O</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Objetivo</h3>
+<button class="ml-auto text-primary text-label-md font-label-md hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="history">history</span>
+                                Cargar últimas constantes
+                            </button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-surface-bright rounded-lg border border-outline-variant/50">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-1.5 block">Temperatura (°C)</label>
+<input class="w-full h-12 px-3 rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-lg font-medium" placeholder="38.5" step="0.1" type="number"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-1.5 block">FC (lpm)</label>
+<input class="w-full h-12 px-3 rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-lg font-medium" placeholder="80" type="number"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-1.5 block">FR (rpm)</label>
+<input class="w-full h-12 px-3 rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-lg font-medium" placeholder="24" type="number"/>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-1.5 block">Peso (kg)</label>
+<input class="w-full h-12 px-3 rounded-md border border-outline-variant bg-surface-container-lowest text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all text-lg font-medium" placeholder="32.4" step="0.1" type="number"/>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block" for="examen_fisico">Hallazgos del Examen Físico</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none transition-all resize-y min-h-[140px]" id="examen_fisico" placeholder="Condición corporal, mucosas, TLLC, palpación abdominal, auscultación cardiopulmonar, etc." rows="5"></textarea>
+</div>
+</section>
+<!-- A - Analysis -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-surface-variant group-focus-within:bg-tertiary transition-colors"></div>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold font-headline-md">A</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Análisis (Diagnóstico)</h3>
+</div>
+<div class="flex flex-col gap-6">
+<div class="relative">
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block">Buscador de Diagnósticos (CIE-10 Vet / SNOMED)</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-3.5 text-on-surface-variant" data-icon="search">search</span>
+<input class="w-full h-12 pl-10 pr-4 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-tertiary focus:ring-2 focus:ring-tertiary/20 outline-none transition-all" placeholder="Escriba para buscar patologías..." type="text"/>
+</div>
+<!-- Simulated Dropdown List -->
+<div class="hidden absolute z-10 w-full mt-1 bg-surface-container-lowest border border-outline-variant rounded-lg shadow-lg">
+<ul class="py-1">
+<li class="px-4 py-2 hover:bg-surface-variant cursor-pointer text-body-md">Gastroenteritis aguda (K52.9)</li>
+<li class="px-4 py-2 hover:bg-surface-variant cursor-pointer text-body-md">Gastritis crónica (K29.5)</li>
+</ul>
+</div>
+</div>
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block">Diagnósticos Seleccionados</label>
+<div class="flex flex-wrap gap-2 p-4 min-h-[80px] bg-surface-bright rounded-lg border border-outline-variant border-dashed">
+<!-- Selected Chip -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container-high rounded-full border border-outline-variant">
+<span class="text-body-md text-on-surface">Gastroenteritis aguda (Presuntivo)</span>
+<button class="w-5 h-5 rounded-full flex items-center justify-center hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+</button>
+</div>
+<div class="inline-flex items-center gap-2 px-3 py-1.5 bg-surface-container-high rounded-full border border-outline-variant">
+<span class="text-body-md text-on-surface">Deshidratación leve (Definitivo)</span>
+<button class="w-5 h-5 rounded-full flex items-center justify-center hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]" data-icon="close">close</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- P - Plan -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant p-6 shadow-[0_2px_8px_rgba(0,0,0,0.03)] relative overflow-hidden group">
+<div class="absolute left-0 top-0 bottom-0 w-1.5 bg-surface-variant group-focus-within:bg-primary transition-colors"></div>
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-bold font-headline-md">P</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Plan Terapéutico</h3>
+</div>
+<div class="flex flex-col gap-6">
+<div>
+<label class="font-label-md text-label-md text-on-surface-variant mb-2 block" for="procedimientos">Procedimientos Clínicos / Pruebas Solicitadas</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface-bright text-on-surface focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-y" id="procedimientos" placeholder="Ej: Hemograma completo, Bioquímica básica, Ecografía abdominal programada..." rows="3"></textarea>
+</div>
+<div class="border-t border-outline-variant pt-6">
+<div class="flex items-center justify-between mb-4">
+<label class="font-headline-md text-headline-md text-on-surface block">Receta Médica</label>
+<button class="text-primary text-label-md font-label-md hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[18px]" data-icon="add_circle">add_circle</span>
+                                        Añadir Medicamento
+                                    </button>
+</div>
+<div class="space-y-4">
+<!-- Prescription Item 1 -->
+<div class="p-4 bg-surface-bright rounded-lg border border-outline-variant">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+<div class="md:col-span-4">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Fármaco</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none" type="text" value="Maropitant (Cerenia) 16mg"/>
+</div>
+<div class="md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Dosis</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none" type="text" value="1 comp"/>
+</div>
+<div class="md:col-span-3">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Frecuencia</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none" type="text" value="Cada 24 hs"/>
+</div>
+<div class="md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Duración</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none" type="text" value="4 días"/>
+</div>
+<div class="md:col-span-1 flex items-end justify-center pb-1">
+<button class="w-8 h-8 rounded text-error hover:bg-error-container transition-colors flex items-center justify-center" type="button">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<div class="mt-3">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Indicaciones extra para el propietario</label>
+<input class="w-full h-8 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none text-sm" type="text" value="Administrar preferentemente con un poco de comida."/>
+</div>
+</div>
+<!-- Empty Prescription Item (Template) -->
+<div class="p-4 bg-surface-bright rounded-lg border border-outline-variant border-dashed opacity-70 focus-within:opacity-100 transition-opacity">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+<div class="md:col-span-4">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Fármaco</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none placeholder:text-outline" placeholder="Nombre comercial o principio activo" type="text"/>
+</div>
+<div class="md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Dosis</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none placeholder:text-outline" placeholder="Ej: 5ml" type="text"/>
+</div>
+<div class="md:col-span-3">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Frecuencia</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none placeholder:text-outline" placeholder="Ej: c/12 hs" type="text"/>
+</div>
+<div class="md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant mb-1 block">Duración</label>
+<input class="w-full h-10 px-3 rounded bg-surface-container-lowest border border-outline-variant focus:border-primary outline-none placeholder:text-outline" placeholder="Ej: 7 días" type="text"/>
+</div>
+<div class="md:col-span-1 flex items-end justify-center pb-1">
+<button class="w-8 h-8 rounded text-on-surface-variant opacity-50 cursor-not-allowed flex items-center justify-center" type="button">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</form>
+</div>
+</main>
+</div>
+</body></html>

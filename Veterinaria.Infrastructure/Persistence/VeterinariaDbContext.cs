@@ -19,6 +19,8 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Pago> Pagos => Set<Pago>();
     public DbSet<Notificacion> Notificaciones => Set<Notificacion>();
     public DbSet<TarjetaGuardada> TarjetasGuardadas => Set<TarjetaGuardada>();
+    public DbSet<Triage> Triages => Set<Triage>();
+    public DbSet<Consentimiento> Consentimientos => Set<Consentimiento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -241,6 +243,89 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
                 .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasIndex(e => new { e.UsuarioId, e.Leida });
+            entity.HasIndex(e => e.FechaCreacion);
+        });
+
+        // Triage
+        modelBuilder.Entity<Triage>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Nivel)
+                .IsRequired()
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Sintomas)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.MotivoConsulta)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Temperatura)
+                .HasPrecision(5, 2);
+
+            entity.Property(e => e.PesoEstimado)
+                .HasPrecision(5, 2);
+
+            entity.Property(e => e.PrioridadColor)
+                .HasMaxLength(20);
+
+            entity.Property(e => e.Consultorio)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Estado)
+                .HasMaxLength(20);
+
+            entity.HasOne(e => e.Cita)
+                .WithMany()
+                .HasForeignKey(e => e.CitaId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Mascota)
+                .WithMany()
+                .HasForeignKey(e => e.MascotaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(e => e.FechaRegistro);
+            entity.HasIndex(e => e.Estado);
+        });
+
+        // Consentimiento
+        modelBuilder.Entity<Consentimiento>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.TipoConsentimiento)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.NombrePropietario)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.NombrePaciente)
+                .HasMaxLength(100);
+
+            entity.Property(e => e.DocumentoId)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.IpOrigen)
+                .HasMaxLength(45);
+
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(1000);
+
+            entity.HasOne(e => e.Usuario)
+                .WithMany()
+                .HasForeignKey(e => e.UsuarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Mascota)
+                .WithMany()
+                .HasForeignKey(e => e.MascotaId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.UsuarioId);
             entity.HasIndex(e => e.FechaCreacion);
         });
     }

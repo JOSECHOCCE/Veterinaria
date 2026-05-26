@@ -1,0 +1,83 @@
+@model Veterinaria.Domain.Entities.Consentimiento
+@{
+    ViewData["Title"] = "Nuevo Consentimiento";
+}
+
+<div class="max-w-4xl mx-auto">
+    <div class="flex justify-between items-center mb-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant">Complete los datos para generar el documento legal.</p>
+        <a asp-action="Index" class="text-primary hover:underline font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
+        </a>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+        <div class="bg-primary/5 border-b border-outline-variant p-md">
+            <h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined">description</span>
+                Documento @Model.DocumentoId
+            </h3>
+        </div>
+
+        <form asp-action="Create" method="post" class="p-lg">
+            <div asp-validation-summary="ModelOnly" class="text-error mb-4"></div>
+            <input type="hidden" asp-for="DocumentoId" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-md mb-lg">
+                <div class="col-span-full">
+                    <label asp-for="TipoConsentimiento" class="block font-label-md text-label-md text-on-surface mb-xs">Tipo de Documento</label>
+                    <select asp-for="TipoConsentimiento" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                        <option value="Anestesia General y Cirugía">Anestesia General y Cirugía</option>
+                        <option value="Hospitalización">Hospitalización</option>
+                        <option value="Eutanasia">Eutanasia</option>
+                        <option value="Tratamiento Médico">Tratamiento Médico</option>
+                        <option value="Procedimiento Odontológico">Procedimiento Odontológico</option>
+                    </select>
+                    <span asp-validation-for="TipoConsentimiento" class="text-error text-xs"></span>
+                </div>
+
+                <div>
+                    <label asp-for="NombrePropietario" class="block font-label-md text-label-md text-on-surface mb-xs">Nombre del Propietario</label>
+                    <input asp-for="NombrePropietario" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Nombre legal del firmante" />
+                    <span asp-validation-for="NombrePropietario" class="text-error text-xs"></span>
+                </div>
+
+                <div>
+                    <label asp-for="NombrePaciente" class="block font-label-md text-label-md text-on-surface mb-xs">Nombre del Paciente (Mascota)</label>
+                    <input asp-for="NombrePaciente" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Nombre de la mascota" />
+                    <span asp-validation-for="NombrePaciente" class="text-error text-xs"></span>
+                </div>
+
+                <div class="col-span-full">
+                    <label asp-for="Observaciones" class="block font-label-md text-label-md text-on-surface mb-xs">Términos Especiales / Observaciones</label>
+                    <textarea asp-for="Observaciones" rows="4" class="w-full bg-surface border border-outline-variant rounded-md px-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Añadir cláusulas específicas o notas médicas..."></textarea>
+                </div>
+            </div>
+
+            <div class="bg-surface-container rounded-lg p-md mb-lg border border-outline-variant">
+                <h4 class="font-label-md text-label-md text-on-surface font-semibold mb-2">Firma Digital</h4>
+                <p class="text-sm text-on-surface-variant mb-4">El propietario certifica que comprende y acepta los términos descritos para el procedimiento seleccionado.</p>
+                
+                <label class="flex items-start p-3 border border-outline bg-surface rounded-md cursor-pointer hover:bg-surface-container-low transition-colors">
+                    <input type="checkbox" asp-for="Aceptado" class="mt-1 w-4 h-4 text-primary bg-surface border-outline-variant focus:ring-primary" />
+                    <div class="ml-3">
+                        <span class="block font-semibold text-on-surface">Acepto los términos y condiciones</span>
+                        <span class="text-xs text-on-surface-variant">Al marcar esta casilla, proporciona su firma legal vinculante.</span>
+                    </div>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-md border-t border-outline-variant">
+                <a asp-action="Index" class="px-md py-sm rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancelar</a>
+                <button type="submit" class="bg-primary text-on-primary px-md py-sm rounded-full font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">edit_document</span>
+                    Guardar y Firmar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Consentimiento Informado - VetCare Pro</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- VetCare Pro Design System Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00731e",
+                    "on-error-container": "#93000a",
+                    "primary-container": "#0f52ba",
+                    "on-primary-fixed-variant": "#00419c",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#b0c6ff",
+                    "on-surface-variant": "#434653",
+                    "on-tertiary-container": "#ffc388",
+                    "surface-container-highest": "#cfe6f2",
+                    "secondary-fixed": "#94f990",
+                    "surface-dim": "#c7dde9",
+                    "tertiary-fixed": "#ffdcbe",
+                    "primary": "#003c90",
+                    "secondary-container": "#91f78e",
+                    "tertiary-fixed-dim": "#ffb870",
+                    "surface-container-low": "#e6f6ff",
+                    "on-tertiary-fixed-variant": "#693c00",
+                    "on-background": "#071e27",
+                    "on-tertiary-fixed": "#2c1600",
+                    "on-secondary-fixed": "#002204",
+                    "background": "#f3faff",
+                    "primary-fixed-dim": "#b0c6ff",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#814b00",
+                    "surface-container": "#dbf1fe",
+                    "error": "#ba1a1a",
+                    "on-surface": "#071e27",
+                    "on-primary-fixed": "#001945",
+                    "surface-container-high": "#d5ecf8",
+                    "on-secondary-fixed-variant": "#005313",
+                    "surface": "#f3faff",
+                    "secondary": "#006e1c",
+                    "surface-tint": "#1d59c1",
+                    "on-primary-container": "#bcceff",
+                    "surface-variant": "#cfe6f2",
+                    "secondary-fixed-dim": "#78dc77",
+                    "primary-fixed": "#d9e2ff",
+                    "inverse-surface": "#1e333c",
+                    "inverse-on-surface": "#dff4ff",
+                    "tertiary": "#613600",
+                    "surface-bright": "#f3faff",
+                    "outline-variant": "#c3c6d5",
+                    "outline": "#737784",
+                    "on-secondary": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "xl": "64px",
+                    "sm": "12px",
+                    "gutter": "24px",
+                    "md": "24px",
+                    "xs": "4px",
+                    "margin": "32px",
+                    "lg": "40px",
+                    "base": "8px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Inter", "sans-serif"],
+                    "headline-md": ["Inter", "sans-serif"],
+                    "label-sm": ["Inter", "sans-serif"],
+                    "headline-xl": ["Inter", "sans-serif"],
+                    "label-md": ["Inter", "sans-serif"],
+                    "headline-lg": ["Inter", "sans-serif"],
+                    "body-md": ["Inter", "sans-serif"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        /* Base styles to ensure consistency */
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Custom scrollbar for legal text */
+        .legal-scroll::-webkit-scrollbar { width: 6px; }
+        .legal-scroll::-webkit-scrollbar-track { background: transparent; }
+        .legal-scroll::-webkit-scrollbar-thumb { background-color: #c3c6d5; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background min-h-screen flex flex-col text-on-surface">
+<!-- TopAppBar (Task-Focused: No side nav for legal forms to prioritize canvas) -->
+<header class="bg-surface border-b border-outline-variant shadow-sm flex justify-between items-center w-full px-md py-sm sticky top-0 z-50">
+<div class="flex items-center gap-sm">
+<button class="p-xs text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="font-headline-lg text-headline-lg font-bold text-primary">VetCare Pro</div>
+</div>
+<div class="flex items-center gap-xs">
+<button aria-label="notifications" class="p-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="help" class="p-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">help</span>
+</button>
+<button aria-label="account_circle" class="p-sm text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex justify-center py-lg px-md w-full">
+<!-- Form Container Level 1 Elevation -->
+<article class="w-full max-w-[800px] bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm flex flex-col overflow-hidden">
+<!-- Document Header -->
+<header class="p-lg border-b border-outline-variant bg-surface-bright flex flex-col md:flex-row justify-between items-start md:items-center gap-md">
+<div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface mb-xs">Consentimiento Informado</h1>
+<div class="flex items-center gap-sm">
+<span class="font-label-md text-label-md px-sm py-xs bg-error-container text-on-error-container rounded-full uppercase tracking-widest">Documento Legal</span>
+<span class="font-body-md text-body-md text-on-surface-variant">Procedimiento: Anestesia General y Cirugía</span>
+</div>
+</div>
+<div class="text-right flex flex-col gap-xs opacity-70">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">ID Documento: FRM-2024-892</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Fecha: 24 Octubre 2024</span>
+</div>
+</header>
+<!-- Form Body (Single Column Layout for Clinical Precision) -->
+<div class="p-lg flex flex-col gap-xl">
+<!-- Section 1: Identification -->
+<section class="flex flex-col gap-md">
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-xs border-b border-surface-variant pb-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">badge</span>
+                        Identificación
+                    </h2>
+<div class="flex flex-col gap-md">
+<!-- Owner Name -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="owner_name">Nombre del Propietario / Representante Legal <span class="text-error">*</span></label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-sm py-sm font-body-lg text-body-lg text-on-surface focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" id="owner_name" placeholder="Ej. Ana García López" required="" type="text"/>
+</div>
+<!-- Pet Name -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-md text-label-md text-on-surface" for="pet_name">Nombre del Paciente <span class="text-error">*</span></label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-sm text-outline">pets</span>
+<input class="w-full bg-surface border border-outline-variant rounded-lg pl-xl pr-sm py-sm font-body-lg text-body-lg text-on-surface focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all" id="pet_name" placeholder="Ej. Luna" required="" type="text"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Legal Text -->
+<section class="flex flex-col gap-sm">
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-xs border-b border-surface-variant pb-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                        Términos y Condiciones
+                    </h2>
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-md h-[280px] overflow-y-auto legal-scroll text-on-surface-variant font-body-md text-body-md flex flex-col gap-sm">
+<p>
+                            Yo, el abajo firmante, certifico que soy el propietario o el agente autorizado del propietario del paciente descrito anteriormente. Por la presente, doy mi consentimiento libre y voluntario, y autorizo a los médicos veterinarios de VetCare Pro a realizar el procedimiento de anestesia general y la intervención quirúrgica acordada.
+                        </p>
+<p>
+                            Entiendo plenamente que, aunque el equipo médico tomará todas las precauciones necesarias y aplicará los más altos estándares de cuidado clínico, la anestesia general y la cirugía implican riesgos inherentes y complicaciones potenciales imprevisibles, incluyendo pero no limitándose a: depresión respiratoria, insuficiencia cardiovascular, reacciones alérgicas adversas o, en circunstancias excepcionales, la muerte del paciente.
+                        </p>
+<p>
+                            Confirmo que el médico veterinario responsable me ha explicado detalladamente la naturaleza del procedimiento, los riesgos involucrados, las posibles complicaciones, el pronóstico estimado y las alternativas terapéuticas disponibles. He tenido la oportunidad de hacer preguntas y todas mis dudas han sido resueltas a mi entera satisfacción.
+                        </p>
+<p>
+                            Adicionalmente, autorizo al personal clínico a proveer cuidado de emergencia, administrar medicamentos adicionales, realizar procedimientos diagnósticos imprevistos o alterar el plan quirúrgico si, a su juicio profesional, lo consideran médicamente necesario para salvaguardar la vida o la salud de mi mascota durante el transcurso del procedimiento.
+                        </p>
+<p>
+                            Comprendo que la medicina veterinaria no es una ciencia exacta y, por lo tanto, reconozco que no se me ha ofrecido ninguna garantía absoluta respecto al éxito clínico del tratamiento o procedimiento. Asumo la responsabilidad financiera total por todos los servicios prestados, materiales utilizados y honorarios profesionales generados, los cuales me comprometo a liquidar al momento de dar de alta al paciente.
+                        </p>
+</div>
+</section>
+<!-- Section 3: Consent Checkbox -->
+<section class="bg-surface-container p-md rounded-lg border border-transparent hover:border-outline-variant transition-colors group cursor-pointer">
+<label class="flex items-start gap-sm cursor-pointer w-full">
+<div class="mt-1 flex-shrink-0">
+<input class="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary focus:ring-offset-surface-container bg-surface cursor-pointer" type="checkbox"/>
+</div>
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">
+<strong>He leído detenidamente, comprendo en su totalidad y acepto los términos descritos en este documento legal.</strong> Doy mi consentimiento expreso para que se proceda con la intervención planificada bajo las condiciones estipuladas.
+                        </span>
+</label>
+</section>
+<!-- Section 4: Signature Pad Area -->
+<section class="flex flex-col gap-sm">
+<div class="flex justify-between items-end border-b border-surface-variant pb-xs">
+<h2 class="font-headline-md text-headline-md text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">draw</span>
+                            Firma Digital
+                        </h2>
+<button class="font-label-sm text-label-sm text-outline hover:text-primary transition-colors uppercase tracking-wider flex items-center gap-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">ink_eraser</span>
+                            Borrar Lienzo
+                        </button>
+</div>
+<div class="bg-surface border-2 border-dashed border-outline-variant rounded-xl h-[200px] relative flex items-center justify-center cursor-crosshair hover:border-primary transition-colors group overflow-hidden">
+<!-- Watermark/Instruction -->
+<div class="absolute inset-0 flex flex-col items-center justify-center opacity-40 group-hover:opacity-20 transition-opacity pointer-events-none">
+<span class="material-symbols-outlined text-headline-xl mb-xs">gesture</span>
+<span class="font-label-md text-label-md text-on-surface-variant uppercase tracking-widest text-center px-lg">
+                                Utilice el ratón, lápiz óptico o su dedo para firmar dentro de este recuadro
+                            </span>
+</div>
+<!-- Canvas element would be injected here by JS in a real app -->
+<!-- Signature Line Anchor -->
+<div class="absolute bottom-md left-md right-md border-b border-outline opacity-30 pointer-events-none"></div>
+</div>
+</section>
+</div>
+<!-- Action Footer -->
+<footer class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col sm:flex-row justify-end items-center gap-md">
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg border border-outline-variant text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex justify-center items-center gap-xs h-[48px]" type="button">
+<span class="material-symbols-outlined">print</span>
+                    Imprimir Documento
+                </button>
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-on-primary-fixed-variant transition-colors flex justify-center items-center gap-xs h-[48px] shadow-sm" type="button">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Confirmar Firma
+                </button>
+</footer>
+</article>
+</main>
+</body></html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Pet Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-container": "#ffc388",
+                      "primary-fixed": "#d9e2ff",
+                      "outline-variant": "#c3c6d5",
+                      "tertiary": "#613600",
+                      "background": "#f3faff",
+                      "on-background": "#071e27",
+                      "surface-bright": "#f3faff",
+                      "on-surface": "#071e27",
+                      "on-secondary": "#ffffff",
+                      "on-secondary-fixed": "#002204",
+                      "surface-variant": "#cfe6f2",
+                      "secondary": "#006e1c",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#d5ecf8",
+                      "on-primary-container": "#bcceff",
+                      "inverse-primary": "#b0c6ff",
+                      "surface-container-low": "#e6f6ff",
+                      "on-surface-variant": "#434653",
+                      "surface-tint": "#1d59c1",
+                      "on-primary-fixed": "#001945",
+                      "primary": "#003c90",
+                      "error": "#ba1a1a",
+                      "inverse-on-surface": "#dff4ff",
+                      "primary-fixed-dim": "#b0c6ff",
+                      "tertiary-fixed-dim": "#ffb870",
+                      "on-tertiary-fixed": "#2c1600",
+                      "on-primary": "#ffffff",
+                      "surface-container-lowest": "#ffffff",
+                      "surface": "#f3faff",
+                      "on-secondary-fixed-variant": "#005313",
+                      "surface-dim": "#c7dde9",
+                      "on-tertiary-fixed-variant": "#693c00",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-fixed-variant": "#00419c",
+                      "tertiary-container": "#814b00",
+                      "primary-container": "#0f52ba",
+                      "error-container": "#ffdad6",
+                      "surface-container-highest": "#cfe6f2",
+                      "tertiary-fixed": "#ffdcbe",
+                      "secondary-fixed": "#94f990",
+                      "secondary-container": "#91f78e",
+                      "secondary-fixed-dim": "#78dc77",
+                      "on-secondary-container": "#00731e",
+                      "outline": "#737784",
+                      "surface-container": "#dbf1fe",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#1e333c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "24px",
+                      "lg": "40px",
+                      "margin": "32px",
+                      "base": "8px",
+                      "xl": "64px",
+                      "xs": "4px",
+                      "sm": "12px",
+                      "md": "24px"
+              },
+              "fontFamily": {
+                      "label-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-xl": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "label-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "headline-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for clinical look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #c3c6d5;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #737784;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex antialiased">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface-bright dark:bg-inverse-surface border-b border-outline-variant shadow-sm">
+<div class="flex items-center gap-md">
+<div class="font-headline-md text-headline-md font-bold text-primary">VET-Core Clinical</div>
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-highest border border-outline-variant rounded-full text-body-md font-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 transition-all" placeholder="Buscar paciente..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<button class="bg-error text-on-error px-4 py-2 rounded-full font-label-md text-label-md flex items-center gap-2 hover:bg-error/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">emergency</span>
+                Nueva Emergencia
+            </button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-high transition-colors rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined icon-fill">account_circle</span>
+</button>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 flex flex-col p-sm z-40 bg-surface-container-low border-r border-outline-variant pt-[80px]">
+<div class="mb-lg px-4 flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-primary-container flex items-center justify-center text-primary font-headline-md">
+<span class="material-symbols-outlined">local_hospital</span>
+</div>
+<div>
+<div class="font-label-md text-label-md text-on-surface font-bold">Clínica Central</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Turno Mañana</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                Agenda
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">format_list_numbered</span>
+                Cola
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                Clientes
+            </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-sm bg-primary-container text-on-primary-container rounded-xl px-4 py-3 font-semibold font-label-md text-label-md translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined icon-fill text-[20px]">pets</span>
+                Mascotas
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                Pagos
+            </a>
+</nav>
+<div class="mt-auto flex flex-col gap-xs pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Configuración
+            </a>
+<a class="flex items-center gap-sm text-on-surface-variant px-4 py-3 hover:bg-surface-variant rounded-xl transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                Cerrar Sesión
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-64 pt-[80px] p-lg">
+<div class="max-w-[1400px] mx-auto space-y-margin">
+<!-- Breadcrumb & Actions -->
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-xs text-on-surface-variant font-label-md text-label-md">
+<span>Mascotas</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-primary font-semibold">Perfil de Paciente</span>
+</div>
+<div class="flex gap-sm">
+<button class="px-4 py-2 border border-outline-variant rounded-lg text-on-surface font-label-md text-label-md hover:bg-surface-container-high transition-colors flex items-center gap-2 bg-surface-container-lowest">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                        Editar
+                    </button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_notes</span>
+                        Nueva Consulta
+                    </button>
+</div>
+</div>
+<!-- Patient Header Bento Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col md:flex-row gap-lg items-start relative overflow-hidden">
+<!-- Background Decoration -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+<!-- Photo -->
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-container-lowest shadow-sm flex-shrink-0 relative z-10">
+<img alt="Golden Retriever profile picture" class="w-full h-full object-cover" data-alt="A professional, well-lit studio portrait of a friendly Golden Retriever dog looking slightly off-camera. The background is a clean, neutral studio white, emphasizing the dog's golden fur. The lighting is soft and high-key, creating a modern, clinical yet warm aesthetic suitable for a veterinary software profile picture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEEfkjahSTON3Ym-VzLcSnwjLQusdhmi0E-G7YqbDpuRb7PoFkYdQ4M4O61P87450rArk6PrEfCJGWLt4gx7GDxz6aDpDE6sPP0Nc5zEJymL7fldCku18tUvcSyxhgkgrR0hO6QTMybAdnbKMOL0VYQGepue0KgfN86AOg3z-PE9CMdEeBb3qN9zrXYR-ZqmdEc_0Ehtp6rXdMKq5mBmd62KNhXwlf-cxXu62V1H-Vc1fyharYKTO9qSjl9OWWsMRhblfhydJ-QD9q"/>
+</div>
+<!-- Core Info -->
+<div class="flex-1 relative z-10">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-sm mb-1">
+<h1 class="font-headline-xl text-headline-xl text-on-surface">Max</h1>
+<span class="material-symbols-outlined text-primary text-[24px]">male</span>
+</div>
+<div class="font-body-lg text-body-lg text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">pets</span>
+                                Canino • Golden Retriever
+                            </div>
+</div>
+<!-- Status Chip -->
+<div class="bg-surface-container-high text-on-surface px-3 py-1 rounded-full font-label-sm text-label-sm flex items-center gap-1 border border-outline-variant">
+<div class="w-2 h-2 rounded-full bg-secondary"></div>
+                            Activo
+                        </div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md mt-md">
+<div class="bg-surface p-sm rounded-lg border border-outline-variant/50">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Edad</div>
+<div class="font-headline-md text-headline-md text-on-surface">4 Años, 2 Meses</div>
+</div>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant/50">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Peso Actual</div>
+<div class="font-headline-md text-headline-md text-on-surface">32.5 kg</div>
+</div>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant/50">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Nro. Microchip</div>
+<div class="font-body-md text-body-md text-on-surface font-mono">981020001234567</div>
+</div>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant/50">
+<div class="font-label-sm text-label-sm text-on-surface-variant mb-1">Propietario</div>
+<div class="font-body-md text-body-md text-primary hover:underline cursor-pointer flex items-center gap-1">
+                                Carlos Mendoza
+                                <span class="material-symbols-outlined text-[14px]">open_in_new</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Critical Alerts Banner -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="bg-error-container text-on-error-container rounded-lg p-sm flex items-start gap-sm border border-error/20">
+<span class="material-symbols-outlined mt-0.5 icon-fill text-error">warning</span>
+<div>
+<div class="font-label-md text-label-md font-bold mb-1">Alergia Severa</div>
+<div class="font-body-md text-body-md text-on-error-container/80">Penicilina y derivados. Provoca shock anafiláctico. Registrado en 2021.</div>
+</div>
+</div>
+<div class="bg-tertiary-container text-on-tertiary-container rounded-lg p-sm flex items-start gap-sm border border-tertiary/20">
+<span class="material-symbols-outlined mt-0.5 icon-fill text-tertiary">monitor_heart</span>
+<div>
+<div class="font-label-md text-label-md font-bold mb-1">Condición Crónica</div>
+<div class="font-body-md text-body-md text-on-tertiary-container/80">Displasia de cadera leve (Grado B). Requiere suplementos articulares diarios.</div>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter">
+<!-- Left Column: Clinical History -->
+<div class="xl:col-span-8 space-y-margin">
+<!-- Clinical Visits List -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden flex flex-col h-[600px]">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-bright">
+<h2 class="font-headline-lg text-headline-lg text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[24px]">medical_services</span>
+                                Historial Clínico
+                            </h2>
+<div class="flex gap-2">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">filter_list</span></button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-md transition-colors"><span class="material-symbols-outlined text-[20px]">search</span></button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-0">
+<!-- Visit Item 1 -->
+<div class="group border-b border-outline-variant/50 last:border-0 hover:bg-surface transition-colors p-md flex gap-md cursor-pointer">
+<div class="flex flex-col items-center min-w-[60px]">
+<div class="font-label-md text-label-md text-on-surface-variant">12 OCT</div>
+<div class="font-headline-md text-headline-md text-on-surface font-bold">2023</div>
+</div>
+<div class="w-1 bg-primary/20 rounded-full group-hover:bg-primary transition-colors"></div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">Consulta General &amp; Vacunación</h3>
+<span class="bg-surface-container-high text-on-surface px-2 py-0.5 rounded font-label-sm text-label-sm border border-outline-variant">Completado</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-3">Paciente acude para refuerzo anual. Examen físico general sin particularidades. FC: 85 lpm, FR: 24 rpm, T: 38.5°C. Mucosas rosas. Se aplica vacuna séxtuple y antirrábica.</p>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">stethoscope</span> Dr. Ramírez</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">weight</span> 32.5 kg</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">attach_file</span> 1 Adjunto</div>
+</div>
+</div>
+</div>
+<!-- Visit Item 2 -->
+<div class="group border-b border-outline-variant/50 last:border-0 hover:bg-surface transition-colors p-md flex gap-md cursor-pointer">
+<div class="flex flex-col items-center min-w-[60px]">
+<div class="font-label-md text-label-md text-on-surface-variant">05 JUL</div>
+<div class="font-headline-md text-headline-md text-on-surface font-bold">2023</div>
+</div>
+<div class="w-1 bg-error/20 rounded-full group-hover:bg-error transition-colors"></div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-md text-headline-md text-on-surface text-[18px]">Evaluación Claudicación</h3>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded font-label-sm text-label-sm border border-error/20">Seguimiento req.</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2 mb-3">Propietario reporta cojera en miembro posterior derecho tras ejercicio intenso. A la palpación, dolor leve a la extensión de la cadera. Rx de cadera solicitada y realizada.</p>
+<div class="flex items-center gap-4 text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">stethoscope</span> Dra. Silva</div>
+<div class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">weight</span> 33.1 kg</div>
+<div class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[16px]">radiology</span> 2 Imágenes Rx</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Sidebar Data -->
+<div class="xl:col-span-4 space-y-gutter">
+<!-- Vaccination Record -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-md">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">vaccines</span>
+                                Vacunación
+                            </h2>
+<button class="text-primary font-label-md text-label-md hover:underline">Ver Plan</button>
+</div>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-sm bg-surface rounded-lg border border-outline-variant/50">
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Séxtuple Canina</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Aplicada: 12 Oct 2023</div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-secondary font-semibold flex items-center gap-1 justify-end">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Al día
+                                    </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Vence: 12 Oct 2024</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-sm bg-surface rounded-lg border border-outline-variant/50">
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Antirrábica</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Aplicada: 12 Oct 2023</div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-secondary font-semibold flex items-center gap-1 justify-end">
+<span class="material-symbols-outlined text-[14px]">check_circle</span> Al día
+                                    </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Vence: 12 Oct 2024</div>
+</div>
+</div>
+<div class="flex items-center justify-between p-sm bg-error-container/20 rounded-lg border border-error/20">
+<div>
+<div class="font-label-md text-label-md text-on-surface font-semibold">Desparasitación Interna</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Aplicada: 15 Abr 2023</div>
+</div>
+<div class="text-right">
+<div class="font-label-sm text-label-sm text-error font-semibold flex items-center gap-1 justify-end">
+<span class="material-symbols-outlined text-[14px]">warning</span> Vencida
+                                    </div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Venció: 15 Jul 2023</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-md py-2 border border-outline-variant border-dashed rounded-lg text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span> Añadir Registro
+                        </button>
+</section>
+<!-- Weight History Chart Placeholder -->
+<section class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-md">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">monitor_weight</span>
+                                Curva de Peso
+                            </h2>
+</div>
+<!-- Decorative Chart Area -->
+<div class="h-48 w-full bg-surface-container rounded-lg border border-outline-variant/30 flex items-end px-4 py-2 gap-2 relative overflow-hidden" data-alt="A minimalist line chart visualization representing weight history in a clinical dashboard. The chart uses a smooth blue primary colored line on a very light gray grid background. Data points are marked with small blue dots. The y-axis shows weight in kg, the x-axis shows months. The overall aesthetic is clean, medical, and data-driven without any clutter.">
+<!-- Faux Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between opacity-10 pointer-events-none">
+<div class="border-b border-on-surface w-full h-0"></div>
+<div class="border-b border-on-surface w-full h-0"></div>
+<div class="border-b border-on-surface w-full h-0"></div>
+<div class="border-b border-on-surface w-full h-0"></div>
+</div>
+<!-- Faux SVG Line (Simulated with div paths for structural look, though pure HTML limits complex curves, we use simple bars for visual weight) -->
+<div class="w-full h-full flex items-end justify-between px-2 pb-6 relative z-10">
+<div class="w-2 bg-primary/40 rounded-t h-[60%] hover:bg-primary transition-colors relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-on-surface text-surface px-1 rounded">30.1</span></div>
+<div class="w-2 bg-primary/40 rounded-t h-[65%] hover:bg-primary transition-colors relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-on-surface text-surface px-1 rounded">31.2</span></div>
+<div class="w-2 bg-primary/40 rounded-t h-[75%] hover:bg-primary transition-colors relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-on-surface text-surface px-1 rounded">33.5</span></div>
+<div class="w-2 bg-primary/40 rounded-t h-[72%] hover:bg-primary transition-colors relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-on-surface text-surface px-1 rounded">33.1</span></div>
+<div class="w-2 bg-primary/60 rounded-t h-[70%] hover:bg-primary transition-colors relative group"><span class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] hidden group-hover:block bg-on-surface text-surface px-1 rounded">32.5</span></div>
+</div>
+<div class="absolute bottom-1 left-0 w-full flex justify-between px-6 text-[10px] text-on-surface-variant font-label-sm">
+<span>Ene</span>
+<span>Mar</span>
+<span>May</span>
+<span>Jul</span>
+<span>Oct</span>
+</div>
+</div>
+<div class="mt-4 flex justify-between items-center text-sm">
+<div class="font-body-md text-on-surface-variant">Tendencia: <span class="text-secondary font-semibold">Estable</span></div>
+<div class="font-body-md text-on-surface-variant">Último: <span class="text-on-surface font-semibold">32.5 kg</span></div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+</body></html>

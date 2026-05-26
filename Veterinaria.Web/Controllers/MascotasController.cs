@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Veterinaria.Domain.Contracts;
 using Veterinaria.Domain.Entities;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Web.Models.Dto;
 using X.PagedList.Extensions;
 
@@ -13,27 +13,24 @@ namespace Veterinaria.Web.Controllers;
 [Authorize(Roles = "Usuario,Admin")]
 public class MascotasController : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMascotaService _mascotaService;
     private readonly IMapper _mapper;
 
-    public MascotasController(IUnitOfWork unitOfWork, IMapper mapper)
+    public MascotasController(IMascotaService mascotaService, IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
+        _mascotaService = mascotaService;
         _mapper = mapper;
     }
 
     // GET: Mascotas
     public IActionResult Index(string? q, int page = 1)
     {
-        var query = _unitOfWork.Mascotas.GetAll()
-            .Include(m => m.Usuario)
-            .Where(m => m.Activo)
-            .AsQueryable();
+        var query = _mascotaService.GetActiveMascotasWithUsuariosQuery();
 
         if (!string.IsNullOrWhiteSpace(q))
         {
             q = q.ToLower();
-            query = query.Where(m => m.Nombre.ToLower().Contains(q) || 
+            query = query.Where(m => m.Nombre.ToLower().Contains(q) ||
                                      m.Especie.ToLower().Contains(q));
         }
 
@@ -48,13 +45,7 @@ public class MascotasController : Controller
     // GET: Mascotas/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        var mascota = await _unitOfWork.Mascotas.GetAll()
-            .Include(m => m.Usuario)
-            .Include(m => m.Citas)
-                .ThenInclude(c => c.Servicio)
-            .Include(m => m.Citas)
-                .ThenInclude(c => c.Veterinario)
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var mascota = await _mascotaService.GetMascotaWithDetailsAsync(id);
 
         if (mascota == null)
         {
@@ -63,7 +54,7 @@ public class MascotasController : Controller
 
         var mascotaDto = _mapper.Map<MascotaDto>(mascota);
         ViewBag.Citas = mascota.Citas.OrderByDescending(c => c.FechaHora).ToList();
-        
+
         return View(mascotaDto);
     }
 
@@ -90,8 +81,7 @@ public class MascotasController : Controller
                 mascota.UsuarioId = 1; // Temporal
             }
 
-            await _unitOfWork.Mascotas.AddAsync(mascota);
-            await _unitOfWork.CommitAsync();
+            await _mascotaService.AddMascotaAsync(mascota);
 
             TempData["Success"] = "Mascota creada exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -104,7 +94,7 @@ public class MascotasController : Controller
     // GET: Mascotas/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
+        var mascota = await _mascotaService.GetMascotaByIdAsync(id);
         if (mascota == null)
         {
             return NotFound();
@@ -127,15 +117,14 @@ public class MascotasController : Controller
 
         if (ModelState.IsValid)
         {
-            var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
+            var mascota = await _mascotaService.GetMascotaByIdAsync(id);
             if (mascota == null)
             {
                 return NotFound();
             }
 
             _mapper.Map(mascotaDto, mascota);
-            _unitOfWork.Mascotas.Update(mascota);
-            await _unitOfWork.CommitAsync();
+            await _mascotaService.UpdateMascotaAsync(mascota);
 
             TempData["Success"] = "Mascota actualizada exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -148,9 +137,7 @@ public class MascotasController : Controller
     // GET: Mascotas/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        var mascota = await _unitOfWork.Mascotas.GetAll()
-            .Include(m => m.Usuario)
-            .FirstOrDefaultAsync(m => m.Id == id);
+        var mascota = await _mascotaService.GetMascotaWithUsuarioAsync(id);
 
         if (mascota == null)
         {
@@ -166,14 +153,13 @@ public class MascotasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
+        var mascota = await _mascotaService.GetMascotaByIdAsync(id);
         if (mascota == null)
         {
             return NotFound();
         }
 
-        _unitOfWork.Mascotas.Remove(mascota);
-        await _unitOfWork.CommitAsync();
+        await _mascotaService.DeleteMascotaAsync(id);
 
         TempData["Success"] = "Mascota eliminada exitosamente.";
         return RedirectToAction(nameof(Index));
@@ -181,10 +167,7 @@ public class MascotasController : Controller
 
     private async Task CargarUsuariosViewBag()
     {
-        var usuarios = await _unitOfWork.Usuarios.GetAll()
-            .Where(u => u.Activo)
-            .OrderBy(u => u.Nombre)
-            .ToListAsync();
+        var usuarios = await _mascotaService.GetActiveUsuariosAsync();
 
         ViewBag.Usuarios = new SelectList(usuarios, "Id", "Nombre");
     }

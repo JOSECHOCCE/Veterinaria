@@ -10,7 +10,8 @@ public static class DbSeeder
     public static async Task SeedAsync(
         VeterinariaDbContext context,
         UserManager<ApplicationUser> userManager,
-        RoleManager<IdentityRole> roleManager)
+        RoleManager<IdentityRole> roleManager,
+        bool isDevelopment = false)
     {
         // 1. Seed Roles
         await SeedRolesAsync(roleManager);
@@ -28,8 +29,11 @@ public static class DbSeeder
         await SeedServiciosAsync(context);
 
         // 6. Seed Mascotas (asociadas al usuario normal)
-        await SeedMascotasAsync(context, usuarioNormal);
+        await SeedMascotasAsync(context, usuarioNormal, isDevelopment);
     }
+
+    private const string DefaultFotoPerro = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=256&h=256&q=80";
+    private const string DefaultFotoGato = "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=256&h=256&q=80";
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
@@ -209,10 +213,20 @@ public static class DbSeeder
         await context.SaveChangesAsync();
     }
 
-    private static async Task SeedMascotasAsync(VeterinariaDbContext context, Usuario? propietario)
+    private static async Task SeedMascotasAsync(VeterinariaDbContext context, Usuario? propietario, bool isDevelopment)
     {
-        if (propietario == null || await context.Mascotas.AnyAsync())
+        if (propietario == null)
             return;
+
+        if (isDevelopment)
+        {
+            await BackfillMascotaFotosAsync(context);
+        }
+
+        if (await context.Mascotas.AnyAsync())
+            return;
+
+        const string fotoPerro2 = "https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=256&h=256&q=80";
 
         var mascotas = new List<Mascota>
         {
@@ -224,6 +238,7 @@ public static class DbSeeder
                 FechaNacimiento = DateTime.Now.AddYears(-3).AddMonths(-6),
                 Peso = 32.5m,
                 Color = "Dorado",
+                FotoUrl = DefaultFotoPerro,
                 UsuarioId = propietario.Id,
                 Activo = true
             },
@@ -235,6 +250,7 @@ public static class DbSeeder
                 FechaNacimiento = DateTime.Now.AddYears(-2).AddMonths(-3),
                 Peso = 4.2m,
                 Color = "Crema con puntos oscuros",
+                FotoUrl = DefaultFotoGato,
                 UsuarioId = propietario.Id,
                 Activo = true
             },
@@ -246,6 +262,7 @@ public static class DbSeeder
                 FechaNacimiento = DateTime.Now.AddYears(-1).AddMonths(-8),
                 Peso = 12.8m,
                 Color = "Atigrado",
+                FotoUrl = fotoPerro2,
                 UsuarioId = propietario.Id,
                 Activo = true
             }
@@ -253,5 +270,28 @@ public static class DbSeeder
 
         context.Mascotas.AddRange(mascotas);
         await context.SaveChangesAsync();
+    }
+
+    private static async Task BackfillMascotaFotosAsync(VeterinariaDbContext context)
+    {
+        var mascotasSinFoto = await context.Mascotas
+            .Where(m => m.Activo && (m.FotoUrl == null || m.FotoUrl.Trim() == string.Empty))
+            .ToListAsync();
+
+        if (mascotasSinFoto.Count == 0)
+            return;
+
+        foreach (var mascota in mascotasSinFoto)
+        {
+            mascota.FotoUrl = GetDefaultFotoUrlByEspecie(mascota.Especie);
+        }
+
+        await context.SaveChangesAsync();
+    }
+
+    private static string GetDefaultFotoUrlByEspecie(string? especie)
+    {
+        var especieNorm = (especie ?? string.Empty).Trim().ToLowerInvariant();
+        return especieNorm.Contains("gato") ? DefaultFotoGato : DefaultFotoPerro;
     }
 }

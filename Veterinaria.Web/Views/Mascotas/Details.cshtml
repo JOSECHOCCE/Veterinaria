@@ -1,146 +1,108 @@
 @model Veterinaria.Web.Models.Dto.MascotaDto
-
 @{
-    ViewData["Title"] = $"Detalles de {Model.Nombre}";
+    ViewData["Title"] = $"Ficha de {Model.Nombre}";
     var citas = ViewBag.Citas as List<Veterinaria.Domain.Entities.Cita> ?? new List<Veterinaria.Domain.Entities.Cita>();
 }
 
-<div class="container">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Mascotas</a></li>
-            <li class="breadcrumb-item active">@Model.Nombre</li>
-        </ol>
-    </nav>
+<div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant">Expediente completo del paciente</p>
+        <a asp-action="Index" class="text-primary hover:underline font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
+        </a>
+    </div>
 
-    <div class="row">
-        <!-- Información de la mascota -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="text-center pt-4">
-                    @if (!string.IsNullOrEmpty(Model.FotoUrl))
-                    {
-                        <img src="@Model.FotoUrl" alt="@Model.Nombre" 
-                             class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;" />
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+        <!-- Ficha del paciente -->
+        <div class="lg:col-span-1">
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                <div class="p-lg text-center">
+                    @{
+                        var especie = (Model.Especie ?? string.Empty).Trim().ToLowerInvariant();
+                        var fotoFallback = especie.Contains("gato")
+                            ? "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=256&h=256&q=80"
+                            : "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=256&h=256&q=80";
+                        var foto = string.IsNullOrWhiteSpace(Model.FotoUrl) ? fotoFallback : Model.FotoUrl;
                     }
-                    else
-                    {
-                        <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto" 
-                             style="width: 150px; height: 150px;">
-                            <i class="bi bi-heart-pulse text-white display-4"></i>
-                        </div>
-                    }
+                    <img src="@foto" alt="@Model.Nombre" class="w-28 h-28 rounded-full object-cover border-2 border-outline-variant mx-auto mb-3" />
+                    <h3 class="font-headline-lg text-headline-lg text-on-surface">@Model.Nombre</h3>
+                    <span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full">@Model.Especie</span>
                 </div>
-                <div class="card-body text-center">
-                    <h3 class="card-title">@Model.Nombre</h3>
-                    <span class="badge bg-info fs-6">@Model.Especie</span>
+                <div class="border-t border-outline-variant divide-y divide-outline-variant text-sm">
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">tag</span> Raza</span><strong>@(Model.Raza ?? "N/A")</strong></div>
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">cake</span> Edad</span><strong>@(Model.Edad.HasValue ? $"{Model.Edad} años" : "N/A")</strong></div>
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">event</span> Nacimiento</span><strong>@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "N/A")</strong></div>
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">monitor_weight</span> Peso</span><strong>@(Model.Peso.HasValue ? $"{Model.Peso} kg" : "N/A")</strong></div>
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">palette</span> Color</span><strong>@(Model.Color ?? "N/A")</strong></div>
+                    <div class="flex justify-between p-3 px-lg"><span class="text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-sm">person</span> Propietario</span><strong>@(Model.UsuarioNombre ?? "N/A")</strong></div>
                 </div>
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-tag"></i> Raza</span>
-                        <strong>@(Model.Raza ?? "No especificada")</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-calendar"></i> Edad</span>
-                        <strong>@(Model.Edad.HasValue ? $"{Model.Edad} años" : "No especificada")</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-calendar-date"></i> Nacimiento</span>
-                        <strong>@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No especificada")</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-speedometer"></i> Peso</span>
-                        <strong>@(Model.Peso.HasValue ? $"{Model.Peso} kg" : "No especificado")</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-palette"></i> Color</span>
-                        <strong>@(Model.Color ?? "No especificado")</strong>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span><i class="bi bi-person"></i> Propietario</span>
-                        <strong>@(Model.UsuarioNombre ?? "No asignado")</strong>
-                    </li>
-                </ul>
-                <div class="card-body">
-                    <div class="d-grid gap-2">
-                        <a asp-action="Index" asp-controller="HistorialesClinicos" asp-route-mascotaId="@Model.Id" class="btn btn-primary">
-                            <i class="bi bi-file-medical"></i> Ver Historial Clínico
-                        </a>
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                            <i class="bi bi-pencil"></i> Editar
-                        </a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">
-                            <i class="bi bi-trash"></i> Eliminar
-                        </a>
-                    </div>
+                <div class="p-md space-y-2 border-t border-outline-variant">
+                    <a asp-action="Index" asp-controller="HistorialesClinicos" asp-route-mascotaId="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary px-md py-sm rounded-full font-label-md text-label-md hover:bg-primary/90 transition-colors text-decoration-none">
+                        <span class="material-symbols-outlined text-sm">medical_information</span> Ver Historial Clínico
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-surface text-tertiary border border-outline-variant px-md py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-low transition-colors text-decoration-none">
+                        <span class="material-symbols-outlined text-sm">edit</span> Editar
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-surface text-error border border-outline-variant px-md py-sm rounded-full font-label-md text-label-md hover:bg-error-container transition-colors text-decoration-none">
+                        <span class="material-symbols-outlined text-sm">delete</span> Eliminar
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Historial de citas -->
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Historial de Citas</h5>
+        <div class="lg:col-span-2">
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                <div class="bg-surface-container-low p-md border-b border-outline-variant flex justify-between items-center">
+                    <h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">calendar_month</span> Historial de Citas
+                    </h3>
+                    <a asp-controller="Citas" asp-action="Create" asp-route-mascotaId="@Model.Id" class="flex items-center gap-1 bg-primary text-on-primary px-3 py-1.5 rounded-full font-label-md text-label-md hover:bg-primary/90 text-decoration-none">
+                        <span class="material-symbols-outlined text-sm">add</span> Nueva Cita
+                    </a>
                 </div>
-                <div class="card-body">
-                    @if (citas.Count == 0)
-                    {
-                        <div class="text-center py-5">
-                            <i class="bi bi-calendar-x display-4 text-muted"></i>
-                            <p class="text-muted mt-3">No hay citas registradas para esta mascota.</p>
-                            <a asp-controller="Citas" asp-action="Create" asp-route-mascotaId="@Model.Id" 
-                               class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Agendar Cita
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Servicio</th>
-                                        <th>Veterinario</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var cita in citas)
-                                    {
-                                        <tr>
-                                            <td>@cita.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
-                                            <td>@cita.Servicio?.Nombre</td>
-                                            <td>@cita.Veterinario?.Nombre</td>
-                                            <td>
-                                                @{
-                                                    var badgeClass = cita.Estado switch
-                                                    {
-                                                        "Completada" => "bg-success",
-                                                        "Confirmada" => "bg-primary",
-                                                        "EnProceso" => "bg-warning text-dark",
-                                                        "Cancelada" => "bg-danger",
-                                                        _ => "bg-secondary"
-                                                    };
-                                                }
-                                                <span class="badge @badgeClass">@cita.Estado</span>
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    }
-                </div>
+                @if (citas.Count == 0)
+                {
+                    <div class="flex flex-col items-center justify-center p-xl text-on-surface-variant">
+                        <span class="material-symbols-outlined text-5xl mb-sm opacity-50">event_busy</span>
+                        <p>No hay citas registradas para este paciente.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="divide-y divide-outline-variant">
+                        @foreach (var cita in citas)
+                        {
+                            var badgeClass = cita.Estado switch
+                            {
+                                "Completada" => "bg-secondary-container text-on-secondary-container",
+                                "Confirmada" => "bg-primary-container text-on-primary-container",
+                                "EnProceso" => "bg-tertiary-container text-on-tertiary-container",
+                                "Cancelada" => "bg-error-container text-on-error-container",
+                                _ => "bg-surface-variant text-on-surface"
+                            };
+                            <div class="flex items-center justify-between p-md hover:bg-surface-container-low transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-center w-14">
+                                        <p class="font-body-md text-body-md text-on-surface font-bold">@cita.FechaHora.ToString("dd/MM")</p>
+                                        <p class="text-xs text-on-surface-variant">@cita.FechaHora.ToString("HH:mm")</p>
+                                    </div>
+                                    <div>
+                                        <p class="font-body-md text-body-md text-on-surface font-semibold">@cita.Servicio?.Nombre</p>
+                                        <p class="text-xs text-on-surface-variant">Dr. @cita.Veterinario?.Nombre</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-label-sm text-label-sm px-2 py-1 rounded-full @badgeClass">@cita.Estado</span>
+                                    <a asp-controller="Citas" asp-action="Details" asp-route-id="@cita.Id" class="text-primary hover:bg-primary-container p-1.5 rounded-full transition-colors">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
             </div>
         </div>
-    </div>
-
-    <div class="mt-4">
-        <a asp-action="Index" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Volver a la lista
-        </a>
     </div>
 </div>

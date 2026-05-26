@@ -1,8 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Veterinaria.Domain.Contracts;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Web.Models.Dto;
 using X.PagedList.Extensions;
@@ -12,12 +11,12 @@ namespace Veterinaria.Web.Controllers;
 [Authorize(Roles = "Usuario,Admin")]
 public class HistorialesClinicosController : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IHistorialClinicoService _historialService;
     private readonly IMapper _mapper;
 
-    public HistorialesClinicosController(IUnitOfWork unitOfWork, IMapper mapper)
+    public HistorialesClinicosController(IHistorialClinicoService historialService, IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
+        _historialService = historialService;
         _mapper = mapper;
     }
 
@@ -25,9 +24,7 @@ public class HistorialesClinicosController : Controller
     public async Task<IActionResult> Index(int mascotaId, int page = 1)
     {
         // Obtener la mascota para mostrar información
-        var mascota = await _unitOfWork.Mascotas.GetAll()
-            .Include(m => m.Usuario)
-            .FirstOrDefaultAsync(m => m.Id == mascotaId);
+        var mascota = await _historialService.GetMascotaWithUsuarioAsync(mascotaId);
 
         if (mascota == null)
         {
@@ -36,14 +33,7 @@ public class HistorialesClinicosController : Controller
         }
 
         // Obtener todos los historiales de las citas de esta mascota
-        var historiales = await _unitOfWork.HistorialesClinicos.GetAll()
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Veterinario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Servicio)
-            .Where(h => h.Cita.MascotaId == mascotaId)
-            .OrderByDescending(h => h.Cita.FechaHora)
-            .ToListAsync();
+        var historiales = await _historialService.GetHistorialesByMascotaIdAsync(mascotaId);
 
         var historialesDto = _mapper.Map<List<HistorialClinicoDto>>(historiales);
 
@@ -65,12 +55,7 @@ public class HistorialesClinicosController : Controller
     public async Task<IActionResult> Create(int citaId)
     {
         // Verificar que la cita existe y está completada
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-                .ThenInclude(m => m.Usuario)
-            .Include(c => c.Veterinario)
-            .Include(c => c.Servicio)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _historialService.GetCitaForHistorialAsync(citaId);
 
         if (cita == null)
         {
@@ -85,8 +70,7 @@ public class HistorialesClinicosController : Controller
         }
 
         // Verificar que no exista ya un historial para esta cita
-        var historialExistente = await _unitOfWork.HistorialesClinicos.GetAll()
-            .AnyAsync(h => h.CitaId == citaId);
+        var historialExistente = await _historialService.ExistsHistorialForCitaAsync(citaId);
 
         if (historialExistente)
         {
@@ -111,12 +95,7 @@ public class HistorialesClinicosController : Controller
     public async Task<IActionResult> Create(HistorialClinicoDto historialDto)
     {
         // Verificar que la cita existe y está completada
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-                .ThenInclude(m => m.Usuario)
-            .Include(c => c.Veterinario)
-            .Include(c => c.Servicio)
-            .FirstOrDefaultAsync(c => c.Id == historialDto.CitaId);
+        var cita = await _historialService.GetCitaForHistorialAsync(historialDto.CitaId);
 
         if (cita == null)
         {
@@ -132,8 +111,7 @@ public class HistorialesClinicosController : Controller
         }
 
         // Verificar que no exista ya un historial para esta cita
-        var historialExistente = await _unitOfWork.HistorialesClinicos.GetAll()
-            .AnyAsync(h => h.CitaId == historialDto.CitaId);
+        var historialExistente = await _historialService.ExistsHistorialForCitaAsync(historialDto.CitaId);
 
         if (historialExistente)
         {
@@ -150,8 +128,7 @@ public class HistorialesClinicosController : Controller
         var historial = _mapper.Map<HistorialClinico>(historialDto);
         historial.FechaRegistro = DateTime.Now;
 
-        await _unitOfWork.HistorialesClinicos.AddAsync(historial);
-        await _unitOfWork.CommitAsync();
+        await _historialService.AddHistorialAsync(historial);
 
         TempData["Success"] = "Historial clínico creado exitosamente.";
         return RedirectToAction("Details", new { citaId = historial.CitaId });
@@ -160,15 +137,7 @@ public class HistorialesClinicosController : Controller
     // GET: HistorialesClinicos/Details?citaId=1
     public async Task<IActionResult> Details(int citaId)
     {
-        var historial = await _unitOfWork.HistorialesClinicos.GetAll()
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Mascota)
-                    .ThenInclude(m => m.Usuario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Veterinario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Servicio)
-            .FirstOrDefaultAsync(h => h.CitaId == citaId);
+        var historial = await _historialService.GetHistorialByCitaIdAsync(citaId);
 
         if (historial == null)
         {
@@ -177,7 +146,7 @@ public class HistorialesClinicosController : Controller
         }
 
         var historialDto = _mapper.Map<HistorialClinicoDto>(historial);
-        
+
         // Agregar información de la cita
         historialDto.VeterinarioNombre = historial.Cita.Veterinario?.Nombre;
         historialDto.ServicioNombre = historial.Cita.Servicio?.Nombre;
@@ -195,15 +164,7 @@ public class HistorialesClinicosController : Controller
     // GET: HistorialesClinicos/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var historial = await _unitOfWork.HistorialesClinicos.GetAll()
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Mascota)
-                    .ThenInclude(m => m.Usuario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Veterinario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Servicio)
-            .FirstOrDefaultAsync(h => h.Id == id);
+        var historial = await _historialService.GetHistorialByIdAsync(id);
 
         if (historial == null)
         {
@@ -227,14 +188,7 @@ public class HistorialesClinicosController : Controller
             return NotFound();
         }
 
-        var historialExistente = await _unitOfWork.HistorialesClinicos.GetAll()
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Mascota)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Veterinario)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Servicio)
-            .FirstOrDefaultAsync(h => h.Id == id);
+        var historialExistente = await _historialService.GetHistorialByIdAsync(id);
 
         if (historialExistente == null)
         {
@@ -254,8 +208,7 @@ public class HistorialesClinicosController : Controller
         historialExistente.Medicamentos = historialDto.Medicamentos;
         historialExistente.Observaciones = historialDto.Observaciones;
 
-        _unitOfWork.HistorialesClinicos.Update(historialExistente);
-        await _unitOfWork.CommitAsync();
+        await _historialService.UpdateHistorialAsync(historialExistente);
 
         TempData["Success"] = "Historial clínico actualizado exitosamente.";
         return RedirectToAction("Details", new { citaId = historialExistente.CitaId });
@@ -264,12 +217,7 @@ public class HistorialesClinicosController : Controller
     // GET: HistorialesClinicos/DescargarPDF?citaId=1
     public async Task<IActionResult> DescargarPDF(int citaId)
     {
-        var historial = await _unitOfWork.HistorialesClinicos.GetAll()
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Mascota)
-            .Include(h => h.Cita)
-                .ThenInclude(c => c.Veterinario)
-            .FirstOrDefaultAsync(h => h.CitaId == citaId);
+        var historial = await _historialService.GetHistorialByCitaIdAsync(citaId);
 
         if (historial == null)
         {

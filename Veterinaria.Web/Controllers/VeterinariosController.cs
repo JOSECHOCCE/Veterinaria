@@ -1,8 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Veterinaria.Domain.Contracts;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Web.Models.Dto;
 using X.PagedList.Extensions;
@@ -12,40 +11,25 @@ namespace Veterinaria.Web.Controllers;
 [Authorize(Roles = "Admin")]
 public class VeterinariosController : Controller
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IVeterinarioService _veterinarioService;
     private readonly IMapper _mapper;
 
-    public VeterinariosController(IUnitOfWork unitOfWork, IMapper mapper)
+    public VeterinariosController(IVeterinarioService veterinarioService, IMapper mapper)
     {
-        _unitOfWork = unitOfWork;
+        _veterinarioService = veterinarioService;
         _mapper = mapper;
     }
 
     // GET: Veterinarios
     public IActionResult Index(string? especialidad, string? q, int page = 1)
     {
-        var query = _unitOfWork.Veterinarios.GetAll()
-            .Include(v => v.Citas)
-            .Where(v => v.Activo)
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(especialidad))
-        {
-            query = query.Where(v => v.Especialidad != null && v.Especialidad.ToLower().Contains(especialidad.ToLower()));
-        }
-
-        if (!string.IsNullOrWhiteSpace(q))
-        {
-            q = q.ToLower();
-            query = query.Where(v => v.Nombre.ToLower().Contains(q) || 
-                                     (v.Email != null && v.Email.ToLower().Contains(q)));
-        }
+        var veterinariosEntities = _veterinarioService.GetVeterinarios(especialidad, q);
 
         // Calcular citas de esta semana para cada veterinario
         var inicioSemana = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         var finSemana = inicioSemana.AddDays(7);
 
-        var veterinarios = query.OrderBy(v => v.Nombre).ToList();
+        var veterinarios = veterinariosEntities.ToList();
         
         var veterinariosConCitas = veterinarios.Select(v => new VeterinarioConCitasViewModel
         {
@@ -54,12 +38,7 @@ public class VeterinariosController : Controller
         }).ToPagedList(page, 10);
 
         // Obtener lista de especialidades para el filtro
-        var especialidades = _unitOfWork.Veterinarios.GetAll()
-            .Where(v => v.Activo && v.Especialidad != null)
-            .Select(v => v.Especialidad)
-            .Distinct()
-            .OrderBy(e => e)
-            .ToList();
+        var especialidades = _veterinarioService.GetEspecialidades();
 
         ViewBag.Especialidades = especialidades;
         ViewBag.CurrentFilter = q;
@@ -71,12 +50,7 @@ public class VeterinariosController : Controller
     // GET: Veterinarios/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        var veterinario = await _unitOfWork.Veterinarios.GetAll()
-            .Include(v => v.Citas)
-                .ThenInclude(c => c.Mascota)
-            .Include(v => v.Citas)
-                .ThenInclude(c => c.Servicio)
-            .FirstOrDefaultAsync(v => v.Id == id);
+        var veterinario = await _veterinarioService.GetVeterinarioWithCitasAsync(id);
 
         if (veterinario == null)
         {
@@ -125,8 +99,7 @@ public class VeterinariosController : Controller
             var veterinario = _mapper.Map<Veterinario>(veterinarioDto);
             veterinario.Activo = true;
 
-            await _unitOfWork.Veterinarios.AddAsync(veterinario);
-            await _unitOfWork.CommitAsync();
+            await _veterinarioService.AddVeterinarioAsync(veterinario);
 
             TempData["Success"] = "Veterinario creado exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -138,7 +111,7 @@ public class VeterinariosController : Controller
     // GET: Veterinarios/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(id);
+        var veterinario = await _veterinarioService.GetVeterinarioByIdAsync(id);
         if (veterinario == null)
         {
             return NotFound();
@@ -160,15 +133,14 @@ public class VeterinariosController : Controller
 
         if (ModelState.IsValid)
         {
-            var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(id);
+            var veterinario = await _veterinarioService.GetVeterinarioByIdAsync(id);
             if (veterinario == null)
             {
                 return NotFound();
             }
 
             _mapper.Map(veterinarioDto, veterinario);
-            _unitOfWork.Veterinarios.Update(veterinario);
-            await _unitOfWork.CommitAsync();
+            await _veterinarioService.UpdateVeterinarioAsync(veterinario);
 
             TempData["Success"] = "Veterinario actualizado exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -180,9 +152,7 @@ public class VeterinariosController : Controller
     // GET: Veterinarios/Delete/5
     public async Task<IActionResult> Delete(int id)
     {
-        var veterinario = await _unitOfWork.Veterinarios.GetAll()
-            .Include(v => v.Citas)
-            .FirstOrDefaultAsync(v => v.Id == id);
+        var veterinario = await _veterinarioService.GetVeterinarioWithCitasAsync(id);
 
         if (veterinario == null)
         {
@@ -199,24 +169,20 @@ public class VeterinariosController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        var veterinario = await _unitOfWork.Veterinarios.GetAll()
-            .Include(v => v.Citas)
-            .FirstOrDefaultAsync(v => v.Id == id);
+        var deleted = await _veterinarioService.DeleteVeterinarioAsync(id);
 
-        if (veterinario == null)
+        if (!deleted)
         {
-            return NotFound();
-        }
+            var veterinario = await _veterinarioService.GetVeterinarioWithCitasAsync(id);
+            if (veterinario == null) return NotFound();
 
-        // Verificar si tiene citas asociadas
-        if (veterinario.Citas.Any())
-        {
-            TempData["Error"] = "No se puede eliminar el veterinario porque tiene citas asociadas.";
-            return RedirectToAction(nameof(Index));
+            // Verificar si tiene citas asociadas
+            if (veterinario.Citas.Any())
+            {
+                TempData["Error"] = "No se puede eliminar el veterinario porque tiene citas asociadas.";
+                return RedirectToAction(nameof(Index));
+            }
         }
-
-        _unitOfWork.Veterinarios.Remove(veterinario);
-        await _unitOfWork.CommitAsync();
 
         TempData["Success"] = "Veterinario eliminado exitosamente.";
         return RedirectToAction(nameof(Index));

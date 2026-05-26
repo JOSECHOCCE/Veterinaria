@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Contracts;
 using Veterinaria.Domain.Entities;
-using Veterinaria.Web.Services;
 
 namespace Veterinaria.Web.Controllers;
 

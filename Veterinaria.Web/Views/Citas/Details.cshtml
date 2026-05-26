@@ -1,5 +1,4 @@
 @model Veterinaria.Web.Models.Dto.CitaDto
-
 @{
     ViewData["Title"] = "Detalle de Cita";
     var esAdmin = ViewBag.EsAdmin ?? false;
@@ -7,601 +6,379 @@
     var propietarioNombre = ViewBag.PropietarioNombre ?? "";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-10">
-            <!-- Encabezado -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>
-                    <i class="bi bi-calendar-check"></i> @(esAdmin ? "Detalle de Cita" : "Mi Cita")
-                </h1>
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Volver a @(esAdmin ? "listado" : "mis citas")
-                </a>
+<div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant">
+            @(esAdmin ? "Detalle administrativo de la cita" : "Información de tu cita agendada")
+        </p>
+        <a asp-action="Index" class="text-primary hover:underline font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
+        </a>
+    </div>
+
+    <!-- Mensajes de TempData -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="bg-secondary-container text-on-secondary-container p-4 rounded-xl mb-lg border border-secondary flex justify-between items-center">
+            <span class="flex items-center gap-2"><span class="material-symbols-outlined">check_circle</span> @TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="bg-error-container text-on-error-container p-4 rounded-xl mb-lg border border-error flex justify-between items-center">
+            <span class="flex items-center gap-2"><span class="material-symbols-outlined">error</span> @TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Panel de Cliente (Tiempo Real) -->
+    @if (!esAdmin)
+    {
+        <div class="bg-primary text-on-primary rounded-xl shadow-sm mb-lg p-lg border border-outline-variant relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-4 opacity-20">
+                <span class="material-symbols-outlined text-8xl">clinical_notes</span>
             </div>
-
-            @if (TempData["Success"] != null)
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    @TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="relative z-10">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="font-headline-sm text-headline-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined">activity_zone</span> Estado de tu Cita
+                    </h4>
+                    <span id="ultimaActualizacion" class="text-xs opacity-80"></span>
                 </div>
-            }
+                
+                <div class="text-center py-6">
+                    <span id="estadoBadge" class="inline-block bg-surface text-on-surface px-8 py-3 rounded-full font-headline-md text-headline-md shadow-md mb-8">
+                        @Model.Estado
+                    </span>
 
-            @if (TempData["Error"] != null)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    @TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-
-            <!-- Estado en Tiempo Real (solo para usuarios) -->
-            @if (!esAdmin)
-            {
-                <div class="card shadow mb-4 border-primary">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            <i class="bi bi-activity"></i> Estado de tu Cita
-                            <small class="float-end" id="ultimaActualizacion" style="font-size: 0.8rem;"></small>
-                        </h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-3">
-                            <span id="estadoBadge" class="badge fs-4" style="padding: 15px 30px;">
-                                @Model.Estado
-                            </span>
-                        </div>
+                    <!-- Timeline -->
+                    <div class="flex justify-between items-center relative max-w-2xl mx-auto px-4">
+                        <div class="absolute top-1/2 left-[10%] right-[10%] h-1 bg-primary-container -z-10 -translate-y-1/2 rounded-full"></div>
                         
-                        <!-- Timeline de estados -->
-                        <div class="timeline-horizontal mt-4">
-                            <div class="timeline-item @(Model.Estado != "Cancelada" ? "active" : "")">
-                                <div class="timeline-icon"><i class="bi bi-check-circle"></i></div>
-                                <div class="timeline-content">Agendada</div>
+                        <div class="flex flex-col items-center gap-2 timeline-item @(Model.Estado != "Cancelada" ? "active" : "")">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-primary-container text-primary border-4 border-primary">
+                                <span class="material-symbols-outlined">edit_calendar</span>
                             </div>
-                            <div class="timeline-item @(Model.Estado == "Confirmada" || Model.Estado == "EnProceso" || Model.Estado == "Completada" ? "active" : "")">
-                                <div class="timeline-icon"><i class="bi bi-check2-circle"></i></div>
-                                <div class="timeline-content">Confirmada</div>
-                            </div>
-                            <div class="timeline-item @(Model.Estado == "EnProceso" || Model.Estado == "Completada" ? "active" : "")">
-                                <div class="timeline-icon"><i class="bi bi-gear"></i></div>
-                                <div class="timeline-content">En Proceso</div>
-                            </div>
-                            <div class="timeline-item @(Model.Estado == "Completada" ? "active" : "")">
-                                <div class="timeline-icon"><i class="bi bi-check-circle-fill"></i></div>
-                                <div class="timeline-content">Completada</div>
-                            </div>
+                            <span class="text-xs font-semibold">Agendada</span>
                         </div>
-                        
-                        @if (Model.Estado == "Cancelada" || Model.Estado == "NoAsistio")
-                        {
-                            <div class="alert alert-danger mt-3 mb-0">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <strong>Esta cita fue @(Model.Estado == "Cancelada" ? "cancelada" : "marcada como no asistida").</strong>
+                        <div class="flex flex-col items-center gap-2 timeline-item @(Model.Estado == "Confirmada" || Model.Estado == "EnProceso" || Model.Estado == "Completada" ? "active" : "opacity-50 grayscale")">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-primary-container text-primary border-4 border-primary">
+                                <span class="material-symbols-outlined">thumb_up</span>
                             </div>
-                        }
+                            <span class="text-xs font-semibold">Confirmada</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2 timeline-item @(Model.Estado == "EnProceso" || Model.Estado == "Completada" ? "active" : "opacity-50 grayscale")">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-primary-container text-primary border-4 border-primary">
+                                <span class="material-symbols-outlined">stethoscope</span>
+                            </div>
+                            <span class="text-xs font-semibold">En Proceso</span>
+                        </div>
+                        <div class="flex flex-col items-center gap-2 timeline-item @(Model.Estado == "Completada" ? "active" : "opacity-50 grayscale")">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center transition-all bg-primary-container text-primary border-4 border-primary">
+                                <span class="material-symbols-outlined">done_all</span>
+                            </div>
+                            <span class="text-xs font-semibold">Completada</span>
+                        </div>
                     </div>
-                </div>
-            }
 
-            <!-- Información principal de la cita -->
-            <div class="card shadow mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">
-                        <i class="bi bi-info-circle"></i> Información de la Cita
+                    @if (Model.Estado == "Cancelada" || Model.Estado == "NoAsistio")
+                    {
+                        <div class="mt-6 bg-error-container text-on-error-container p-3 rounded-lg flex justify-center items-center gap-2 border border-error max-w-md mx-auto">
+                            <span class="material-symbols-outlined">cancel</span>
+                            <strong>Esta cita fue @(Model.Estado == "Cancelada" ? "cancelada" : "marcada como no asistida").</strong>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-md">
+        <div class="lg:col-span-2 space-y-md">
+            <!-- Info Cita -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                <div class="p-md bg-surface-container-low border-b border-outline-variant">
+                    <h4 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">info</span> Información de la Cita
                     </h4>
                 </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h5 class="text-muted">Datos de la Mascota</h5>
-                            <hr />
-                            <p>
-                                <strong><i class="bi bi-heart-pulse"></i> Mascota:</strong><br />
-                                <span class="fs-5">@Model.MascotaNombre</span>
-                            </p>
-                            @if (esAdmin)
-                            {
-                                <p>
-                                    <strong><i class="bi bi-person"></i> Propietario:</strong><br />
-                                    <span>@propietarioNombre</span>
-                                </p>
-                            }
-                        </div>
-                        <div class="col-md-6">
-                            <h5 class="text-muted">Datos del Servicio</h5>
-                            <hr />
-                            <p>
-                                <strong><i class="bi bi-person-badge"></i> Veterinario:</strong><br />
-                                <span class="fs-5">@Model.VeterinarioNombre</span>
-                            </p>
-                            <p>
-                                <strong><i class="bi bi-clipboard-pulse"></i> Servicio:</strong><br />
-                                <span class="badge bg-info fs-6">@Model.ServicioNombre</span>
-                            </p>
-                        </div>
+                <div class="p-lg grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
+                    <div>
+                        <span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider block mb-1">Mascota</span>
+                        <p class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                            <span class="material-symbols-outlined text-primary">pets</span> @Model.MascotaNombre
+                        </p>
+                        @if (esAdmin)
+                        {
+                            <p class="text-sm text-on-surface-variant mt-1">Propietario: @propietarioNombre</p>
+                        }
                     </div>
-                    
-                    <hr />
-                    
-                    <div class="row">
-                        <div class="col-md-4">
-                            <p>
-                                <strong><i class="bi bi-calendar3"></i> Fecha:</strong><br />
-                                <span class="fs-5">@Model.FechaHora.ToString("dddd, dd 'de' MMMM 'de' yyyy")</span>
-                            </p>
+                    <div>
+                        <span class="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider block mb-1">Veterinario</span>
+                        <p class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                            <span class="material-symbols-outlined text-secondary">medical_information</span> @Model.VeterinarioNombre
+                        </p>
+                        <p class="text-sm text-on-surface-variant mt-1">Servicio: <span class="bg-surface-variant px-2 py-0.5 rounded text-xs font-semibold">@Model.ServicioNombre</span></p>
+                    </div>
+
+                    <div class="sm:col-span-2 border-t border-outline-variant pt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <span class="text-on-surface-variant text-sm block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">calendar_month</span> Fecha</span>
+                            <p class="font-semibold">@Model.FechaHora.ToString("dddd, dd 'de' MMMM yyyy")</p>
                         </div>
-                        <div class="col-md-4">
-                            <p>
-                                <strong><i class="bi bi-clock"></i> Hora:</strong><br />
-                                <span class="fs-5">@Model.FechaHora.ToString("HH:mm")</span>
-                            </p>
+                        <div>
+                            <span class="text-on-surface-variant text-sm block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">schedule</span> Hora</span>
+                            <p class="font-semibold">@Model.FechaHora.ToString("HH:mm")</p>
                         </div>
-                        <div class="col-md-4">
-                            <p>
-                                <strong><i class="bi bi-flag"></i> Estado:</strong><br />
-                                @{
-                                    var badgeClass = Model.Estado switch
-                                    {
-                                        "Completada" => "bg-success",
-                                        "Confirmada" => "bg-primary",
-                                        "EnProceso" => "bg-warning text-dark",
-                                        "Cancelada" => "bg-danger",
-                                        "NoAsistio" => "bg-danger",
-                                        _ => "bg-secondary"
-                                    };
-                                }
-                                <span class="badge @badgeClass fs-6" id="estadoActual">@Model.Estado</span>
-                            </p>
+                        <div>
+                            <span class="text-on-surface-variant text-sm block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">flag</span> Estado</span>
+                            @{
+                                var badgeC = Model.Estado switch {
+                                    "Completada" => "bg-secondary-container text-on-secondary-container",
+                                    "Confirmada" => "bg-primary-container text-on-primary-container",
+                                    "EnProceso" => "bg-tertiary-container text-on-tertiary-container",
+                                    "Cancelada" => "bg-error-container text-on-error-container",
+                                    "NoAsistio" => "bg-error text-on-error",
+                                    _ => "bg-surface-variant text-on-surface"
+                                };
+                            }
+                            <span class="inline-block px-3 py-1 rounded-full font-label-sm text-label-sm @badgeC" id="estadoActual">@Model.Estado</span>
                         </div>
                     </div>
 
                     @if (Model.PrecioServicio.HasValue)
                     {
-                        <hr />
-                        <div class="row">
-                            <div class="col-md-12">
-                                <p>
-                                    <strong><i class="bi bi-cash-coin"></i> Precio del Servicio:</strong><br />
-                                    <span class="fs-4 text-success">@Model.PrecioServicio.Value.ToString("C")</span>
-                                </p>
-                            </div>
+                        <div class="sm:col-span-2 border-t border-outline-variant pt-6">
+                            <span class="text-on-surface-variant text-sm block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">payments</span> Precio del Servicio</span>
+                            <p class="font-headline-sm text-headline-sm text-secondary">@Model.PrecioServicio.Value.ToString("C")</p>
                         </div>
                     }
 
                     @if (!string.IsNullOrWhiteSpace(Model.Motivo))
                     {
-                        <hr />
-                        <div class="row">
-                            <div class="col-md-12">
-                                <p>
-                                    <strong><i class="bi bi-file-text"></i> Motivo de la consulta:</strong><br />
-                                    @Model.Motivo
-                                </p>
-                            </div>
+                        <div class="sm:col-span-2 border-t border-outline-variant pt-6">
+                            <span class="text-on-surface-variant text-sm block mb-1 flex items-center gap-1"><span class="material-symbols-outlined text-sm">description</span> Motivo</span>
+                            <p class="text-on-surface bg-surface-container p-3 rounded-md">@Model.Motivo</p>
                         </div>
                     }
                 </div>
             </div>
 
-            <!-- Historial Clínico (si existe) -->
+            <!-- Historial -->
             @if (ViewBag.TieneHistorial == true)
             {
-                <div class="card shadow mb-4 border-success">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">
-                            <i class="bi bi-file-medical"></i> Historial Clínico Generado
-                        </h5>
+                <div class="bg-secondary-container/20 border border-secondary rounded-xl p-md flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-secondary text-3xl">clinical_notes</span>
+                        <div>
+                            <h5 class="font-headline-sm text-headline-sm text-on-surface">Historial Clínico Generado</h5>
+                            <p class="text-sm text-on-surface-variant">Esta cita cuenta con un historial clínico registrado.</p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <p>Esta cita cuenta con un historial clínico registrado.</p>
-                        <a asp-action="Details" asp-controller="HistorialesClinicos" asp-route-citaId="@Model.Id" class="btn btn-outline-success">
-                            <i class="bi bi-eye"></i> Ver Historial Clínico
-                        </a>
-                    </div>
+                    <a asp-action="Details" asp-controller="HistorialesClinicos" asp-route-citaId="@Model.Id" class="bg-secondary text-on-secondary px-4 py-2 rounded-full text-sm font-semibold hover:bg-secondary/90 transition-colors flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">visibility</span> Ver
+                    </a>
                 </div>
             }
+        </div>
 
-            <!-- Información de Pago (si existe) -->
+        <div class="space-y-md">
+            <!-- Pagos -->
             @if (ViewBag.EstadoPago != null)
             {
                 var estadoPago = ViewBag.EstadoPago as string ?? "Pendiente";
                 var montoTotal = ViewBag.MontoTotal ?? 0m;
                 var montoPagado = ViewBag.MontoPagado ?? 0m;
-                var tipoPago = ViewBag.TipoPago as string ?? "";
                 var pagos = ViewBag.Pagos as List<Veterinaria.Domain.Entities.Pago>;
+                
+                var borderClass = estadoPago == "Pagado" ? "border-secondary" : estadoPago == "Parcial" ? "border-tertiary" : "border-outline-variant";
+                var headerClass = estadoPago == "Pagado" ? "bg-secondary text-on-secondary" : estadoPago == "Parcial" ? "bg-tertiary-container text-on-tertiary-container" : "bg-surface-container-highest text-on-surface";
 
-                <div class="card shadow mb-4 @(estadoPago == "Pagado" ? "border-success" : estadoPago == "Parcial" ? "border-warning" : "border-secondary")">
-                    <div class="card-header @(estadoPago == "Pagado" ? "bg-success" : estadoPago == "Parcial" ? "bg-warning text-dark" : "bg-secondary") text-white">
-                        <h5 class="mb-0">
-                            <i class="bi bi-credit-card"></i> Información de Pago
-                            @if (estadoPago == "Pagado")
-                            {
-                                <span class="badge bg-light text-success float-end">Pagado Completamente</span>
-                            }
-                            else if (estadoPago == "Parcial")
-                            {
-                                <span class="badge bg-light text-warning float-end">Pago Parcial</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-light text-secondary float-end">Pendiente de Pago</span>
-                            }
+                <div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border @borderClass">
+                    <div class="p-md flex justify-between items-center @headerClass">
+                        <h5 class="font-headline-sm text-headline-sm flex items-center gap-2">
+                            <span class="material-symbols-outlined">point_of_sale</span> Pagos
                         </h5>
+                        <span class="px-2 py-0.5 rounded text-xs font-semibold bg-surface/50">
+                            @(estadoPago == "Pagado" ? "Completado" : estadoPago == "Parcial" ? "Parcial" : "Pendiente")
+                        </span>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center border-end">
-                                <small class="text-muted d-block">Total del Servicio</small>
-                                <h4 class="text-primary">S/. @(((decimal)montoTotal).ToString("N2"))</h4>
+                    <div class="p-md">
+                        <div class="grid grid-cols-2 gap-4 mb-4 text-center">
+                            <div class="bg-surface-container p-2 rounded">
+                                <span class="text-xs text-on-surface-variant block">Total</span>
+                                <span class="font-semibold text-primary">S/. @(((decimal)montoTotal).ToString("N2"))</span>
                             </div>
-                            <div class="col-md-4 text-center border-end">
-                                <small class="text-muted d-block">Monto Pagado</small>
-                                <h4 class="text-success">S/. @(((decimal)montoPagado).ToString("N2"))</h4>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <small class="text-muted d-block">Saldo Pendiente</small>
-                                <h4 class="@(((decimal)montoTotal - (decimal)montoPagado) > 0 ? "text-danger" : "text-success")">
-                                    S/. @(((decimal)montoTotal - (decimal)montoPagado).ToString("N2"))
-                                </h4>
+                            <div class="bg-surface-container p-2 rounded">
+                                <span class="text-xs text-on-surface-variant block">Saldo</span>
+                                <span class="font-semibold @(((decimal)montoTotal - (decimal)montoPagado) > 0 ? "text-error" : "text-secondary")">S/. @(((decimal)montoTotal - (decimal)montoPagado).ToString("N2"))</span>
                             </div>
                         </div>
 
                         @if (pagos != null && pagos.Any())
                         {
-                            <hr />
-                            <h6><i class="bi bi-receipt"></i> Pagos Realizados</h6>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Referencia</th>
-                                            <th>Fecha</th>
-                                            <th>Método</th>
-                                            <th>Tipo</th>
-                                            <th class="text-end">Monto</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var pago in pagos)
-                                        {
-                                            <tr>
-                                                <td><code>@pago.Referencia</code></td>
-                                                <td>@pago.FechaPago.ToString("dd/MM/yyyy HH:mm")</td>
-                                                <td>
-                                                    @if (pago.MetodoPago == "Tarjeta")
-                                                    {
-                                                        <i class="bi bi-credit-card text-primary"></i>
-                                                        <span>Tarjeta ****@pago.UltimosDigitosTarjeta</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <i class="bi bi-cash text-success"></i>
-                                                        <span>Efectivo</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    <span class="badge @(pago.TipoPago == "Completo" ? "bg-success" : pago.TipoPago == "Parcial" ? "bg-warning text-dark" : "bg-info")">
-                                                        @pago.TipoPago
-                                                    </span>
-                                                </td>
-                                                <td class="text-end fw-bold">S/. @pago.Monto.ToString("N2")</td>
-                                                <td>
-                                                    <a asp-controller="PagoCita" asp-action="DescargarComprobante" asp-route-pagoId="@pago.Id" 
-                                                       class="btn btn-sm btn-outline-danger" title="Descargar Comprobante">
-                                                        <i class="bi bi-file-pdf"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                            <div class="text-sm space-y-2 mb-4">
+                                @foreach (var pago in pagos)
+                                {
+                                    <div class="flex justify-between items-center p-2 bg-surface-container-low rounded border border-outline-variant">
+                                        <div>
+                                            <p class="font-semibold">S/. @pago.Monto.ToString("N2")</p>
+                                            <p class="text-xs text-on-surface-variant">@pago.FechaPago.ToString("dd/MM") • @(pago.MetodoPago == "Tarjeta" ? "Tarj" : "Efec")</p>
+                                        </div>
+                                        <a asp-controller="PagoCita" asp-action="DescargarComprobante" asp-route-pagoId="@pago.Id" class="text-error hover:bg-error-container p-1 rounded-full transition-colors" title="PDF">
+                                            <span class="material-symbols-outlined text-lg">picture_as_pdf</span>
+                                        </a>
+                                    </div>
+                                }
                             </div>
                         }
 
                         @if (estadoPago == "Pendiente")
                         {
-                            <div class="alert alert-warning mt-3">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                <strong>Pago pendiente.</strong> Debe realizar el pago para confirmar su cita.
-                                <a asp-controller="PagoCita" asp-action="Pagar" asp-route-citaId="@Model.Id" class="btn btn-warning btn-sm ms-2">
-                                    <i class="bi bi-credit-card"></i> Ir a Pagar
-                                </a>
-                            </div>
+                            <a asp-controller="PagoCita" asp-action="Pagar" asp-route-citaId="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-tertiary text-on-tertiary px-4 py-2 rounded-md font-semibold text-sm hover:opacity-90 transition-colors">
+                                <span class="material-symbols-outlined text-sm">payment</span> Ir a Pagar
+                            </a>
                         }
-                        else if (estadoPago == "Parcial" && Model.Estado == "Completada")
+                        else if (estadoPago == "Parcial" && esPropietario)
                         {
-                            @if (esPropietario)
-                            {
-                                <!-- Solo el propietario puede completar el pago -->
-                                <div class="alert alert-info mt-3">
-                                    <i class="bi bi-info-circle me-2"></i>
-                                    <strong>Tiene un saldo pendiente.</strong> Complete el pago restante.
-                                    <a asp-controller="PagoCita" asp-action="CompletarPago" asp-route-citaId="@Model.Id" class="btn btn-info btn-sm ms-2">
-                                        <i class="bi bi-cash"></i> Completar Pago
-                                    </a>
-                                </div>
-                            }
-                            else if (esAdmin)
-                            {
-                                <!-- El admin solo ve información, no puede pagar por el cliente -->
-                                <div class="alert alert-warning mt-3">
-                                    <i class="bi bi-exclamation-triangle me-2"></i>
-                                    <strong>Saldo pendiente:</strong> S/. @((montoTotal - montoPagado).ToString("N2"))
-                                    <br/>
-                                    <small class="text-muted">El cliente debe completar el pago desde su cuenta.</small>
-                                </div>
-                            }
+                            <a asp-controller="PagoCita" asp-action="CompletarPago" asp-route-citaId="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-tertiary text-on-tertiary px-4 py-2 rounded-md font-semibold text-sm hover:opacity-90 transition-colors">
+                                <span class="material-symbols-outlined text-sm">payments</span> Completar Pago
+                            </a>
                         }
-
+                        
                         @if (estadoPago != "Pendiente")
                         {
-                            <div class="d-flex gap-2 mt-3">
-                                <a asp-controller="PagoCita" asp-action="DescargarFicha" asp-route-citaId="@Model.Id" class="btn btn-outline-primary">
-                                    <i class="bi bi-file-earmark-text"></i> Descargar Ficha de Cita
-                                </a>
-                            </div>
+                            <a asp-controller="PagoCita" asp-action="DescargarFicha" asp-route-citaId="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-surface border border-outline-variant text-primary mt-2 px-4 py-2 rounded-md font-semibold text-sm hover:bg-surface-container-low transition-colors">
+                                <span class="material-symbols-outlined text-sm">receipt_long</span> Ficha
+                            </a>
                         }
                     </div>
                 </div>
             }
-            
-            <!-- Acciones disponibles -->
-            <div class="card shadow">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">
-                        <i class="bi bi-gear"></i> Acciones
+
+            <!-- Acciones -->
+            <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+                <div class="bg-surface-container-high p-md border-b border-outline-variant">
+                    <h5 class="font-headline-sm text-headline-sm text-on-surface flex items-center gap-2">
+                        <span class="material-symbols-outlined">touch_app</span> Acciones
                     </h5>
                 </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        @if (esAdmin)
+                <div class="p-md space-y-2">
+                    @if (esAdmin)
+                    {
+                        @if (Model.Estado != "Completada" && Model.Estado != "Cancelada" && Model.Estado != "NoAsistio")
                         {
-                            <!-- Acciones para Admin -->
-                            @if (Model.Estado != "Completada" && Model.Estado != "Cancelada" && Model.Estado != "NoAsistio")
-                            {
-                                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
-                                    <i class="bi bi-pencil"></i> Editar
-                                </a>
-                            }
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-surface text-on-surface border border-outline-variant px-4 py-2 rounded-md hover:bg-surface-container-low transition-colors text-sm font-semibold">
+                                <span class="material-symbols-outlined text-sm">edit</span> Editar Cita
+                            </a>
+                        }
 
-                            @if (Model.Estado == "Completada" && ViewBag.TieneHistorial == false)
-                            {
-                                <a asp-action="Create" asp-controller="HistorialesClinicos" asp-route-citaId="@Model.Id" class="btn btn-success">
-                                    <i class="bi bi-file-medical"></i> Crear Historial Clínico
-                                </a>
-                            }
+                        @if (Model.Estado == "Completada" && ViewBag.TieneHistorial == false)
+                        {
+                            <a asp-action="Create" asp-controller="HistorialesClinicos" asp-route-citaId="@Model.Id" class="w-full flex items-center justify-center gap-2 bg-secondary text-on-secondary px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm font-semibold">
+                                <span class="material-symbols-outlined text-sm">note_add</span> Crear Historial
+                            </a>
+                        }
 
-                            <!-- Botones de cambio de estado rápido -->
-                            @if (Model.Estado == "Pendiente")
-                            {
-                                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="nuevoEstado" value="Confirmada" />
-                                    <button type="submit" class="btn btn-primary" title="Confirmar cita y notificar al cliente">
-                                        <i class="bi bi-check2-circle"></i> Confirmar Cita
-                                    </button>
-                                </form>
-                            }
+                        @if (Model.Estado == "Pendiente")
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
+                                <input type="hidden" name="nuevoEstado" value="Confirmada" />
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-md hover:bg-primary/90 transition-colors text-sm font-semibold">
+                                    <span class="material-symbols-outlined text-sm">check</span> Confirmar Cita
+                                </button>
+                            </form>
+                        }
 
-                            @if (Model.Estado == "Confirmada" || Model.Estado == "Pendiente")
-                            {
-                                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="nuevoEstado" value="EnProceso" />
-                                    <button type="submit" class="btn btn-info text-white" title="Iniciar atención - El cliente será notificado">
-                                        <i class="bi bi-play-circle"></i> Iniciar Atención
-                                    </button>
-                                </form>
-                            }
+                        @if (Model.Estado == "Confirmada" || Model.Estado == "Pendiente")
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
+                                <input type="hidden" name="nuevoEstado" value="EnProceso" />
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-tertiary text-on-tertiary px-4 py-2 rounded-md hover:opacity-90 transition-colors text-sm font-semibold">
+                                    <span class="material-symbols-outlined text-sm">play_arrow</span> Iniciar Atención
+                                </button>
+                            </form>
+                        }
 
-                            @if (Model.Estado == "EnProceso")
-                            {
-                                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post" style="display: inline;">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="nuevoEstado" value="Completada" />
-                                    <button type="submit" class="btn btn-success" title="Completar cita - El cliente será notificado para recoger a su mascota">
-                                        <i class="bi bi-check-circle-fill"></i> Completar y Notificar
-                                    </button>
-                                </form>
-                            }
+                        @if (Model.Estado == "EnProceso")
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post">
+                                <input type="hidden" name="nuevoEstado" value="Completada" />
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-secondary text-on-secondary px-4 py-2 rounded-md hover:bg-secondary/90 transition-colors text-sm font-semibold">
+                                    <span class="material-symbols-outlined text-sm">done_all</span> Completar
+                                </button>
+                            </form>
+                        }
 
-                            @if (Model.Estado != "Cancelada" && Model.Estado != "Completada" && Model.Estado != "NoAsistio")
-                            {
-                                <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post" style="display: inline;" 
-                                      onsubmit="return confirm('¿Está seguro de cancelar esta cita? El cliente será notificado.');">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="nuevoEstado" value="Cancelada" />
-                                    <button type="submit" class="btn btn-outline-danger" title="Cancelar cita">
-                                        <i class="bi bi-x-circle"></i> Cancelar
-                                    </button>
-                                </form>
-                            }
+                        @if (Model.Estado != "Cancelada" && Model.Estado != "Completada" && Model.Estado != "NoAsistio")
+                        {
+                            <form asp-action="CambiarEstado" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('¿Cancelar cita?');">
+                                <input type="hidden" name="nuevoEstado" value="Cancelada" />
+                                <button type="submit" class="w-full flex items-center justify-center gap-2 bg-surface text-error border border-error px-4 py-2 rounded-md hover:bg-error-container transition-colors text-sm font-semibold mt-4">
+                                    <span class="material-symbols-outlined text-sm">cancel</span> Cancelar
+                                </button>
+                            </form>
+                        }
+                    }
+                    else
+                    {
+                        @if (Model.Estado == "Pendiente" || Model.Estado == "Confirmada")
+                        {
+                            <button onclick="document.getElementById('modalCancelar').classList.remove('hidden')" class="w-full flex items-center justify-center gap-2 bg-surface text-error border border-error px-4 py-2 rounded-md hover:bg-error-container transition-colors text-sm font-semibold">
+                                <span class="material-symbols-outlined text-sm">cancel</span> Cancelar Cita
+                            </button>
                         }
                         else
                         {
-                            <!-- Acciones para Usuario -->
-                            @if (Model.Estado == "Pendiente" || Model.Estado == "Confirmada")
-                            {
-                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal">
-                                    <i class="bi bi-x-circle"></i> Cancelar Cita
-                                </button>
-                            }
-                            else if (Model.Estado == "Completada")
-                            {
-                                <div class="alert alert-success mb-0 w-100">
-                                    <i class="bi bi-check-circle"></i>
-                                    <strong>¡Cita completada!</strong> Gracias por confiar en nosotros.
-                                </div>
-                            }
-                            else if (Model.Estado == "Cancelada")
-                            {
-                                <div class="alert alert-secondary mb-0 w-100">
-                                    <i class="bi bi-info-circle"></i>
-                                    Esta cita fue cancelada. Puede agendar una nueva cuando lo desee.
-                                </div>
-                            }
-                            else if (Model.Estado == "NoAsistio")
-                            {
-                                <div class="alert alert-warning mb-0 w-100">
-                                    <i class="bi bi-exclamation-triangle"></i>
-                                    <strong>No asistió a esta cita.</strong> Por favor, intente llegar a tiempo a sus próximas citas.
-                                </div>
-                            }
+                            <p class="text-center text-sm text-on-surface-variant py-2">No hay acciones disponibles</p>
                         }
-                    </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal de Cancelación -->
-<div class="modal fade" id="cancelarModal" tabindex="-1" aria-labelledby="cancelarModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="cancelarModalLabel">
-                    <i class="bi bi-exclamation-triangle"></i> Confirmar Cancelación
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Modal Cliente -->
+@if (!esAdmin && (Model.Estado == "Pendiente" || Model.Estado == "Confirmada"))
+{
+    <div id="modalCancelar" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/50 backdrop-blur-sm">
+        <div class="bg-surface rounded-xl shadow-lg max-w-sm w-full overflow-hidden text-left border border-outline-variant">
+            <div class="bg-error p-4 text-on-error flex justify-between items-center">
+                <h5 class="font-headline-sm text-headline-sm flex items-center gap-2"><span class="material-symbols-outlined">warning</span> Cancelar Cita</h5>
+                <button onclick="document.getElementById('modalCancelar').classList.add('hidden')" class="hover:bg-error-container/20 p-1 rounded-full"><span class="material-symbols-outlined">close</span></button>
             </div>
-            <div class="modal-body">
-                <p>¿Está seguro de que desea cancelar esta cita?</p>
-                <p class="text-muted">
-                    <strong>Nota:</strong> Esta acción no se puede deshacer. La cita será marcada como cancelada y el espacio quedará disponible para otros clientes.
-                </p>
-                <div class="alert alert-info">
-                    <strong>Cita:</strong> @Model.ServicioNombre<br />
-                    <strong>Fecha:</strong> @Model.FechaHora.ToString("dd/MM/yyyy HH:mm")<br />
-                    <strong>Veterinario:</strong> @Model.VeterinarioNombre
+            <div class="p-lg">
+                <p class="text-sm mb-4">¿Desea cancelar esta cita? Esta acción no se puede deshacer.</p>
+                <div class="flex justify-end gap-3">
+                    <button onclick="document.getElementById('modalCancelar').classList.add('hidden')" class="px-4 py-2 rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">Volver</button>
+                    <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="m-0">
+                        <button type="submit" class="bg-error text-on-error px-4 py-2 rounded-full font-label-md text-label-md hover:bg-error/90 transition-colors shadow-sm">Sí, cancelar</button>
+                    </form>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="bi bi-arrow-left"></i> No, mantener la cita
-                </button>
-                <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-x-circle"></i> Sí, cancelar cita
-                    </button>
-                </form>
             </div>
         </div>
     </div>
-</div>
+}
 
 @section Scripts {
-    <style>
-        .timeline-horizontal { display: flex; justify-content: space-between; align-items: center; position: relative; padding: 20px 0; }
-        .timeline-horizontal::before { content: ''; position: absolute; top: 35px; left: 10%; right: 10%; height: 3px; background: #dee2e6; z-index: 0; }
-        .timeline-item { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
-        .timeline-icon { width: 50px; height: 50px; border-radius: 50%; background: #dee2e6; color: #6c757d; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 10px; transition: all 0.3s ease; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .timeline-item.active .timeline-icon { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; transform: scale(1.1); }
-        .timeline-content { font-size: 0.85rem; font-weight: 600; color: #6c757d; text-align: center; }
-        .timeline-item.active .timeline-content { color: #667eea; }
-    </style>
-
-    <script>
-        $(document).ready(function() {
-            const esAdmin = @Json.Serialize(esAdmin);
-            const citaId = @Model.Id;
-            
-            // Auto-dismiss alerts después de 5 segundos
-            setTimeout(function() {
-                $('.alert-dismissible').fadeOut('slow');
-            }, 5000);
-
-            // Actualización en tiempo real del estado (solo para usuarios)
-            if (!esAdmin) {
-                let intervalId = setInterval(function() {
-                    actualizarEstado();
-                }, 30000); // Cada 30 segundos
+    @if (!esAdmin)
+    {
+        <script>
+            $(document).ready(function() {
+                const citaId = @Model.Id;
+                let intervalId = setInterval(actualizarEstado, 30000);
 
                 function actualizarEstado() {
-                    $.ajax({
-                        url: '@Url.Action("GetEstado", "Citas")',
-                        type: 'GET',
-                        data: { id: citaId },
-                        success: function(data) {
-                            const estadoAnterior = $('#estadoBadge').text().trim();
-                            const estadoNuevo = data.estado;
-                            
-                            if (estadoAnterior !== estadoNuevo) {
-                                // Actualizar badge
-                                actualizarBadgeEstado(estadoNuevo);
-                                
-                                // Actualizar timeline
-                                actualizarTimeline(estadoNuevo);
-                                
-                                // Mostrar notificación
-                                toastr.info('El estado de tu cita ha cambiado a: ' + estadoNuevo, 'Actualización');
-                                
-                                // Si cambia a Completada, NoAsistio o Cancelada, detener actualización
-                                if (estadoNuevo === 'Completada' || estadoNuevo === 'NoAsistio' || estadoNuevo === 'Cancelada') {
-                                    clearInterval(intervalId);
-                                }
-                            }
-                            
-                            $('#ultimaActualizacion').text('Actualizado: ' + data.fechaActualizacion);
-                        },
-                        error: function() {
-                            console.log('Error al actualizar estado');
+                    $.get('@Url.Action("GetEstado", "Citas")', { id: citaId }, function(data) {
+                        const actual = $('#estadoBadge').text().trim();
+                        if (actual !== data.estado) {
+                            location.reload(); // Recarga simple para mantener UI de Tailwind
                         }
+                        $('#ultimaActualizacion').text('Act: ' + data.fechaActualizacion);
                     });
                 }
-
-                function actualizarBadgeEstado(estado) {
-                    const badge = $('#estadoBadge');
-                    badge.removeClass();
-                    
-                    switch(estado) {
-                        case 'Pendiente':
-                            badge.addClass('badge bg-secondary fs-4');
-                            break;
-                        case 'Confirmada':
-                            badge.addClass('badge bg-primary fs-4');
-                            break;
-                        case 'EnProceso':
-                            badge.addClass('badge bg-warning text-dark fs-4');
-                            break;
-                        case 'Completada':
-                            badge.addClass('badge bg-success fs-4');
-                            break;
-                        case 'Cancelada':
-                        case 'NoAsistio':
-                            badge.addClass('badge bg-danger fs-4');
-                            break;
-                    }
-                    
-                    badge.text(estado);
-                }
-
-                function actualizarTimeline(estado) {
-                    $('.timeline-item').removeClass('active');
-                    
-                    if (estado !== 'Cancelada' && estado !== 'NoAsistio') {
-                        $('.timeline-item').eq(0).addClass('active'); // Agendada
-                        
-                        if (estado === 'Confirmada' || estado === 'EnProceso' || estado === 'Completada') {
-                            $('.timeline-item').eq(1).addClass('active'); // Confirmada
-                        }
-                        
-                        if (estado === 'EnProceso' || estado === 'Completada') {
-                            $('.timeline-item').eq(2).addClass('active'); // En Proceso
-                        }
-                        
-                        if (estado === 'Completada') {
-                            $('.timeline-item').eq(3).addClass('active'); // Completada
-                        }
-                    }
-                }
-
-                // Actualizar inmediatamente al cargar
                 actualizarEstado();
-            }
-        });
-    </script>
+            });
+        </script>
+    }
 }

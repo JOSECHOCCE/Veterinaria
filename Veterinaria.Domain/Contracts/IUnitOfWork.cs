@@ -13,6 +13,8 @@ public interface IUnitOfWork : IAsyncDisposable
     IGenericRepository<Pago> Pagos { get; }
     IGenericRepository<Notificacion> Notificaciones { get; }
     IGenericRepository<TarjetaGuardada> TarjetasGuardadas { get; }
+    IGenericRepository<Triage> Triages { get; }
+    IGenericRepository<Consentimiento> Consentimientos { get; }
 
     Task<int> CommitAsync();
 }

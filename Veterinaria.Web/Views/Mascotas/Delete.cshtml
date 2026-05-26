@@ -1,72 +1,61 @@
 @model Veterinaria.Web.Models.Dto.MascotaDto
-
 @{
     ViewData["Title"] = $"Eliminar {Model.Nombre}";
 }
 
-<div class="container">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a asp-action="Index">Mascotas</a></li>
-            <li class="breadcrumb-item active">Eliminar @Model.Nombre</li>
-        </ol>
-    </nav>
+<div class="max-w-lg mx-auto">
+    <div class="flex justify-between items-center mb-lg">
+        <p class="font-body-md text-body-md text-on-surface-variant">Confirme la eliminación del paciente.</p>
+        <a asp-action="Index" class="text-primary hover:underline font-label-md text-label-md flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">arrow_back</span> Volver
+        </a>
+    </div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmar Eliminación</h4>
+    <div class="bg-surface-container-lowest rounded-xl border border-error shadow-sm overflow-hidden">
+        <div class="bg-error p-md text-on-error">
+            <h3 class="font-headline-sm text-headline-sm flex items-center gap-2">
+                <span class="material-symbols-outlined">warning</span>
+                Confirmar Eliminación
+            </h3>
+        </div>
+        <div class="p-lg">
+            <div class="text-center mb-lg">
+                <div class="w-24 h-24 rounded-full bg-surface-container flex items-center justify-center mx-auto mb-3 border-2 border-outline-variant">
+                    <span class="material-symbols-outlined text-primary text-4xl">pets</span>
                 </div>
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        @if (!string.IsNullOrEmpty(Model.FotoUrl))
-                        {
-                            <img src="@Model.FotoUrl" alt="@Model.Nombre" 
-                                 class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;" />
-                        }
-                        else
-                        {
-                            <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center mx-auto mb-3" 
-                                 style="width: 100px; height: 100px;">
-                                <i class="bi bi-heart-pulse text-white display-5"></i>
-                            </div>
-                        }
-                        <h3>@Model.Nombre</h3>
-                        <span class="badge bg-info">@Model.Especie</span>
-                    </div>
+                <h3 class="font-headline-lg text-headline-lg text-on-surface">@Model.Nombre</h3>
+                <span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full">@Model.Especie</span>
+            </div>
 
-                    <div class="alert alert-warning">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        <strong>¡Atención!</strong> Está a punto de eliminar esta mascota. Esta acción no se puede deshacer.
-                    </div>
+            <div class="bg-error-container text-on-error-container p-3 rounded-md border border-error mb-lg">
+                <p class="text-sm font-semibold">¡Atención! Esta acción es irreversible.</p>
+            </div>
 
-                    <dl class="row">
-                        <dt class="col-sm-4">Raza</dt>
-                        <dd class="col-sm-8">@(Model.Raza ?? "No especificada")</dd>
-
-                        <dt class="col-sm-4">Edad</dt>
-                        <dd class="col-sm-8">@(Model.Edad.HasValue ? $"{Model.Edad} años" : "No especificada")</dd>
-
-                        <dt class="col-sm-4">Propietario</dt>
-                        <dd class="col-sm-8">@(Model.UsuarioNombre ?? "No asignado")</dd>
-                    </dl>
-
-                    <hr />
-
-                    <form asp-action="Delete" method="post">
-                        <input type="hidden" asp-for="Id" />
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Cancelar
-                            </a>
-                            <button type="submit" class="btn btn-danger">
-                                <i class="bi bi-trash"></i> Eliminar Mascota
-                            </button>
-                        </div>
-                    </form>
+            <div class="space-y-2 mb-lg text-sm">
+                <div class="flex justify-between p-2 bg-surface-container rounded-md">
+                    <span class="text-on-surface-variant">Raza</span>
+                    <span class="font-semibold">@(Model.Raza ?? "N/A")</span>
+                </div>
+                <div class="flex justify-between p-2 bg-surface-container rounded-md">
+                    <span class="text-on-surface-variant">Edad</span>
+                    <span class="font-semibold">@(Model.Edad.HasValue ? $"{Model.Edad} años" : "N/A")</span>
+                </div>
+                <div class="flex justify-between p-2 bg-surface-container rounded-md">
+                    <span class="text-on-surface-variant">Propietario</span>
+                    <span class="font-semibold">@(Model.UsuarioNombre ?? "N/A")</span>
                 </div>
             </div>
+
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="flex justify-end gap-3 pt-md border-t border-outline-variant">
+                    <a asp-action="Index" class="px-md py-sm rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancelar</a>
+                    <button type="submit" class="bg-error text-on-error px-md py-sm rounded-full font-label-md text-label-md hover:bg-error/90 transition-colors shadow-sm flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">delete_forever</span>
+                        Eliminar Mascota
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

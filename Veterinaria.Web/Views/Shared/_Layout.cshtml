@@ -1,232 +1,250 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @using Veterinaria.Domain.Entities
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - VetCare Pro</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@("@")1.11.1/font/bootstrap-icons.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@("@")6.1.10/index.global.min.css" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffdcbe",
+                        "surface-container-high": "#d5ecf8",
+                        "background": "#f3faff",
+                        "inverse-surface": "#1e333c",
+                        "on-surface": "#071e27",
+                        "on-tertiary-container": "#ffc388",
+                        "on-secondary-fixed": "#002204",
+                        "primary-fixed": "#d9e2ff",
+                        "on-primary-fixed-variant": "#00419c",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#737784",
+                        "surface-tint": "#1d59c1",
+                        "on-primary-container": "#bcceff",
+                        "on-secondary-container": "#00731e",
+                        "secondary-container": "#91f78e",
+                        "surface-container": "#dbf1fe",
+                        "on-secondary-fixed-variant": "#005313",
+                        "on-tertiary-fixed-variant": "#693c00",
+                        "surface-dim": "#c7dde9",
+                        "surface-container-low": "#e6f6ff",
+                        "primary": "#003c90",
+                        "on-tertiary-fixed": "#2c1600",
+                        "on-primary-fixed": "#001945",
+                        "tertiary": "#613600",
+                        "on-background": "#071e27",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#b0c6ff",
+                        "secondary-fixed": "#94f990",
+                        "surface-variant": "#cfe6f2",
+                        "inverse-on-surface": "#dff4ff",
+                        "primary-container": "#0f52ba",
+                        "on-surface-variant": "#434653",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#78dc77",
+                        "secondary": "#006e1c",
+                        "tertiary-fixed-dim": "#ffb870",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#814b00",
+                        "on-primary": "#ffffff",
+                        "primary-fixed-dim": "#b0c6ff",
+                        "surface": "#f3faff",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#c3c6d5",
+                        "surface-container-highest": "#cfe6f2",
+                        "surface-bright": "#f3faff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "12px",
+                        "xs": "4px",
+                        "md": "24px",
+                        "margin": "32px",
+                        "base": "8px",
+                        "xl": "64px",
+                        "gutter": "24px",
+                        "lg": "40px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
+                        "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Veterinaria.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-gradient-primary shadow-sm">
-            <div class="container-fluid">
-                <!-- Logo y Marca -->
-                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
-                    <div class="brand-logo me-2">
-                        <i class="bi bi-heart-pulse-fill"></i>
-                    </div>
-                    <div class="brand-text">
-                        <span class="brand-name">VetCare</span>
-                        <span class="brand-pro">Pro</span>
-                    </div>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col md:flex-row">
+    
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <!-- SideNavBar (Desktop) -->
+        <nav class="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 pt-20 pb-8 px-sm bg-surface-container-low border-r border-outline-variant z-30">
+            <div class="mb-lg px-sm">
+                <a asp-controller="Home" asp-action="Index" class="block">
+                    <h1 class="text-headline-lg font-headline-lg text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-3xl">pets</span>
+                        VetCare Pro
+                    </h1>
                 </a>
-                
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" 
-                        aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                
-                <div class="collapse navbar-collapse" id="mainNavbar">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            <!-- Menú para Admin -->
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Dashboard" asp-action="Index">
-                                        <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Mascotas" asp-action="Index">
-                                        <i class="bi bi-heart-pulse me-1"></i>Mascotas
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Clientes" asp-action="Index">
-                                        <i class="bi bi-people me-1"></i>Clientes
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Veterinarios" asp-action="Index">
-                                        <i class="bi bi-person-badge me-1"></i>Veterinarios
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Servicios" asp-action="Index">
-                                        <i class="bi bi-clipboard-pulse me-1"></i>Servicios
-                                    </a>
-                                </li>
-                                
-                                <!-- Citas - Admin con dropdown -->
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" id="citasDropdown" role="button" 
-                                       data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-calendar-check me-1"></i>Citas
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-animated" aria-labelledby="citasDropdown">
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Citas" asp-action="Index">
-                                                <i class="bi bi-list-ul me-2"></i>Lista de Citas
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Citas" asp-action="Calendario">
-                                                <i class="bi bi-calendar3 me-2"></i>Calendario
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <a class="dropdown-item" asp-controller="Citas" asp-action="Create">
-                                                <i class="bi bi-plus-circle me-2"></i>Nueva Cita
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="HistorialesClinicos" asp-action="Index" asp-route-mascotaId="0">
-                                        <i class="bi bi-file-medical me-1"></i>Historiales
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Pagos" asp-action="Index">
-                                        <i class="bi bi-credit-card me-1"></i>Pagos
-                                    </a>
-                                </li>
-                            }
-                            else
-                            {
-                                <!-- Menú para Usuario - Solo Citas -->
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Citas" asp-action="Index">
-                                        <i class="bi bi-calendar-check me-1"></i>Mis Citas
-                                    </a>
-                                </li>
-                            }
-                        }
-                    </ul>
-                    
-                    <!-- Área de Usuario -->
-                    <ul class="navbar-nav">
-                        @if (SignInManager.IsSignedIn(User))
-                        {
-                            var currentUser = await UserManager.GetUserAsync(User);
-                            var roles = await UserManager.GetRolesAsync(currentUser!);
-                            var roleName = roles.FirstOrDefault() ?? "Usuario";
-                            
-                            <!-- Campana de Notificaciones (solo para usuarios, no admin) -->
-                            @if (!User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item dropdown me-2">
-                                    <a class="nav-link dropdown-toggle position-relative" href="#" id="notificacionesDropdown"
-                                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="bi bi-bell-fill fs-5 text-white"></i>
-                                        <span id="notificacionBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
-                                            <span id="notificacionCount">0</span>
-                                            <span class="visually-hidden">notificaciones sin leer</span>
-                                        </span>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end dropdown-menu-animated shadow" 
-                                        aria-labelledby="notificacionesDropdown" style="width: 350px; max-height: 400px; overflow-y: auto;">
-                                        <li class="dropdown-header d-flex justify-content-between align-items-center">
-                                            <strong><i class="bi bi-bell me-2"></i>Notificaciones</strong>
-                                            <a href="@Url.Action("Index", "Notificaciones")" class="text-decoration-none small">Ver todas</a>
-                                        </li>
-                                        <li><hr class="dropdown-divider my-1"></li>
-                                        <div id="notificacionesLista">
-                                            <li class="text-center py-3">
-                                                <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                                    <span class="visually-hidden">Cargando...</span>
-                                                </div>
-                                            </li>
-                                        </div>
-                                        <li><hr class="dropdown-divider my-1"></li>
-                                        <li class="text-center py-2">
-                                            <button id="btnMarcarTodasNavbar" class="btn btn-sm btn-outline-primary">
-                                                <i class="bi bi-check-all me-1"></i>Marcar todas como leídas
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
-                            
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle d-flex align-items-center text-white" href="#" id="userDropdown" 
-                                   role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <div class="user-avatar me-2 text-white">
-                                        <i class="bi bi-person-circle fs-5"></i>
-                                    </div>
-                                    <div class="user-info d-none d-md-block">
-                                        <span class="user-name text-white fw-semibold">@currentUser?.NombreCompleto</span>
-                                        <span class="user-role badge @(roleName == "Admin" ? "bg-danger" : "bg-info") ms-1">
-                                            @roleName
-                                        </span>
-                                    </div>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-animated" aria-labelledby="userDropdown">
-                                    <li class="dropdown-header">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-person-circle fs-3 me-2"></i>
-                                            <div>
-                                                <strong>@currentUser?.NombreCompleto</strong>
-                                                <br>
-                                                <small class="text-muted">@currentUser?.Email</small>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <form class="px-0" asp-area="Identity" asp-page="/Account/Logout" 
-                                              asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                                            <button type="submit" class="dropdown-item text-danger">
-                                                <i class="bi bi-box-arrow-right me-2"></i>Cerrar Sesión
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">
-                                    <i class="bi bi-person-plus me-1"></i>Registrarse
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link btn btn-outline-light btn-sm px-3" asp-area="Identity" asp-page="/Account/Login">
-                                    <i class="bi bi-box-arrow-in-right me-1"></i>Iniciar Sesión
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                <p class="font-body-md text-body-md text-on-surface-variant">Clínica Veterinaria</p>
+            </div>
+
+            <div class="flex-1 space-y-xs overflow-y-auto">
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Dashboard" asp-action="Index">
+                        <span class="material-symbols-outlined">dashboard</span>
+                        Dashboard
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Citas" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Citas" asp-action="Index">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        Agenda
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Triage" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Triage" asp-action="Cola">
+                        <span class="material-symbols-outlined">pending_actions</span>
+                        Cola / Triage
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mascotas" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Mascotas" asp-action="Index">
+                        <span class="material-symbols-outlined">pets</span>
+                        Mascotas
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "HistorialesClinicos" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="HistorialesClinicos" asp-action="Index">
+                        <span class="material-symbols-outlined">medical_information</span>
+                        Historiales Clínicos
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Clientes" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Clientes" asp-action="Index">
+                        <span class="material-symbols-outlined">group</span>
+                        Clientes
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Pagos" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Pagos" asp-action="Index">
+                        <span class="material-symbols-outlined">payments</span>
+                        Pagos
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Consentimientos" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Consentimientos" asp-action="Index">
+                        <span class="material-symbols-outlined">draw</span>
+                        Consentimientos
+                    </a>
+                }
+                else
+                {
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Citas" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Citas" asp-action="Index">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        Mis Citas
+                    </a>
+                    <a class="flex items-center gap-sm px-md py-sm @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Mascotas" ? "bg-primary-container text-on-primary-container" : "text-on-surface-variant hover:bg-surface-container-high") transition-all rounded-full font-label-md text-label-md" asp-controller="Mascotas" asp-action="Index">
+                        <span class="material-symbols-outlined">pets</span>
+                        Mis Mascotas
+                    </a>
+                }
+            </div>
+
+            <div class="mt-auto pt-md space-y-xs border-t border-outline-variant">
+                <form class="w-full" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                    <button type="submit" class="w-full flex items-center gap-sm px-md py-sm text-on-surface-variant hover:bg-surface-container-high transition-all rounded-full font-label-md text-label-md">
+                        <span class="material-symbols-outlined">logout</span>
+                        Cerrar Sesión
+                    </button>
+                </form>
             </div>
         </nav>
+    }
+
+    <!-- TopAppBar -->
+    <header class="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter h-16 bg-surface border-b border-outline-variant shadow-sm @(SignInManager.IsSignedIn(User) ? "md:pl-[calc(16rem+24px)]" : "px-4 md:px-8")">
+        <div class="flex items-center gap-md">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <h1 class="text-headline-md font-headline-md font-semibold text-primary md:hidden flex items-center gap-2">
+                    <span class="material-symbols-outlined">pets</span> VetCare
+                </h1>
+                <div class="hidden md:block">
+                    <h2 class="text-headline-md font-headline-md font-semibold text-on-surface">@ViewData["Title"]</h2>
+                </div>
+            }
+            else
+            {
+                <a asp-controller="Home" asp-action="Index" class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary text-3xl">pets</span>
+                    <h1 class="text-headline-md font-headline-md font-semibold text-primary">VetCare Pro</h1>
+                </a>
+            }
+        </div>
+        <div class="flex items-center gap-sm text-primary">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                @if (!User.IsInRole("Admin"))
+                {
+                    <button class="p-base rounded-full hover:bg-surface-container-high transition-colors relative">
+                        <span class="material-symbols-outlined">notifications</span>
+                        <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+                    </button>
+                }
+                
+                @if (User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Triage" asp-action="Create" class="p-base rounded-full hover:bg-surface-container-high transition-colors text-error" title="Nueva Emergencia">
+                        <span class="material-symbols-outlined">emergency</span>
+                    </a>
+                }
+                
+                <a asp-area="Identity" asp-page="/Account/Manage/Index" class="p-base rounded-full hover:bg-surface-container-high transition-colors" title="Perfil">
+                    <span class="material-symbols-outlined">account_circle</span>
+                </a>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="text-label-md font-label-md px-md py-sm text-primary hover:bg-primary-container rounded-full transition-colors">Iniciar Sesión</a>
+            }
+        </div>
     </header>
-    
-    <div class="container-fluid px-4">
-        <main role="main" class="py-4">
-            @RenderBody()
-        </main>
-    </div>
-    
+
+    <!-- Main Content Area -->
+    <main class="flex-1 mt-16 @(SignInManager.IsSignedIn(User) ? "md:ml-64" : "") p-gutter lg:p-lg pb-24 md:pb-lg overflow-y-auto">
+        @RenderBody()
+    </main>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@("@")6.1.10/index.global.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     
     <!-- Configuración de Toastr -->
@@ -239,7 +257,6 @@
             "extendedTimeOut": "2000"
         };
         
-        // Mostrar mensajes de TempData
         @if (TempData["Success"] != null)
         {
             <text>toastr.success('@Html.Raw(TempData["Success"]?.ToString()?.Replace("'", "\\'"))');</text>
@@ -248,161 +265,8 @@
         {
             <text>toastr.error('@Html.Raw(TempData["Error"]?.ToString()?.Replace("'", "\\'"))');</text>
         }
-        @if (TempData["Warning"] != null)
-        {
-            <text>toastr.warning('@Html.Raw(TempData["Warning"]?.ToString()?.Replace("'", "\\'"))');</text>
-        }
-        @if (TempData["Info"] != null)
-        {
-            <text>toastr.info('@Html.Raw(TempData["Info"]?.ToString()?.Replace("'", "\\'"))');</text>
-        }
     </script>
-    
-    @if (SignInManager.IsSignedIn(User) && !User.IsInRole("Admin"))
-    {
-        <!-- Script de Notificaciones en Tiempo Real (solo para usuarios, no admin) -->
-        <script>
-            // Conexión SignalR
-            const connection = new signalR.HubConnectionBuilder()
-                .withUrl("/notificacionHub")
-                .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-                .configureLogging(signalR.LogLevel.Warning)
-                .build();
 
-            // Manejador de notificaciones entrantes
-            connection.on("RecibirNotificacion", function (notificacion) {
-                console.log("Nueva notificación recibida:", notificacion);
-                
-                // Mostrar toastr
-                var toastrType = notificacion.tipo === 'Success' ? 'success' : 
-                                 notificacion.tipo === 'Warning' ? 'warning' : 
-                                 notificacion.tipo === 'Error' ? 'error' : 'info';
-                
-                toastr[toastrType](notificacion.mensaje, notificacion.titulo, {
-                    onclick: function() {
-                        if (notificacion.urlAccion) {
-                            window.location.href = notificacion.urlAccion;
-                        }
-                    }
-                });
-                
-                // Actualizar badge
-                actualizarBadgeNotificaciones();
-                
-                // Reproducir sonido (opcional)
-                reproducirSonidoNotificacion();
-            });
-
-            // Iniciar conexión
-            async function startConnection() {
-                try {
-                    await connection.start();
-                    console.log("SignalR conectado");
-                } catch (err) {
-                    console.error("Error al conectar SignalR:", err);
-                    setTimeout(startConnection, 5000);
-                }
-            }
-
-            connection.onclose(async () => {
-                console.log("SignalR desconectado, reconectando...");
-                await startConnection();
-            });
-
-            startConnection();
-
-            // Cargar notificaciones recientes
-            function cargarNotificacionesRecientes() {
-                $.get('/Notificaciones/ObtenerRecientes', function(response) {
-                    var lista = $('#notificacionesLista');
-                    lista.empty();
-                    
-                    if (response.notificaciones && response.notificaciones.length > 0) {
-                        response.notificaciones.forEach(function(n) {
-                            var iconClass = n.tipo === 'Success' ? 'text-success' : 
-                                           n.tipo === 'Warning' ? 'text-warning' : 
-                                           n.tipo === 'Error' ? 'text-danger' : 'text-info';
-                            var bgClass = n.leida ? '' : 'bg-light';
-                            
-                            var html = `
-                                <li>
-                                    <a class="dropdown-item py-2 ${bgClass}" href="${n.urlAccion || '/Notificaciones'}">
-                                        <div class="d-flex align-items-start">
-                                            <i class="bi ${n.icono || 'bi-bell'} ${iconClass} me-2 mt-1"></i>
-                                            <div class="flex-grow-1">
-                                                <div class="fw-semibold small ${n.leida ? '' : 'text-primary'}">${n.titulo}</div>
-                                                <div class="small text-muted text-truncate" style="max-width: 250px;">${n.mensaje}</div>
-                                                <div class="small text-muted">${n.tiempoRelativo}</div>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>`;
-                            lista.append(html);
-                        });
-                    } else {
-                        lista.append(`
-                            <li class="text-center py-3 text-muted">
-                                <i class="bi bi-bell-slash fs-4 d-block mb-2"></i>
-                                No tienes notificaciones
-                            </li>`);
-                    }
-                });
-            }
-
-            // Actualizar badge de notificaciones
-            function actualizarBadgeNotificaciones() {
-                $.get('/Notificaciones/ObtenerNoLeidas', function(response) {
-                    var count = response.count || 0;
-                    var badge = $('#notificacionBadge');
-                    var countSpan = $('#notificacionCount');
-                    
-                    if (count > 0) {
-                        countSpan.text(count > 99 ? '99+' : count);
-                        badge.show();
-                    } else {
-                        badge.hide();
-                    }
-                });
-            }
-
-            // Reproducir sonido de notificación
-            function reproducirSonidoNotificacion() {
-                try {
-                    var audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbsGo1I0yDrOPftHM+LliCpNvltHNALlZ/odb0wYRWQWeCrNv0yIxdPVt6ndTzyotXNVNukMznzI1YN1d0kMjrzI1bOVdzj8TozIxaOFdyjcLozYxbOVhzi8HpzoxbOVhzisHqzYxbOVhyisDqzYxbOVhyicDrzYxbOVlyicDrzYxbOVlyiL/rzYxbOVlyiL/rzYxb');
-                    audio.volume = 0.3;
-                    audio.play();
-                } catch (e) { }
-            }
-
-            // Marcar todas como leídas desde navbar
-            $('#btnMarcarTodasNavbar').click(function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                $.post('/Notificaciones/MarcarTodasLeidas', function(response) {
-                    if (response.success) {
-                        actualizarBadgeNotificaciones();
-                        cargarNotificacionesRecientes();
-                        toastr.success('Todas las notificaciones marcadas como leídas');
-                    }
-                });
-            });
-
-            // Eventos del dropdown
-            $('#notificacionesDropdown').on('show.bs.dropdown', function() {
-                cargarNotificacionesRecientes();
-            });
-
-            // Cargar estado inicial
-            $(document).ready(function() {
-                actualizarBadgeNotificaciones();
-                
-                // Actualizar cada 30 segundos
-                setInterval(actualizarBadgeNotificaciones, 30000);
-            });
-        </script>
-    }
-    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

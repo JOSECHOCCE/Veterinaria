@@ -64,14 +64,22 @@ builder.Services.AddAutoMapper(typeof(Program));
 // Configurar Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-// Configurar Servicios de Validación
-builder.Services.AddScoped<ICitaValidationService, CitaValidationService>();
+// Configurar Servicios de Aplicación (Arquitectura Cebolla)
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IClienteService, Veterinaria.Application.Services.ClienteService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IMascotaService, Veterinaria.Application.Services.MascotaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IServicioService, Veterinaria.Application.Services.ServicioService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IVeterinarioService, Veterinaria.Application.Services.VeterinarioService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IDashboardService, Veterinaria.Application.Services.DashboardService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPagoService, Veterinaria.Application.Services.PagoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.ICitaService, Veterinaria.Application.Services.CitaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IHistorialClinicoService, Veterinaria.Application.Services.HistorialClinicoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.ITriageService, Veterinaria.Application.Services.TriageService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IConsentimientoService, Veterinaria.Application.Services.ConsentimientoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.INotificacionService, Veterinaria.Application.Services.NotificacionService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IRealTimeNotificationService, Veterinaria.Web.Services.RealTimeNotificationService>();
 
-// Configurar Servicio de generación de PDFs
+// Configurar Servicio de generación de PDFs (Sigue en Web por ser infraestructura visual o si se desea se puede mover después)
 builder.Services.AddScoped<PdfService>();
-
-// Configurar Servicio de Notificaciones
-builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
 // Servicio en segundo plano para actualizar estados de citas automáticamente
 builder.Services.AddHostedService<CitaStatusService>();
@@ -88,7 +96,7 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await DbSeeder.SeedAsync(context, userManager, roleManager);
+    await DbSeeder.SeedAsync(context, userManager, roleManager, app.Environment.IsDevelopment());
 }
 
 // Configure the HTTP request pipeline.

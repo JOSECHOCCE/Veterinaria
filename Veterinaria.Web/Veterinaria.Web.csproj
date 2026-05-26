@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Veterinaria.Domain\Veterinaria.Domain.csproj" />
     <ProjectReference Include="..\Veterinaria.Infrastructure\Veterinaria.Infrastructure.csproj" />
+    <ProjectReference Include="..\Veterinaria.Application\Veterinaria.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -18,7 +19,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>

@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Contracts;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Web.Models.Dto;
-using Veterinaria.Web.Services;
 using X.PagedList.Extensions;
 
 namespace Veterinaria.Web.Controllers;
@@ -18,20 +18,20 @@ public class CitasController : Controller
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
-    private readonly ICitaValidationService _citaValidationService;
+    private readonly ICitaService _citaService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly INotificacionService _notificacionService;
 
     public CitasController(
-        IUnitOfWork unitOfWork, 
-        IMapper mapper, 
-        ICitaValidationService citaValidationService,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        ICitaService citaService,
         UserManager<ApplicationUser> userManager,
         INotificacionService notificacionService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
-        _citaValidationService = citaValidationService;
+        _citaService = citaService;
         _userManager = userManager;
         _notificacionService = notificacionService;
     }
@@ -41,7 +41,7 @@ public class CitasController : Controller
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId)) return null;
-        
+
         return await _unitOfWork.Usuarios.GetAll()
             .FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
     }
@@ -62,12 +62,7 @@ public class CitasController : Controller
         var fechaInicio = start ?? DateTime.Today.AddMonths(-1);
         var fechaFin = end ?? DateTime.Today.AddMonths(2);
 
-        var citas = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .Where(c => c.FechaHora >= fechaInicio && c.FechaHora <= fechaFin)
-            .ToListAsync();
+        var citas = await _citaService.GetCitasParaCalendarioAsync(start, end);
 
         var eventos = citas.Select(c => new
         {
@@ -105,49 +100,17 @@ public class CitasController : Controller
     // GET: Citas
     public async Task<IActionResult> Index(string? estado, int? veterinarioId, DateTime? fechaDesde, DateTime? fechaHasta, int page = 1)
     {
-        var query = _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-                .ThenInclude(m => m.Usuario)
-            .Include(c => c.Veterinario)
-            .Include(c => c.Servicio)
-            .AsQueryable();
-
-        // Si NO es admin, filtrar solo las citas del usuario actual
+        int? currentUsuarioId = null;
         if (!IsAdmin())
         {
-            var currentUsuario = await GetCurrentUsuarioAsync();
-            if (currentUsuario != null)
-            {
-                query = query.Where(c => c.Mascota.UsuarioId == currentUsuario.Id);
-            }
+            var currentUser = await GetCurrentUsuarioAsync();
+            if (currentUser != null)
+                currentUsuarioId = currentUser.Id;
             else
-            {
-                // Usuario no tiene perfil, mostrar lista vacía
-                query = query.Where(c => false);
-            }
+                currentUsuarioId = -1; // No profile
         }
 
-        // Filtros
-        if (!string.IsNullOrWhiteSpace(estado))
-        {
-            query = query.Where(c => c.Estado == estado);
-        }
-
-        if (veterinarioId.HasValue)
-        {
-            query = query.Where(c => c.VeterinarioId == veterinarioId.Value);
-        }
-
-        if (fechaDesde.HasValue)
-        {
-            query = query.Where(c => c.FechaHora >= fechaDesde.Value);
-        }
-
-        if (fechaHasta.HasValue)
-        {
-            var fechaHastaFin = fechaHasta.Value.AddDays(1).AddSeconds(-1);
-            query = query.Where(c => c.FechaHora <= fechaHastaFin);
-        }
+        var query = _citaService.GetCitasQuery(IsAdmin(), currentUsuarioId, estado, veterinarioId, fechaDesde, fechaHasta);
 
         var citas = query.OrderByDescending(c => c.FechaHora)
             .Select(c => _mapper.Map<CitaDto>(c))
@@ -171,28 +134,21 @@ public class CitasController : Controller
     // GET: Citas/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-                .ThenInclude(m => m.Usuario)
-            .Include(c => c.Veterinario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Historial)
-            .Include(c => c.Pagos)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (cita == null)
-        {
-            return NotFound();
-        }
-
-        // Si no es admin, verificar que la cita pertenezca al usuario
+        int? currentUsuarioId = null;
         if (!IsAdmin())
         {
             var currentUsuario = await GetCurrentUsuarioAsync();
-            if (currentUsuario == null || cita.Mascota.UsuarioId != currentUsuario.Id)
-            {
-                return Forbid();
-            }
+            currentUsuarioId = currentUsuario?.Id;
+        }
+
+        var cita = await _citaService.GetCitaDetailsAsync(id, IsAdmin(), currentUsuarioId);
+
+        if (cita == null)
+        {
+            // Verificamos si no se encontró o no tiene permiso
+            var exists = await _unitOfWork.Citas.GetByIdAsync(id) != null;
+            if (exists && !IsAdmin()) return Forbid();
+            return NotFound();
         }
 
         var citaDto = _mapper.Map<CitaDto>(cita);
@@ -219,26 +175,24 @@ public class CitasController : Controller
     [HttpGet]
     public async Task<IActionResult> GetEstado(int id)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (cita == null)
-        {
-            return NotFound();
-        }
-
-        // Si no es admin, verificar que la cita pertenezca al usuario
+        int? currentUsuarioId = null;
         if (!IsAdmin())
         {
             var currentUsuario = await GetCurrentUsuarioAsync();
-            if (currentUsuario == null || cita.Mascota.UsuarioId != currentUsuario.Id)
-            {
-                return Forbid();
-            }
+            currentUsuarioId = currentUsuario?.Id;
         }
 
-        return Json(new { 
+        var cita = await _citaService.GetCitaDetailsAsync(id, IsAdmin(), currentUsuarioId);
+
+        if (cita == null)
+        {
+            var exists = await _unitOfWork.Citas.GetByIdAsync(id) != null;
+            if (exists && !IsAdmin()) return Forbid();
+            return NotFound();
+        }
+
+        return Json(new
+        {
             estado = cita.Estado,
             fechaActualizacion = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss")
         });
@@ -248,14 +202,14 @@ public class CitasController : Controller
     public async Task<IActionResult> Create(int? mascotaId)
     {
         var currentUsuario = await GetCurrentUsuarioAsync();
-        
+
         // Si no es admin y no tiene usuario vinculado, crear uno automáticamente
         if (!IsAdmin() && currentUsuario == null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
             var userName = User.Identity?.Name ?? userEmail;
-            
+
             currentUsuario = new Usuario
             {
                 Nombre = userName ?? "Usuario",
@@ -264,11 +218,11 @@ public class CitasController : Controller
                 FechaRegistro = DateTime.Now,
                 Activo = true
             };
-            
+
             await _unitOfWork.Usuarios.AddAsync(currentUsuario);
             await _unitOfWork.CommitAsync();
         }
-        
+
         await CargarSelectsViewBag(currentUsuario?.Id);
 
         var citaDto = new CitaDto
@@ -283,10 +237,10 @@ public class CitasController : Controller
         }
 
         // Verificar si el usuario tiene mascotas registradas
-        var tieneMascotas = currentUsuario != null && 
+        var tieneMascotas = currentUsuario != null &&
             await _unitOfWork.Mascotas.GetAll()
                 .AnyAsync(m => m.UsuarioId == currentUsuario.Id && m.Activo);
-        
+
         ViewBag.TieneMascotas = tieneMascotas;
         ViewBag.UsuarioId = currentUsuario?.Id;
         ViewBag.EsAdmin = IsAdmin();
@@ -300,7 +254,7 @@ public class CitasController : Controller
     public async Task<IActionResult> CrearMascotaYCita(CitaDto citaDto, string mascotaNombre, string mascotaEspecie, string? mascotaRaza, decimal? mascotaPeso)
     {
         var currentUsuario = await GetCurrentUsuarioAsync();
-        
+
         if (currentUsuario == null)
         {
             TempData["Error"] = "Debe iniciar sesión para agendar una cita.";
@@ -340,9 +294,9 @@ public class CitasController : Controller
         }
 
         // Validar fecha
-        var (fechaValida, mensajeFecha) = await _citaValidationService.ValidarFechaCitaAsync(
+        var (fechaValida, mensajeFecha) = await _citaService.ValidarFechaCitaAsync(
             citaDto.VeterinarioId, citaDto.FechaHora);
-        
+
         if (!fechaValida)
         {
             TempData["Error"] = mensajeFecha;
@@ -350,7 +304,7 @@ public class CitasController : Controller
         }
 
         // Validar disponibilidad
-        var veterinarioDisponible = await _citaValidationService.VeterinarioDisponibleAsync(
+        var veterinarioDisponible = await _citaService.VeterinarioDisponibleAsync(
             citaDto.VeterinarioId, citaDto.FechaHora, servicio.DuracionMinutos, null);
 
         if (!veterinarioDisponible)
@@ -361,14 +315,7 @@ public class CitasController : Controller
 
         // Crear la cita
         var cita = _mapper.Map<Cita>(citaDto);
-        cita.Estado = "Pendiente";
-        cita.EstadoPago = "Pendiente";
-        cita.MontoTotal = servicio.Precio;
-        cita.MontoPagado = 0;
-        cita.FechaCreacion = DateTime.UtcNow;
-
-        await _unitOfWork.Citas.AddAsync(cita);
-        await _unitOfWork.CommitAsync();
+        await _citaService.CreateCitaAsync(cita, servicio.Precio);
 
         TempData["Info"] = $"Mascota '{mascota.Nombre}' registrada. Ahora proceda a realizar el pago para confirmar la cita.";
         return RedirectToAction("Pagar", "PagoCita", new { citaId = cita.Id });
@@ -380,7 +327,7 @@ public class CitasController : Controller
     public async Task<IActionResult> Create(CitaDto citaDto)
     {
         var currentUsuario = await GetCurrentUsuarioAsync();
-        
+
         if (ModelState.IsValid)
         {
             // Obtener servicio para la duración
@@ -393,9 +340,9 @@ public class CitasController : Controller
             }
 
             // VALIDACIÓN 1: Validar fecha de la cita (pasado, horario del veterinario, etc.)
-            var (fechaValida, mensajeFecha) = await _citaValidationService.ValidarFechaCitaAsync(
+            var (fechaValida, mensajeFecha) = await _citaService.ValidarFechaCitaAsync(
                 citaDto.VeterinarioId, citaDto.FechaHora);
-            
+
             if (!fechaValida)
             {
                 ModelState.AddModelError("FechaHora", mensajeFecha!);
@@ -404,33 +351,33 @@ public class CitasController : Controller
             }
 
             // VALIDACIÓN 2: Verificar disponibilidad del veterinario
-            var veterinarioDisponible = await _citaValidationService.VeterinarioDisponibleAsync(
-                citaDto.VeterinarioId, 
-                citaDto.FechaHora, 
+            var veterinarioDisponible = await _citaService.VeterinarioDisponibleAsync(
+                citaDto.VeterinarioId,
+                citaDto.FechaHora,
                 servicio.DuracionMinutos,
                 citaDto.Id > 0 ? citaDto.Id : null);
 
             if (!veterinarioDisponible)
             {
                 // Obtener horarios disponibles para sugerir alternativas
-                var horariosDisponibles = await _citaValidationService.ObtenerHorariosDisponiblesAsync(
+                var horariosDisponibles = await _citaService.ObtenerHorariosDisponiblesAsync(
                     citaDto.VeterinarioId, citaDto.FechaHora.Date);
 
-                var sugerencia = horariosDisponibles.Any() 
+                var sugerencia = horariosDisponibles.Any()
                     ? $" Horarios disponibles: {string.Join(", ", horariosDisponibles.Take(5).Select(h => h.ToString("HH:mm")))}"
                     : " No hay horarios disponibles para esta fecha.";
 
-                ModelState.AddModelError("FechaHora", 
+                ModelState.AddModelError("FechaHora",
                     $"El veterinario no está disponible en ese horario.{sugerencia}");
                 await CargarSelectsViewBag(currentUsuario?.Id);
                 return View(citaDto);
             }
 
             // VALIDACIÓN 3: Verificar pagos pendientes de la mascota
-            var tienePagosPendientes = await _citaValidationService.MascotaTienePagosPendientesAsync(citaDto.MascotaId);
+            var tienePagosPendientes = await _citaService.MascotaTienePagosPendientesAsync(citaDto.MascotaId);
             if (tienePagosPendientes)
             {
-                ModelState.AddModelError("MascotaId", 
+                ModelState.AddModelError("MascotaId",
                     "La mascota tiene pagos pendientes. Por favor, liquide las deudas antes de agendar una nueva cita.");
                 await CargarSelectsViewBag(currentUsuario?.Id);
                 return View(citaDto);
@@ -438,14 +385,7 @@ public class CitasController : Controller
 
             // Crear la cita
             var cita = _mapper.Map<Cita>(citaDto);
-            cita.Estado = "Pendiente";
-            cita.EstadoPago = "Pendiente";
-            cita.MontoTotal = servicio.Precio;
-            cita.MontoPagado = 0;
-            cita.FechaCreacion = DateTime.UtcNow;
-
-            await _unitOfWork.Citas.AddAsync(cita);
-            await _unitOfWork.CommitAsync();
+            await _citaService.CreateCitaAsync(cita, servicio.Precio);
 
             // Redirigir al proceso de pago
             TempData["Info"] = "¡Cita creada! Ahora proceda a realizar el pago para confirmarla.";
@@ -453,7 +393,7 @@ public class CitasController : Controller
         }
 
         await CargarSelectsViewBag(currentUsuario?.Id);
-        ViewBag.TieneMascotas = currentUsuario != null && 
+        ViewBag.TieneMascotas = currentUsuario != null &&
             await _unitOfWork.Mascotas.GetAll().AnyAsync(m => m.UsuarioId == currentUsuario.Id && m.Activo);
         ViewBag.UsuarioId = currentUsuario?.Id;
         ViewBag.EsAdmin = IsAdmin();
@@ -464,7 +404,7 @@ public class CitasController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
-        var cita = await _unitOfWork.Citas.GetByIdAsync(id);
+        var cita = await _citaService.GetCitaByIdAsync(id);
         if (cita == null)
         {
             return NotFound();
@@ -489,28 +429,17 @@ public class CitasController : Controller
 
         if (ModelState.IsValid)
         {
-            var cita = await _unitOfWork.Citas.GetAll()
-                .Include(c => c.Mascota)
-                .Include(c => c.Servicio)
-                .FirstOrDefaultAsync(c => c.Id == id);
-            if (cita == null)
-            {
-                return NotFound();
-            }
+            var citaOld = await _citaService.GetCitaByIdAsync(id);
+            if (citaOld == null) return NotFound();
+            var estadoAnterior = citaOld.Estado;
 
-            var estadoAnterior = cita.Estado;
-            
-            // Solo actualizar estado y motivo (admin puede cambiar el estado)
-            cita.Estado = citaDto.Estado;
-            cita.Motivo = citaDto.Motivo;
-
-            _unitOfWork.Citas.Update(cita);
-            await _unitOfWork.CommitAsync();
+            var result = await _citaService.EditCitaAsync(id, citaDto.Estado, citaDto.Motivo);
+            if (!result.Success || result.Cita == null) return NotFound();
 
             // Enviar notificación si cambió el estado
             if (estadoAnterior != citaDto.Estado)
             {
-                await EnviarNotificacionCambioEstadoAsync(cita);
+                await EnviarNotificacionCambioEstadoAsync(result.Cita);
             }
 
             TempData["Success"] = "Cita actualizada exitosamente.";
@@ -526,38 +455,29 @@ public class CitasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Cancel(int id)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-            .FirstOrDefaultAsync(c => c.Id == id);
-            
-        if (cita == null)
-        {
-            return NotFound();
-        }
-
-        // Si no es admin, verificar que la cita pertenezca al usuario
+        int? currentUsuarioId = null;
         if (!IsAdmin())
         {
-            var currentUsuario = await GetCurrentUsuarioAsync();
-            if (currentUsuario == null || cita.Mascota.UsuarioId != currentUsuario.Id)
-            {
-                return Forbid();
-            }
+            var currentUser = await GetCurrentUsuarioAsync();
+            currentUsuarioId = currentUser?.Id;
         }
 
-        // Solo se puede cancelar si está en estado "Pendiente" o "Confirmada" (usuario puede cancelar antes de la cita)
-        if (cita.Estado != "Pendiente" && cita.Estado != "Confirmada")
+        var result = await _citaService.CancelarCitaAsync(id, IsAdmin(), currentUsuarioId);
+
+        if (!result.Success)
         {
-            TempData["Error"] = "Solo se pueden cancelar citas en estado 'Pendiente' o 'Confirmada'.";
+            if (result.Error == "No encontrado") return NotFound();
+            if (result.Error == "Forbid") return Forbid();
+            
+            TempData["Error"] = result.Error;
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        cita.Estado = "Cancelada";
-        _unitOfWork.Citas.Update(cita);
-        await _unitOfWork.CommitAsync();
-
         // Enviar notificación de cancelación
-        await _notificacionService.NotificarCitaCanceladaAsync(cita);
+        if (result.Cita != null)
+        {
+            await _notificacionService.NotificarCitaCanceladaAsync(result.Cita);
+        }
 
         TempData["Success"] = "Cita cancelada exitosamente.";
         return RedirectToAction(nameof(Index));
@@ -569,21 +489,14 @@ public class CitasController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Complete(int id)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-            .Include(c => c.Servicio)
-            .FirstOrDefaultAsync(c => c.Id == id);
-        if (cita == null)
+        var result = await _citaService.CompletarCitaAsync(id);
+        if (!result.Success || result.Cita == null)
         {
             return NotFound();
         }
 
-        cita.Estado = "Completada";
-        _unitOfWork.Citas.Update(cita);
-        await _unitOfWork.CommitAsync();
-
         // Enviar notificación de cita completada
-        await _notificacionService.NotificarCitaCompletadaAsync(cita);
+        await _notificacionService.NotificarCitaCompletadaAsync(result.Cita);
 
         TempData["Success"] = "Cita marcada como completada. Ahora puede registrar el historial clínico.";
         return RedirectToAction("Create", "HistorialesClinicos", new { citaId = id });
@@ -595,32 +508,22 @@ public class CitasController : Controller
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CambiarEstado(int id, string nuevoEstado)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota)
-            .Include(c => c.Servicio)
-            .FirstOrDefaultAsync(c => c.Id == id);
-            
-        if (cita == null)
-        {
-            return NotFound();
-        }
+        var citaOld = await _citaService.GetCitaByIdAsync(id);
+        if (citaOld == null) return NotFound();
+        var estadoAnterior = citaOld.Estado;
 
-        var estadosValidos = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada" };
-        if (!estadosValidos.Contains(nuevoEstado))
+        var result = await _citaService.CambiarEstadoAsync(id, nuevoEstado);
+        if (!result.Success)
         {
-            TempData["Error"] = "Estado no válido.";
+            if (result.Error == "No encontrado") return NotFound();
+            TempData["Error"] = result.Error;
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        var estadoAnterior = cita.Estado;
-        cita.Estado = nuevoEstado;
-        _unitOfWork.Citas.Update(cita);
-        await _unitOfWork.CommitAsync();
-
         // Enviar notificación si cambió el estado
-        if (estadoAnterior != nuevoEstado)
+        if (result.Cita != null && estadoAnterior != nuevoEstado)
         {
-            await EnviarNotificacionCambioEstadoAsync(cita);
+            await EnviarNotificacionCambioEstadoAsync(result.Cita);
         }
 
         var mensaje = nuevoEstado switch
@@ -674,7 +577,7 @@ public class CitasController : Controller
     private async Task CargarSelectsViewBag(int? usuarioId = null)
     {
         IEnumerable<Mascota> mascotas;
-        
+
         // Si es admin o no se especifica usuarioId, mostrar todas las mascotas
         if (IsAdmin() || usuarioId == null)
         {
@@ -706,9 +609,10 @@ public class CitasController : Controller
 
         ViewBag.Mascotas = new SelectList(mascotas, "Id", "Nombre");
         ViewBag.Veterinarios = new SelectList(veterinarios, "Id", "Nombre");
-        
+
         // Servicios con precio incluido en el texto
-        var serviciosConPrecio = servicios.Select(s => new {
+        var serviciosConPrecio = servicios.Select(s => new
+        {
             Id = s.Id,
             NombreConPrecio = $"{s.Nombre} - S/. {s.Precio:N2}"
         });
@@ -719,10 +623,10 @@ public class CitasController : Controller
     [HttpGet]
     public async Task<IActionResult> HorariosDisponibles(int veterinarioId, DateTime fecha)
     {
-        var horarios = await _citaValidationService.ObtenerHorariosDisponiblesAsync(veterinarioId, fecha);
-        
-        var result = horarios.Select(h => new 
-        { 
+        var horarios = await _citaService.ObtenerHorariosDisponiblesAsync(veterinarioId, fecha);
+
+        var result = horarios.Select(h => new
+        {
             value = h.ToString("yyyy-MM-ddTHH:mm"),
             text = h.ToString("HH:mm")
         });
@@ -741,24 +645,24 @@ public class CitasController : Controller
         }
 
         // Validar fecha
-        var (fechaValida, mensajeFecha) = await _citaValidationService.ValidarFechaCitaAsync(veterinarioId, fechaHora);
+        var (fechaValida, mensajeFecha) = await _citaService.ValidarFechaCitaAsync(veterinarioId, fechaHora);
         if (!fechaValida)
         {
             return Json(new { disponible = false, mensaje = mensajeFecha });
         }
 
         // Validar disponibilidad
-        var disponible = await _citaValidationService.VeterinarioDisponibleAsync(
+        var disponible = await _citaService.VeterinarioDisponibleAsync(
             veterinarioId, fechaHora, servicio.DuracionMinutos, citaId);
 
         if (!disponible)
         {
-            var horariosDisponibles = await _citaValidationService.ObtenerHorariosDisponiblesAsync(veterinarioId, fechaHora.Date);
+            var horariosDisponibles = await _citaService.ObtenerHorariosDisponiblesAsync(veterinarioId, fechaHora.Date);
             var sugerencias = horariosDisponibles.Take(5).Select(h => h.ToString("HH:mm")).ToList();
-            
-            return Json(new 
-            { 
-                disponible = false, 
+
+            return Json(new
+            {
+                disponible = false,
                 mensaje = "Horario no disponible.",
                 sugerencias = sugerencias
             });

@@ -2,213 +2,172 @@
 @using X.PagedList.Mvc.Core
 
 @{
-    ViewData["Title"] = "Clientes";
+    ViewData["Title"] = "Gestión de Clientes";
     var citasPorUsuario = ViewBag.CitasPorUsuario as Dictionary<int, int> ?? new Dictionary<int, int>();
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-people"></i> Clientes</h1>
-    <span class="badge bg-primary fs-6">@Model.TotalItemCount clientes</span>
-</div>
-
-<!-- Filtros -->
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-6">
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-search"></i></span>
-                    <input type="text" name="buscar" class="form-control" 
-                           placeholder="Buscar por nombre, email o teléfono..." 
-                           value="@ViewBag.BuscarActual" />
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="form-check">
-                    <input type="checkbox" name="mostrarInactivos" value="true" 
-                           class="form-check-input" id="mostrarInactivos"
-                           @(ViewBag.MostrarInactivos ? "checked" : "") />
-                    <label class="form-check-label" for="mostrarInactivos">
-                        Mostrar inactivos
-                    </label>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary me-2">
-                    <i class="bi bi-search"></i> Buscar
-                </button>
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-x-circle"></i> Limpiar
-                </a>
-            </div>
-        </form>
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+    <div>
+        <p class="font-body-md text-body-md text-on-surface-variant">Gestión de base de datos de clientes y propietarios</p>
+    </div>
+    <div class="bg-primary-container text-on-primary-container px-md py-sm rounded-full font-label-md text-label-md shadow-sm">
+        @Model.TotalItemCount clientes registrados
     </div>
 </div>
 
+<!-- Filtros -->
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm mb-lg p-md">
+    <form method="get" class="flex flex-col md:flex-row gap-md items-end">
+        <div class="flex-1 w-full">
+            <label class="block font-label-md text-label-md text-on-surface mb-xs">Buscar cliente</label>
+            <div class="relative">
+                <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                <input type="text" name="buscar" class="w-full bg-surface border border-outline-variant rounded-md pl-10 pr-3 py-2 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Buscar por nombre, email o teléfono..." value="@ViewBag.BuscarActual" />
+            </div>
+        </div>
+        <div class="w-full md:w-auto flex items-center mb-2 md:mb-0 h-[42px]">
+            <label class="flex items-center gap-2 cursor-pointer text-on-surface hover:text-primary transition-colors">
+                <input type="checkbox" name="mostrarInactivos" value="true" class="w-4 h-4 text-primary bg-surface border-outline-variant focus:ring-primary rounded" @(ViewBag.MostrarInactivos ? "checked" : "") />
+                <span class="font-label-md text-label-md">Mostrar inactivos</span>
+            </label>
+        </div>
+        <div class="w-full md:w-auto flex gap-2">
+            <button type="submit" class="flex-1 md:flex-none bg-surface-variant text-on-surface px-xl py-2 rounded-md font-label-md text-label-md hover:bg-surface-container-high transition-colors">Buscar</button>
+            <a asp-action="Index" class="flex-1 md:flex-none bg-surface text-on-surface border border-outline-variant px-md py-2 rounded-md font-label-md text-label-md hover:bg-surface-container-low transition-colors text-center">Limpiar</a>
+        </div>
+    </form>
+</div>
+
 <!-- Tabla de Clientes -->
-<div class="card shadow">
-    <div class="table-responsive">
-        <table class="table table-hover mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>Cliente</th>
-                    <th>Contacto</th>
-                    <th class="text-center">Mascotas</th>
-                    <th class="text-center">Citas</th>
-                    <th>Registro</th>
-                    <th class="text-center">Estado</th>
-                    <th class="text-center">Acciones</th>
+<div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden mb-lg">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low border-b border-outline-variant">
+                    <th class="p-4 font-label-md text-label-md text-on-surface">Cliente</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface">Contacto</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface text-center">Mascotas</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface text-center">Citas</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface">Registro</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface text-center">Estado</th>
+                    <th class="p-4 font-label-md text-label-md text-on-surface text-right">Acciones</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="divide-y divide-outline-variant">
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <i class="bi bi-inbox display-4 text-muted"></i>
-                            <p class="text-muted mt-2">No se encontraron clientes</p>
+                        <td colspan="7" class="p-xl text-center text-on-surface-variant">
+                            <span class="material-symbols-outlined text-6xl mb-sm opacity-50 block">group_off</span>
+                            <p class="font-headline-md text-headline-md">No se encontraron clientes</p>
                         </td>
                     </tr>
                 }
                 else
                 {
-                    @foreach (var usuario in Model)
+                    foreach (var usuario in Model)
                     {
                         var totalCitas = citasPorUsuario.ContainsKey(usuario.Id) ? citasPorUsuario[usuario.Id] : 0;
-                        <tr class="@(!usuario.Activo ? "table-secondary" : "")">
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle bg-primary text-white me-3">
+                        <tr class="hover:bg-surface-container-low transition-colors @(!usuario.Activo ? "opacity-60 bg-surface-container" : "")">
+                            <td class="p-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-md font-semibold">
                                         @usuario.Nombre.Substring(0, 1).ToUpper()
                                     </div>
                                     <div>
-                                        <strong>@usuario.Nombre</strong>
-                                        @if (!usuario.Activo)
-                                        {
-                                            <span class="badge bg-secondary ms-1">Inactivo</span>
-                                        }
+                                        <p class="font-body-md text-body-md text-on-surface font-semibold flex items-center gap-2">
+                                            @usuario.Nombre
+                                            @if (!usuario.Activo)
+                                            {
+                                                <span class="font-label-sm text-label-sm bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded-full">Inactivo</span>
+                                            }
+                                        </p>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div><i class="bi bi-envelope me-1 text-muted"></i> @usuario.Email</div>
-                                @if (!string.IsNullOrEmpty(usuario.Telefono))
-                                {
-                                    <div><i class="bi bi-telephone me-1 text-muted"></i> @usuario.Telefono</div>
-                                }
+                            <td class="p-4">
+                                <div class="text-sm text-on-surface-variant flex flex-col gap-1">
+                                    <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">mail</span> @usuario.Email</span>
+                                    @if (!string.IsNullOrEmpty(usuario.Telefono))
+                                    {
+                                        <span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">call</span> @usuario.Telefono</span>
+                                    }
+                                </div>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-info fs-6">@usuario.Mascotas.Count</span>
+                            <td class="p-4 text-center">
+                                <span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full">@usuario.Mascotas.Count</span>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-primary fs-6">@totalCitas</span>
+                            <td class="p-4 text-center">
+                                <span class="font-label-sm text-label-sm text-on-primary-container bg-primary-container px-3 py-1 rounded-full">@totalCitas</span>
                             </td>
-                            <td>
-                                <small class="text-muted">
-                                    <i class="bi bi-calendar me-1"></i>
-                                    @usuario.FechaRegistro.ToString("dd/MM/yyyy")
-                                </small>
+                            <td class="p-4 font-body-sm text-body-sm text-on-surface-variant">
+                                @usuario.FechaRegistro.ToString("dd/MM/yyyy")
                             </td>
-                            <td class="text-center">
+                            <td class="p-4 text-center">
                                 @if (usuario.Activo)
                                 {
-                                    <span class="badge bg-success">
-                                        <i class="bi bi-check-circle"></i> Activo
+                                    <span class="font-label-sm text-label-sm text-on-secondary-container bg-secondary-container px-3 py-1 rounded-full inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">check_circle</span> Activo
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-secondary">
-                                        <i class="bi bi-x-circle"></i> Inactivo
+                                    <span class="font-label-sm text-label-sm text-on-surface bg-surface-variant px-3 py-1 rounded-full inline-flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">cancel</span> Inactivo
                                     </span>
                                 }
                             </td>
-                            <td class="text-center">
-                                <div class="btn-group" role="group">
-                                    <a asp-action="Details" asp-route-id="@usuario.Id" 
-                                       class="btn btn-sm btn-outline-primary" title="Ver detalles">
-                                        <i class="bi bi-eye"></i>
+                            <td class="p-4 text-right">
+                                <div class="flex justify-end gap-1">
+                                    <a asp-action="Details" asp-route-id="@usuario.Id" class="text-primary hover:bg-primary-container p-2 rounded-full transition-colors inline-flex" title="Ver detalles">
+                                        <span class="material-symbols-outlined text-lg">visibility</span>
                                     </a>
-                                    <form asp-action="ToggleActivo" asp-route-id="@usuario.Id" 
-                                          method="post" class="d-inline">
+                                    <form asp-action="ToggleActivo" asp-route-id="@usuario.Id" method="post" class="inline-flex m-0 p-0">
                                         @if (usuario.Activo)
                                         {
-                                            <button type="submit" class="btn btn-sm btn-outline-warning" 
-                                                    title="Desactivar" onclick="return confirm('¿Desactivar este cliente?')">
-                                                <i class="bi bi-pause-circle"></i>
+                                            <button type="submit" class="text-tertiary hover:bg-tertiary-container p-2 rounded-full transition-colors" title="Desactivar" onclick="return confirm('¿Desactivar este cliente?')">
+                                                <span class="material-symbols-outlined text-lg">pause_circle</span>
                                             </button>
                                         }
                                         else
                                         {
-                                            <button type="submit" class="btn btn-sm btn-outline-success" 
-                                                    title="Activar">
-                                                <i class="bi bi-play-circle"></i>
+                                            <button type="submit" class="text-secondary hover:bg-secondary-container p-2 rounded-full transition-colors" title="Activar">
+                                                <span class="material-symbols-outlined text-lg">play_circle</span>
                                             </button>
                                         }
                                     </form>
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            title="Eliminar" data-bs-toggle="modal" 
-                                            data-bs-target="#deleteModal-@usuario.Id">
-                                        <i class="bi bi-trash"></i>
+                                    <button type="button" class="text-error hover:bg-error-container p-2 rounded-full transition-colors" title="Eliminar" onclick="document.getElementById('modal-@usuario.Id').classList.remove('hidden')">
+                                        <span class="material-symbols-outlined text-lg">delete</span>
                                     </button>
                                 </div>
-                                
-                                <!-- Modal de confirmación para eliminar -->
-                                <div class="modal fade" id="deleteModal-@usuario.Id" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-danger text-white">
-                                                <h5 class="modal-title">
-                                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar Eliminación
-                                                </h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+
+                                <!-- Modal Eliminación (Custom Tailwind) -->
+                                <div id="modal-@usuario.Id" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-on-surface/50 backdrop-blur-sm">
+                                    <div class="bg-surface rounded-xl shadow-lg max-w-md w-full overflow-hidden text-left border border-outline-variant">
+                                        <div class="bg-error p-4 text-on-error flex justify-between items-center">
+                                            <h5 class="font-headline-sm text-headline-sm flex items-center gap-2">
+                                                <span class="material-symbols-outlined">warning</span> Confirmar Eliminación
+                                            </h5>
+                                            <button type="button" onclick="document.getElementById('modal-@usuario.Id').classList.add('hidden')" class="hover:bg-error-container/20 p-1 rounded-full text-on-error">
+                                                <span class="material-symbols-outlined">close</span>
+                                            </button>
+                                        </div>
+                                        <div class="p-lg space-y-4">
+                                            <div class="bg-error-container text-on-error-container p-3 rounded-md border border-error">
+                                                <strong class="flex items-center gap-1 mb-1"><span class="material-symbols-outlined text-sm">dangerous</span> ¡Atención!</strong>
+                                                <p class="text-sm">Esta acción es irreversible y eliminará permanentemente al cliente y todos sus registros (Mascotas, Citas, Pagos, Historiales).</p>
                                             </div>
-                                            <div class="modal-body text-start">
-                                                <div class="alert alert-danger mb-3">
-                                                    <strong><i class="bi bi-exclamation-circle me-2"></i>¡Atención!</strong>
-                                                    <p class="mb-0 mt-2">Esta acción es <strong>irreversible</strong> y eliminará permanentemente:</p>
-                                                </div>
-                                                <ul class="list-group mb-3">
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <span><i class="bi bi-person text-primary me-2"></i>Cliente</span>
-                                                        <strong>@usuario.Nombre</strong>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <span><i class="bi bi-heart-pulse text-success me-2"></i>Mascotas</span>
-                                                        <span class="badge bg-info">@usuario.Mascotas.Count</span>
-                                                    </li>
-                                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <span><i class="bi bi-calendar-check text-warning me-2"></i>Citas</span>
-                                                        <span class="badge bg-primary">@(citasPorUsuario.ContainsKey(usuario.Id) ? citasPorUsuario[usuario.Id] : 0)</span>
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <i class="bi bi-credit-card text-danger me-2"></i>Todos los pagos asociados
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <i class="bi bi-file-medical text-info me-2"></i>Historiales clínicos
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <i class="bi bi-bell text-secondary me-2"></i>Notificaciones
-                                                    </li>
-                                                    <li class="list-group-item">
-                                                        <i class="bi bi-person-x text-dark me-2"></i>Cuenta de acceso
-                                                    </li>
-                                                </ul>
-                                                <p class="text-muted small mb-0">
-                                                    <i class="bi bi-info-circle me-1"></i>
-                                                    ¿Está seguro de que desea eliminar a <strong>@usuario.Nombre</strong> y todos sus datos?
-                                                </p>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                    <i class="bi bi-x-circle me-1"></i>Cancelar
+                                            <p class="font-body-md text-body-md text-on-surface">¿Está seguro de que desea eliminar a <strong>@usuario.Nombre</strong>?</p>
+                                        </div>
+                                        <div class="p-4 bg-surface-container-low border-t border-outline-variant flex justify-end gap-3">
+                                            <button type="button" onclick="document.getElementById('modal-@usuario.Id').classList.add('hidden')" class="px-md py-sm rounded-full font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-high transition-colors">
+                                                Cancelar
+                                            </button>
+                                            <form asp-action="Delete" asp-route-id="@usuario.Id" method="post" class="m-0 p-0">
+                                                <button type="submit" class="bg-error text-on-error px-md py-sm rounded-full font-label-md text-label-md hover:bg-error/90 transition-colors shadow-sm flex items-center gap-2">
+                                                    <span class="material-symbols-outlined text-sm">delete_forever</span> Sí, Eliminar Todo
                                                 </button>
-                                                <form asp-action="Delete" asp-route-id="@usuario.Id" method="post" class="d-inline">
-                                                    <button type="submit" class="btn btn-danger">
-                                                        <i class="bi bi-trash me-1"></i>Sí, Eliminar Todo
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
@@ -224,11 +183,18 @@
 <!-- Paginación -->
 @if (Model.PageCount > 1)
 {
-    <nav class="mt-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <span class="text-muted">
-                Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount clientes
-            </span>
+    <div class="bg-surface-container-lowest p-md border border-outline-variant rounded-xl shadow-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="text-sm text-on-surface-variant">
+            Mostrando @Model.FirstItemOnPage - @Model.LastItemOnPage de @Model.TotalItemCount clientes
+        </div>
+        <div>
+            <style>
+                .pagination { display: flex; list-style: none; gap: 4px; margin: 0; padding: 0; }
+                .page-item .page-link { padding: 4px 12px; border-radius: 4px; border: 1px solid #c3c6d5; color: #071e27; text-decoration: none; font-size: 14px; background: #f3faff; }
+                .page-item.active .page-link { background: #003c90; color: #ffffff; border-color: #003c90; }
+                .page-item.disabled .page-link { opacity: 0.5; pointer-events: none; }
+                .page-item:not(.active):not(.disabled) .page-link:hover { background: #cfe6f2; }
+            </style>
             @Html.PagedListPager(Model, page => Url.Action("Index", new { 
                 page, 
                 buscar = ViewBag.BuscarActual,
@@ -239,23 +205,10 @@
                 DisplayLinkToLastPage = PagedListDisplayMode.Always,
                 DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
                 DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                UlElementClasses = new[] { "pagination", "justify-content-end" },
+                UlElementClasses = new[] { "pagination" },
                 LiElementClasses = new[] { "page-item" },
                 PageClasses = new[] { "page-link" }
             })
         </div>
-    </nav>
+    </div>
 }
-
-<style>
-    .avatar-circle {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-size: 1.1rem;
-    }
-</style>

@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Contracts;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Web.Models.ViewModels;
@@ -16,12 +17,14 @@ public class PagoCitaController : Controller
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly PdfService _pdfService;
+    private readonly IPagoService _pagoService;
 
-    public PagoCitaController(IUnitOfWork unitOfWork, IMapper mapper, PdfService pdfService)
+    public PagoCitaController(IUnitOfWork unitOfWork, IMapper mapper, PdfService pdfService, IPagoService pagoService)
     {
         _unitOfWork = unitOfWork;
         _mapper = mapper;
         _pdfService = pdfService;
+        _pagoService = pagoService;
     }
 
     private async Task<Usuario?> GetCurrentUsuarioAsync()
@@ -35,11 +38,7 @@ public class PagoCitaController : Controller
     // GET: PagoCita/Pagar/5 - Pantalla de pago para una cita
     public async Task<IActionResult> Pagar(int citaId)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(citaId);
 
         if (cita == null)
         {
@@ -73,10 +72,7 @@ public class PagoCitaController : Controller
         TarjetaGuardada? tarjetaGuardada = null;
         if (currentUsuario != null)
         {
-            tarjetaGuardada = await _unitOfWork.TarjetasGuardadas.GetAll()
-                .Where(t => t.UsuarioId == currentUsuario.Id && t.Activa)
-                .OrderByDescending(t => t.FechaRegistro)
-                .FirstOrDefaultAsync();
+            tarjetaGuardada = await _pagoService.GetTarjetaGuardadaAsync(currentUsuario.Id);
         }
 
         var viewModel = new PagoTarjetaViewModel
@@ -108,11 +104,7 @@ public class PagoCitaController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ProcesarPago(PagoTarjetaViewModel model)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == model.CitaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(model.CitaId);
 
         if (cita == null)
         {
@@ -147,73 +139,20 @@ public class PagoCitaController : Controller
         var montoTotal = cita.Servicio?.Precio ?? 0;
         var montoPagar = model.TipoPago == "Parcial" ? montoTotal * 0.5m : montoTotal;
 
-        // Generar referencia única
-        var referencia = $"PAG-{DateTime.Now:yyyyMMdd}-{cita.Id:D4}-{new Random().Next(1000, 9999)}";
+        var pago = await _pagoService.ProcesarPagoTarjetaAsync(
+            cita.Id,
+            montoTotal,
+            montoPagar,
+            model.TipoPago,
+            model.NumeroTarjeta,
+            model.GuardarTarjeta,
+            model.NombreTitular,
+            model.FechaVencimiento,
+            model.CVV,
+            cita.Mascota?.UsuarioId
+        );
 
-        // Crear registro de pago
-        var pago = new Pago
-        {
-            CitaId = cita.Id,
-            Monto = montoPagar,
-            MetodoPago = "Tarjeta",
-            TipoPago = model.TipoPago,
-            Referencia = referencia,
-            UltimosDigitosTarjeta = model.NumeroTarjeta.Substring(model.NumeroTarjeta.Length - 4),
-            FechaPago = DateTime.Now
-        };
-
-        await _unitOfWork.Pagos.AddAsync(pago);
-
-        // Actualizar cita
-        cita.MontoTotal = montoTotal;
-        cita.MontoPagado = montoPagar;
-        cita.TipoPago = model.TipoPago;
-        cita.EstadoPago = model.TipoPago == "Completo" ? "Pagado" : "Parcial";
-        cita.Estado = "Confirmada"; // Al pagar, se confirma automáticamente
-
-        _unitOfWork.Citas.Update(cita);
-
-        // Guardar tarjeta para próximos pagos si el usuario lo desea
-        if (model.GuardarTarjeta && cita.Mascota?.UsuarioId != null)
-        {
-            var usuarioId = cita.Mascota.UsuarioId;
-            
-            // Verificar si ya tiene una tarjeta guardada
-            var tarjetaExistente = await _unitOfWork.TarjetasGuardadas.GetAll()
-                .Where(t => t.UsuarioId == usuarioId && t.Activa)
-                .FirstOrDefaultAsync();
-
-            if (tarjetaExistente != null)
-            {
-                // Actualizar la tarjeta existente
-                tarjetaExistente.NombreTitular = EncriptarSimple(model.NombreTitular);
-                tarjetaExistente.NumeroTarjetaEncriptado = EncriptarSimple(model.NumeroTarjeta);
-                tarjetaExistente.UltimosDigitos = model.NumeroTarjeta.Substring(model.NumeroTarjeta.Length - 4);
-                tarjetaExistente.FechaExpiracion = model.FechaVencimiento;
-                tarjetaExistente.CVVEncriptado = EncriptarSimple(model.CVV);
-                tarjetaExistente.FechaRegistro = DateTime.UtcNow;
-                _unitOfWork.TarjetasGuardadas.Update(tarjetaExistente);
-            }
-            else
-            {
-                // Crear nueva tarjeta guardada
-                var nuevaTarjeta = new TarjetaGuardada
-                {
-                    UsuarioId = usuarioId,
-                    NombreTitular = EncriptarSimple(model.NombreTitular),
-                    NumeroTarjetaEncriptado = EncriptarSimple(model.NumeroTarjeta),
-                    UltimosDigitos = model.NumeroTarjeta.Substring(model.NumeroTarjeta.Length - 4),
-                    FechaExpiracion = model.FechaVencimiento,
-                    CVVEncriptado = EncriptarSimple(model.CVV),
-                    Activa = true
-                };
-                await _unitOfWork.TarjetasGuardadas.AddAsync(nuevaTarjeta);
-            }
-        }
-
-        await _unitOfWork.CommitAsync();
-
-        TempData["Success"] = $"¡Pago exitoso! Referencia: {referencia}";
+        TempData["Success"] = $"¡Pago exitoso! Referencia: {pago.Referencia}";
         TempData["PagoId"] = pago.Id;
         TempData["CitaId"] = cita.Id;
 
@@ -223,14 +162,8 @@ public class PagoCitaController : Controller
     // GET: PagoCita/Confirmacion
     public async Task<IActionResult> Confirmacion(int citaId, int pagoId)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .Include(c => c.Pagos)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
-
-        var pago = await _unitOfWork.Pagos.GetByIdAsync(pagoId);
+        var cita = await _pagoService.GetCitaWithPagosAsync(citaId);
+        var pago = await _pagoService.GetPagoByIdAsync(pagoId);
 
         if (cita == null || pago == null)
         {
@@ -246,11 +179,7 @@ public class PagoCitaController : Controller
     // GET: PagoCita/CompletarPago/5 - Para pagar el monto restante
     public async Task<IActionResult> CompletarPago(int citaId)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(citaId);
 
         if (cita == null)
         {
@@ -269,8 +198,8 @@ public class PagoCitaController : Controller
         // Solo se puede completar pago si está en estado Parcial
         if (cita.EstadoPago != "Parcial")
         {
-            TempData["Info"] = cita.EstadoPago == "Pagado" 
-                ? "Esta cita ya está pagada completamente." 
+            TempData["Info"] = cita.EstadoPago == "Pagado"
+                ? "Esta cita ya está pagada completamente."
                 : "Esta cita no tiene pagos previos.";
             return RedirectToAction("Details", "Citas", new { id = citaId });
         }
@@ -288,10 +217,7 @@ public class PagoCitaController : Controller
         TarjetaGuardada? tarjetaGuardada = null;
         if (cita.Mascota?.UsuarioId != null)
         {
-            tarjetaGuardada = await _unitOfWork.TarjetasGuardadas.GetAll()
-                .Where(t => t.UsuarioId == cita.Mascota.UsuarioId && t.Activa)
-                .OrderByDescending(t => t.FechaRegistro)
-                .FirstOrDefaultAsync();
+            tarjetaGuardada = await _pagoService.GetTarjetaGuardadaAsync(cita.Mascota.UsuarioId);
         }
 
         var viewModel = new CompletarPagoViewModel
@@ -321,11 +247,7 @@ public class PagoCitaController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ProcesarPagoRestante(CompletarPagoViewModel model)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == model.CitaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(model.CitaId);
 
         if (cita == null)
         {
@@ -334,9 +256,6 @@ public class PagoCitaController : Controller
         }
 
         var montoRestante = cita.MontoTotal - cita.MontoPagado;
-        var referencia = $"PAG-{DateTime.Now:yyyyMMdd}-{cita.Id:D4}-{new Random().Next(1000, 9999)}";
-
-        Pago pago;
 
         if (model.MetodoPago == "Tarjeta")
         {
@@ -353,55 +272,28 @@ public class PagoCitaController : Controller
                 return View("CompletarPago", model);
             }
 
-            pago = new Pago
-            {
-                CitaId = cita.Id,
-                Monto = montoRestante,
-                MetodoPago = "Tarjeta",
-                TipoPago = "Restante",
-                Referencia = referencia,
-                UltimosDigitosTarjeta = model.NumeroTarjeta.Substring(12),
-                FechaPago = DateTime.Now
-            };
+            var pago = await _pagoService.ProcesarPagoRestanteTarjetaAsync(cita.Id, model.NumeroTarjeta);
+            TempData["Success"] = $"¡Pago completado exitosamente! Referencia: {pago.Referencia}";
+            return RedirectToAction("Confirmacion", new { citaId = cita.Id, pagoId = pago.Id });
         }
         else
         {
             // Pago en efectivo - Generar voucher para ir a caja
-            // NO se marca como pagado aún, se genera un voucher para que vaya a caja
             var voucherReferencia = $"VOU-{DateTime.Now:yyyyMMdd}-{cita.Id:D4}-{new Random().Next(1000, 9999)}";
-
             TempData["Success"] = "Se ha generado su voucher de pago. Acérquese a caja para completar su pago.";
-            
-            // Redirigir a descargar el voucher de pago en efectivo
-            return RedirectToAction("VoucherPagoEfectivo", new { 
-                citaId = cita.Id, 
+            return RedirectToAction("VoucherPagoEfectivo", new
+            {
+                citaId = cita.Id,
                 montoRestante = montoRestante,
                 referencia = voucherReferencia
             });
         }
-
-        await _unitOfWork.Pagos.AddAsync(pago);
-
-        // Actualizar cita
-        cita.MontoPagado = cita.MontoTotal;
-        cita.EstadoPago = "Pagado";
-
-        _unitOfWork.Citas.Update(cita);
-        await _unitOfWork.CommitAsync();
-
-        TempData["Success"] = $"¡Pago completado exitosamente! Referencia: {referencia}";
-
-        return RedirectToAction("Confirmacion", new { citaId = cita.Id, pagoId = pago.Id });
     }
 
     // GET: PagoCita/VoucherPagoEfectivo - Vista del voucher para pago en efectivo
     public async Task<IActionResult> VoucherPagoEfectivo(int citaId, decimal montoRestante, string referencia)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(citaId);
 
         if (cita == null)
         {
@@ -421,11 +313,7 @@ public class PagoCitaController : Controller
     // GET: PagoCita/DescargarVoucherEfectivo
     public async Task<IActionResult> DescargarVoucherEfectivo(int citaId, decimal montoRestante, decimal montoPagado, decimal montoTotal, string referencia)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(citaId);
 
         if (cita == null)
         {
@@ -440,19 +328,21 @@ public class PagoCitaController : Controller
     // GET: PagoCita/DescargarComprobante/5
     public async Task<IActionResult> DescargarComprobante(int pagoId)
     {
-        var pago = await _unitOfWork.Pagos.GetAll()
-            .Include(p => p.Cita)
-                .ThenInclude(c => c.Mascota)
-                    .ThenInclude(m => m.Usuario)
-            .Include(p => p.Cita.Servicio)
-            .Include(p => p.Cita.Veterinario)
-            .FirstOrDefaultAsync(p => p.Id == pagoId);
+        var pago = await _pagoService.GetPagoByIdAsync(pagoId);
 
         if (pago == null)
         {
             TempData["Error"] = "Pago no encontrado.";
             return RedirectToAction("Index", "Citas");
         }
+        
+        var cita = await _pagoService.GetCitaForPagoAsync(pago.CitaId);
+        if (cita == null) {
+            TempData["Error"] = "Cita no encontrada.";
+            return RedirectToAction("Index", "Citas");
+        }
+        
+        pago.Cita = cita; // Asegurar que tenga la cita para el PDF
 
         var pdfBytes = _pdfService.GenerarComprobantePago(pago.Cita, pago);
         return File(pdfBytes, "application/pdf", $"Comprobante_Pago_{pago.Referencia}.pdf");
@@ -461,11 +351,7 @@ public class PagoCitaController : Controller
     // GET: PagoCita/DescargarFicha/5
     public async Task<IActionResult> DescargarFicha(int citaId)
     {
-        var cita = await _unitOfWork.Citas.GetAll()
-            .Include(c => c.Mascota).ThenInclude(m => m.Usuario)
-            .Include(c => c.Servicio)
-            .Include(c => c.Veterinario)
-            .FirstOrDefaultAsync(c => c.Id == citaId);
+        var cita = await _pagoService.GetCitaForPagoAsync(citaId);
 
         if (cita == null)
         {

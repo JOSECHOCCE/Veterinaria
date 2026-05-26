@@ -17,6 +17,8 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<Pago> Pagos { get; }
     public IGenericRepository<Notificacion> Notificaciones { get; }
     public IGenericRepository<TarjetaGuardada> TarjetasGuardadas { get; }
+    public IGenericRepository<Triage> Triages { get; }
+    public IGenericRepository<Consentimiento> Consentimientos { get; }
 
     public UnitOfWork(VeterinariaDbContext context)
     {
@@ -30,6 +32,8 @@ public class UnitOfWork : IUnitOfWork
         Pagos = new GenericRepository<Pago>(_context);
         Notificaciones = new GenericRepository<Notificacion>(_context);
         TarjetasGuardadas = new GenericRepository<TarjetaGuardada>(_context);
+        Triages = new GenericRepository<Triage>(_context);
+        Consentimientos = new GenericRepository<Consentimiento>(_context);
     }
 
     public async Task<int> CommitAsync()
@@ -42,3 +46,4 @@ public class UnitOfWork : IUnitOfWork
         await _context.DisposeAsync();
     }
 }
+
