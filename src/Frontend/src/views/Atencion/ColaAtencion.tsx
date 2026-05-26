@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
 interface TriageEntry {
   id: number;
+  citaId?: number;
   mascotaId: number;
   mascotaNombre: string;
   propietarioNombre: string;
@@ -19,6 +21,7 @@ interface TriageEntry {
   consultorio: string;
   fechaRegistro: string;
 }
+
 
 interface ColaData {
   triages: TriageEntry[];
@@ -63,6 +66,7 @@ function getNivelConfig(nivel: string) {
 }
 
 export default function ColaAtencion() {
+  const navigate = useNavigate();
   const [colaData, setColaData] = useState<ColaData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -235,6 +239,18 @@ export default function ColaAtencion() {
                       )}
                     </div>
                     <div className="flex justify-end gap-xs">
+                      {triage.estado === 'EnAtencion' && (
+                        <button
+                          className="p-2 text-primary hover:text-on-primary-container hover:bg-primary-container rounded-lg transition-colors"
+                          title="Registrar SOAP"
+                          onClick={() => {
+                            const path = `/historia-clinica?citaId=${triage.citaId || ''}&triageId=${triage.id}&temp=${triage.temperatura || ''}&fc=${triage.frecuenciaCardiaca || ''}&peso=${triage.peso || ''}&motivo=${encodeURIComponent(triage.motivoConsulta || '')}&paciente=${encodeURIComponent(triage.mascotaNombre || '')}&propietario=${encodeURIComponent(triage.propietarioNombre || '')}`;
+                            navigate(path);
+                          }}
+                        >
+                          <span className="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+                        </button>
+                      )}
                       <button
                         className="p-2 text-on-surface-variant hover:text-primary hover:bg-primary-container rounded-lg transition-colors"
                         title="Editar Triage"

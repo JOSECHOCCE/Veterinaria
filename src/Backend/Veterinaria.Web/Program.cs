@@ -103,30 +103,6 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
     options.SlidingExpiration = true;
-
-    options.Events.OnRedirectToLogin = context =>
-    {
-        if (context.Request.Path.StartsWithSegments("/api"))
-        {
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            return Task.CompletedTask;
-        }
-
-        context.Response.Redirect(context.RedirectUri);
-        return Task.CompletedTask;
-    };
-
-    options.Events.OnRedirectToAccessDenied = context =>
-    {
-        if (context.Request.Path.StartsWithSegments("/api"))
-        {
-            context.Response.StatusCode = StatusCodes.Status403Forbidden;
-            return Task.CompletedTask;
-        }
-
-        context.Response.Redirect(context.RedirectUri);
-        return Task.CompletedTask;
-    };
 });
 
 // Configurar AutoMapper
@@ -176,14 +152,19 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Home/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
-
-    app.UseHttpsRedirection();
 }
-// app.UseStaticFiles();
+
+app.UseHttpsRedirection();
+
+// Configurar el servidor de C# para servir de forma nativa los archivos estáticos de React
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(app.Environment.ContentRootPath, "../../Frontend/dist")),
+    RequestPath = ""
+});
 
 app.UseRouting();
-
-app.UseCors("CorsPolicy");
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -191,8 +172,16 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseCors("CorsPolicy");
+
 app.MapControllers();
-// app.MapRazorPages();
+
+// Mapear fallback de SPA para que maneje las rutas del frontend en React
+app.MapFallbackToFile("index.html", new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
+        Path.Combine(app.Environment.ContentRootPath, "../../Frontend/dist"))
+});
 
 // Mapear Hub de SignalR para notificaciones
 app.MapHub<NotificacionHub>("/notificacionHub");

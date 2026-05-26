@@ -30,6 +30,9 @@ public static class DbSeeder
 
         // 6. Seed Mascotas (asociadas al usuario normal)
         await SeedMascotasAsync(context, usuarioNormal, isDevelopment);
+
+        // 7. Seed Triage, Citas y Pagos (para simular el ecosistema de Stitch)
+        await SeedCitasTriagePagosAsync(context);
     }
 
     private const string DefaultFotoPerro = "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=256&h=256&q=80";
@@ -293,5 +296,92 @@ public static class DbSeeder
     {
         var especieNorm = (especie ?? string.Empty).Trim().ToLowerInvariant();
         return especieNorm.Contains("gato") ? DefaultFotoGato : DefaultFotoPerro;
+    }
+
+    private static async Task SeedCitasTriagePagosAsync(VeterinariaDbContext context)
+    {
+        if (await context.Citas.AnyAsync())
+            return;
+
+        var max = await context.Mascotas.FirstOrDefaultAsync(m => m.Nombre == "Max");
+        var luna = await context.Mascotas.FirstOrDefaultAsync(m => m.Nombre == "Luna");
+        var drMendoza = await context.Veterinarios.FirstOrDefaultAsync(m => m.Nombre.Contains("Mendoza"));
+        var draFernandez = await context.Veterinarios.FirstOrDefaultAsync(m => m.Nombre.Contains("Fernández"));
+        var consultaGeneral = await context.Servicios.FirstOrDefaultAsync(m => m.Nombre == "Consulta General");
+        var cirugia = await context.Servicios.FirstOrDefaultAsync(m => m.Nombre.Contains("Cirugía"));
+
+        if (max == null || luna == null || drMendoza == null || draFernandez == null || consultaGeneral == null || cirugia == null)
+            return;
+
+        // 1. Cita para Max (Confirmada hoy)
+        var citaMax = new Cita
+        {
+            FechaHora = DateTime.Today.AddHours(9),
+            Estado = "Confirmada",
+            Motivo = "Consulta de Control",
+            TipoPago = "Completo",
+            MontoTotal = 50.00m,
+            MontoPagado = 50.00m,
+            EstadoPago = "Pagado",
+            MascotaId = max.Id,
+            VeterinarioId = drMendoza.Id,
+            ServicioId = consultaGeneral.Id,
+            FechaCreacion = DateTime.UtcNow
+        };
+
+        // 2. Cita para Luna (En proceso hoy - pago parcial)
+        var citaLuna = new Cita
+        {
+            FechaHora = DateTime.Today.AddHours(11),
+            Estado = "EnProceso",
+            Motivo = "Cirugía de Quiste Renal",
+            TipoPago = "Parcial",
+            MontoTotal = 250.00m,
+            MontoPagado = 150.00m,
+            EstadoPago = "Parcial",
+            MascotaId = luna.Id,
+            VeterinarioId = draFernandez.Id,
+            ServicioId = cirugia.Id,
+            FechaCreacion = DateTime.UtcNow
+        };
+
+        context.Citas.AddRange(citaMax, citaLuna);
+        await context.SaveChangesAsync();
+
+        // 3. Pago parcial de Luna
+        var pagoLuna = new Pago
+        {
+            CitaId = citaLuna.Id,
+            Monto = 150.00m,
+            MetodoPago = "Tarjeta",
+            TipoPago = "Parcial",
+            Referencia = "REF-987456",
+            UltimosDigitosTarjeta = "4242",
+            FechaPago = DateTime.Now
+        };
+
+        context.Pagos.Add(pagoLuna);
+        await context.SaveChangesAsync();
+
+        // 4. Triage para Max (para simular ingreso)
+        var triageMax = new Triage
+        {
+            CitaId = citaMax.Id,
+            MascotaId = max.Id,
+            Nivel = "N1", // L1 - Resucitación / Emergencia
+            MotivoConsulta = "Consulta de control y cojera leve",
+            Sintomas = "Dolor leve al apoyar pata trasera derecha",
+            Temperatura = 39.10m,
+            PesoEstimado = 32.50m,
+            FrecuenciaCardiaca = 120,
+            PrioridadColor = "Rojo",
+            TiempoEsperaEstimadoMin = 0,
+            Consultorio = "Sala de Shock",
+            Estado = "EnAtencion",
+            FechaRegistro = DateTime.Now
+        };
+
+        context.Triages.Add(triageMax);
+        await context.SaveChangesAsync();
     }
 }

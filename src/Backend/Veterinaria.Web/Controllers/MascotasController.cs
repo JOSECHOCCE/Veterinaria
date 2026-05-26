@@ -6,6 +6,9 @@ using Veterinaria.Domain.Entities;
 using Veterinaria.Application.Interfaces;
 using Veterinaria.Web.Models.Dto;
 using Veterinaria.Application.DTOs;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Veterinaria.Domain.Contracts;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -16,17 +19,35 @@ public class MascotasController : ControllerBase
 {
     private readonly IMascotaService _mascotaService;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public MascotasController(IMascotaService mascotaService, IMapper mapper)
+    public MascotasController(IMascotaService mascotaService, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _mascotaService = mascotaService;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpGet]
-    public ActionResult<Response<object>> Index([FromQuery] string? q, [FromQuery] int page = 1)
+    public async Task<ActionResult<Response<object>>> Index([FromQuery] string? q, [FromQuery] int page = 1)
     {
         var query = _mascotaService.GetActiveMascotasWithUsuariosQuery();
+
+        if (!User.IsInRole("Admin"))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var usuario = await _unitOfWork.Usuarios.GetAll()
+                .FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
+
+            if (usuario != null)
+            {
+                query = query.Where(m => m.UsuarioId == usuario.Id);
+            }
+            else
+            {
+                query = query.Where(m => false); // Si no hay perfil, no retorna nada
+            }
+        }
 
         if (!string.IsNullOrWhiteSpace(q))
         {
@@ -35,15 +56,16 @@ public class MascotasController : ControllerBase
                                      m.Especie.ToLower().Contains(q));
         }
 
-        var total = query.Count();
-        var mascotas = query.OrderBy(m => m.Nombre)
+        var total = await query.CountAsync();
+        var mascotas = await query.OrderBy(m => m.Nombre)
             .Skip((page - 1) * 10)
             .Take(10)
             .Select(m => _mapper.Map<MascotaDto>(m))
-            .ToList();
+            .ToListAsync();
 
         return Ok(Response<object>.Ok(new { Data = mascotas, Total = total, Page = page, PageSize = 10, CurrentFilter = q }));
     }
+
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Response<object>>> Details(int id)
