@@ -15,10 +15,17 @@ namespace Veterinaria.Web.Controllers;
 public class TriageController : ControllerBase
 {
     private readonly ITriageService _triageService;
+    private readonly ICitaService _citaService;
+    private readonly INotificacionService _notificacionService;
 
-    public TriageController(ITriageService triageService)
+    public TriageController(
+        ITriageService triageService,
+        ICitaService citaService,
+        INotificacionService notificacionService)
     {
         _triageService = triageService;
+        _citaService = citaService;
+        _notificacionService = notificacionService;
     }
 
     [HttpGet("Cola")]
@@ -26,9 +33,28 @@ public class TriageController : ControllerBase
     {
         var triages = await _triageService.GetColaTriageAsync();
 
+        var triagesMapped = triages.Select(t => new
+        {
+            id = t.Id,
+            citaId = t.CitaId,
+            mascotaId = t.MascotaId,
+            mascotaNombre = t.Mascota?.Nombre ?? "Mascota",
+            propietarioNombre = t.Mascota?.Usuario?.Nombre ?? "Propietario",
+            nivel = t.Nivel,
+            prioridadColor = t.PrioridadColor,
+            estado = t.Estado,
+            motivoConsulta = t.MotivoConsulta,
+            temperatura = t.Temperatura ?? 0,
+            frecuenciaCardiaca = t.FrecuenciaCardiaca ?? 0,
+            peso = t.PesoEstimado ?? 0,
+            tiempoEsperaEstimadoMin = t.TiempoEsperaEstimadoMin,
+            consultorio = t.Consultorio,
+            fechaRegistro = t.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")
+        }).ToList();
+
         var result = new
         {
-            Triages = triages,
+            Triages = triagesMapped,
             TotalEsperando = triages.Count(t => t.Estado == "EnEspera"),
             TotalEmergencias = triages.Count(t => t.Nivel == "N1")
         };
@@ -80,6 +106,16 @@ public class TriageController : ControllerBase
 
         triage.Estado = nuevoEstado;
         await _triageService.UpdateTriageAsync(triage);
+
+        // Si el estado es EnAtencion y existe cita asociada, pasar la cita a EnProceso y notificar al cliente.
+        if (nuevoEstado == "EnAtencion" && triage.CitaId.HasValue)
+        {
+            var result = await _citaService.CambiarEstadoAsync(triage.CitaId.Value, "EnProceso");
+            if (result.Success && result.Cita != null)
+            {
+                await _notificacionService.NotificarCitaEnProcesoAsync(result.Cita);
+            }
+        }
 
         return Ok(Response<object>.Ok("Estado actualizado."));
     }

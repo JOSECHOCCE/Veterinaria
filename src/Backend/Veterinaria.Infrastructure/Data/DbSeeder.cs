@@ -22,6 +22,9 @@ public static class DbSeeder
         // 3. Seed Recepcionista
         await SeedRecepcionistaUserAsync(userManager);
 
+        // 3.5 Seed Usuario rows del personal interno (para que reciban notificaciones)
+        await SeedStaffUsuarioRowsAsync(userManager, context);
+
         // 4. Seed Veterinarios
         await SeedVeterinariosAsync(context);
         await SeedVeterinarioAccountsAsync(userManager);
@@ -99,6 +102,50 @@ public static class DbSeeder
                 await userManager.AddToRoleAsync(user, "Recepcionista");
             }
         }
+    }
+
+    private static async Task SeedStaffUsuarioRowsAsync(
+        UserManager<ApplicationUser> userManager,
+        VeterinariaDbContext context)
+    {
+        // Garantizar que cada usuario interno (Admin / Recepcionista) tenga un registro
+        // en la tabla Usuarios. Esto es indispensable para que el sistema de
+        // notificaciones (entidad Notificacion -> UsuarioId) pueda crear y entregar
+        // mensajes en tiempo real al recepcionista cuando un cliente solicita una cita.
+        var staff = new[]
+        {
+            new { Email = "admin@veterinaria.com", Nombre = "Administrador del Sistema", Rol = "Admin" },
+            new { Email = "recepcionista@veterinaria.com", Nombre = "Recepcionista Principal", Rol = "Recepcionista" }
+        };
+
+        foreach (var s in staff)
+        {
+            var appUser = await userManager.FindByEmailAsync(s.Email);
+            if (appUser == null) continue;
+
+            var existing = await context.Usuarios.FirstOrDefaultAsync(u => u.Email == s.Email);
+            if (existing == null)
+            {
+                context.Usuarios.Add(new Usuario
+                {
+                    Nombre = s.Nombre,
+                    Email = s.Email,
+                    Rol = s.Rol,
+                    ApplicationUserId = appUser.Id,
+                    FechaRegistro = DateTime.Now,
+                    Activo = true
+                });
+            }
+            else
+            {
+                // Asegurar consistencia (rol y enlace a Identity)
+                existing.Rol = s.Rol;
+                if (string.IsNullOrEmpty(existing.ApplicationUserId))
+                    existing.ApplicationUserId = appUser.Id;
+            }
+        }
+
+        await context.SaveChangesAsync();
     }
 
     private static async Task SeedVeterinarioAccountsAsync(UserManager<ApplicationUser> userManager)

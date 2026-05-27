@@ -103,6 +103,7 @@ public class VentaService : IVentaService
                 producto.Stock += detalle.Cantidad;
                 _unitOfWork.Productos.Update(producto);
             }
+            detalle.Producto = null!;
         }
 
         _unitOfWork.Ventas.Update(venta);

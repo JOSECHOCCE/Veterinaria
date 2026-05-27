@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import api from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 interface Cita {
   id: number;
@@ -65,6 +66,8 @@ function isToday(dateStr: string): boolean {
 
 function getEstadoStyle(estado: string) {
   switch (estado?.toLowerCase()) {
+    case 'solicitada':
+      return { bg: 'bg-tertiary-container', border: 'border-tertiary', text: 'text-on-tertiary-container', dot: 'bg-tertiary' };
     case 'confirmada':
       return { bg: 'bg-secondary-container', border: 'border-secondary', text: 'text-on-secondary-container', dot: 'bg-secondary' };
     case 'pendiente':
@@ -84,6 +87,10 @@ function getEstadoStyle(estado: string) {
 }
 
 export default function Agenda() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const canConfirm = user?.role === 'Admin' || user?.role === 'Recepcionista';
+
   const [citas, setCitas] = useState<Cita[]>([]);
   const [loading, setLoading] = useState(true);
   const [estados, setEstados] = useState<string[]>([]);
@@ -92,6 +99,51 @@ export default function Agenda() {
   const [selectedVeterinario, setSelectedVeterinario] = useState<string>('');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [showVetDropdown, setShowVetDropdown] = useState(false);
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
+  const [registeringLlegadaId, setRegisteringLlegadaId] = useState<number | null>(null);
+
+  async function confirmarCita(id: number) {
+    setConfirmingId(id);
+    try {
+      const response = await api.post(`/api/Citas/CambiarEstado/${id}?nuevoEstado=Confirmada`);
+      if (response.data.success) {
+        toast.success('Cita confirmada', { description: 'El cliente ha sido notificado.' });
+        await fetchCitas();
+      } else {
+        toast.error(response.data.message || 'No se pudo confirmar la cita');
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Error al confirmar la cita');
+    } finally {
+      setConfirmingId(null);
+    }
+  }
+
+  async function registrarLlegada(cita: Cita) {
+    setRegisteringLlegadaId(cita.id);
+    try {
+      const response = await api.post(`/api/Citas/CambiarEstado/${cita.id}?nuevoEstado=EnEspera`);
+      if (response.data.success) {
+        toast.success('Llegada registrada exitosamente', {
+          description: `El paciente ${cita.mascotaNombre} ahora está En Espera.`,
+          action: {
+            label: 'Hacer Triage',
+            onClick: () => {
+              navigate(`/admin/triage?citaId=${cita.id}&mascotaId=${cita.mascotaId}&mascotaNombre=${encodeURIComponent(cita.mascotaNombre)}&propietarioNombre=${encodeURIComponent(cita.propietarioNombre)}&motivo=${encodeURIComponent(cita.motivo || '')}`);
+            }
+          },
+          duration: 10000
+        });
+        await fetchCitas();
+      } else {
+        toast.error(response.data.message || 'No se pudo registrar la llegada');
+      }
+    } catch (e: any) {
+      toast.error(e?.response?.data?.message || 'Error al registrar la llegada');
+    } finally {
+      setRegisteringLlegadaId(null);
+    }
+  }
 
   const { start: weekStart, end: weekEnd } = getWeekRange(currentDate);
 
@@ -388,6 +440,32 @@ export default function Agenda() {
                                 {cita.motivo}
                               </span>
                             </div>
+                          )}
+
+                          {/* Acción Confirmar (PASO 2 del flujo - RF-22) */}
+                          {canConfirm && (cita.estado?.toLowerCase() === 'solicitada' || cita.estado?.toLowerCase() === 'pendiente') && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); confirmarCita(cita.id); }}
+                              disabled={confirmingId === cita.id}
+                              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg bg-secondary text-on-secondary font-label-sm text-label-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+                              title="Confirmar cita y notificar al cliente"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                              {confirmingId === cita.id ? 'Confirmando...' : 'Confirmar'}
+                            </button>
+                          )}
+
+                          {/* Acción Registrar Llegada (PASO 3 del flujo) */}
+                          {canConfirm && cita.estado?.toLowerCase() === 'confirmada' && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); registrarLlegada(cita); }}
+                              disabled={registeringLlegadaId === cita.id}
+                              className="ml-auto flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-on-primary font-label-sm text-label-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-60"
+                              title="Registrar llegada del paciente a la clínica"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">hail</span>
+                              {registeringLlegadaId === cita.id ? 'Registrando...' : 'Llegada'}
+                            </button>
                           )}
                         </div>
                       );

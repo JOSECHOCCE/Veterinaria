@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 
 interface MascotaOption {
@@ -11,15 +11,20 @@ interface MascotaOption {
 
 const Triage = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const urlCitaId = searchParams.get('citaId');
+  const urlMascotaId = searchParams.get('mascotaId');
+  const urlMotivo = searchParams.get('motivo');
 
   const [mascotas, setMascotas] = useState<MascotaOption[]>([]);
   const [loadingMascotas, setLoadingMascotas] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   // Form state
-  const [mascotaId, setMascotaId] = useState<number | ''>('');
+  const [mascotaId, setMascotaId] = useState<number | ''>(urlMascotaId ? Number(urlMascotaId) : '');
   const [nivel, setNivel] = useState('N3');
-  const [motivoConsulta, setMotivoConsulta] = useState('');
+  const [motivoConsulta, setMotivoConsulta] = useState(urlMotivo ? decodeURIComponent(urlMotivo) : '');
   const [temperatura, setTemperatura] = useState('');
   const [frecuenciaCardiaca, setFrecuenciaCardiaca] = useState('');
   const [peso, setPeso] = useState('');
@@ -58,12 +63,14 @@ const Triage = () => {
     setSubmitting(true);
     try {
       const body = {
+        citaId: urlCitaId ? Number(urlCitaId) : null,
         mascotaId: Number(mascotaId),
         nivel,
         motivoConsulta,
         temperatura: temperatura ? parseFloat(temperatura) : 0,
         frecuenciaCardiaca: frecuenciaCardiaca ? parseInt(frecuenciaCardiaca, 10) : 0,
         peso: peso ? parseFloat(peso) : 0,
+        pesoEstimado: peso ? parseFloat(peso) : 0,
       };
 
       const response = await api.post('/api/Triage', body);

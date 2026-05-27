@@ -126,7 +126,7 @@ public class NotificacionService : INotificacionService
             $"Tu cita para {mascota.Nombre} ha sido confirmada para el {cita.FechaHora:dddd dd 'de' MMMM} a las {cita.FechaHora:HH:mm}.",
             "Success",
             "bi-calendar-check",
-            $"/Citas/Details/{cita.Id}"
+            "/cliente/mis-citas"
         );
     }
 
@@ -142,7 +142,7 @@ public class NotificacionService : INotificacionService
             $"¡{mascota.Nombre} está en consulta! El servicio de {servicio?.Nombre ?? "atención"} está en proceso. Te notificaremos cuando termine.",
             "Info",
             "bi-heart-pulse",
-            $"/Citas/Details/{cita.Id}"
+            "/cliente/mis-citas"
         );
     }
 
@@ -161,7 +161,7 @@ public class NotificacionService : INotificacionService
             $"¡{mascota.Nombre} ya está listo/a! La atención ha finalizado exitosamente. Puedes pasar a recogerlo/a.{mensajePago}",
             "Success",
             "bi-check-circle-fill",
-            $"/Citas/Details/{cita.Id}"
+            "/cliente/mis-citas"
         );
     }
 
@@ -176,7 +176,7 @@ public class NotificacionService : INotificacionService
             $"La cita de {mascota.Nombre} programada para el {cita.FechaHora:dd/MM/yyyy HH:mm} ha sido cancelada.",
             "Warning",
             "bi-x-circle",
-            "/Citas"
+            "/cliente/mis-citas"
         );
     }
 
@@ -192,7 +192,7 @@ public class NotificacionService : INotificacionService
             $"Tienes una cita para {mascota.Nombre} mañana a las {cita.FechaHora:HH:mm} con Dr. {veterinario?.Nombre ?? ""}. ¡No olvides asistir!",
             "Info",
             "bi-bell",
-            $"/Citas/Details/{cita.Id}"
+            "/cliente/mis-citas"
         );
     }
 
@@ -211,7 +211,33 @@ public class NotificacionService : INotificacionService
             mensaje,
             "Success",
             "bi-credit-card-2-front",
-            $"/Citas/Details/{cita.Id}"
+            "/cliente/mis-pagos"
         );
+    }
+
+    public async Task NotificarNuevaCitaSolicitadaAsync(Cita cita)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
+        if (mascota == null) return;
+
+        var cliente = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+        var nombreCliente = cliente?.Nombre ?? "Cliente";
+
+        // Obtener todos los Recepcionistas y Admins
+        var personal = await _unitOfWork.Usuarios.GetAll()
+            .Where(u => u.Activo && (u.Rol == "Recepcionista" || u.Rol == "Admin"))
+            .ToListAsync();
+
+        foreach (var p in personal)
+        {
+            await CrearNotificacionAsync(
+                p.Id,
+                "📅 Nueva Cita Solicitada",
+                $"El cliente {nombreCliente} ha solicitado una cita para {mascota.Nombre} el {cita.FechaHora:dd/MM/yyyy HH:mm}.",
+                "Info",
+                "bi-calendar-plus",
+                $"/admin/agenda" // URL de la Agenda
+            );
+        }
     }
 }

@@ -27,6 +27,21 @@ public class HistorialClinicoDto
     [Display(Name = "Observaciones")]
     public string? Observaciones { get; set; }
 
+    [MaxLength(500, ErrorMessage = "El motivo de consulta no puede exceder 500 caracteres")]
+    [Display(Name = "Motivo de Consulta")]
+    public string? MotivoConsulta { get; set; }
+
+    [MaxLength(1000, ErrorMessage = "Los hallazgos no pueden exceder 1000 caracteres")]
+    [Display(Name = "Hallazgos")]
+    public string? Hallazgos { get; set; }
+
+    [MaxLength(1000, ErrorMessage = "Las recomendaciones no pueden exceder 1000 caracteres")]
+    [Display(Name = "Recomendaciones")]
+    public string? Recomendaciones { get; set; }
+
+    [Display(Name = "Próximo Control")]
+    public DateTime? ProximoControl { get; set; }
+
     [Display(Name = "Fecha de Registro")]
     [DataType(DataType.DateTime)]
     public DateTime FechaRegistro { get; set; }

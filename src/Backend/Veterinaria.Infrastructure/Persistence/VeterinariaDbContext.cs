@@ -89,6 +89,15 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.Color)
                 .HasMaxLength(30);
 
+            entity.Property(e => e.Sexo)
+                .HasMaxLength(10);
+
+            entity.Property(e => e.ObservacionesGenerales)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.AlergiasConocidas)
+                .HasMaxLength(200);
+
             entity.HasMany(e => e.Citas)
                 .WithOne(c => c.Mascota)
                 .HasForeignKey(c => c.MascotaId)
@@ -199,6 +208,15 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
                 .HasMaxLength(500);
 
             entity.Property(e => e.Observaciones)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.MotivoConsulta)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Hallazgos)
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.Recomendaciones)
                 .HasMaxLength(1000);
 
             entity.HasIndex(e => e.CitaId)

@@ -35,6 +35,15 @@ public class MascotaDto
     [Display(Name = "Propietario")]
     public int UsuarioId { get; set; }
 
+    [Display(Name = "Sexo")]
+    public string? Sexo { get; set; }
+
+    [Display(Name = "Observaciones Generales")]
+    public string? ObservacionesGenerales { get; set; }
+
+    [Display(Name = "Alergias Conocidas")]
+    public string? AlergiasConocidas { get; set; }
+
     // Propiedad calculada
     [Display(Name = "Edad")]
     public int? Edad

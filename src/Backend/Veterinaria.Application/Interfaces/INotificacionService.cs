@@ -20,4 +20,5 @@ public interface INotificacionService
     Task NotificarCitaCanceladaAsync(Cita cita);
     Task NotificarRecordatorioCitaAsync(Cita cita);
     Task NotificarPagoRecibidoAsync(Cita cita, decimal monto);
+    Task NotificarNuevaCitaSolicitadaAsync(Cita cita);
 }

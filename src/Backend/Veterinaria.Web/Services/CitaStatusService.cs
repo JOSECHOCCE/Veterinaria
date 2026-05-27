@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Infrastructure.Persistence;
 
 namespace Veterinaria.Web.Services;
@@ -41,12 +42,43 @@ public class CitaStatusService : BackgroundService
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
+        var notificacionService = scope.ServiceProvider.GetRequiredService<INotificacionService>();
 
         var ahora = DateTime.Now;
 
+        // 0. PASO 2.5 (RF-38) Recordatorio 24h antes: notificar a las citas Confirmadas
+        // que ocurran dentro de las próximas 23-25h. Se deduplica buscando si ya existe
+        // una Notificacion con UrlAccion apuntando a esa cita y título de Recordatorio.
+        var ventanaInicio = ahora.AddHours(23);
+        var ventanaFin = ahora.AddHours(25);
+        var citasParaRecordar = await context.Citas
+            .Include(c => c.Mascota)
+            .Where(c => c.Estado == "Confirmada"
+                     && c.FechaHora >= ventanaInicio
+                     && c.FechaHora <= ventanaFin)
+            .ToListAsync();
+
+        foreach (var cita in citasParaRecordar)
+        {
+            try
+            {
+                var url = $"/Citas/Details/{cita.Id}";
+                var yaEnviado = await context.Notificaciones
+                    .AnyAsync(n => n.UrlAccion == url && n.Titulo.Contains("Recordatorio"));
+                if (yaEnviado) continue;
+
+                await notificacionService.NotificarRecordatorioCitaAsync(cita);
+                _logger.LogInformation($"Recordatorio 24h enviado para cita {cita.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error enviando recordatorio para cita {cita.Id}");
+            }
+        }
+
         // 1. Citas pendientes que ya pasaron hace más de 30 minutos -> Marcar como "NoAsistio"
         var citasNoAsistidas = await context.Citas
-            .Where(c => c.Estado == "Pendiente" || c.Estado == "Confirmada")
+            .Where(c => c.Estado == "Solicitada" || c.Estado == "Pendiente" || c.Estado == "Confirmada" || c.Estado == "EnEspera")
             .Where(c => c.FechaHora < ahora.AddMinutes(-30))
             .ToListAsync();
 

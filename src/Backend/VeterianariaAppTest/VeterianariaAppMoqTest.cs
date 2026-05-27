@@ -1,9 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
 using System.Threading.Tasks;
 
-namespace VeterianariaAppTest
+namespace VeterianariaAppTest.LegacyMocks
 {
     // =========================================================================
     // REFACTORIZACIÓN MÍNIMA PROPUESTA (Interfaces, Models y Servicios a probar)

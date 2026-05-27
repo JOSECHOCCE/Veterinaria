@@ -102,15 +102,17 @@ public class CitasController : ControllerBase
             end = c.FechaHora.AddMinutes(c.Servicio?.DuracionMinutos ?? 30).ToString("yyyy-MM-ddTHH:mm:ss"),
             color = c.Estado switch
             {
+                "Solicitada" => "#fd7e14",   // Naranja
                 "Pendiente" => "#ffc107",    // Amarillo
                 "Confirmada" => "#0d6efd",   // Azul
+                "EnEspera" => "#6f42c1",     // Púrpura (morado de en espera)
                 "EnProceso" => "#17a2b8",    // Cyan
                 "Completada" => "#198754",   // Verde
                 "Cancelada" => "#dc3545",    // Rojo
                 "NoAsistio" => "#343a40",    // Gris oscuro
                 _ => "#6c757d"               // Gris
             },
-            textColor = c.Estado == "Pendiente" ? "#000" : "#fff",
+            textColor = (c.Estado == "Pendiente" || c.Estado == "Solicitada") ? "#000" : "#fff",
             extendedProps = new
             {
                 mascota = c.Mascota?.Nombre,
@@ -165,7 +167,7 @@ public class CitasController : ControllerBase
             TotalCount = citasCount,
             Page = page,
             PageSize = 15,
-            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" },
+            Estados = new[] { "Solicitada", "Pendiente", "Confirmada", "EnEspera", "EnProceso", "Completada", "Cancelada", "NoAsistio" },
             Veterinarios = veterinarios.Select(v => new { v.Id, v.Nombre }),
             CurrentEstado = estado,
             CurrentVeterinarioId = veterinarioId,
@@ -398,6 +400,7 @@ public class CitasController : ControllerBase
 
         var cita = _mapper.Map<Cita>(request.CitaDto);
         await _citaService.CreateCitaAsync(cita, servicio.Precio);
+        await _notificacionService.NotificarNuevaCitaSolicitadaAsync(cita);
 
         return Ok(Response<object>.Ok(new {
             Message = $"Mascota '{mascota.Nombre}' registrada. Ahora proceda a realizar el pago para confirmar la cita.",
@@ -451,6 +454,7 @@ public class CitasController : ControllerBase
 
             var cita = _mapper.Map<Cita>(citaDto);
             await _citaService.CreateCitaAsync(cita, servicio.Precio);
+            await _notificacionService.NotificarNuevaCitaSolicitadaAsync(cita);
 
             return Ok(Response<object>.Ok(new {
                 Message = "¡Cita creada! Ahora proceda a realizar el pago para confirmarla.",
@@ -476,7 +480,7 @@ public class CitasController : ControllerBase
         var data = new
         {
             Cita = citaDto,
-            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" }
+            Estados = new[] { "Solicitada", "Pendiente", "Confirmada", "EnEspera", "EnProceso", "Completada", "Cancelada", "NoAsistio" }
         };
 
         return Ok(Response<object>.Ok(data));

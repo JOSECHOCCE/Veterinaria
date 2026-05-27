@@ -22,6 +22,17 @@ public class HistorialClinico
     [MaxLength(1000)]
     public string? Observaciones { get; set; }
 
+    [MaxLength(500)]
+    public string? MotivoConsulta { get; set; }
+
+    [MaxLength(1000)]
+    public string? Hallazgos { get; set; }
+
+    [MaxLength(1000)]
+    public string? Recomendaciones { get; set; }
+
+    public DateTime? ProximoControl { get; set; }
+
     public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
 
     // Navegación

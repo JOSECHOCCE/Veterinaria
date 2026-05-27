@@ -289,7 +289,7 @@ public class CitaService : ICitaService
         if (!veterinarioDisponible)
             throw new InvalidOperationException("El veterinario seleccionado ya tiene otra cita agendada en ese horario.");
 
-        cita.Estado = "Pendiente";
+        cita.Estado = "Solicitada";
         cita.EstadoPago = "Pendiente";
         cita.MontoTotal = precioServicio;
         cita.MontoPagado = 0;
@@ -367,8 +367,8 @@ public class CitaService : ICitaService
         if (!isAdmin && (currentUsuarioId == null || cita.Mascota.UsuarioId != currentUsuarioId))
             return (false, null, "Forbid");
 
-        if (cita.Estado != "Pendiente" && cita.Estado != "Confirmada")
-            return (false, null, "Solo se pueden cancelar citas en estado 'Pendiente' o 'Confirmada'.");
+        if (cita.Estado != "Solicitada" && cita.Estado != "Pendiente" && cita.Estado != "Confirmada" && cita.Estado != "EnEspera")
+            return (false, null, "Solo se pueden cancelar citas en estado 'Solicitada', 'Pendiente', 'Confirmada' o 'EnEspera'.");
 
         // RF-24: El cliente solo puede cancelar con al menos 2 horas de anticipación
         if (!isAdmin && cita.FechaHora <= DateTime.Now.AddHours(2))
@@ -395,8 +395,8 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null);
 
-        // Solo se puede completar desde EnProceso o Confirmada
-        if (cita.Estado != "EnProceso" && cita.Estado != "Confirmada")
+        // Solo se puede completar desde EnProceso, EnEspera o Confirmada
+        if (cita.Estado != "EnProceso" && cita.Estado != "EnEspera" && cita.Estado != "Confirmada")
             return (false, null);
 
         cita.Estado = "Completada";
@@ -408,8 +408,10 @@ public class CitaService : ICitaService
     // Mapa de transiciones de estado válidas según requerimientos
     private static readonly Dictionary<string, string[]> _transicionesValidas = new()
     {
+        ["Solicitada"]  = new[] { "Confirmada", "Cancelada", "NoAsistio" },
         ["Pendiente"]   = new[] { "Confirmada", "Cancelada", "NoAsistio" },
-        ["Confirmada"]  = new[] { "EnProceso", "Cancelada", "NoAsistio" },
+        ["Confirmada"]  = new[] { "EnEspera", "EnProceso", "Cancelada", "NoAsistio" },
+        ["EnEspera"]    = new[] { "EnProceso", "Cancelada", "NoAsistio" },
         ["EnProceso"]   = new[] { "Completada", "Cancelada" },
         ["Completada"]  = Array.Empty<string>(),
         ["Cancelada"]   = Array.Empty<string>(),
@@ -422,7 +424,7 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null, "No encontrado");
 
-        var estadosValidos = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" };
+        var estadosValidos = new[] { "Solicitada", "Pendiente", "Confirmada", "EnEspera", "EnProceso", "Completada", "Cancelada", "NoAsistio" };
         if (!estadosValidos.Contains(nuevoEstado))
             return (false, null, "Estado no válido.");
 

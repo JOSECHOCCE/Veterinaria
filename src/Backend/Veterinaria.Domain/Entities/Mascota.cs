@@ -29,6 +29,15 @@ public class Mascota
 
     public bool Activo { get; set; } = true;
 
+    [MaxLength(10)]
+    public string? Sexo { get; set; } // "Macho" o "Hembra"
+
+    [MaxLength(500)]
+    public string? ObservacionesGenerales { get; set; }
+
+    [MaxLength(200)]
+    public string? AlergiasConocidas { get; set; }
+
     // Foreign Key
     public int UsuarioId { get; set; }
 
