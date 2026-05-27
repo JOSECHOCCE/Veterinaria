@@ -91,6 +91,12 @@ export default function Dashboard() {
             Atendido
           </span>
         );
+      case 'NoAsistio':
+        return (
+          <span className="font-label-sm text-[10px] text-on-surface-variant bg-surface-variant border border-outline-variant px-sm py-[3px] rounded-full uppercase font-bold">
+            No Asistió
+          </span>
+        );
       default: // Pendiente
         return (
           <span className="font-label-sm text-[10px] text-on-surface-variant bg-surface-container-high/40 border border-outline-variant/30 px-sm py-[3px] rounded-full uppercase font-bold">

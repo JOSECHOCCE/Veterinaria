@@ -30,9 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Al montar, verificamos con el backend si hay una sesión activa de Identity (Cookie de sesión)
+  // Al montar, verificamos con el backend si hay una sesión activa con el Token JWT
   useEffect(() => {
     async function checkSession() {
+      const token = window.localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
       try {
         const response = await api.get('/api/auth/me');
         if (response.data.success && response.data.data) {
@@ -48,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null);
         setIsAuthenticated(false);
         window.localStorage.removeItem('user');
+        window.localStorage.removeItem('token');
       } finally {
         setLoading(false);
       }
@@ -60,9 +68,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await api.post('/api/auth/login', { email, password });
       if (response.data.success && response.data.data) {
         const userData = response.data.data;
-        setUser(userData);
+        const { token, ...userWithoutToken } = userData;
+        setUser(userWithoutToken);
         setIsAuthenticated(true);
-        window.localStorage.setItem('user', JSON.stringify(userData));
+        window.localStorage.setItem('user', JSON.stringify(userWithoutToken));
+        window.localStorage.setItem('token', token);
       } else {
         throw new Error(response.data.message || 'Error al iniciar sesión');
       }
@@ -81,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setIsAuthenticated(false);
       window.localStorage.removeItem('user');
+      window.localStorage.removeItem('token');
     }
   };
 

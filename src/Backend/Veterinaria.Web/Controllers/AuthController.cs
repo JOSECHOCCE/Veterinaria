@@ -8,6 +8,12 @@ using Veterinaria.Domain.Entities;
 using Veterinaria.Application.DTOs;
 using Veterinaria.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -18,12 +24,14 @@ public class AuthController : ControllerBase
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly VeterinariaDbContext _context;
+    private readonly IConfiguration _configuration;
 
-    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, VeterinariaDbContext context)
+    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, VeterinariaDbContext context, IConfiguration configuration)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _context = context;
+        _configuration = configuration;
     }
 
     [HttpPost("login")]
@@ -49,17 +57,42 @@ public class AuthController : ControllerBase
         }
 
         // Intentar iniciar sesión
-        var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, request.RememberMe, lockoutOnFailure: false);
-        if (result.Succeeded)
+        var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
+        if (isPasswordValid)
         {
             var roles = await _userManager.GetRolesAsync(user);
             var userRole = roles.FirstOrDefault() ?? "Usuario";
+
+            // Generar Token JWT
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "SuperSecretKeyForVeterinariaApp2026!AwesomeKeyWithLength32");
+            
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Email, user.Email ?? ""),
+                new Claim(ClaimTypes.Name, user.NombreCompleto ?? ""),
+                new Claim(ClaimTypes.Role, userRole)
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "1440")),
+                Issuer = _configuration["Jwt:Issuer"],
+                Audience = _configuration["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token);
 
             var data = new
             {
                 Email = user.Email,
                 NombreCompleto = user.NombreCompleto,
-                Role = userRole
+                Role = userRole,
+                Token = tokenString
             };
 
             return Ok(Response<object>.Ok(data, "Sesión iniciada con éxito."));

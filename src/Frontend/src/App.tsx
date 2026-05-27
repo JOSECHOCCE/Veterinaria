@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedLayout from './components/Layout/ProtectedLayout';
+import RoleGuard from './components/Layout/RoleGuard';
 import ClientLayout from './components/Layout/ClientLayout';
 import Dashboard from './views/Dashboard/Dashboard';
 
@@ -29,8 +30,11 @@ import NuevoFlujoCita from './views/PortalCliente/NuevoFlujoCita';
 import GestionServicios from './views/Servicios/GestionServicios';
 import ReportesView from './views/Dashboard/ReportesView';
 import GestionUsuarios from './views/Usuarios/GestionUsuarios';
+import GestionVeterinarios from './views/Veterinarios/GestionVeterinarios';
 import AuditoriaView from './views/Dashboard/AuditoriaView';
 import ConfiguracionView from './views/Dashboard/ConfiguracionView';
+import GestionProductos from './views/Productos/GestionProductos';
+import GestionVentas from './views/Ventas/GestionVentas';
 
 // Componente para manejar la redirección raíz basada en rol
 import { useAuth } from './context/AuthContext';
@@ -66,18 +70,31 @@ function App() {
         <Route path="triage" element={<Triage />} />
         <Route path="historia-clinica" element={<HistoriaClinica />} />
         
-        {/* Módulo Clientes y Mascotas */}
-        <Route path="clientes" element={<FichaCliente />} />
-        <Route path="mascotas" element={<FichaMascota />} />
-        
-        {/* Módulo Administrativo y Legal */}
-        <Route path="pagos" element={<GestionPagos />} />
-        <Route path="servicios" element={<GestionServicios />} />
-        <Route path="reportes" element={<ReportesView />} />
-        <Route path="usuarios" element={<GestionUsuarios />} />
-        <Route path="auditoria" element={<AuditoriaView />} />
+        {/* Módulos de Acceso General del Staff */}
+        <Route path="inventario" element={<GestionProductos />} />
         <Route path="configuracion" element={<ConfiguracionView />} />
         <Route path="consentimiento" element={<Consentimiento />} />
+
+        {/* Módulos exclusivos de Administrador (Admin) */}
+        <Route element={<RoleGuard allowedRoles={['Admin']} />}>
+          <Route path="servicios" element={<GestionServicios />} />
+          <Route path="reportes" element={<ReportesView />} />
+          <Route path="usuarios" element={<GestionUsuarios />} />
+          <Route path="veterinarios" element={<GestionVeterinarios />} />
+          <Route path="auditoria" element={<AuditoriaView />} />
+        </Route>
+
+        {/* Módulos exclusivos de Administrador y Recepcionista */}
+        <Route element={<RoleGuard allowedRoles={['Admin', 'Recepcionista']} />}>
+          <Route path="clientes" element={<FichaCliente />} />
+          <Route path="ventas" element={<GestionVentas />} />
+          <Route path="pagos" element={<GestionPagos />} />
+        </Route>
+
+        {/* Mascotas compartido por Admin, Recepcionista y Veterinario */}
+        <Route element={<RoleGuard allowedRoles={['Admin', 'Recepcionista', 'Veterinario']} />}>
+          <Route path="mascotas" element={<FichaMascota />} />
+        </Route>
       </Route>
 
       {/* Rutas Protegidas de Clientes */}

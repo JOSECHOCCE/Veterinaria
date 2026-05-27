@@ -19,6 +19,9 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<TarjetaGuardada> TarjetasGuardadas { get; }
     public IGenericRepository<Triage> Triages { get; }
     public IGenericRepository<Consentimiento> Consentimientos { get; }
+    public IGenericRepository<Producto> Productos { get; }
+    public IGenericRepository<Venta> Ventas { get; }
+    public IGenericRepository<DetalleVenta> DetallesVentas { get; }
 
     public UnitOfWork(VeterinariaDbContext context)
     {
@@ -34,6 +37,9 @@ public class UnitOfWork : IUnitOfWork
         TarjetasGuardadas = new GenericRepository<TarjetaGuardada>(_context);
         Triages = new GenericRepository<Triage>(_context);
         Consentimientos = new GenericRepository<Consentimiento>(_context);
+        Productos = new GenericRepository<Producto>(_context);
+        Ventas = new GenericRepository<Venta>(_context);
+        DetallesVentas = new GenericRepository<DetalleVenta>(_context);
     }
 
     public async Task<int> CommitAsync()

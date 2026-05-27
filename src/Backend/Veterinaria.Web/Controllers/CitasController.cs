@@ -25,7 +25,7 @@ public class CrearMascotaYCitaRequest
     public decimal? MascotaPeso { get; set; }
 }
 
-[Authorize(Roles = "Usuario,Admin")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario,Cliente,Usuario")]
 [ApiController]
 [Route("api/[controller]")]
 public class CitasController : ControllerBase
@@ -60,6 +60,24 @@ public class CitasController : ControllerBase
     }
 
     private bool IsAdmin() => User.IsInRole("Admin");
+    private bool IsStaff() => User.IsInRole("Admin") || User.IsInRole("Recepcionista") || User.IsInRole("Veterinario");
+
+    private async Task<int?> GetVeterinarioIdIfRoleAsync()
+    {
+        if (User.IsInRole("Veterinario") && !User.IsInRole("Admin"))
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId)) return null;
+            
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var vet = await _unitOfWork.Veterinarios.GetAll().FirstOrDefaultAsync(v => v.Email == user.Email);
+                if (vet != null) return vet.Id;
+            }
+        }
+        return null;
+    }
 
     // GET: api/Citas/CalendarioData
     [HttpGet("CalendarioData")]
@@ -69,6 +87,12 @@ public class CitasController : ControllerBase
         var fechaFin = end ?? DateTime.Today.AddMonths(2);
 
         var citas = await _citaService.GetCitasParaCalendarioAsync(start, end);
+
+        var vetIdForce = await GetVeterinarioIdIfRoleAsync();
+        if (vetIdForce.HasValue)
+        {
+            citas = citas.Where(c => c.VeterinarioId == vetIdForce.Value).ToList();
+        }
 
         var eventos = citas.Select(c => new
         {
@@ -83,6 +107,7 @@ public class CitasController : ControllerBase
                 "EnProceso" => "#17a2b8",    // Cyan
                 "Completada" => "#198754",   // Verde
                 "Cancelada" => "#dc3545",    // Rojo
+                "NoAsistio" => "#343a40",    // Gris oscuro
                 _ => "#6c757d"               // Gris
             },
             textColor = c.Estado == "Pendiente" ? "#000" : "#fff",
@@ -107,7 +132,7 @@ public class CitasController : ControllerBase
     public async Task<ActionResult<Response<object>>> Index(string? estado, int? veterinarioId, DateTime? fechaDesde, DateTime? fechaHasta, int page = 1)
     {
         int? currentUsuarioId = null;
-        if (!IsAdmin())
+        if (!IsStaff())
         {
             var currentUser = await GetCurrentUsuarioAsync();
             if (currentUser != null)
@@ -116,7 +141,13 @@ public class CitasController : ControllerBase
                 currentUsuarioId = -1; // No profile
         }
 
-        var query = _citaService.GetCitasQuery(IsAdmin(), currentUsuarioId, estado, veterinarioId, fechaDesde, fechaHasta);
+        var vetIdForce = await GetVeterinarioIdIfRoleAsync();
+        if (vetIdForce.HasValue)
+        {
+            veterinarioId = vetIdForce.Value; // Force the filter
+        }
+
+        var query = _citaService.GetCitasQuery(IsStaff(), currentUsuarioId, estado, veterinarioId, fechaDesde, fechaHasta);
 
         var citasAll = query.OrderByDescending(c => c.FechaHora).ToList();
         var citasCount = citasAll.Count;
@@ -134,13 +165,13 @@ public class CitasController : ControllerBase
             TotalCount = citasCount,
             Page = page,
             PageSize = 15,
-            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada" },
+            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" },
             Veterinarios = veterinarios.Select(v => new { v.Id, v.Nombre }),
             CurrentEstado = estado,
             CurrentVeterinarioId = veterinarioId,
             CurrentFechaDesde = fechaDesde?.ToString("yyyy-MM-dd"),
             CurrentFechaHasta = fechaHasta?.ToString("yyyy-MM-dd"),
-            EsAdmin = IsAdmin()
+            EsAdmin = IsStaff()
         };
 
         return Ok(Response<object>.Ok(data));
@@ -151,18 +182,18 @@ public class CitasController : ControllerBase
     public async Task<ActionResult<Response<object>>> Details(int id)
     {
         int? currentUsuarioId = null;
-        if (!IsAdmin())
+        if (!IsStaff())
         {
             var currentUsuario = await GetCurrentUsuarioAsync();
             currentUsuarioId = currentUsuario?.Id;
         }
 
-        var cita = await _citaService.GetCitaDetailsAsync(id, IsAdmin(), currentUsuarioId);
+        var cita = await _citaService.GetCitaDetailsAsync(id, IsStaff(), currentUsuarioId);
 
         if (cita == null)
         {
             var exists = await _unitOfWork.Citas.GetByIdAsync(id) != null;
-            if (exists && !IsAdmin()) return StatusCode(403, Response<object>.Fail("No autorizado."));
+            if (exists && !IsStaff()) return StatusCode(403, Response<object>.Fail("No autorizado."));
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
@@ -174,7 +205,7 @@ public class CitasController : ControllerBase
             Cita = citaDto,
             TieneHistorial = cita.Historial != null,
             TienePago = cita.Pagos?.Any() ?? false,
-            EsAdmin = IsAdmin(),
+            EsAdmin = IsStaff(),
             PropietarioNombre = cita.Mascota?.Usuario?.Nombre,
             EsPropietario = currentUser != null && cita.Mascota?.UsuarioId == currentUser.Id,
             EstadoPago = cita.EstadoPago ?? "Pendiente",
@@ -192,18 +223,18 @@ public class CitasController : ControllerBase
     public async Task<ActionResult<Response<object>>> GetEstado(int id)
     {
         int? currentUsuarioId = null;
-        if (!IsAdmin())
+        if (!IsStaff())
         {
             var currentUsuario = await GetCurrentUsuarioAsync();
             currentUsuarioId = currentUsuario?.Id;
         }
 
-        var cita = await _citaService.GetCitaDetailsAsync(id, IsAdmin(), currentUsuarioId);
+        var cita = await _citaService.GetCitaDetailsAsync(id, IsStaff(), currentUsuarioId);
 
         if (cita == null)
         {
             var exists = await _unitOfWork.Citas.GetByIdAsync(id) != null;
-            if (exists && !IsAdmin()) return StatusCode(403, Response<object>.Fail("No autorizado."));
+            if (exists && !IsStaff()) return StatusCode(403, Response<object>.Fail("No autorizado."));
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
@@ -217,7 +248,7 @@ public class CitasController : ControllerBase
     private async Task<dynamic> ObtenerDatosSelectsAsync(int? usuarioId = null)
     {
         IEnumerable<Mascota> mascotas;
-        if (IsAdmin() || usuarioId == null)
+        if (IsStaff() || usuarioId == null)
         {
             mascotas = await _unitOfWork.Mascotas.GetAll()
                 .Include(m => m.Usuario)
@@ -262,7 +293,7 @@ public class CitasController : ControllerBase
     {
         var currentUsuario = await GetCurrentUsuarioAsync();
 
-        if (!IsAdmin() && currentUsuario == null)
+        if (!IsStaff() && currentUsuario == null)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -303,7 +334,7 @@ public class CitasController : ControllerBase
             Cita = citaDto,
             TieneMascotas = tieneMascotas,
             UsuarioId = currentUsuario?.Id,
-            EsAdmin = IsAdmin(),
+            EsAdmin = IsStaff(),
             Mascotas = dataSelects.Mascotas,
             Veterinarios = dataSelects.Veterinarios,
             Servicios = dataSelects.Servicios
@@ -432,7 +463,7 @@ public class CitasController : ControllerBase
 
     // GET: api/Citas/Edit/5
     [HttpGet("Edit/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> Edit(int id)
     {
         var cita = await _citaService.GetCitaByIdAsync(id);
@@ -445,7 +476,7 @@ public class CitasController : ControllerBase
         var data = new
         {
             Cita = citaDto,
-            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada" }
+            Estados = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" }
         };
 
         return Ok(Response<object>.Ok(data));
@@ -453,7 +484,7 @@ public class CitasController : ControllerBase
 
     // PUT: api/Citas/5
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] CitaDto citaDto)
     {
         if (id != citaDto.Id)
@@ -487,13 +518,13 @@ public class CitasController : ControllerBase
     public async Task<ActionResult<Response<object>>> Cancel(int id)
     {
         int? currentUsuarioId = null;
-        if (!IsAdmin())
+        if (!IsStaff())
         {
             var currentUser = await GetCurrentUsuarioAsync();
             currentUsuarioId = currentUser?.Id;
         }
 
-        var result = await _citaService.CancelarCitaAsync(id, IsAdmin(), currentUsuarioId);
+        var result = await _citaService.CancelarCitaAsync(id, IsStaff(), currentUsuarioId);
 
         if (!result.Success)
         {
@@ -513,7 +544,7 @@ public class CitasController : ControllerBase
 
     // POST: api/Citas/Complete/5
     [HttpPost("Complete/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> Complete(int id)
     {
         var result = await _citaService.CompletarCitaAsync(id);
@@ -532,7 +563,7 @@ public class CitasController : ControllerBase
 
     // POST: api/Citas/CambiarEstado/5
     [HttpPost("CambiarEstado/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> CambiarEstado(int id, [FromQuery] string nuevoEstado)
     {
         var citaOld = await _citaService.GetCitaByIdAsync(id);
@@ -557,6 +588,7 @@ public class CitasController : ControllerBase
             "EnProceso" => "La cita está ahora en proceso. El cliente puede monitorear el estado.",
             "Completada" => "Cita completada. El cliente ha sido notificado para recoger a su mascota.",
             "Cancelada" => "Cita cancelada. El cliente ha sido notificado.",
+            "NoAsistio" => "Cita marcada como no asistió.",
             _ => "Estado de la cita actualizado."
         };
 

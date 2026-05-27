@@ -12,7 +12,7 @@ using Veterinaria.Domain.Contracts;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Usuario,Admin")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario,Cliente,Usuario")]
 [ApiController]
 [Route("api/[controller]")]
 public class MascotasController : ControllerBase
@@ -33,7 +33,7 @@ public class MascotasController : ControllerBase
     {
         var query = _mascotaService.GetActiveMascotasWithUsuariosQuery();
 
-        if (!User.IsInRole("Admin"))
+        if (User.IsInRole("Cliente") || User.IsInRole("Usuario"))
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var usuario = await _unitOfWork.Usuarios.GetAll()

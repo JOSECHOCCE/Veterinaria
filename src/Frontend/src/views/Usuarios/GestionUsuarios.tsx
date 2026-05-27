@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import api from '../../services/api';
 
@@ -20,6 +21,8 @@ export default function GestionUsuarios() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRol, setSelectedRol] = useState('Todos');
+  const [filterActivo, setFilterActivo] = useState('Todos');
+  const [sortOrder, setSortOrder] = useState('nombre-asc');
 
   // Modales
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -183,8 +186,19 @@ export default function GestionUsuarios() {
       (u.dni && u.dni.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesRol = selectedRol === 'Todos' || u.rol === selectedRol;
+    
+    const matchesActivo = 
+      filterActivo === 'Todos' || 
+      (filterActivo === 'Activos' && u.activo) || 
+      (filterActivo === 'Inactivos' && !u.activo);
 
-    return matchesSearch && matchesRol;
+    return matchesSearch && matchesRol && matchesActivo;
+  }).sort((a, b) => {
+    if (sortOrder === 'nombre-asc') return a.nombre.localeCompare(b.nombre);
+    if (sortOrder === 'nombre-desc') return b.nombre.localeCompare(a.nombre);
+    if (sortOrder === 'fecha-recent') return new Date(b.fechaRegistro).getTime() - new Date(a.fechaRegistro).getTime();
+    if (sortOrder === 'fecha-old') return new Date(a.fechaRegistro).getTime() - new Date(b.fechaRegistro).getTime();
+    return 0;
   });
 
   const getRolBadgeClass = (rol: string) => {
@@ -245,32 +259,64 @@ export default function GestionUsuarios() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-5 shadow-sm flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-            <span className="material-symbols-outlined">search</span>
-          </span>
-          <input
-            type="text"
-            placeholder="Buscar por nombre, correo electrónico o DNI..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-          />
+      <div className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-5 shadow-sm space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1 relative">
+            <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+              <span className="material-symbols-outlined">search</span>
+            </span>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, correo electrónico o DNI..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+            />
+          </div>
         </div>
-        <div className="w-full md:w-60 flex items-center gap-2">
-          <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Rol:</label>
-          <select
-            value={selectedRol}
-            onChange={(e) => setSelectedRol(e.target.value)}
-            className="w-full px-3 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-          >
-            <option value="Todos">Todos los roles</option>
-            <option value="Admin">Administrador (Admin)</option>
-            <option value="Veterinario">Veterinario</option>
-            <option value="Recepcionista">Recepcionista</option>
-            <option value="Usuario">Usuario (Cliente)</option>
-          </select>
+
+        <div className="flex flex-col sm:flex-row gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
+          <div className="flex flex-1 items-center gap-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Rol:</label>
+            <select
+              value={selectedRol}
+              onChange={(e) => setSelectedRol(e.target.value)}
+              className="w-full sm:w-44 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+            >
+              <option value="Todos">Todos los roles</option>
+              <option value="Admin">Administrador (Admin)</option>
+              <option value="Veterinario">Veterinario</option>
+              <option value="Recepcionista">Recepcionista</option>
+              <option value="Usuario">Usuario (Cliente)</option>
+            </select>
+          </div>
+
+          <div className="flex flex-1 items-center gap-2">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Estado:</label>
+            <select
+              value={filterActivo}
+              onChange={(e) => setFilterActivo(e.target.value)}
+              className="w-full sm:w-40 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+            >
+              <option value="Todos">Todos</option>
+              <option value="Activos">Activos</option>
+              <option value="Inactivos">Inactivos</option>
+            </select>
+          </div>
+
+          <div className="flex flex-1 items-center gap-2 sm:justify-end">
+            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Ordenar:</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              className="w-full sm:w-44 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+            >
+              <option value="nombre-asc">Nombre (A - Z)</option>
+              <option value="nombre-desc">Nombre (Z - A)</option>
+              <option value="fecha-recent">Registro (Más reciente)</option>
+              <option value="fecha-old">Registro (Más antiguo)</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -413,316 +459,325 @@ export default function GestionUsuarios() {
       </div>
 
       {/* MODAL CREAR */}
-      <AnimatePresence>
-        {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-              onClick={() => setShowCreateModal(false)}
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 15 }}
-              className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh]"
-            >
-              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Registrar Nuevo Personal</h3>
-                  <p className="text-xs text-slate-500 mt-[2px]">Crea una nueva cuenta de acceso administrativo o médico.</p>
-                </div>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre Completo *</label>
-                    <input
-                      type="text"
-                      required
-                      value={createForm.nombre}
-                      onChange={(e) => setCreateForm({ ...createForm, nombre: e.target.value })}
-                      placeholder="Ej. Dr. Carlos Mendoza"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
+      {createPortal(
+        <AnimatePresence>
+          {showCreateModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+                onClick={() => setShowCreateModal(false)}
+              />
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh] text-left"
+              >
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Registrar Nuevo Personal</h3>
+                    <p className="text-xs text-slate-500 mt-[2px]">Crea una nueva cuenta de acceso administrativo o médico.</p>
                   </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Email *</label>
-                    <input
-                      type="email"
-                      required
-                      value={createForm.email}
-                      onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
-                      placeholder="correo@veterinaria.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Contraseña Inicial *</label>
-                    <input
-                      type="password"
-                      required
-                      value={createForm.password}
-                      onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
-                      placeholder="Min. 6 caracteres"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">DNI / Identificación</label>
-                    <input
-                      type="text"
-                      value={createForm.dni}
-                      onChange={(e) => setCreateForm({ ...createForm, dni: e.target.value })}
-                      placeholder="DNI"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Teléfono de Contacto</label>
-                    <input
-                      type="text"
-                      value={createForm.telefono}
-                      onChange={(e) => setCreateForm({ ...createForm, telefono: e.target.value })}
-                      placeholder="Ej. 987654321"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección Física</label>
-                    <input
-                      type="text"
-                      value={createForm.direccion}
-                      onChange={(e) => setCreateForm({ ...createForm, direccion: e.target.value })}
-                      placeholder="Dirección, Distrito"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Rol Asignado *</label>
-                    <select
-                      value={createForm.rol}
-                      onChange={(e) => setCreateForm({ ...createForm, rol: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                    >
-                      <option value="Recepcionista">Recepcionista (Control de Citas/Pagos)</option>
-                      <option value="Veterinario">Veterinario (Atención Clínica/Consultas)</option>
-                      <option value="Admin">Administrador (Control Total)</option>
-                      <option value="Usuario">Usuario (Cliente Normal)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
                   <button
-                    type="button"
                     onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
                   >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all cursor-pointer"
-                  >
-                    Crear Cuenta
+                    <span className="material-symbols-outlined">close</span>
                   </button>
                 </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
-      {/* MODAL EDITAR */}
-      <AnimatePresence>
-        {showEditModal && selectedUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-              onClick={() => setShowEditModal(false)}
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 15 }}
-              className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh]"
-            >
-              <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
-                <div>
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Editar Información de Cuenta</h3>
-                  <p className="text-xs text-slate-500 mt-[2px]">Actualiza el perfil y los accesos del usuario.</p>
-                </div>
-                <button
-                  onClick={() => setShowEditModal(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
-              </div>
-
-              <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-                <div className="space-y-4">
-                  <div className="bg-slate-50 dark:bg-slate-950/30 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Correo Electrónico</span>
-                    <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">{selectedUser.email}</span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre Completo *</label>
-                    <input
-                      type="text"
-                      required
-                      value={editForm.nombre}
-                      onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
+                <form onSubmit={handleCreateSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre Completo *</label>
+                      <input
+                        type="text"
+                        required
+                        value={createForm.nombre}
+                        onChange={(e) => setCreateForm({ ...createForm, nombre: e.target.value })}
+                        placeholder="Ej. Dr. Carlos Mendoza"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={createForm.email}
+                        onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                        placeholder="correo@veterinaria.com"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Contraseña Inicial *</label>
+                      <input
+                        type="password"
+                        required
+                        value={createForm.password}
+                        onChange={(e) => setCreateForm({ ...createForm, password: e.target.value })}
+                        placeholder="Min. 6 caracteres"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">DNI / Identificación</label>
                       <input
                         type="text"
-                        value={editForm.dni}
-                        onChange={(e) => setEditForm({ ...editForm, dni: e.target.value })}
+                        value={createForm.dni}
+                        onChange={(e) => setCreateForm({ ...createForm, dni: e.target.value })}
+                        placeholder="DNI"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                       />
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Teléfono</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Teléfono de Contacto</label>
                       <input
                         type="text"
-                        value={editForm.telefono}
-                        onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })}
+                        value={createForm.telefono}
+                        onChange={(e) => setCreateForm({ ...createForm, telefono: e.target.value })}
+                        placeholder="Ej. 987654321"
                         className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
                       />
                     </div>
+
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección Física</label>
+                      <input
+                        type="text"
+                        value={createForm.direccion}
+                        onChange={(e) => setCreateForm({ ...createForm, direccion: e.target.value })}
+                        placeholder="Dirección, Distrito"
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Rol Asignado *</label>
+                      <select
+                        value={createForm.rol}
+                        onChange={(e) => setCreateForm({ ...createForm, rol: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
+                      >
+                        <option value="Recepcionista">Recepcionista (Control de Citas/Pagos)</option>
+                        <option value="Veterinario">Veterinario (Atención Clínica/Consultas)</option>
+                        <option value="Admin">Administrador (Control Total)</option>
+                        <option value="Usuario">Usuario (Cliente Normal)</option>
+                      </select>
+                    </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección Física</label>
-                    <input
-                      type="text"
-                      value={editForm.direccion}
-                      onChange={(e) => setEditForm({ ...editForm, direccion: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Rol del Sistema *</label>
-                    <select
-                      value={editForm.rol}
-                      onChange={(e) => setEditForm({ ...editForm, rol: e.target.value })}
-                      disabled={selectedUser.email === 'admin@veterinaria.com'}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold disabled:opacity-60"
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateModal(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
                     >
-                      <option value="Recepcionista">Recepcionista</option>
-                      <option value="Veterinario">Veterinario</option>
-                      <option value="Admin">Administrador (Admin)</option>
-                      <option value="Usuario">Usuario (Cliente)</option>
-                    </select>
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      Crear Cuenta
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
+
+      {/* MODAL EDITAR */}
+      {createPortal(
+        <AnimatePresence>
+          {showEditModal && selectedUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+                onClick={() => setShowEditModal(false)}
+              />
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh] text-left"
+              >
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Editar Información de Cuenta</h3>
+                    <p className="text-xs text-slate-500 mt-[2px]">Actualiza el perfil y los accesos del usuario.</p>
+                  </div>
+                  <button
+                    onClick={() => setShowEditModal(false)}
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+
+                <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
+                  <div className="space-y-4">
+                    <div className="bg-slate-50 dark:bg-slate-950/30 p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 flex flex-col">
+                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Correo Electrónico</span>
+                      <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 mt-1">{selectedUser.email}</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre Completo *</label>
+                      <input
+                        type="text"
+                        required
+                        value={editForm.nombre}
+                        onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">DNI / Identificación</label>
+                        <input
+                          type="text"
+                          value={editForm.dni}
+                          onChange={(e) => setEditForm({ ...editForm, dni: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Teléfono</label>
+                        <input
+                          type="text"
+                          value={editForm.telefono}
+                          onChange={(e) => setEditForm({ ...editForm, telefono: e.target.value })}
+                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Dirección Física</label>
+                      <input
+                        type="text"
+                        value={editForm.direccion}
+                        onChange={(e) => setEditForm({ ...editForm, direccion: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Rol del Sistema *</label>
+                      <select
+                        value={editForm.rol}
+                        onChange={(e) => setEditForm({ ...editForm, rol: e.target.value })}
+                        disabled={selectedUser.email === 'admin@veterinaria.com'}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold disabled:opacity-60"
+                      >
+                        <option value="Recepcionista">Recepcionista</option>
+                        <option value="Veterinario">Veterinario</option>
+                        <option value="Admin">Administrador (Admin)</option>
+                        <option value="Usuario">Usuario (Cliente)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(false)}
+                      className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    >
+                      Guardar Cambios
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+      document.body
+    )}
+
+      {/* MODAL CONFIRMAR ELIMINAR */}
+      {createPortal(
+        <AnimatePresence>
+          {showDeleteModal && selectedUser && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
+                onClick={() => setShowDeleteModal(false)}
+              />
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0, y: 15 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.95, opacity: 0, y: 15 }}
+                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col space-y-4"
+              >
+                <div className="flex items-center gap-3 text-rose-500">
+                  <span className="material-symbols-outlined text-3xl font-bold bg-rose-50 dark:bg-rose-950/20 p-2 rounded-xl">
+                    warning
+                  </span>
+                  <h3 className="text-lg font-bold">¿Deseas eliminar este usuario?</h3>
+                </div>
+
+                <div className="text-sm text-slate-500 space-y-3">
+                  <p>
+                    Estás a punto de eliminar físicamente la cuenta de{' '}
+                    <strong className="text-slate-700 dark:text-slate-300">{selectedUser.email}</strong> del sistema.
+                  </p>
+                  <div className="p-3 bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-400 rounded-xl text-xs flex gap-2">
+                    <span className="material-symbols-outlined text-[18px] flex-shrink-0">info</span>
+                    <p>
+                      <strong>Nota de Seguridad:</strong> Si este usuario posee mascotas con historial de citas, historiales médicos,
+                      triajes o registros de pagos, el backend bloqueará la eliminación física. En esos casos, se recomienda utilizar
+                      la <strong>desactivación lógica</strong> (el switch de estado activo/inactivo).
+                    </p>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                <div className="pt-2 flex justify-end gap-3">
                   <button
-                    type="button"
-                    onClick={() => setShowEditModal(false)}
+                    onClick={() => setShowDeleteModal(false)}
                     className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
-                    type="submit"
-                    className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all cursor-pointer"
+                    onClick={handleDeleteSubmit}
+                    className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 font-semibold text-sm text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
                   >
-                    Guardar Cambios
+                    Confirmar Eliminación
                   </button>
                 </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* MODAL CONFIRMAR ELIMINAR */}
-      <AnimatePresence>
-        {showDeleteModal && selectedUser && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-              onClick={() => setShowDeleteModal(false)}
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.95, opacity: 0, y: 15 }}
-              className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col space-y-4"
-            >
-              <div className="flex items-center gap-3 text-rose-500">
-                <span className="material-symbols-outlined text-3xl font-bold bg-rose-50 dark:bg-rose-950/20 p-2 rounded-xl">
-                  warning
-                </span>
-                <h3 className="text-lg font-bold">¿Deseas eliminar este usuario?</h3>
-              </div>
-
-              <div className="text-sm text-slate-500 space-y-3">
-                <p>
-                  Estás a punto de eliminar físicamente la cuenta de{' '}
-                  <strong className="text-slate-700 dark:text-slate-300">{selectedUser.email}</strong> del sistema.
-                </p>
-                <div className="p-3 bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-400 rounded-xl text-xs flex gap-2">
-                  <span className="material-symbols-outlined text-[18px] flex-shrink-0">info</span>
-                  <p>
-                    <strong>Nota de Seguridad:</strong> Si este usuario posee mascotas con historial de citas, historiales médicos,
-                    triajes o registros de pagos, el backend bloqueará la eliminación física. En esos casos, se recomienda utilizar
-                    la <strong>desactivación lógica</strong> (el switch de estado activo/inactivo).
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-end gap-3">
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDeleteSubmit}
-                  className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 font-semibold text-sm text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
-                >
-                  Confirmar Eliminación
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </div>
   );
 }

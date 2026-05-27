@@ -24,7 +24,7 @@ public class Usuario
     public string? Direccion { get; set; }
 
     [MaxLength(20)]
-    public string Rol { get; set; } = "Usuario"; // "Usuario" o "Admin"
+    public string Rol { get; set; } = "Cliente"; // "Admin", "Veterinario", "Recepcionista", "Cliente"
 
     public bool Activo { get; set; } = true;
 

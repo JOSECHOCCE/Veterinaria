@@ -8,7 +8,7 @@ using Veterinaria.Web.Models.Dto;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Usuario,Admin")]
+[Authorize(Roles = "Admin,Veterinario,Recepcionista,Cliente,Usuario")]
 [ApiController]
 [Route("api/[controller]")]
 public class HistorialesClinicosController : ControllerBase
@@ -59,6 +59,7 @@ public class HistorialesClinicosController : ControllerBase
     }
 
     [HttpGet("create/{citaId}")]
+    [Authorize(Roles = "Admin,Veterinario")]
     public async Task<ActionResult<Response<object>>> CreateGet(int citaId)
     {
         var cita = await _historialService.GetCitaForHistorialAsync(citaId);
@@ -96,6 +97,7 @@ public class HistorialesClinicosController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Veterinario")]
     public async Task<ActionResult<Response<object>>> Create([FromBody] HistorialClinicoDto historialDto)
     {
         var cita = await _historialService.GetCitaForHistorialAsync(historialDto.CitaId);
@@ -160,6 +162,7 @@ public class HistorialesClinicosController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Veterinario")]
     public async Task<ActionResult<Response<object>>> EditGet(int id)
     {
         var historial = await _historialService.GetHistorialByIdAsync(id);
@@ -180,6 +183,7 @@ public class HistorialesClinicosController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Veterinario")]
     public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] HistorialClinicoDto historialDto)
     {
         if (id != historialDto.Id)

@@ -22,6 +22,9 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Triage> Triages => Set<Triage>();
     public DbSet<Consentimiento> Consentimientos => Set<Consentimiento>();
     public DbSet<Auditoria> Auditorias => Set<Auditoria>();
+    public DbSet<Producto> Productos => Set<Producto>();
+    public DbSet<Venta> Ventas => Set<Venta>();
+    public DbSet<DetalleVenta> DetallesVentas => Set<DetalleVenta>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -370,6 +373,43 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasIndex(e => e.Fecha);
             entity.HasIndex(e => e.UsuarioId);
+        });
+
+        // Producto
+        modelBuilder.Entity<Producto>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Descripcion).HasMaxLength(500);
+            entity.Property(e => e.Precio).HasPrecision(18, 2);
+            entity.Property(e => e.Categoria).IsRequired().HasMaxLength(50);
+        });
+
+        // Venta
+        modelBuilder.Entity<Venta>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.MetodoPago).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Estado).IsRequired().HasMaxLength(30);
+            entity.Property(e => e.Total).HasPrecision(18, 2);
+
+            entity.HasMany(e => e.Detalles)
+                .WithOne(d => d.Venta)
+                .HasForeignKey(d => d.VentaId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // DetalleVenta
+        modelBuilder.Entity<DetalleVenta>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.PrecioUnitario).HasPrecision(18, 2);
+            entity.Property(e => e.Subtotal).HasPrecision(18, 2);
+
+            entity.HasOne(d => d.Producto)
+                .WithMany()
+                .HasForeignKey(d => d.ProductoId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

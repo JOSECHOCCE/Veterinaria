@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Recepcionista")]
 [ApiController]
 [Route("api/[controller]")]
 public class ClientesController : ControllerBase

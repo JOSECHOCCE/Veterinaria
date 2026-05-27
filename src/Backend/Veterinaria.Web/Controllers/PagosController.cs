@@ -32,7 +32,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista")]
     public async Task<ActionResult<Response<object>>> Index(string? tipoPago, string? metodoPago, DateTime? fechaDesde, DateTime? fechaHasta, int page = 1)
     {
         var (pagos, totalTarjeta, totalEfectivo, totalPagos) = await _pagoService.GetPagosFiltradosAsync(tipoPago, metodoPago, fechaDesde, fechaHasta);
@@ -65,7 +65,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("Details/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista")]
     public async Task<ActionResult<Response<object>>> Details(int id)
     {
         var pago = await _pagoService.GetPagoDetailsAsync(id);
@@ -86,7 +86,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("DetailsByCita")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> DetailsByCita(int citaId)
     {
         var cita = await _pagoService.GetCitaWithPagosAsync(citaId);
@@ -133,7 +133,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("PendientesPago")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista")]
     public async Task<ActionResult<Response<object>>> PendientesPago()
     {
         var citasPendientes = await _pagoService.GetCitasPendientesPagoAsync();
@@ -141,7 +141,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpPost("Anular/{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Recepcionista")]
     public async Task<ActionResult<Response<string>>> AnularPago(int id, [FromBody] AnularPagoRequest request)
     {
         if (string.IsNullOrWhiteSpace(request?.Motivo))

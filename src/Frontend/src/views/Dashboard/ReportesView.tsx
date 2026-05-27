@@ -242,7 +242,7 @@ const ReportesView: React.FC = () => {
       case 'Cancelada':
         return 'bg-error-container text-on-error-container border-error/20';
       case 'NoAsistio':
-        return 'bg-error/10 text-error border-error/20';
+        return 'bg-surface-variant text-on-surface-variant border-outline-variant opacity-75';
       default:
         return 'bg-surface-variant text-on-surface-variant';
     }

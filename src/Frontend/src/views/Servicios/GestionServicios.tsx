@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import api from '../../services/api';
@@ -313,153 +314,156 @@ const GestionServicios: React.FC = () => {
         </section>
 
         {/* MODAL CREAR / EDITAR (Animado) */}
-        <AnimatePresence>
-          {modalOpen && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-md overflow-y-auto">
-              {/* Capa oscura translúcida */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setModalOpen(false)}
-                className="fixed inset-0 bg-black/45 backdrop-blur-sm"
-              />
-
-              {/* Contenedor del Modal */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 15 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-                className="relative bg-surface-container-lowest rounded-2xl shadow-xl border border-outline-variant p-md max-w-lg w-full z-10 text-left overflow-hidden flex flex-col gap-md"
-              >
-                {/* Header */}
-                <div className="flex justify-between items-center border-b border-surface-variant pb-xs">
-                  <h3 className="font-headline-md text-lg text-on-surface font-extrabold flex items-center gap-xs">
-                    <span className="material-symbols-outlined text-primary">
-                      {editingId ? 'edit_note' : 'add_circle'}
-                    </span>
-                    {editingId ? 'Editar Servicio Clínico' : 'Nuevo Servicio Clínico'}
-                  </h3>
-                  <button 
-                    onClick={() => setModalOpen(false)}
-                    className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-container-high text-outline flex items-center justify-center cursor-pointer border border-outline-variant/30"
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
-                </div>
-
-                {/* Formulario */}
-                <form onSubmit={handleFormSubmit} className="flex flex-col gap-sm">
-                  {/* Nombre */}
-                  <div className="flex flex-col gap-xs">
-                    <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Nombre del Servicio</label>
-                    <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
-                      <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">design_services</span>
-                      <input 
-                        className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none" 
-                        type="text" 
-                        value={nombre}
-                        onChange={(e) => setNombre(e.target.value)}
-                        placeholder="Ej. Consulta Especializada"
-                        required
-                        disabled={submitting}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Fila Duración y Precio */}
-                  <div className="grid grid-cols-2 gap-sm">
-                    {/* Duración */}
-                    <div className="flex flex-col gap-xs">
-                      <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Duración (minutos)</label>
-                      <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
-                        <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">schedule</span>
-                        <input 
-                          className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface focus:outline-none" 
-                          type="number" 
-                          min={15}
-                          max={480}
-                          value={duracionMinutos}
-                          onChange={(e) => setDuracionMinutos(Number(e.target.value))}
-                          required
-                          disabled={submitting}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Precio */}
-                    <div className="flex flex-col gap-xs">
-                      <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Precio Base (S/.)</label>
-                      <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
-                        <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">payments</span>
-                        <input 
-                          className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface focus:outline-none" 
-                          type="number" 
-                          step="0.01"
-                          min={0.01}
-                          value={precio}
-                          onChange={(e) => setPrecio(Number(e.target.value))}
-                          required
-                          disabled={submitting}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Descripción */}
-                  <div className="flex flex-col gap-xs">
-                    <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Descripción / Notas</label>
-                    <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
-                      <span className="material-symbols-outlined absolute left-sm top-[18px] -translate-y-1/2 text-outline">description</span>
-                      <textarea 
-                        className="w-full pl-10 pr-sm pt-xs bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none min-h-[80px] resize-none" 
-                        value={descripcion}
-                        onChange={(e) => setDescripcion(e.target.value)}
-                        placeholder="Escribe los detalles específicos del procedimiento..."
-                        disabled={submitting}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Botones de Acción */}
-                  <div className="flex justify-end gap-xs border-t border-surface-variant/30 pt-sm mt-xs">
+        {createPortal(
+          <AnimatePresence>
+            {modalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                {/* Capa oscura translúcida */}
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setModalOpen(false)}
+                  className="fixed inset-0 bg-black/45 backdrop-blur-sm"
+                />
+  
+                {/* Contenedor del Modal */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9, y: 15 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.9, y: 15 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+                  className="relative bg-surface-container-lowest rounded-3xl shadow-xl border border-outline-variant/35 p-6 w-[calc(100vw-2rem)] sm:w-[480px] z-10 text-left overflow-hidden flex flex-col gap-4"
+                >
+                  {/* Header */}
+                  <div className="flex justify-between items-center border-b border-surface-variant pb-xs">
+                    <h3 className="font-headline-md text-lg text-on-surface font-extrabold flex items-center gap-xs">
+                      <span className="material-symbols-outlined text-primary">
+                        {editingId ? 'edit_note' : 'add_circle'}
+                      </span>
+                      {editingId ? 'Editar Servicio Clínico' : 'Nuevo Servicio Clínico'}
+                    </h3>
                     <button 
-                      type="button" 
                       onClick={() => setModalOpen(false)}
-                      className="bg-transparent border border-outline text-on-surface px-margin py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors cursor-pointer h-10"
-                      disabled={submitting}
+                      className="w-8 h-8 rounded-lg bg-surface hover:bg-surface-container-high text-outline flex items-center justify-center cursor-pointer border border-outline-variant/30"
                     >
-                      Cancelar
-                    </button>
-                    <button 
-                      type="submit"
-                      disabled={submitting}
-                      className={`px-margin py-sm rounded-lg font-label-md text-label-md flex items-center justify-center gap-xs cursor-pointer h-10 ${
-                        submitting 
-                          ? 'bg-primary/50 text-on-primary/70 cursor-not-allowed' 
-                          : 'bg-primary hover:bg-primary-container text-on-primary shadow-primary/20 hover:shadow-lg'
-                      }`}
-                    >
-                      {submitting ? (
-                        <div className="flex items-center gap-sm">
-                          <span className="material-symbols-outlined text-[20px] animate-spin">sync</span>
-                          <span>Guardando...</span>
-                        </div>
-                      ) : (
-                        <>
-                          <span className="material-symbols-outlined text-[18px]">save</span>
-                          <span>{editingId ? 'Actualizar' : 'Crear Servicio'}</span>
-                        </>
-                      )}
+                      <span className="material-symbols-outlined">close</span>
                     </button>
                   </div>
-                </form>
-
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
+  
+                  {/* Formulario */}
+                  <form onSubmit={handleFormSubmit} className="flex flex-col gap-sm">
+                    {/* Nombre */}
+                    <div className="flex flex-col gap-xs">
+                      <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Nombre del Servicio</label>
+                      <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
+                        <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">design_services</span>
+                        <input 
+                          className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none" 
+                          type="text" 
+                          value={nombre}
+                          onChange={(e) => setNombre(e.target.value)}
+                          placeholder="Ej. Consulta Especializada"
+                          required
+                          disabled={submitting}
+                        />
+                      </div>
+                    </div>
+  
+                    {/* Fila Duración y Precio */}
+                    <div className="grid grid-cols-2 gap-sm">
+                      {/* Duración */}
+                      <div className="flex flex-col gap-xs">
+                        <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Duración (minutos)</label>
+                        <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
+                          <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">schedule</span>
+                          <input 
+                            className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface focus:outline-none" 
+                            type="number" 
+                            min={15}
+                            max={480}
+                            value={duracionMinutos}
+                            onChange={(e) => setDuracionMinutos(Number(e.target.value))}
+                            required
+                            disabled={submitting}
+                          />
+                        </div>
+                      </div>
+  
+                      {/* Precio */}
+                      <div className="flex flex-col gap-xs">
+                        <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Precio Base (S/.)</label>
+                        <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
+                          <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">payments</span>
+                          <input 
+                            className="w-full h-11 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface focus:outline-none" 
+                            type="number" 
+                            step="0.01"
+                            min={0.01}
+                            value={precio}
+                            onChange={(e) => setPrecio(Number(e.target.value))}
+                            required
+                            disabled={submitting}
+                          />
+                        </div>
+                      </div>
+                    </div>
+  
+                    {/* Descripción */}
+                    <div className="flex flex-col gap-xs">
+                      <label className="font-label-md text-label-md text-on-surface font-semibold ml-1">Descripción / Notas</label>
+                      <div className="relative rounded-xl border border-outline-variant/30 bg-surface focus-within:border-primary transition-all duration-200">
+                        <span className="material-symbols-outlined absolute left-sm top-[18px] -translate-y-1/2 text-outline">description</span>
+                        <textarea 
+                          className="w-full pl-10 pr-sm pt-xs bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none min-h-[80px] resize-none" 
+                          value={descripcion}
+                          onChange={(e) => setDescripcion(e.target.value)}
+                          placeholder="Escribe los detalles específicos del procedimiento..."
+                          disabled={submitting}
+                        />
+                      </div>
+                    </div>
+  
+                    {/* Botones de Acción */}
+                    <div className="flex justify-end gap-xs border-t border-surface-variant/30 pt-sm mt-xs">
+                      <button 
+                        type="button" 
+                        onClick={() => setModalOpen(false)}
+                        className="bg-transparent border border-outline text-on-surface px-margin py-sm rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors cursor-pointer h-10"
+                        disabled={submitting}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        type="submit"
+                        disabled={submitting}
+                        className={`px-margin py-sm rounded-lg font-label-md text-label-md flex items-center justify-center gap-xs cursor-pointer h-10 ${
+                          submitting 
+                            ? 'bg-primary/50 text-on-primary/70 cursor-not-allowed' 
+                            : 'bg-primary hover:bg-primary-container text-on-primary shadow-primary/20 hover:shadow-lg'
+                        }`}
+                      >
+                        {submitting ? (
+                          <div className="flex items-center gap-sm">
+                            <span className="material-symbols-outlined text-[20px] animate-spin">sync</span>
+                            <span>Guardando...</span>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="material-symbols-outlined text-[18px]">save</span>
+                            <span>{editingId ? 'Actualizar' : 'Crear Servicio'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </form>
+  
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
 
       </main>
     </motion.div>

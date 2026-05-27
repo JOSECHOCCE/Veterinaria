@@ -403,6 +403,111 @@ public class PdfService
         });
     }
 
+    public byte[] GenerarFacturaVenta(Venta venta)
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A5);
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(11));
+
+                page.Header().Element(c => ComposeHeader(c, "COMPROBANTE DE COMPRA (FACTURA)"));
+                page.Content().Element(c => ComposeContentVenta(c, venta));
+                page.Footer().Element(ComposeFooter);
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    private void ComposeContentVenta(IContainer container, Venta venta)
+    {
+        container.PaddingVertical(20).Column(column =>
+        {
+            // Referencia
+            column.Item().Background(Colors.Green.Lighten4).Padding(10).Column(refCol =>
+            {
+                refCol.Item().AlignCenter().Text("✓ COMPRA COMPLETADA")
+                    .FontSize(14).Bold().FontColor(Colors.Green.Darken3);
+                refCol.Item().AlignCenter().Text($"Factura N°: FAC-{venta.Id:D6}")
+                    .FontSize(12).FontColor(Colors.Green.Darken2);
+            });
+
+            column.Item().PaddingTop(15);
+
+            // Datos del cliente
+            column.Item().Text("DATOS DEL CLIENTE").Bold().FontColor(Colors.Grey.Darken2);
+            column.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(2);
+                });
+
+                table.Cell().Text("Cliente:").SemiBold();
+                table.Cell().Text(venta.Cliente?.Nombre ?? "Cliente General");
+
+                table.Cell().Text("Email:").SemiBold();
+                table.Cell().Text(venta.Cliente?.Email ?? "-");
+
+                table.Cell().Text("DNI:").SemiBold();
+                table.Cell().Text(venta.Cliente?.DNI ?? "-");
+
+                table.Cell().Text("Fecha:").SemiBold();
+                table.Cell().Text(venta.Fecha.ToString("dd/MM/yyyy HH:mm"));
+            });
+
+            column.Item().PaddingTop(15).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
+            column.Item().PaddingTop(10);
+
+            // Detalles de los productos
+            column.Item().Text("PRODUCTOS ADQUIRIDOS").Bold().FontColor(Colors.Grey.Darken2);
+            column.Item().PaddingTop(5).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(3); // Producto
+                    columns.RelativeColumn(1); // Cant
+                    columns.RelativeColumn(1.5f); // P. Unit
+                    columns.RelativeColumn(1.5f); // Subtotal
+                });
+
+                // Cabeceras
+                table.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Producto").Bold();
+                table.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Cant").Bold();
+                table.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("P. Unit").Bold();
+                table.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Total").Bold();
+
+                foreach (var detalle in venta.Detalles)
+                {
+                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(detalle.Producto?.Nombre ?? "Producto");
+                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(detalle.Cantidad.ToString());
+                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text($"S/. {detalle.PrecioUnitario:N2}");
+                    table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5).Text($"S/. {detalle.Subtotal:N2}");
+                }
+            });
+
+            column.Item().PaddingTop(15);
+
+            // Monto total
+            column.Item().Background(Colors.Blue.Lighten4).Padding(10).Row(row =>
+            {
+                row.RelativeItem().Text("TOTAL PAGADO:").Bold().FontSize(14);
+                row.RelativeItem().AlignRight().Text($"S/. {venta.Total:N2}").Bold().FontSize(16).FontColor(Colors.Blue.Darken3);
+            });
+
+            column.Item().PaddingTop(10);
+            column.Item().Background(Colors.Green.Lighten4).Padding(8).AlignCenter()
+                .Text($"Método de pago: {venta.MetodoPago}")
+                .FontColor(Colors.Green.Darken3).SemiBold();
+        });
+    }
+
     private void ComposeFooter(IContainer container)
     {
         container.Column(column =>

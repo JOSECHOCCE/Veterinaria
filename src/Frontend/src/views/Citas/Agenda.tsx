@@ -71,6 +71,8 @@ function getEstadoStyle(estado: string) {
       return { bg: 'bg-tertiary-container', border: 'border-tertiary', text: 'text-on-tertiary-container', dot: 'bg-tertiary' };
     case 'cancelada':
       return { bg: 'bg-surface-container', border: 'border-outline', text: 'text-on-surface-variant', dot: 'bg-outline' };
+    case 'noasistio':
+      return { bg: 'bg-surface-container-high', border: 'border-outline-variant', text: 'text-on-surface-variant', dot: 'bg-outline-variant' };
     case 'completada':
       return { bg: 'bg-primary-container', border: 'border-primary', text: 'text-on-primary-container', dot: 'bg-primary' };
     case 'emergencia':

@@ -47,5 +47,21 @@ public class MappingProfile : Profile
         CreateMap<Pago, PagoDto>()
             .ReverseMap()
             .ForMember(dest => dest.Cita, opt => opt.Ignore());
+
+        // Producto <-> ProductoDto
+        CreateMap<Producto, ProductoDto>().ReverseMap();
+
+        // Venta <-> VentaDto
+        CreateMap<Venta, VentaDto>()
+            .ForMember(dest => dest.ClienteNombre, opt => opt.MapFrom(src => src.Cliente != null ? src.Cliente.Nombre : null))
+            .ReverseMap()
+            .ForMember(dest => dest.Cliente, opt => opt.Ignore());
+
+        // DetalleVenta <-> DetalleVentaDto
+        CreateMap<DetalleVenta, DetalleVentaDto>()
+            .ForMember(dest => dest.ProductoNombre, opt => opt.MapFrom(src => src.Producto != null ? src.Producto.Nombre : null))
+            .ReverseMap()
+            .ForMember(dest => dest.Producto, opt => opt.Ignore())
+            .ForMember(dest => dest.Venta, opt => opt.Ignore());
     }
 }

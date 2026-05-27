@@ -6,22 +6,41 @@ export default function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const menuItems = [
-    { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-    { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
-    { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
-    { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
-    { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
-    { name: 'Servicios', icon: 'medical_services', path: '/admin/servicios' },
-    { name: 'Pagos', icon: 'payments', path: '/admin/pagos' },
-    { name: 'Reportes e Ingresos', icon: 'analytics', path: '/admin/reportes' },
-  ];
+  let menuItems: { name: string; icon: string; path: string }[] = [];
 
   if (user?.role === 'Admin') {
-    menuItems.push(
-      { name: 'Usuarios', icon: 'group', path: '/admin/usuarios' },
-      { name: 'Auditoría', icon: 'policy', path: '/admin/auditoria' }
-    );
+    menuItems = [
+      { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
+      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+      { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
+      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
+      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' },
+      { name: 'Punto de Venta / POS', icon: 'point_of_sale', path: '/admin/ventas' },
+      { name: 'Servicios', icon: 'medical_services', path: '/admin/servicios' },
+      { name: 'Pagos', icon: 'payments', path: '/admin/pagos' },
+      { name: 'Reportes e Ingresos', icon: 'analytics', path: '/admin/reportes' },
+      { name: 'Veterinarios', icon: 'medical_information', path: '/admin/veterinarios' }
+    ];
+  } else if (user?.role === 'Recepcionista') {
+    menuItems = [
+      { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
+      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+      { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
+      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
+      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' },
+      { name: 'Punto de Venta / POS', icon: 'point_of_sale', path: '/admin/ventas' },
+      { name: 'Pagos', icon: 'payments', path: '/admin/pagos' }
+    ];
+  } else if (user?.role === 'Veterinario') {
+    menuItems = [
+      { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
+      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
+      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' }
+    ];
   }
 
   return (

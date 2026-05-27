@@ -19,19 +19,23 @@ public static class DbSeeder
         // 2. Seed Usuario Admin
         await SeedAdminUserAsync(userManager);
 
-        // 3. Seed Usuario Normal
-        var usuarioNormal = await SeedNormalUserAsync(userManager, context);
+        // 3. Seed Recepcionista
+        await SeedRecepcionistaUserAsync(userManager);
 
         // 4. Seed Veterinarios
         await SeedVeterinariosAsync(context);
+        await SeedVeterinarioAccountsAsync(userManager);
 
-        // 5. Seed Servicios
+        // 5. Seed Usuario Normal (Cliente)
+        var usuarioNormal = await SeedNormalUserAsync(userManager, context);
+
+        // 6. Seed Servicios
         await SeedServiciosAsync(context);
 
-        // 6. Seed Mascotas (asociadas al usuario normal)
+        // 7. Seed Mascotas (asociadas al usuario normal)
         await SeedMascotasAsync(context, usuarioNormal, isDevelopment);
 
-        // 7. Seed Triage, Citas y Pagos (para simular el ecosistema de Stitch)
+        // 8. Seed Triage, Citas y Pagos (para simular el ecosistema de Stitch)
         await SeedCitasTriagePagosAsync(context);
     }
 
@@ -40,7 +44,7 @@ public static class DbSeeder
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
     {
-        string[] roles = { "Admin", "Usuario" };
+        string[] roles = { "Admin", "Veterinario", "Recepcionista", "Cliente", "Usuario" };
 
         foreach (var role in roles)
         {
@@ -75,6 +79,58 @@ public static class DbSeeder
         }
     }
 
+    private static async Task SeedRecepcionistaUserAsync(UserManager<ApplicationUser> userManager)
+    {
+        var email = "recepcionista@veterinaria.com";
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                NombreCompleto = "Recepcionista Principal",
+                FechaRegistro = DateTime.Now,
+                EmailConfirmed = true
+            };
+            var result = await userManager.CreateAsync(user, "Recepcion123!");
+            if (result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "Recepcionista");
+            }
+        }
+    }
+
+    private static async Task SeedVeterinarioAccountsAsync(UserManager<ApplicationUser> userManager)
+    {
+        var vets = new[]
+        {
+            new { Email = "carlos.mendoza@veterinaria.com", Nombre = "Dr. Carlos Mendoza Ruiz" },
+            new { Email = "maria.fernandez@veterinaria.com", Nombre = "Dra. María Fernández López" }
+        };
+
+        foreach (var vet in vets)
+        {
+            var user = await userManager.FindByEmailAsync(vet.Email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = vet.Email,
+                    Email = vet.Email,
+                    NombreCompleto = vet.Nombre,
+                    FechaRegistro = DateTime.Now,
+                    EmailConfirmed = true
+                };
+                var result = await userManager.CreateAsync(user, "Veterinario123!");
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, "Veterinario");
+                }
+            }
+        }
+    }
+
     private static async Task<Usuario?> SeedNormalUserAsync(
         UserManager<ApplicationUser> userManager,
         VeterinariaDbContext context)
@@ -96,6 +152,8 @@ public static class DbSeeder
             var result = await userManager.CreateAsync(normalUser, "Usuario123!");
             if (result.Succeeded)
             {
+                // Agregamos tanto el rol Cliente como el antiguo Usuario para compatibilidad
+                await userManager.AddToRoleAsync(normalUser, "Cliente");
                 await userManager.AddToRoleAsync(normalUser, "Usuario");
             }
         }
@@ -114,16 +172,20 @@ public static class DbSeeder
                 Direccion = "Av. Principal 123, Lima",
                 FechaRegistro = DateTime.Now,
                 Activo = true,
+                Rol = "Cliente",
                 ApplicationUserId = normalUser.Id // Vincular con Identity
             };
 
             context.Usuarios.Add(usuarioExistente);
             await context.SaveChangesAsync();
         }
-        else if (string.IsNullOrEmpty(usuarioExistente.ApplicationUserId))
+        else
         {
-            // Actualizar vínculo si no existe
-            usuarioExistente.ApplicationUserId = normalUser.Id;
+            usuarioExistente.Rol = "Cliente";
+            if (string.IsNullOrEmpty(usuarioExistente.ApplicationUserId))
+            {
+                usuarioExistente.ApplicationUserId = normalUser.Id;
+            }
             await context.SaveChangesAsync();
         }
 

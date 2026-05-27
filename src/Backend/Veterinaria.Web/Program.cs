@@ -7,8 +7,10 @@ using Veterinaria.Infrastructure.Persistence;
 using Veterinaria.Infrastructure.Repositories;
 using Veterinaria.Web.Hubs;
 using Veterinaria.Web.Services;
-
 using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,7 +58,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
     {
-        builder.WithOrigins("http://localhost:5173") // Vite default port
+        builder.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000") // Dev ports
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
@@ -98,25 +100,23 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<VeterinariaDbContext>()
 .AddDefaultTokenProviders();
 
-// Configurar Cookie de autenticación para SPA (sin redirecciones a Razor Identity UI)
-builder.Services.ConfigureApplicationCookie(options =>
+// Configurar Autenticación JWT en lugar de cookies
+builder.Services.AddAuthentication(options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromHours(24);
-    options.SlidingExpiration = true;
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.Lax;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-
-    // En vez de redirigir a páginas Razor, devolver 401/403 para que el frontend maneje la navegación
-    options.Events.OnRedirectToLogin = context =>
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-        return Task.CompletedTask;
-    };
-    options.Events.OnRedirectToAccessDenied = context =>
-    {
-        context.Response.StatusCode = StatusCodes.Status403Forbidden;
-        return Task.CompletedTask;
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SuperSecretKeyForVeterinariaApp2026!AwesomeKeyWithLength32"))
     };
 });
 
@@ -143,6 +143,8 @@ builder.Services.AddScoped<Veterinaria.Application.Interfaces.ITriageService, Ve
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IConsentimientoService, Veterinaria.Application.Services.ConsentimientoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.INotificacionService, Veterinaria.Application.Services.NotificacionService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IRealTimeNotificationService, Veterinaria.Web.Services.RealTimeNotificationService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IProductoService, Veterinaria.Application.Services.ProductoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IVentaService, Veterinaria.Application.Services.VentaService>();
 
 // Configurar Servicio de generación de PDFs (Sigue en Web por ser infraestructura visual o si se desea se puede mover después)
 builder.Services.AddScoped<PdfService>();

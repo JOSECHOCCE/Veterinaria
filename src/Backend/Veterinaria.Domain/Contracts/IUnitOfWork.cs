@@ -15,6 +15,9 @@ public interface IUnitOfWork : IAsyncDisposable
     IGenericRepository<TarjetaGuardada> TarjetasGuardadas { get; }
     IGenericRepository<Triage> Triages { get; }
     IGenericRepository<Consentimiento> Consentimientos { get; }
+    IGenericRepository<Producto> Productos { get; }
+    IGenericRepository<Venta> Ventas { get; }
+    IGenericRepository<DetalleVenta> DetallesVentas { get; }
 
     Task<int> CommitAsync();
 }
