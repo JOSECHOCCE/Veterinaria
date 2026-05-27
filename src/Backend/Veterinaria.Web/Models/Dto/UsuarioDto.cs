@@ -23,6 +23,9 @@ public class UsuarioDto
     [Display(Name = "Dirección")]
     public string? Direccion { get; set; }
 
+    [Display(Name = "DNI")]
+    public string? DNI { get; set; }
+
     [Display(Name = "Rol")]
     public string Rol { get; set; } = "Usuario";
 

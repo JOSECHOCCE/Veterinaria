@@ -6,6 +6,8 @@ using System.Linq;
 using System;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Application.DTOs;
+using Veterinaria.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -15,11 +17,13 @@ public class AuthController : ControllerBase
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly VeterinariaDbContext _context;
 
-    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, VeterinariaDbContext context)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _context = context;
     }
 
     [HttpPost("login")]
@@ -35,6 +39,13 @@ public class AuthController : ControllerBase
         if (user == null)
         {
             return BadRequest(Response<object>.Fail("Credenciales inválidas."));
+        }
+
+        // Verificar si el usuario de dominio está activo
+        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == user.Id);
+        if (domainUser != null && !domainUser.Activo)
+        {
+            return BadRequest(Response<object>.Fail("Tu cuenta ha sido desactivada. Contacta al administrador."));
         }
 
         // Intentar iniciar sesión
@@ -88,6 +99,113 @@ public class AuthController : ControllerBase
 
         return Unauthorized(Response<object>.Fail("No estás autenticado."));
     }
+
+    [HttpPost("register")]
+    public async Task<ActionResult<Response<object>>> Register([FromBody] RegisterRequest request)
+    {
+        if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        {
+            return BadRequest(Response<object>.Fail("Datos de registro inválidos."));
+        }
+
+        var existingUser = await _userManager.FindByEmailAsync(request.Email);
+        if (existingUser != null)
+        {
+            return BadRequest(Response<object>.Fail("El correo electrónico ya está registrado."));
+        }
+
+        var user = new ApplicationUser
+        {
+            UserName = request.Email,
+            Email = request.Email,
+            NombreCompleto = request.NombreCompleto
+        };
+
+        var result = await _userManager.CreateAsync(user, request.Password);
+
+        if (result.Succeeded)
+        {
+            // Asignar rol de Usuario (Cliente) por defecto
+            await _userManager.AddToRoleAsync(user, "Usuario");
+
+            // Crear el registro de dominio
+            var domainUser = new Usuario
+            {
+                ApplicationUserId = user.Id,
+                Nombre = request.NombreCompleto,
+                Email = request.Email,
+                DNI = request.DNI,
+                Telefono = request.Telefono,
+                Rol = "Usuario",
+                Activo = true,
+                FechaRegistro = DateTime.UtcNow
+            };
+
+            _context.Usuarios.Add(domainUser);
+            await _context.SaveChangesAsync();
+
+            return Ok(Response<object>.Ok(new { Email = user.Email }, "Usuario registrado con éxito."));
+        }
+
+        return BadRequest(Response<object>.Fail("Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description))));
+    }
+
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    [HttpGet("profile")]
+    public async Task<ActionResult<Response<object>>> GetProfile()
+    {
+        var appUser = await _userManager.GetUserAsync(User);
+        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
+
+        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
+
+        return Ok(Response<object>.Ok(new
+        {
+            NombreCompleto = appUser.NombreCompleto,
+            Email = appUser.Email,
+            Telefono = domainUser?.Telefono ?? "",
+            DNI = domainUser?.DNI ?? "",
+            Direccion = domainUser?.Direccion ?? ""
+        }));
+    }
+
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    [HttpPut("profile")]
+    public async Task<ActionResult<Response<object>>> UpdateProfile([FromBody] UpdateProfileRequest request)
+    {
+        var appUser = await _userManager.GetUserAsync(User);
+        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
+
+        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
+        if (domainUser == null) return NotFound(Response<object>.Fail("Perfil no encontrado."));
+
+        // Actualizar nombre en Identity
+        appUser.NombreCompleto = request.NombreCompleto;
+        await _userManager.UpdateAsync(appUser);
+
+        // Actualizar datos en dominio
+        domainUser.Nombre = request.NombreCompleto;
+        domainUser.Telefono = request.Telefono;
+        domainUser.DNI = request.DNI;
+        domainUser.Direccion = request.Direccion;
+        await _context.SaveChangesAsync();
+
+        return Ok(Response<object>.Ok("Perfil actualizado correctamente."));
+    }
+
+    [Microsoft.AspNetCore.Authorization.Authorize]
+    [HttpPost("change-password")]
+    public async Task<ActionResult<Response<object>>> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+        var appUser = await _userManager.GetUserAsync(User);
+        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
+
+        var result = await _userManager.ChangePasswordAsync(appUser, request.CurrentPassword, request.NewPassword);
+        if (!result.Succeeded)
+            return BadRequest(Response<object>.Fail("Error: " + string.Join(", ", result.Errors.Select(e => e.Description))));
+
+        return Ok(Response<object>.Ok("Contraseña actualizada correctamente."));
+    }
 }
 
 public class LoginRequest
@@ -100,4 +218,37 @@ public class LoginRequest
     public string Password { get; set; } = string.Empty;
 
     public bool RememberMe { get; set; } = false;
+}
+
+public class RegisterRequest
+{
+    [Required]
+    public string NombreCompleto { get; set; } = string.Empty;
+
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
+
+    public string? DNI { get; set; }
+    public string? Telefono { get; set; }
+}
+
+public class UpdateProfileRequest
+{
+    [Required]
+    public string NombreCompleto { get; set; } = string.Empty;
+    public string? Telefono { get; set; }
+    public string? DNI { get; set; }
+    public string? Direccion { get; set; }
+}
+
+public class ChangePasswordRequest
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+    [Required]
+    public string NewPassword { get; set; } = string.Empty;
 }

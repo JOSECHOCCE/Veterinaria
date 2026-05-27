@@ -16,4 +16,6 @@ public interface IPagoService
     Task<Pago> ProcesarPagoTarjetaAsync(int citaId, decimal montoTotal, decimal montoPagar, string tipoPago, string numeroTarjeta, bool guardarTarjeta, string nombreTitular, string fechaVencimiento, string cvv, int? usuarioId);
     Task<Pago> ProcesarPagoRestanteTarjetaAsync(int citaId, string numeroTarjeta);
     Task<Pago?> GetPagoByIdAsync(int pagoId);
+    Task<(bool Success, string Message)> AnularPagoAsync(int pagoId, string motivo);
+    Task<List<Pago>> GetPagosPorUsuarioAsync(int usuarioId);
 }

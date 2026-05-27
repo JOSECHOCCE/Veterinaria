@@ -8,24 +8,31 @@ using System.Linq;
 using System.Threading.Tasks;
 using System;
 using Veterinaria.Application.DTOs;
+using System.Security.Claims;
+using Veterinaria.Domain.Contracts;
+using Microsoft.EntityFrameworkCore;
+using Veterinaria.Domain.Entities;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class PagosController : ControllerBase
 {
     private readonly IPagoService _pagoService;
     private readonly IMapper _mapper;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public PagosController(IPagoService pagoService, IMapper mapper)
+    public PagosController(IPagoService pagoService, IMapper mapper, IUnitOfWork unitOfWork)
     {
         _pagoService = pagoService;
         _mapper = mapper;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Index(string? tipoPago, string? metodoPago, DateTime? fechaDesde, DateTime? fechaHasta, int page = 1)
     {
         var (pagos, totalTarjeta, totalEfectivo, totalPagos) = await _pagoService.GetPagosFiltradosAsync(tipoPago, metodoPago, fechaDesde, fechaHasta);
@@ -58,6 +65,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("Details/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Details(int id)
     {
         var pago = await _pagoService.GetPagoDetailsAsync(id);
@@ -78,6 +86,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("DetailsByCita")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> DetailsByCita(int citaId)
     {
         var cita = await _pagoService.GetCitaWithPagosAsync(citaId);
@@ -97,6 +106,7 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("Reporte")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Reporte(DateTime? fechaDesde, DateTime? fechaHasta)
     {
         var desde = fechaDesde ?? new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -123,9 +133,63 @@ public class PagosController : ControllerBase
     }
 
     [HttpGet("PendientesPago")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> PendientesPago()
     {
         var citasPendientes = await _pagoService.GetCitasPendientesPagoAsync();
         return Ok(Response<object>.Ok(citasPendientes));
     }
+
+    [HttpPost("Anular/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Response<string>>> AnularPago(int id, [FromBody] AnularPagoRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Motivo))
+            return BadRequest(Response<string>.Fail("El motivo de anulación es requerido."));
+
+        var (success, message) = await _pagoService.AnularPagoAsync(id, request.Motivo);
+        if (!success)
+            return BadRequest(Response<string>.Fail(message));
+
+        return Ok(Response<string>.Ok(message));
+    }
+
+    [HttpGet("mis-pagos")]
+    [Authorize(Roles = "Usuario,Admin")]
+    public async Task<ActionResult<Response<object>>> MisPagos()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(Response<object>.Fail("No estás autenticado."));
+        }
+
+        var domainUser = await _unitOfWork.Usuarios.GetAll()
+            .FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
+
+        if (domainUser == null)
+        {
+            return NotFound(Response<object>.Fail("Perfil de usuario no encontrado."));
+        }
+
+        var pagos = await _pagoService.GetPagosPorUsuarioAsync(domainUser.Id);
+        var pagosDto = _mapper.Map<List<PagoDto>>(pagos);
+
+        foreach (var pagoDto in pagosDto)
+        {
+            var p = pagos.First(x => x.Id == pagoDto.Id);
+            pagoDto.MascotaNombre = p.Cita?.Mascota?.Nombre;
+            pagoDto.PropietarioNombre = p.Cita?.Mascota?.Usuario?.Nombre;
+            pagoDto.VeterinarioNombre = p.Cita?.Veterinario?.Nombre;
+            pagoDto.ServicioNombre = p.Cita?.Servicio?.Nombre;
+            pagoDto.FechaCita = p.Cita?.FechaHora;
+        }
+
+        return Ok(Response<object>.Ok(pagosDto));
+    }
+}
+
+public class AnularPagoRequest
+{
+    public string Motivo { get; set; } = string.Empty;
 }

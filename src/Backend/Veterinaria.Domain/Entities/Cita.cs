@@ -28,6 +28,13 @@ public class Cita
     [MaxLength(20)]
     public string EstadoPago { get; set; } = "Pendiente"; // "Pendiente", "Parcial", "Pagado"
 
+    // Información de Reprogramación (RF-23)
+    [MaxLength(450)]
+    public string? ReprogramadoPorUsuarioId { get; set; }
+    public DateTime? FechaReprogramacion { get; set; }
+    [MaxLength(300)]
+    public string? MotivoReprogramacion { get; set; }
+
     // Foreign Keys
     public int MascotaId { get; set; }
     public int VeterinarioId { get; set; }

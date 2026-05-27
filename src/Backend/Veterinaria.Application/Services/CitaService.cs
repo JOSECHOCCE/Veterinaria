@@ -12,10 +12,12 @@ namespace Veterinaria.Application.Services;
 public class CitaService : ICitaService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuditoriaService _auditoriaService;
 
-    public CitaService(IUnitOfWork unitOfWork)
+    public CitaService(IUnitOfWork unitOfWork, IAuditoriaService auditoriaService)
     {
         _unitOfWork = unitOfWork;
+        _auditoriaService = auditoriaService;
     }
 
     public async Task<List<Cita>> GetCitasParaCalendarioAsync(DateTime? fechaInicio, DateTime? fechaFin)
@@ -254,6 +256,39 @@ public class CitaService : ICitaService
 
     public async Task<Cita> CreateCitaAsync(Cita cita, decimal precioServicio)
     {
+        // Validar que el servicio esté activo (RF-21)
+        var servicio = await _unitOfWork.Servicios.GetByIdAsync(cita.ServicioId);
+        if (servicio == null || !servicio.Activo)
+            throw new InvalidOperationException("El servicio seleccionado no está disponible.");
+
+        // Validar que la mascota esté activa (RF-13)
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
+        if (mascota == null || !mascota.Activo)
+            throw new InvalidOperationException("La mascota seleccionada no está activa.");
+
+        // RF-21: Validar que la mascota no tenga cita activa en el mismo horario
+        var duracion = servicio.DuracionMinutos;
+        var finNueva = cita.FechaHora.AddMinutes(duracion);
+
+        var mascotaConflicto = await _unitOfWork.Citas.GetAll()
+            .Include(c => c.Servicio)
+            .Where(c => c.MascotaId == cita.MascotaId
+                     && c.Estado != "Cancelada" && c.Estado != "NoAsistio")
+            .ToListAsync();
+
+        foreach (var existente in mascotaConflicto)
+        {
+            var durExistente = existente.Servicio?.DuracionMinutos ?? 30;
+            var finExistente = existente.FechaHora.AddMinutes(durExistente);
+            if (!(finNueva <= existente.FechaHora || cita.FechaHora >= finExistente))
+                throw new InvalidOperationException("La mascota ya tiene una cita programada en ese horario.");
+        }
+
+        // RF-21: Validar disponibilidad real del veterinario para evitar solapamientos
+        var veterinarioDisponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion);
+        if (!veterinarioDisponible)
+            throw new InvalidOperationException("El veterinario seleccionado ya tiene otra cita agendada en ese horario.");
+
         cita.Estado = "Pendiente";
         cita.EstadoPago = "Pendiente";
         cita.MontoTotal = precioServicio;
@@ -265,17 +300,61 @@ public class CitaService : ICitaService
         return cita;
     }
 
-    public async Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo)
+    public async Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo, DateTime? nuevaFechaHora = null, int? nuevoVeterinarioId = null, string? reprogramadoPorUsuarioId = null)
     {
         var cita = await GetCitaByIdAsync(id);
         if (cita == null)
             return (false, null);
 
-        cita.Estado = nuevoEstado;
-        cita.Motivo = motivo;
+        // Detectar si hay reprogramación (cambio de fecha o de profesional)
+        bool esReprogramacion = false;
+        DateTime fechaAnterior = cita.FechaHora;
+        int veterinarioAnteriorId = cita.VeterinarioId;
 
-        _unitOfWork.Citas.Update(cita);
-        await _unitOfWork.CommitAsync();
+        if (nuevaFechaHora.HasValue && nuevaFechaHora.Value != cita.FechaHora)
+        {
+            esReprogramacion = true;
+            cita.FechaHora = nuevaFechaHora.Value;
+        }
+
+        if (nuevoVeterinarioId.HasValue && nuevoVeterinarioId.Value != cita.VeterinarioId)
+        {
+            esReprogramacion = true;
+            cita.VeterinarioId = nuevoVeterinarioId.Value;
+        }
+
+        if (esReprogramacion)
+        {
+            cita.ReprogramadoPorUsuarioId = reprogramadoPorUsuarioId;
+            cita.FechaReprogramacion = DateTime.UtcNow;
+            cita.MotivoReprogramacion = motivo;
+
+            _unitOfWork.Citas.Update(cita);
+            await _unitOfWork.CommitAsync();
+
+            await _auditoriaService.RegistrarAccionAsync(
+                "Reprogramar Cita",
+                "Cita",
+                cita.Id.ToString(),
+                $"Cita reprogramada. Fecha anterior: {fechaAnterior:yyyy-MM-dd HH:mm}, nueva: {cita.FechaHora:yyyy-MM-dd HH:mm}. Vet anterior: {veterinarioAnteriorId}, nuevo: {cita.VeterinarioId}. Motivo: {motivo}"
+            );
+        }
+        else
+        {
+            cita.Estado = nuevoEstado;
+            cita.Motivo = motivo;
+
+            _unitOfWork.Citas.Update(cita);
+            await _unitOfWork.CommitAsync();
+
+            await _auditoriaService.RegistrarAccionAsync(
+                "Modificar Cita",
+                "Cita",
+                cita.Id.ToString(),
+                $"Cita modificada. Estado actual: {nuevoEstado}. Motivo: {motivo}"
+            );
+        }
+
         return (true, cita);
     }
 
@@ -291,9 +370,21 @@ public class CitaService : ICitaService
         if (cita.Estado != "Pendiente" && cita.Estado != "Confirmada")
             return (false, null, "Solo se pueden cancelar citas en estado 'Pendiente' o 'Confirmada'.");
 
+        // RF-24: El cliente solo puede cancelar con al menos 2 horas de anticipación
+        if (!isAdmin && cita.FechaHora <= DateTime.Now.AddHours(2))
+            return (false, null, "Solo puedes cancelar citas con al menos 2 horas de anticipación.");
+
         cita.Estado = "Cancelada";
         _unitOfWork.Citas.Update(cita);
         await _unitOfWork.CommitAsync();
+
+        // Registrar auditoría (RNF-09)
+        await _auditoriaService.RegistrarAccionAsync(
+            "Cancelar Cita",
+            "Cita",
+            cita.Id.ToString(),
+            $"Cita cancelada por {(isAdmin ? "Administración/Recepcionista" : "Cliente")}. ID de usuario del cliente solicitante: {currentUsuarioId}"
+        );
 
         return (true, cita, null);
     }
@@ -304,11 +395,26 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null);
 
+        // Solo se puede completar desde EnProceso o Confirmada
+        if (cita.Estado != "EnProceso" && cita.Estado != "Confirmada")
+            return (false, null);
+
         cita.Estado = "Completada";
         _unitOfWork.Citas.Update(cita);
         await _unitOfWork.CommitAsync();
         return (true, cita);
     }
+
+    // Mapa de transiciones de estado válidas según requerimientos
+    private static readonly Dictionary<string, string[]> _transicionesValidas = new()
+    {
+        ["Pendiente"]   = new[] { "Confirmada", "Cancelada", "NoAsistio" },
+        ["Confirmada"]  = new[] { "EnProceso", "Cancelada", "NoAsistio" },
+        ["EnProceso"]   = new[] { "Completada", "Cancelada" },
+        ["Completada"]  = Array.Empty<string>(),
+        ["Cancelada"]   = Array.Empty<string>(),
+        ["NoAsistio"]   = Array.Empty<string>(),
+    };
 
     public async Task<(bool Success, Cita? Cita, string? Error)> CambiarEstadoAsync(int id, string nuevoEstado)
     {
@@ -316,9 +422,16 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null, "No encontrado");
 
-        var estadosValidos = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada" };
+        var estadosValidos = new[] { "Pendiente", "Confirmada", "EnProceso", "Completada", "Cancelada", "NoAsistio" };
         if (!estadosValidos.Contains(nuevoEstado))
             return (false, null, "Estado no válido.");
+
+        // Validar transición permitida
+        if (_transicionesValidas.TryGetValue(cita.Estado, out var permitidos))
+        {
+            if (!permitidos.Contains(nuevoEstado))
+                return (false, null, $"No se puede cambiar de '{cita.Estado}' a '{nuevoEstado}'.");
+        }
 
         cita.Estado = nuevoEstado;
         _unitOfWork.Citas.Update(cita);

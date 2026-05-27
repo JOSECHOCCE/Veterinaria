@@ -246,7 +246,7 @@ public class CitasController : ControllerBase
 
         return new
         {
-            Mascotas = mascotas.Select(m => new { m.Id, m.Nombre }),
+            Mascotas = mascotas.Select(m => new { m.Id, m.Nombre, m.Especie, m.Raza }),
             Veterinarios = veterinarios.Select(v => new { v.Id, v.Nombre }),
             Servicios = servicios.Select(s => new
             {
@@ -467,7 +467,8 @@ public class CitasController : ControllerBase
             if (citaOld == null) return NotFound(Response<object>.Fail("Cita no encontrada."));
             var estadoAnterior = citaOld.Estado;
 
-            var result = await _citaService.EditCitaAsync(id, citaDto.Estado, citaDto.Motivo);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _citaService.EditCitaAsync(id, citaDto.Estado, citaDto.Motivo, citaDto.FechaHora, citaDto.VeterinarioId, userId);
             if (!result.Success || result.Cita == null) return NotFound(Response<object>.Fail("Error al actualizar la cita."));
 
             if (estadoAnterior != citaDto.Estado)
@@ -601,7 +602,45 @@ public class CitasController : ControllerBase
     [HttpGet("HorariosDisponibles")]
     public async Task<ActionResult<Response<object>>> HorariosDisponibles([FromQuery] int veterinarioId, [FromQuery] DateTime fecha)
     {
+        // Validar si el día seleccionado es laborable según la configuración del negocio
+        var configPath = System.IO.Path.Combine(AppContext.BaseDirectory, "ConfiguracionClinica.json");
+        if (System.IO.File.Exists(configPath))
+        {
+            try
+            {
+                var json = System.IO.File.ReadAllText(configPath);
+                var config = System.Text.Json.JsonSerializer.Deserialize<ClinicaConfigDto>(json);
+                if (config != null)
+                {
+                    int dayOfWeek = (int)fecha.DayOfWeek;
+                    if (!config.DiasHabiles.Contains(dayOfWeek))
+                    {
+                        return Ok(Response<object>.Ok(new List<object>(), "La clínica está cerrada el día seleccionado."));
+                    }
+                }
+            }
+            catch { }
+        }
+
         var horarios = await _citaService.ObtenerHorariosDisponiblesAsync(veterinarioId, fecha);
+
+        // Opcional: Filtrar horarios para que solo quepan dentro del rango de apertura/cierre general de la clínica
+        if (System.IO.File.Exists(configPath))
+        {
+            try
+            {
+                var json = System.IO.File.ReadAllText(configPath);
+                var config = System.Text.Json.JsonSerializer.Deserialize<ClinicaConfigDto>(json);
+                if (config != null)
+                {
+                    if (TimeSpan.TryParse(config.HoraApertura, out var horaApertura) && TimeSpan.TryParse(config.HoraCierre, out var horaCierre))
+                    {
+                        horarios = horarios.Where(h => h.TimeOfDay >= horaApertura && h.TimeOfDay < horaCierre).ToList();
+                    }
+                }
+            }
+            catch { }
+        }
 
         var result = horarios.Select(h => new
         {

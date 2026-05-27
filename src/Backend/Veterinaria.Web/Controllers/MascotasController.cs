@@ -93,23 +93,38 @@ public class MascotasController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Response<object>>> Create([FromBody] MascotaDto mascotaDto)
     {
+        // Asignar dinámicamente el UsuarioId del cliente logueado si no se especificó o si es rol Usuario/Cliente
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var usuario = await _unitOfWork.Usuarios.GetAll()
+            .FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
+
+        if (usuario != null && (!User.IsInRole("Admin") || mascotaDto.UsuarioId == 0))
+        {
+            mascotaDto.UsuarioId = usuario.Id;
+        }
+        else if (mascotaDto.UsuarioId == 0)
+        {
+            mascotaDto.UsuarioId = 1; // Fallback para Admin si no seleccionó propietario
+        }
+
+        // Limpiar el ModelState para evitar errores de validación si no venía el UsuarioId en la petición inicial
+        ModelState.Clear();
+        TryValidateModel(mascotaDto);
+
         if (!ModelState.IsValid)
         {
-            return BadRequest(Response<object>.Fail("Datos inválidos."));
+            return BadRequest(Response<object>.Fail("Datos inválidos para la mascota."));
         }
 
         var mascota = _mapper.Map<Mascota>(mascotaDto);
         mascota.Activo = true;
-        
-        // TODO: Obtener UsuarioId desde claims cuando se implemente autenticación
-        if (mascota.UsuarioId == 0)
-        {
-            mascota.UsuarioId = 1; // Temporal
-        }
 
         await _mascotaService.AddMascotaAsync(mascota);
 
-        return Ok(Response<object>.Ok(new { Message = "Mascota creada exitosamente.", Mascota = mascotaDto }));
+        // Mapear la entidad guardada de base de datos de vuelta al DTO para incluir el ID auto-generado
+        var resultDto = _mapper.Map<MascotaDto>(mascota);
+
+        return Ok(Response<object>.Ok(resultDto, "Mascota creada exitosamente."));
     }
 
     [HttpGet("Edit/{id}")]

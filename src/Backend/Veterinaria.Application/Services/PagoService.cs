@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using Veterinaria.Application.DTOs;
 using Veterinaria.Application.Interfaces;
@@ -10,10 +11,12 @@ namespace Veterinaria.Application.Services;
 public class PagoService : IPagoService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuditoriaService _auditoriaService;
 
-    public PagoService(IUnitOfWork unitOfWork)
+    public PagoService(IUnitOfWork unitOfWork, IAuditoriaService auditoriaService)
     {
         _unitOfWork = unitOfWork;
+        _auditoriaService = auditoriaService;
     }
 
     public async Task<(List<Pago> Pagos, decimal TotalTarjeta, decimal TotalEfectivo, int TotalPagos)> GetPagosFiltradosAsync(string? tipoPago, string? metodoPago, DateTime? fechaDesde, DateTime? fechaHasta)
@@ -166,9 +169,9 @@ public class PagoService : IPagoService
         var cita = await _unitOfWork.Citas.GetByIdAsync(citaId);
         if(cita != null) {
             cita.MontoTotal = montoTotal;
-            cita.MontoPagado = montoPagar;
+            cita.MontoPagado += montoPagar; // Acumular en vez de sobreescribir
             cita.TipoPago = tipoPago;
-            cita.EstadoPago = tipoPago == "Completo" ? "Pagado" : "Parcial";
+            cita.EstadoPago = cita.MontoPagado >= cita.MontoTotal ? "Pagado" : "Parcial";
             cita.Estado = "Confirmada";
             _unitOfWork.Citas.Update(cita);
         }
@@ -181,11 +184,11 @@ public class PagoService : IPagoService
 
             if (tarjetaExistente != null)
             {
-                tarjetaExistente.NombreTitular = EncriptarSimple(nombreTitular);
-                tarjetaExistente.NumeroTarjetaEncriptado = EncriptarSimple(numeroTarjeta);
+                tarjetaExistente.NombreTitular = EncriptarDatos(nombreTitular);
+                tarjetaExistente.NumeroTarjetaEncriptado = EncriptarDatos(numeroTarjeta);
                 tarjetaExistente.UltimosDigitos = numeroTarjeta.Substring(numeroTarjeta.Length - 4);
                 tarjetaExistente.FechaExpiracion = fechaVencimiento;
-                tarjetaExistente.CVVEncriptado = EncriptarSimple(cvv);
+                tarjetaExistente.CVVEncriptado = string.Empty; // CVV nunca se almacena (PCI-DSS)
                 tarjetaExistente.FechaRegistro = DateTime.UtcNow;
                 _unitOfWork.TarjetasGuardadas.Update(tarjetaExistente);
             }
@@ -194,11 +197,11 @@ public class PagoService : IPagoService
                 var nuevaTarjeta = new TarjetaGuardada
                 {
                     UsuarioId = usuarioId.Value,
-                    NombreTitular = EncriptarSimple(nombreTitular),
-                    NumeroTarjetaEncriptado = EncriptarSimple(numeroTarjeta),
+                    NombreTitular = EncriptarDatos(nombreTitular),
+                    NumeroTarjetaEncriptado = EncriptarDatos(numeroTarjeta),
                     UltimosDigitos = numeroTarjeta.Substring(numeroTarjeta.Length - 4),
                     FechaExpiracion = fechaVencimiento,
-                    CVVEncriptado = EncriptarSimple(cvv),
+                    CVVEncriptado = string.Empty, // CVV nunca se almacena (PCI-DSS)
                     Activa = true
                 };
                 await _unitOfWork.TarjetasGuardadas.AddAsync(nuevaTarjeta);
@@ -212,8 +215,9 @@ public class PagoService : IPagoService
 
     public async Task<Pago> ProcesarPagoRestanteTarjetaAsync(int citaId, string numeroTarjeta)
     {
-        var cita = await _unitOfWork.Citas.GetByIdAsync(citaId);
-        var montoRestante = cita!.MontoTotal - cita.MontoPagado;
+        var cita = await _unitOfWork.Citas.GetByIdAsync(citaId)
+            ?? throw new InvalidOperationException($"Cita {citaId} no encontrada.");
+        var montoRestante = cita.MontoTotal - cita.MontoPagado;
         var referencia = $"PAG-{DateTime.Now:yyyyMMdd}-{citaId:D4}-{new Random().Next(1000, 9999)}";
 
         var pago = new Pago
@@ -243,10 +247,65 @@ public class PagoService : IPagoService
         return await _unitOfWork.Pagos.GetByIdAsync(pagoId);
     }
 
-    private string EncriptarSimple(string texto)
+    public async Task<(bool Success, string Message)> AnularPagoAsync(int pagoId, string motivo)
+    {
+        var pago = await _unitOfWork.Pagos.GetAll()
+            .Include(p => p.Cita)
+            .FirstOrDefaultAsync(p => p.Id == pagoId);
+
+        if (pago == null)
+            return (false, "Pago no encontrado.");
+
+        if (pago.TipoPago == "Anulado")
+            return (false, "Este pago ya fue anulado.");
+
+        // Restar monto del pago a la cita
+        var cita = pago.Cita;
+        if (cita != null)
+        {
+            cita.MontoPagado -= pago.Monto;
+            if (cita.MontoPagado < 0) cita.MontoPagado = 0;
+            cita.EstadoPago = cita.MontoPagado <= 0 ? "Pendiente" : "Parcial";
+            _unitOfWork.Citas.Update(cita);
+        }
+
+        pago.TipoPago = "Anulado";
+        pago.Referencia = $"{pago.Referencia} [ANULADO: {motivo}]";
+        _unitOfWork.Pagos.Update(pago);
+
+        await _unitOfWork.CommitAsync();
+
+        // Registrar acción en la auditoría (RNF-09)
+        await _auditoriaService.RegistrarAccionAsync(
+            "Anular Pago",
+            "Pago",
+            pago.Id.ToString(),
+            $"Pago de S/. {pago.Monto} anulado. Motivo: {motivo}. Cita asociada ID: {pago.CitaId}"
+        );
+
+        return (true, $"Pago #{pago.Id} anulado correctamente.");
+    }
+
+    public async Task<List<Pago>> GetPagosPorUsuarioAsync(int usuarioId)
+    {
+        return await _unitOfWork.Pagos.GetAll()
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Servicio)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Veterinario)
+            .Include(p => p.Cita)
+                .ThenInclude(c => c.Mascota)
+            .Where(p => p.Cita.Mascota.UsuarioId == usuarioId)
+            .OrderByDescending(p => p.FechaPago)
+            .ToListAsync();
+    }
+
+    private static string EncriptarDatos(string texto)
     {
         if (string.IsNullOrEmpty(texto)) return string.Empty;
+        // Hash SHA256 — no reversible, adecuado para datos sensibles que no necesitan ser leídos de vuelta
         var bytes = System.Text.Encoding.UTF8.GetBytes(texto);
-        return Convert.ToBase64String(bytes);
+        var hash = SHA256.HashData(bytes);
+        return Convert.ToBase64String(hash);
     }
 }

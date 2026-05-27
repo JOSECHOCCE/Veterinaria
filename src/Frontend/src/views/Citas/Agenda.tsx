@@ -245,7 +245,7 @@ export default function Agenda() {
               </div>
             )}
           </div>
-          <Link to="/agenda/nueva" className="ml-auto flex items-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm">
+          <Link to="/admin/agenda/nueva" className="ml-auto flex items-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm">
             <span className="material-symbols-outlined text-[18px]">add</span>
             Nueva Cita
           </Link>
@@ -281,7 +281,7 @@ export default function Agenda() {
             <p className="font-body-md text-body-md text-on-surface-variant mb-6">
               No se encontraron citas con los filtros seleccionados.
             </p>
-            <Link to="/agenda/nueva" className="flex items-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm">
+            <Link to="/admin/agenda/nueva" className="flex items-center gap-xs px-md py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:opacity-90 transition-opacity shadow-sm">
               <span className="material-symbols-outlined text-[18px]">add</span>
               Programar Nueva Cita
             </Link>

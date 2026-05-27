@@ -199,7 +199,7 @@ Examen Físico: ${examenFisico}`;
         }
 
         toast.success('Consulta clínica (SOAP) guardada exitosamente.');
-        navigate('/cola');
+        navigate('/admin/cola');
       } else {
         toast.error(historyResponse.data.message || 'Error al guardar el historial clínico');
       }

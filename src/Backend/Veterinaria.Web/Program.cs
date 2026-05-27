@@ -12,8 +12,11 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -95,14 +98,26 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<VeterinariaDbContext>()
 .AddDefaultTokenProviders();
 
-// Configurar Cookie de autenticación
+// Configurar Cookie de autenticación para SPA (sin redirecciones a Razor Identity UI)
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Identity/Account/Login";
-    options.LogoutPath = "/Identity/Account/Logout";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
     options.ExpireTimeSpan = TimeSpan.FromHours(24);
     options.SlidingExpiration = true;
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+
+    // En vez de redirigir a páginas Razor, devolver 401/403 para que el frontend maneje la navegación
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.CompletedTask;
+    };
 });
 
 // Configurar AutoMapper
@@ -111,7 +126,11 @@ builder.Services.AddAutoMapper(typeof(Program));
 // Configurar Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+// Configurar HttpContextAccessor para obtener el usuario autenticado en servicios core
+builder.Services.AddHttpContextAccessor();
+
 // Configurar Servicios de Aplicación (Arquitectura Cebolla)
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAuditoriaService, Veterinaria.Web.Services.AuditoriaService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IClienteService, Veterinaria.Application.Services.ClienteService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IMascotaService, Veterinaria.Application.Services.MascotaService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IServicioService, Veterinaria.Application.Services.ServicioService>();
@@ -168,34 +187,26 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Configurar el servidor de C# para servir de forma nativa los archivos estáticos de React
-app.UseStaticFiles(new StaticFileOptions
-{
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-        Path.Combine(app.Environment.ContentRootPath, "../../Frontend/dist")),
-    RequestPath = ""
-});
+// Servir el frontend compilado (Vite build) desde wwwroot
+app.UseDefaultFiles();
+app.UseStaticFiles();
 
 app.UseRouting();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("CorsPolicy");
-
 app.MapControllers();
-
-// Mapear fallback de SPA para que maneje las rutas del frontend en React
-app.MapFallbackToFile("index.html", new StaticFileOptions
-{
-    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(
-        Path.Combine(app.Environment.ContentRootPath, "../../Frontend/dist"))
-});
 
 // Mapear Hub de SignalR para notificaciones
 app.MapHub<NotificacionHub>("/notificacionHub");
+
+// Fallback SPA: todas las rutas del frontend sirven index.html
+app.MapFallbackToFile("index.html");
 
 app.Run();

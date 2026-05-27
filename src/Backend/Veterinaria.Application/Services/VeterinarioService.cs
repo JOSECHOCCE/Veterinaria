@@ -78,21 +78,13 @@ public class VeterinarioService : IVeterinarioService
 
     public async Task<bool> DeleteVeterinarioAsync(int id)
     {
-        var veterinario = await _unitOfWork.Veterinarios.GetAll()
-            .Include(v => v.Citas)
-            .FirstOrDefaultAsync(v => v.Id == id);
-
+        var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(id);
         if (veterinario == null)
-        {
             return false;
-        }
 
-        if (veterinario.Citas.Any())
-        {
-            return false; // Cannot delete if it has citas
-        }
-
-        _unitOfWork.Veterinarios.Remove(veterinario);
+        // Soft-delete: marcar como inactivo para preservar historial de citas
+        veterinario.Activo = false;
+        _unitOfWork.Veterinarios.Update(veterinario);
         await _unitOfWork.CommitAsync();
         return true;
     }

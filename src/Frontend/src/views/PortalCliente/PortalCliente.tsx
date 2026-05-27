@@ -134,14 +134,14 @@ const PortalCliente: React.FC = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-sm mt-sm">
               <button 
-                onClick={() => navigate('/agenda/nueva')}
+                onClick={() => navigate('/cliente/nueva-cita')}
                 className="bg-primary text-on-primary px-margin py-sm rounded-lg font-label-md text-label-md flex items-center justify-center gap-xs hover:bg-surface-tint transition-colors shadow-sm cursor-pointer h-[48px]"
               >
                 <span className="material-symbols-outlined text-[20px]">calendar_add_on</span>
                 Solicitar Nueva Cita
               </button>
               <button 
-                onClick={() => navigate('/mascotas')}
+                onClick={() => navigate('/cliente/mis-mascotas')}
                 className="bg-transparent border border-primary text-primary px-margin py-sm rounded-lg font-label-md text-label-md flex items-center justify-center gap-xs hover:bg-primary/5 transition-colors cursor-pointer h-[48px]"
               >
                 <span className="material-symbols-outlined text-[20px]">add_circle</span>
@@ -168,7 +168,7 @@ const PortalCliente: React.FC = () => {
                 Próximas Citas Programadas
               </h3>
               <button 
-                onClick={() => navigate('/agenda')}
+                onClick={() => navigate('/cliente/mis-citas')}
                 className="font-label-md text-label-md text-primary hover:underline cursor-pointer"
               >
                 Ver Agenda
@@ -181,7 +181,7 @@ const PortalCliente: React.FC = () => {
                   <span className="material-symbols-outlined text-[40px] text-outline">calendar_today</span>
                   <p className="font-body-md text-body-md mt-xs">No tienes citas próximas agendadas.</p>
                   <button 
-                    onClick={() => navigate('/agenda/nueva')}
+                    onClick={() => navigate('/cliente/mis-citas')}
                     className="text-primary font-semibold hover:underline mt-xs"
                   >
                     Reserva una cita ahora
@@ -192,7 +192,7 @@ const PortalCliente: React.FC = () => {
                   <div 
                     key={cita.id} 
                     className="bg-surface rounded-lg p-sm border border-outline-variant flex items-center justify-between hover:border-primary transition-all group cursor-pointer shadow-sm"
-                    onClick={() => navigate(`/agenda`)}
+                    onClick={() => navigate('/cliente/mis-citas')}
                   >
                     <div className="flex items-center gap-md">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
@@ -244,7 +244,7 @@ const PortalCliente: React.FC = () => {
                   {mascotas.slice(0, 3).map((pet) => (
                     <div 
                       key={pet.id} 
-                      onClick={() => navigate('/mascotas')}
+                      onClick={() => navigate('/cliente/mis-mascotas')}
                       className="flex items-center gap-sm p-xs rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer border border-transparent hover:border-outline-variant"
                     >
                       <img 
@@ -268,7 +268,7 @@ const PortalCliente: React.FC = () => {
             </div>
             
             <button 
-              onClick={() => navigate('/mascotas')}
+              onClick={() => navigate('/cliente/mis-mascotas')}
               className="w-full bg-primary/10 text-primary border border-primary/25 py-xs rounded-lg font-label-sm text-label-sm hover:bg-primary/20 transition-all font-semibold cursor-pointer mt-auto"
             >
               Gestionar Mascotas
@@ -278,7 +278,7 @@ const PortalCliente: React.FC = () => {
           {/* Quick Actions / Info Cards */}
           <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-md">
             <div 
-              onClick={() => navigate('/mascotas')}
+              onClick={() => navigate('/cliente/historial')}
               className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex items-center gap-sm hover:shadow-md hover:border-primary transition-all cursor-pointer group"
             >
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors border border-primary/20 shadow-sm">
@@ -291,7 +291,7 @@ const PortalCliente: React.FC = () => {
             </div>
             
             <div 
-              onClick={() => navigate('/mascotas')}
+              onClick={() => navigate('/cliente/historial')}
               className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex items-center gap-sm hover:shadow-md hover:border-primary transition-all cursor-pointer group"
             >
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors border border-primary/20 shadow-sm">
@@ -304,7 +304,7 @@ const PortalCliente: React.FC = () => {
             </div>
             
             <div 
-              onClick={() => navigate('/consentimiento')}
+              onClick={() => navigate('/cliente/consentimiento')}
               className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-md flex items-center gap-sm hover:shadow-md hover:border-primary transition-all cursor-pointer group"
             >
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors border border-primary/20 shadow-sm">

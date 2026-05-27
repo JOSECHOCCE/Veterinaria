@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import vetBg from '../../assets/vet-login-bg.jpg';
 
 const Login: React.FC = () => {
@@ -29,8 +29,14 @@ const Login: React.FC = () => {
 
     try {
       await login(email, password);
-      // Redirigir al dashboard al ingresar correctamente
-      navigate('/dashboard', { replace: true });
+      // RF-02: Redirigir según rol del usuario (login guarda user en localStorage)
+      const saved = localStorage.getItem('user');
+      const role = saved ? JSON.parse(saved).role : 'Usuario';
+      if (role === 'Usuario' || role === 'Cliente') {
+        navigate('/cliente/portal', { replace: true });
+      } else {
+        navigate('/admin/dashboard', { replace: true });
+      }
     } catch (err: any) {
       setErrorMsg(err.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
     } finally {
@@ -233,10 +239,20 @@ const Login: React.FC = () => {
             </motion.button>
           </form>
 
+          {/* Enlace de Registro para Clientes */}
+          <div className="text-center mt-sm">
+            <p className="font-body-md text-body-md text-on-surface-variant">
+              ¿No tienes cuenta?{' '}
+              <Link to="/register" className="text-primary font-bold hover:underline transition-all">
+                Regístrate aquí
+              </Link>
+            </p>
+          </div>
+
           {/* JWT warning Notice */}
           <div className="text-center mt-xs border-t border-outline-variant/20 pt-sm">
             <p className="font-label-sm text-[10px] text-outline-variant font-medium leading-relaxed">
-              Su sesión se almacenará de forma segura mediante tokens JWT cifrados y expirará automáticamente tras 24 horas de inactividad.
+              Su sesión se almacenará de forma segura mediante cookies HttpOnly cifradas y expirará automáticamente tras 24 horas de inactividad.
             </p>
           </div>
         </motion.main>

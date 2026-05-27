@@ -34,7 +34,7 @@ export function useNotifications() {
               duration: 8000,
               action: {
                 label: 'Ver Cola',
-                onClick: () => window.location.href = '/cola'
+                onClick: () => window.location.href = '/admin/cola'
               }
             });
           });

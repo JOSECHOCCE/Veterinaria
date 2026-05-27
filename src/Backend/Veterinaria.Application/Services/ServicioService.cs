@@ -75,21 +75,13 @@ public class ServicioService : IServicioService
 
     public async Task<bool> DeleteServicioAsync(int id)
     {
-        var servicio = await _unitOfWork.Servicios.GetAll()
-            .Include(s => s.Citas)
-            .FirstOrDefaultAsync(s => s.Id == id);
-
+        var servicio = await _unitOfWork.Servicios.GetByIdAsync(id);
         if (servicio == null)
-        {
             return false;
-        }
 
-        if (servicio.Citas.Any())
-        {
-            return false;
-        }
-
-        _unitOfWork.Servicios.Remove(servicio);
+        // Soft-delete: desactivar en vez de eliminar (RF-16, RNF-05)
+        servicio.Activo = false;
+        _unitOfWork.Servicios.Update(servicio);
         await _unitOfWork.CommitAsync();
         return true;
     }

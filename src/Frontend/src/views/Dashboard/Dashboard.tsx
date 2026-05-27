@@ -251,7 +251,7 @@ export default function Dashboard() {
           <h3 className="text-headline-md font-headline-md font-extrabold text-on-surface">
             Cola de Atención / Citas Próximas
           </h3>
-          <Link to="/agenda" className="font-label-md text-label-md text-primary font-bold hover:underline cursor-pointer">
+          <Link to="/admin/agenda" className="font-label-md text-label-md text-primary font-bold hover:underline cursor-pointer">
             Ver Agenda Completa
           </Link>
         </div>

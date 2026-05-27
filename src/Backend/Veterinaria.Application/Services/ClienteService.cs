@@ -125,54 +125,48 @@ public class ClienteService : IClienteService
 
         try
         {
+            // Soft-delete en cascada: desactivar usuario y sus mascotas
+            // en vez de eliminar físicamente, para preservar datos históricos
+            usuario.Activo = false;
+            _unitOfWork.Usuarios.Update(usuario);
+
+            foreach (var mascota in usuario.Mascotas)
+            {
+                mascota.Activo = false;
+                _unitOfWork.Mascotas.Update(mascota);
+            }
+
+            // Cancelar citas pendientes/confirmadas del cliente
             var mascotaIds = usuario.Mascotas.Select(m => m.Id).ToList();
-
-            var citas = await _unitOfWork.Citas.GetAll()
-                .Where(c => mascotaIds.Contains(c.MascotaId))
+            var citasPendientes = await _unitOfWork.Citas.GetAll()
+                .Where(c => mascotaIds.Contains(c.MascotaId) &&
+                       (c.Estado == "Pendiente" || c.Estado == "Confirmada"))
                 .ToListAsync();
-            var citaIds = citas.Select(c => c.Id).ToList();
 
-            var pagos = await _unitOfWork.Pagos.GetAll()
-                .Where(p => citaIds.Contains(p.CitaId))
-                .ToListAsync();
-            foreach (var pago in pagos) _unitOfWork.Pagos.Remove(pago);
+            foreach (var cita in citasPendientes)
+            {
+                cita.Estado = "Cancelada";
+                _unitOfWork.Citas.Update(cita);
+            }
 
-            var historiales = await _unitOfWork.HistorialesClinicos.GetAll()
-                .Where(h => citaIds.Contains(h.CitaId))
-                .ToListAsync();
-            foreach (var historial in historiales) _unitOfWork.HistorialesClinicos.Remove(historial);
-
-            foreach (var cita in citas) _unitOfWork.Citas.Remove(cita);
-
-            var notificaciones = await _unitOfWork.Notificaciones.GetAll()
-                .Where(n => n.UsuarioId == usuario.Id)
-                .ToListAsync();
-            foreach (var notificacion in notificaciones) _unitOfWork.Notificaciones.Remove(notificacion);
-
-            var tarjetas = await _unitOfWork.TarjetasGuardadas.GetAll()
-                .Where(t => t.UsuarioId == usuario.Id)
-                .ToListAsync();
-            foreach (var tarjeta in tarjetas) _unitOfWork.TarjetasGuardadas.Remove(tarjeta);
-
-            foreach (var mascota in usuario.Mascotas) _unitOfWork.Mascotas.Remove(mascota);
-
-            _unitOfWork.Usuarios.Remove(usuario);
             await _unitOfWork.CommitAsync();
 
+            // Desactivar cuenta de Identity (lockout) sin eliminarla
             if (!string.IsNullOrEmpty(usuario.ApplicationUserId))
             {
                 var appUser = await _userManager.FindByIdAsync(usuario.ApplicationUserId);
                 if (appUser != null)
                 {
-                    await _userManager.DeleteAsync(appUser);
+                    await _userManager.SetLockoutEnabledAsync(appUser, true);
+                    await _userManager.SetLockoutEndDateAsync(appUser, DateTimeOffset.MaxValue);
                 }
             }
 
-            return (true, $"Cliente '{usuario.Nombre}' y todos sus datos asociados han sido eliminados.");
+            return (true, $"Cliente '{usuario.Nombre}' y sus mascotas han sido desactivados.");
         }
         catch (Exception ex)
         {
-            return (false, $"Error al eliminar el cliente: {ex.Message}");
+            return (false, $"Error al desactivar el cliente: {ex.Message}");
         }
     }
 }

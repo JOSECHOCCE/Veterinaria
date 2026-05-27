@@ -69,7 +69,7 @@ const Triage = () => {
       const response = await api.post('/api/Triage', body);
       if (response.data.success) {
         toast.success('Triage registrado correctamente.');
-        navigate('/cola');
+        navigate('/admin/cola');
       } else {
         toast.error(response.data.message || 'Error al registrar triage');
       }

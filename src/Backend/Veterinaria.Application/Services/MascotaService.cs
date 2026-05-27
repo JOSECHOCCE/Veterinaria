@@ -65,7 +65,23 @@ public class MascotaService : IMascotaService
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(id);
         if (mascota != null)
         {
-            _unitOfWork.Mascotas.Remove(mascota);
+            // Soft-delete: marcar como inactiva en vez de eliminar físicamente
+            // para preservar datos históricos (citas, historiales clínicos, pagos)
+            mascota.Activo = false;
+            _unitOfWork.Mascotas.Update(mascota);
+
+            // RF-13: Cancelar citas futuras pendientes/confirmadas de esta mascota
+            var citasFuturas = await _unitOfWork.Citas.GetAll()
+                .Where(c => c.MascotaId == id
+                    && (c.Estado == "Pendiente" || c.Estado == "Confirmada")
+                    && c.FechaHora > DateTime.Now)
+                .ToListAsync();
+            foreach (var cita in citasFuturas)
+            {
+                cita.Estado = "Cancelada";
+                _unitOfWork.Citas.Update(cita);
+            }
+
             await _unitOfWork.CommitAsync();
         }
     }

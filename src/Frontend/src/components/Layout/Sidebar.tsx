@@ -7,13 +7,22 @@ export default function Sidebar() {
   const { user, logout } = useAuth();
 
   const menuItems = [
-    { name: 'Dashboard', icon: 'dashboard', path: '/dashboard' },
-    { name: 'Agenda', icon: 'calendar_today', path: '/agenda' },
-    { name: 'Cola de Atención', icon: 'pending_actions', path: '/cola' },
-    { name: 'Clientes', icon: 'person', path: '/clientes' },
-    { name: 'Mascotas', icon: 'pets', path: '/mascotas' },
-    { name: 'Pagos', icon: 'payments', path: '/pagos' },
+    { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
+    { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+    { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+    { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
+    { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
+    { name: 'Servicios', icon: 'medical_services', path: '/admin/servicios' },
+    { name: 'Pagos', icon: 'payments', path: '/admin/pagos' },
+    { name: 'Reportes e Ingresos', icon: 'analytics', path: '/admin/reportes' },
   ];
+
+  if (user?.role === 'Admin') {
+    menuItems.push(
+      { name: 'Usuarios', icon: 'group', path: '/admin/usuarios' },
+      { name: 'Auditoría', icon: 'policy', path: '/admin/auditoria' }
+    );
+  }
 
   return (
     <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 pt-20 pb-6 px-md bg-surface-container-low/70 backdrop-blur-lg border-r border-outline-variant/20 z-30 shadow-md">
@@ -34,7 +43,7 @@ export default function Sidebar() {
       <div className="flex-1 space-y-xs overflow-y-auto">
         {menuItems.map((item) => {
           // Si estamos en la raíz (index), marcar dashboard como activo
-          const isActive = location.pathname === item.path || (item.path === '/dashboard' && location.pathname === '/');
+          const isActive = location.pathname === item.path || (item.path === '/admin/dashboard' && location.pathname === '/admin');
           return (
             <Link
               key={item.path}
@@ -91,7 +100,7 @@ export default function Sidebar() {
 
         <div className="space-y-xs">
           <Link 
-            to="/configuracion" 
+            to="/admin/configuracion" 
             className="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-xl font-label-md text-label-md"
           >
             <span className="material-symbols-outlined text-[20px]">settings</span>

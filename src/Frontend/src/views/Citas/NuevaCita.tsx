@@ -97,7 +97,7 @@ const NuevaCita: React.FC = () => {
 
             if (response.data.success) {
                 toast.success('Cita programada exitosamente.');
-                navigate('/agenda');
+                navigate('/admin/agenda');
             } else {
                 toast.error(response.data.message || 'Error al guardar la cita.');
             }
@@ -119,7 +119,7 @@ const NuevaCita: React.FC = () => {
         >
             {/* Breadcrumb / Header */}
             <div className="max-w-3xl mx-auto mb-6 flex items-center gap-4">
-                <button onClick={() => navigate('/agenda')} className="p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors">
+                <button onClick={() => navigate('/admin/agenda')} className="p-2 text-on-surface-variant hover:bg-surface-variant rounded-full transition-colors">
                     <span className="material-symbols-outlined">arrow_back</span>
                 </button>
                 <div>
@@ -288,7 +288,7 @@ const NuevaCita: React.FC = () => {
                 {/* Footer Actions */}
                 {!loadingTemplate && (
                     <div className="bg-surface-container-low px-8 py-5 border-t border-surface-variant flex flex-col-reverse sm:flex-row justify-end gap-4">
-                        <button onClick={() => navigate('/agenda')} className="h-12 px-6 rounded-lg font-label-md text-primary border border-primary hover:bg-primary-container/20 transition-colors bg-transparent w-full sm:w-auto" type="button">
+                        <button onClick={() => navigate('/admin/agenda')} className="h-12 px-6 rounded-lg font-label-md text-primary border border-primary hover:bg-primary-container/20 transition-colors bg-transparent w-full sm:w-auto" type="button">
                             Cancelar
                         </button>
                         <button

@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 
 export default function ProtectedLayout() {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   // Pantalla de carga ultra premium
   if (loading) {
@@ -37,6 +37,11 @@ export default function ProtectedLayout() {
   // Redirigir al login si no está autenticado
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Redirigir al cliente a su portal si intenta entrar al admin
+  if (user?.role === 'Usuario' || user?.role === 'Cliente') {
+    return <Navigate to="/cliente/portal" replace />;
   }
 
   return (

@@ -21,6 +21,7 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<TarjetaGuardada> TarjetasGuardadas => Set<TarjetaGuardada>();
     public DbSet<Triage> Triages => Set<Triage>();
     public DbSet<Consentimiento> Consentimientos => Set<Consentimiento>();
+    public DbSet<Auditoria> Auditorias => Set<Auditoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -156,6 +157,12 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.MontoPagado)
                 .HasPrecision(18, 2);
+
+            entity.Property(e => e.ReprogramadoPorUsuarioId)
+                .HasMaxLength(450);
+
+            entity.Property(e => e.MotivoReprogramacion)
+                .HasMaxLength(300);
 
             // Index compuesto para evitar citas duplicadas del mismo veterinario a la misma hora
             entity.HasIndex(e => new { e.VeterinarioId, e.FechaHora })
@@ -333,6 +340,36 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
 
             entity.HasIndex(e => e.UsuarioId);
             entity.HasIndex(e => e.FechaCreacion);
+        });
+
+        // Auditoria
+        modelBuilder.Entity<Auditoria>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.UsuarioId)
+                .HasMaxLength(450);
+
+            entity.Property(e => e.UsuarioEmail)
+                .HasMaxLength(150);
+
+            entity.Property(e => e.Accion)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Entidad)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.EntidadId)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Detalle)
+                .HasMaxLength(2000);
+
+            entity.HasIndex(e => e.Fecha);
+            entity.HasIndex(e => e.UsuarioId);
         });
     }
 }

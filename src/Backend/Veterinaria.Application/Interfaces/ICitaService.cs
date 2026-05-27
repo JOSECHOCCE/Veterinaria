@@ -25,7 +25,7 @@ public interface ICitaService
     // Commands
     Task<Cita> CreateCitaAsync(Cita cita, decimal precioServicio);
     Task<Mascota> CreateMascotaAsync(Mascota mascota);
-    Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo);
+    Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo, DateTime? nuevaFechaHora = null, int? nuevoVeterinarioId = null, string? reprogramadoPorUsuarioId = null);
     Task<(bool Success, Cita? Cita, string? Error)> CancelarCitaAsync(int id, bool isAdmin, int? currentUsuarioId);
     Task<(bool Success, Cita? Cita)> CompletarCitaAsync(int id);
     Task<(bool Success, Cita? Cita, string? Error)> CambiarEstadoAsync(int id, string nuevoEstado);

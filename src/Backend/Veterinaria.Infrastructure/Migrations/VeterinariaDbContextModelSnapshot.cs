@@ -232,6 +232,53 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.Auditoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Accion")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Detalle")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Entidad")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EntidadId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UsuarioEmail")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("UsuarioId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Fecha");
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("Auditorias");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.Cita", b =>
                 {
                     b.Property<int>("Id")
@@ -256,18 +303,31 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.Property<DateTime>("FechaHora")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("FechaReprogramacion")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("MascotaId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("MontoPagado")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<decimal>("MontoTotal")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("Motivo")
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("MotivoReprogramacion")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ReprogramadoPorUsuarioId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("ServicioId")
                         .HasColumnType("int");
