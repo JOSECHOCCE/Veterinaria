@@ -1,65 +1,19 @@
-# 3. Diseño e Integración de la Base de Datos (EF Core Code-First)
+# Estrategia de Datos - Entity Framework Core Code-First
 
-Este documento detalla la configuración del motor de persistencia relacional SQL Server utilizando **Entity Framework Core** mediante el enfoque **Code-First**.
+## 1. Convenciones del Modelo Físico
+* Todas las tablas de la base de datos se generarán de manera automática a través de migraciones de código.
+* **Nombres de tablas:** Pluralizados y con prefijo de esquema estructurado si aplica, de lo contrario en formato estándar (`dbo.Usuarios`, `dbo.Mascotas`, `dbo.Citas`).
+* **Claves primarias:** Propiedades denominadas estrictamente `Id` en formato entero autoincremental (`Identity(1,1)`).
 
----
+## 2. Configuraciones Explícitas vía Fluent API
+Queda prohibido el uso de Data Annotations en las entidades de `Domain` para definir constraints de base de datos. Toda configuración debe hacerse en la capa de `Infrastructure` heredando de `IEntityTypeConfiguration<T>`.
 
-## 1. Relaciones Clave del Negocio (Fluent API)
-Para evitar el comportamiento por defecto de cascada que pueda corromper la integridad de datos, las relaciones se configuran de forma explícita en `VetCareDbContext` mediante Fluent API:
+### Restricciones Obligatorias a Configurar
+* **Strings:** Definir longitud máxima de manera estricta (`builder.Property(u => u.Nombre).HasMaxLength(150).IsRequired();`).
+* **Decimales:** Especificar precisión exacta para montos y métricas médicas (`builder.Property(m => m.Peso).HasColumnType("decimal(18,2)");`).
+* **Comportamiento de Eliminación (Delete Behavior):** Todas las relaciones de clave foránea deben configurarse explícitamente con **Restricción de Cascada** (`DeleteBehavior.Restrict` o `DeleteBehavior.NoAction`). Si se elimina un cliente, sus citas históricas no deben borrarse en cascada de forma automática por seguridad de auditoría.
 
-```
-        ┌─────────────┐
-        │   Usuario   │
-        └──────┬──────┘
-               │ 1
-               │
-               │ N
-        ┌──────▼──────┐
-        │   Mascota   │
-        └──────┬──────┘
-               │ 1
-               │
-               │ N
-        ┌──────▼──────┐
-        │    Cita     │
-        └──┬───┬───┬──┘
-         1 │   │ 1 │ 1
-    ┌──────┘   │   └──────┐
-  1 │          │ N        │ 1
-┌──▼───┐  ┌────▼────┐  ┌──▼───┐
-│Triage│  │  Pagos  │  │Hist. │
-└──────┘  └─────────┘  └──────┘
-```
-
-* **Usuario - Mascota**: Relación uno-a-muchos. Si se elimina un usuario, se eliminan lógicamente sus mascotas.
-* **Mascota - Cita**: Relación uno-a-muchos. No se permite la eliminación física en cascada de citas si una mascota tiene historial (`onDelete: DeleteBehavior.Restrict`).
-* **Cita - Pago**: Relación uno-a-muchos (para soportar pagos parciales y liquidación posterior).
-* **Cita - Historial Clínico**: Relación uno-a-uno. Un historial clínico pertenece exclusivamente a una cita completada.
-* **Cita - Triage**: Relación uno-a-uno opcional. Un registro de triage puede evolucionar o no a una cita formal.
-
----
-
-## 2. Convenciones de Tipos de Datos y Mappings
-* **MontoTotal, MontoPagado (Pagos / Citas)**: Mapeados explícitamente a tipos decimales de base de datos de alta precisión financiera:
-  ```csharp
-  builder.Entity<Cita>()
-      .Property(c => c.MontoTotal)
-      .HasColumnType("decimal(18,2)");
-  ```
-* **Signos Vitales (Temperatura, Peso en Triage / Mascotas)**:
-  Mapeados como `decimal(5,2)` para permitir valores como `38.50` (temperatura corporal) o `12.75` (peso en kg).
-* **Vínculo con Identity**:
-  La tabla `Usuarios` (del dominio) se vincula con la tabla `AspNetUsers` (de Identity) mediante la propiedad `ApplicationUserId` de tipo string (`nvarchar(450)`).
-
----
-
-## 3. Estrategia de Migraciones y Seeding
-* **Migrations**: Las modificaciones del modelo de dominio se registran en `VetCare.Infrastructure/Migrations/` mediante comandos de consola:
-  ```powershell
-  dotnet ef migrations add NombreMigracion --project src/Backend/VetCare.Infrastructure --startup-project src/Backend/VetCare.Web
-  ```
-* **Seeding de Datos**: El archivo `DbSeeder.cs` carga en cada inicio de la aplicación si el entorno es de desarrollo:
-  * Creación de roles obligatorios: `Admin` y `Usuario`.
-  * Creación de usuarios semilla: `admin@veterinaria.com` (Admin) y `usuario@test.com` (Usuario).
-  * Servicios veterinarios precargados con precios y tiempos de duración estandarizados.
-  * Veterinarios con horarios de inicio y fin de turno configurados.
+## 3. Sembrado de Datos (Seed Data) para Entornos de Pruebas
+El DbContext debe inyectar de manera obligatoria durante el modelado inicial los registros mínimos para garantizar la ejecución exitosa de las pruebas unitarias automatizadas:
+* **Tabla Usuarios:** Un usuario con ID `1`, Username: `"ALEX"`, Password hashed correspondiente al string original `"123456"`.
+* **Tabla Clientes:** Un cliente por defecto para escenarios de pruebas de integración rápidas.
