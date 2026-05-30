@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Veterinaria.Domain.Entities;
 using System.Collections.Generic;
+using Veterinaria.Application.DTOs;
 
 namespace Veterinaria.Application.Interfaces;
 
@@ -22,4 +23,7 @@ public interface IClienteService
     Task<ClienteDetalleDto?> GetClienteDetailsAsync(int id);
     Task<bool> ToggleActivoAsync(int id);
     Task<(bool Success, string Message)> DeleteCascadeAsync(int id);
+    Task<(bool Success, string Message, Usuario? Cliente, List<DuplicadoDto> Duplicados)> RegistrarClienteAsync(CrearClienteDto dto);
+    Task<(bool Success, string Message, List<DuplicadoDto> Duplicados)> EditarClienteAsync(int id, EditarClienteDto dto);
+    Task<List<DuplicadoDto>> DetectarDuplicadosAsync(string? dni, string? email, string? telefono, int? excluirId = null);
 }

@@ -20,12 +20,14 @@ public class MascotasController : ControllerBase
     private readonly IMascotaService _mascotaService;
     private readonly IMapper _mapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuditoriaService _auditoriaService;
 
-    public MascotasController(IMascotaService mascotaService, IMapper mapper, IUnitOfWork unitOfWork)
+    public MascotasController(IMascotaService mascotaService, IMapper mapper, IUnitOfWork unitOfWork, IAuditoriaService auditoriaService)
     {
         _mascotaService = mascotaService;
         _mapper = mapper;
         _unitOfWork = unitOfWork;
+        _auditoriaService = auditoriaService;
     }
 
     [HttpGet]
@@ -79,8 +81,45 @@ public class MascotasController : ControllerBase
 
         var mascotaDto = _mapper.Map<MascotaDto>(mascota);
         var citas = mascota.Citas.OrderByDescending(c => c.FechaHora).ToList();
+        var citasDto = _mapper.Map<List<CitaDto>>(citas);
 
-        return Ok(Response<object>.Ok(new { Mascota = mascotaDto, Citas = citas }));
+        // RF-11 — Historial de atenciones clínicas
+        var historiales = mascota.Citas
+            .Where(c => c.Historial != null)
+            .OrderByDescending(c => c.FechaHora)
+            .Select(c => {
+                var h = c.Historial!;
+                h.Cita = c; // Ensure Cita navigation is set for DTO mapping
+                return h;
+            })
+            .ToList();
+        var historialesDto = _mapper.Map<List<HistorialClinicoDto>>(historiales);
+
+        // RF-11 — Alertas visibles (Alergias, Condición Crónica, Última Vacuna)
+        var ultimaVacuna = mascota.Citas
+            .Where(c => c.Estado == "Completada" && 
+                       (c.Servicio.Nombre.ToLower().Contains("vacuna") || 
+                        (c.Historial != null && (c.Historial.Tratamiento ?? "").ToLower().Contains("vacuna"))))
+            .OrderByDescending(c => c.FechaHora)
+            .Select(c => c.FechaHora.ToString("dd/MM/yyyy"))
+            .FirstOrDefault();
+
+        var alertas = new
+        {
+            Alergias = mascota.AlergiasConocidas ?? "Ninguna registrada",
+            CondicionCronica = (mascota.ObservacionesGenerales ?? "").ToLower().Contains("crónic") || 
+                               (mascota.ObservacionesGenerales ?? "").ToLower().Contains("cronic")
+                               ? mascota.ObservacionesGenerales 
+                               : "Ninguna identificada",
+            UltimaVacuna = ultimaVacuna ?? "Ninguna registrada"
+        };
+
+        return Ok(Response<object>.Ok(new { 
+            Mascota = mascotaDto, 
+            Citas = citasDto, 
+            Historiales = historialesDto,
+            Alertas = alertas
+        }));
     }
 
     [HttpGet("Create")]
@@ -161,8 +200,21 @@ public class MascotasController : ControllerBase
             return NotFound(Response<object>.Fail("Mascota no encontrada."));
         }
 
+        var oldUsuarioId = mascota.UsuarioId;
+
         _mapper.Map(mascotaDto, mascota);
         await _mascotaService.UpdateMascotaAsync(mascota);
+
+        // RF-14: Audit owner changes
+        if (oldUsuarioId != mascota.UsuarioId)
+        {
+            await _auditoriaService.RegistrarAccionAsync(
+                "Cambio de Propietario",
+                "Mascota",
+                mascota.Id.ToString(),
+                $"Se cambió el propietario de la mascota '{mascota.Nombre}' del UsuarioId {oldUsuarioId} al UsuarioId {mascota.UsuarioId}."
+            );
+        }
 
         return Ok(Response<object>.Ok(new { Message = "Mascota actualizada exitosamente." }));
     }

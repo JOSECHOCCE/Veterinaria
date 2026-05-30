@@ -1,264 +1,419 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import vetBg from '../../assets/vet-login-bg.jpg';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Login: React.FC = () => {
+export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
   // Estados locales
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setErrorMsg('Por favor completa todos los campos.');
+      setError('Por favor ingresa tu correo y contraseña.');
       return;
     }
 
-    setErrorMsg(null);
-    setIsSubmitting(true);
-
+    setError(null);
+    setIsLoading(true);
     try {
       await login(email, password);
-      // RF-02: Redirigir según rol del usuario (login guarda user en localStorage)
-      const saved = localStorage.getItem('user');
-      const role = saved ? JSON.parse(saved).role : 'Usuario';
-      if (role === 'Usuario' || role === 'Cliente') {
-        navigate('/cliente/portal', { replace: true });
-      } else {
-        navigate('/admin/dashboard', { replace: true });
-      }
+      // Redirección se maneja de forma automática al redirigir al Root o Dashboard
+      navigate('/');
     } catch (err: any) {
-      setErrorMsg(err.message || 'Error al iniciar sesión. Inténtalo de nuevo.');
-    } finally {
-      setIsSubmitting(false);
+      setError(err.message || 'Credenciales inválidas.');
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-surface min-h-screen flex flex-col lg:flex-row relative overflow-hidden">
-      {/* Panel Izquierdo: Branding & Ilustración Premium (Solo en Escritorio) */}
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-xl overflow-hidden">
-        {/* Imagen de Fondo Premium de Stitch */}
-        <img 
-          src={vetBg} 
-          className="absolute inset-0 w-full h-full object-cover" 
-          alt="Veterinaria y mascotas" 
-        />
-        
-        {/* Capa de Gradiente Médico translúcida (Sombreado para contrastar texto) */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-container/90 mix-blend-multiply pointer-events-none" />
-        
-        {/* Efectos decorativos luminosos adicionales */}
-        <div className="absolute top-0 right-0 w-[300px] h-[300px] rounded-full bg-secondary/20 blur-[80px] pointer-events-none" />
-        
-        {/* Contenido Visual */}
-        <div className="flex flex-col gap-lg max-w-[500px] z-10 text-left text-on-primary">
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#faf9f5', // Canvas cream
+      color: '#141413', // Ink
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      
+      {/* Panel Izquierdo: Ilustración/Branding Editorial (Solo en pantallas medianas/grandes) */}
+      <section style={{
+        flex: 1,
+        position: 'relative',
+        backgroundColor: '#efe9de', // Surface card cream
+        borderRight: '1px solid #e6dfd8', // Hairline
+        padding: '64px',
+        display: window.innerWidth > 768 ? 'flex' : 'none',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        overflow: 'hidden'
+      }}>
+        <div style={{ zIndex: 2, maxWidth: '460px', textAlign: 'left' }}>
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6, type: 'spring' }}
-            className="w-16 h-16 rounded-2xl bg-surface-bright/15 backdrop-blur-md flex items-center justify-center text-on-primary border border-surface-bright/25 shadow-lg"
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              backgroundColor: '#cc785c', // Accent primary coral
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 24px rgba(204, 120, 92, 0.2)',
+              marginBottom: '32px'
+            }}
           >
-            <span className="material-symbols-outlined text-[36px] font-bold text-white">pets</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>pets</span>
           </motion.div>
           
-          <div className="space-y-sm">
-            <h1 className="font-headline-xl text-[44px] font-extrabold tracking-tight leading-[48px] flex items-center gap-sm">
-              <span className="material-symbols-outlined text-[44px] font-bold text-white">pets</span>
-              <span>VetCare <span className="opacity-80">Pro</span></span>
-            </h1>
-            <p className="font-body-lg text-lg opacity-90 leading-relaxed font-light">
-              Cuidado clínico de precisión y empatía digital para los pacientes más importantes de tu vida.
-            </p>
-          </div>
-
-          {/* Tarjeta de Especificaciones Médicas (Glow Glass Card) */}
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="bg-surface-bright/10 backdrop-blur-md border border-surface-bright/20 rounded-2xl p-md shadow-2xl flex items-center gap-md"
-          >
-            <div className="w-10 h-10 rounded-full bg-secondary-container/20 text-secondary-container flex items-center justify-center border border-secondary-container/20">
-              <span className="material-symbols-outlined text-[22px]">health_and_safety</span>
-            </div>
-            <div className="flex-1">
-              <h4 className="font-headline-md text-sm font-bold text-on-primary">Seguridad & Rendimiento</h4>
-              <p className="font-body-md text-xs opacity-75">Cumple estrictamente con regulaciones HIPAA y cifrado AES-256 de historias clínicas.</p>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Panel Derecho: Formulario de Login (Web / Mobile) */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-md bg-surface-bright relative z-10">
-        <div className="absolute top-12 left-12 lg:hidden flex items-center gap-sm">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-            <span className="material-symbols-outlined text-[22px] font-bold">pets</span>
-          </div>
-          <h1 className="font-headline-xl text-xl font-extrabold text-on-surface tracking-tight">
-            VetCare <span className="text-primary font-bold">Pro</span>
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif",
+            fontSize: '48px',
+            fontWeight: 500,
+            lineHeight: 1.1,
+            letterSpacing: '-1px',
+            color: '#141413',
+            marginBottom: '24px'
+          }}>
+            VetCare Pro
           </h1>
+          
+          <p style={{
+            fontSize: '18px',
+            lineHeight: 1.6,
+            color: '#3d3d3a', // Body color
+            fontWeight: 400
+          }}>
+            Excelencia médica, cuidado compasivo. Accede a tu portal de gestión veterinaria y digitaliza el cuidado diario de tus mascotas.
+          </p>
         </div>
 
-        <motion.main 
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-full max-w-[420px] flex flex-col gap-md text-left"
-        >
-          {/* Header del Formulario */}
-          <div>
-            <h2 className="font-headline-xl text-[28px] font-extrabold text-on-surface tracking-tight leading-none mb-2">
-              Iniciar Sesión
-            </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant font-medium">
-              Bienvenido de nuevo a la plataforma clínica de VetCare Pro.
-            </p>
-          </div>
+        {/* Ambient background decoration */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-10%',
+          right: '-10%',
+          width: '300px',
+          height: '300px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(204,120,92,0.08) 0%, rgba(204,120,92,0) 70%)',
+          pointerEvents: 'none'
+        }} />
+      </section>
 
-          {/* Error Alert Box con animación */}
+      {/* Panel Derecho: Formulario de Login */}
+      <section style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '48px 24px',
+        backgroundColor: '#faf9f5' // Canvas
+      }}>
+        
+        {/* Mobile branding */}
+        <div style={{
+          display: window.innerWidth <= 768 ? 'flex' : 'none',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '32px',
+          alignSelf: 'flex-start'
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#cc785c' }}>pets</span>
+          <span style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '-0.5px' }}>VetCare Pro</span>
+        </div>
+
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          style={{ width: '100%', maxWidth: '400px', textAlign: 'left' }}
+        >
+          {/* Header */}
+          <header style={{ marginBottom: '36px' }}>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif",
+              fontSize: '36px',
+              fontWeight: 500,
+              letterSpacing: '-0.5px',
+              color: '#141413',
+              marginBottom: '12px'
+            }}>
+              Bienvenido de nuevo
+            </h2>
+            <p style={{ fontSize: '16px', color: '#6c6a64' }}>
+              Accede a tu portal de gestión veterinaria.
+            </p>
+          </header>
+
+          {/* Error Alert Box */}
           <AnimatePresence>
-            {errorMsg && (
+            {error && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-error-container/30 border border-error/20 rounded-xl p-sm flex items-center gap-sm overflow-hidden"
+                style={{
+                  backgroundColor: 'rgba(198, 69, 69, 0.1)',
+                  border: '1px solid rgba(198, 69, 69, 0.2)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '24px',
+                  color: '#c64545',
+                  fontSize: '14px',
+                  overflow: 'hidden'
+                }}
               >
-                <span className="material-symbols-outlined text-error text-[20px] font-semibold">warning</span>
-                <p className="font-body-md text-body-md text-error-container font-medium leading-tight">{errorMsg}</p>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>error</span>
+                <span>{error}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-md">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
             {/* Email Field */}
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="email">Correo Electrónico</label>
-              <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">mail</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label htmlFor="email" style={{
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: 600,
+                color: '#8e8b82'
+              }}>
+                Correo electrónico
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8e8b82',
+                  fontSize: '20px'
+                }}>
+                  mail
+                </span>
                 <input 
-                  className="w-full h-12 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
                   id="email" 
                   name="email" 
-                  placeholder="admin@veterinaria.com" 
-                  type="email" 
+                  placeholder="veterinario@vetcare.pro" 
+                  type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isSubmitting}
+                  onChange={e => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 42px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #e6dfd8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    color: '#141413',
+                    fontSize: '15px',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#cc785c'}
+                  onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                 />
               </div>
             </div>
-
+            
             {/* Password Field */}
-            <div className="flex flex-col gap-xs">
-              <div className="flex justify-between items-center px-1">
-                <label className="font-label-md text-label-md text-on-surface font-semibold" htmlFor="password">Contraseña</label>
-                <a className="font-label-md text-[11px] text-primary hover:underline font-semibold transition-colors" href="#">¿Olvidó su contraseña?</a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label htmlFor="password" style={{
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontWeight: 600,
+                  color: '#8e8b82'
+                }}>
+                  Contraseña
+                </label>
+                <a href="#" style={{ fontSize: '12px', color: '#cc785c', fontWeight: 600, textDecoration: 'none' }}
+                   onMouseOver={e => e.currentTarget.style.color = '#a9583e'}
+                   onMouseOut={e => e.currentTarget.style.color = '#cc785c'}>
+                  ¿Olvidaste tu contraseña?
+                </a>
               </div>
-              <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">lock</span>
+              <div style={{ position: 'relative' }}>
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8e8b82',
+                  fontSize: '20px'
+                }}>
+                  lock
+                </span>
                 <input 
-                  className="w-full h-12 pl-10 pr-12 bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
                   id="password" 
                   name="password" 
                   placeholder="••••••••" 
-                  type={showPassword ? 'text' : 'password'} 
+                  type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isSubmitting}
+                  onChange={e => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
+                  style={{
+                    width: '100%',
+                    padding: '12px 44px 12px 42px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #e6dfd8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    color: '#141413',
+                    fontSize: '15px',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#cc785c'}
+                  onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                 />
                 <button 
-                  className="absolute right-sm top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors cursor-pointer" 
-                  type="button"
+                  type="button" 
                   onClick={() => setShowPassword(!showPassword)}
-                  disabled={isSubmitting}
+                  disabled={isLoading}
+                  style={{
+                    position: 'absolute',
+                    right: '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#8e8b82',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                     {showPassword ? 'visibility' : 'visibility_off'}
                   </span>
                 </button>
               </div>
             </div>
-
-            {/* Checkbox */}
-            <div className="flex items-center gap-xs ml-1">
-              <input 
-                type="checkbox" 
-                id="rememberMe" 
-                className="w-4 h-4 rounded border-outline-variant/30 text-primary focus:ring-primary bg-transparent cursor-pointer"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isSubmitting}
-              />
-              <label htmlFor="rememberMe" className="font-body-md text-body-md text-on-surface-variant font-medium select-none cursor-pointer">
-                Recordar mi sesión
-              </label>
+            
+            {/* Remember Me */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <input id="remember" type="checkbox" style={{ width: '16px', height: '16px', accentColor: '#cc785c', cursor: 'pointer' }}/>
+              <label htmlFor="remember" style={{ fontSize: '14px', color: '#6c6a64', cursor: 'pointer' }}>Mantener sesión iniciada</label>
             </div>
-
-            {/* Submit Button */}
-            <motion.button 
-              whileHover={!isSubmitting ? { scale: 1.01 } : {}}
-              whileTap={!isSubmitting ? { scale: 0.99 } : {}}
-              className={`w-full h-12 mt-xs font-label-md text-label-md rounded-xl flex items-center justify-center gap-xs transition-all shadow-md font-bold cursor-pointer ${
-                isSubmitting 
-                  ? 'bg-primary/50 text-on-primary/70 cursor-not-allowed' 
-                  : 'bg-primary hover:bg-primary-container text-on-primary shadow-primary/20 hover:shadow-lg'
-              }`} 
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-sm">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Autenticando...</span>
-                </div>
-              ) : (
-                <>
-                  <span>Ingresar al Sistema</span>
-                  <span className="material-symbols-outlined text-[18px] font-bold">arrow_forward</span>
-                </>
-              )}
-            </motion.button>
+            
+            {/* Actions */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+              <motion.button 
+                whileHover={!isLoading ? { scale: 1.01 } : {}}
+                whileTap={!isLoading ? { scale: 0.99 } : {}}
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  width: '100%',
+                  height: '44px',
+                  backgroundColor: isLoading ? '#e6dfd8' : '#cc785c', // Coral o deshabilitado
+                  color: isLoading ? '#6c6a64' : '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '15px',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: isLoading ? 'none' : '0 4px 12px rgba(204, 120, 92, 0.15)',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={e => { if(!isLoading) e.currentTarget.style.backgroundColor = '#a9583e'; }}
+                onMouseOut={e => { if(!isLoading) e.currentTarget.style.backgroundColor = '#cc785c'; }}
+              >
+                {isLoading ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{
+                      width: '18px',
+                      height: '18px',
+                      border: '2px solid #6c6a64',
+                      borderTopColor: 'transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    <span>Iniciando sesión...</span>
+                  </div>
+                ) : (
+                  <>
+                    <span>Iniciar Sesión</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>arrow_forward</span>
+                  </>
+                )}
+              </motion.button>
+              
+              <div style={{ display: 'flex', alignItems: 'center', margin: '6px 0' }}>
+                <div style={{ flex: 1, borderTop: '1px solid #e6dfd8' }}></div>
+                <span style={{ padding: '0 16px', fontSize: '12px', color: '#8e8b82' }}>O</span>
+                <div style={{ flex: 1, borderTop: '1px solid #e6dfd8' }}></div>
+              </div>
+              
+              <button 
+                type="button"
+                onClick={() => navigate('/register')}
+                disabled={isLoading}
+                style={{
+                  width: '100%',
+                  height: '44px',
+                  backgroundColor: 'transparent',
+                  color: '#141413',
+                  border: '1px solid #141413',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={e => { e.currentTarget.style.backgroundColor = '#141413'; e.currentTarget.style.color = '#ffffff'; }}
+                onMouseOut={e => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#141413'; }}
+              >
+                Registrarse
+              </button>
+            </div>
           </form>
 
-          {/* Enlace de Registro para Clientes */}
-          <div className="text-center mt-sm">
-            <p className="font-body-md text-body-md text-on-surface-variant">
-              ¿No tienes cuenta?{' '}
-              <Link to="/register" className="text-primary font-bold hover:underline transition-all">
-                Regístrate aquí
-              </Link>
+          {/* Footer note */}
+          <footer style={{ marginTop: '48px', paddingTop: '24px', borderTop: '1px solid #e6dfd8', textAlign: 'center' }}>
+            <p style={{ fontSize: '12px', color: '#8e8b82', margin: 0 }}>
+              © 2026 VetCare Pro. Modern Editorial Veterinary Management.
             </p>
-          </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '8px' }}>
+              <a href="#" style={{ fontSize: '12px', color: '#8e8b82', textDecoration: 'none' }}>Privacidad</a>
+              <a href="#" style={{ fontSize: '12px', color: '#8e8b82', textDecoration: 'none' }}>Términos</a>
+            </div>
+          </footer>
+        </motion.div>
+      </section>
 
-          {/* JWT warning Notice */}
-          <div className="text-center mt-xs border-t border-outline-variant/20 pt-sm">
-            <p className="font-label-sm text-[10px] text-outline-variant font-medium leading-relaxed">
-              Su sesión se almacenará de forma segura mediante cookies HttpOnly cifradas y expirará automáticamente tras 24 horas de inactividad.
-            </p>
-          </div>
-        </motion.main>
-      </div>
+      {/* Spinner keyframes inject */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
-};
-
-export default Login;
+}

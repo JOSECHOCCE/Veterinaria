@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../services/api';
-import vetBg from '../../assets/vet-login-bg.jpg';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -37,11 +36,11 @@ const Register: React.FC = () => {
         telefono
       });
 
-      if (response.data.success) {
+      if (response.data?.success) {
         // Redirigir al login para que inicie sesión con su nueva cuenta
         navigate('/login', { replace: true });
       } else {
-        setErrorMsg(response.data.message || 'Error al registrar.');
+        setErrorMsg(response.data?.message || 'Error al registrar.');
       }
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || 'Error de conexión. Inténtalo de nuevo.';
@@ -52,232 +51,494 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="bg-surface min-h-screen flex flex-col lg:flex-row relative overflow-hidden">
-      {/* Panel Izquierdo: Branding & Ilustración Premium (Solo en Escritorio) */}
-      <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-xl overflow-hidden">
-        {/* Imagen de Fondo Premium */}
-        <img 
-          src={vetBg} 
-          className="absolute inset-0 w-full h-full object-cover" 
-          alt="Veterinaria y mascotas" 
-        />
-        
-        {/* Capa de Gradiente */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 to-primary-container/90 mix-blend-multiply pointer-events-none" />
-        
-        {/* Contenido Visual */}
-        <div className="flex flex-col gap-lg max-w-[500px] z-10 text-left text-on-primary">
+    <div style={{
+      display: 'flex',
+      minHeight: '100vh',
+      backgroundColor: '#faf9f5', // Canvas cream
+      color: '#141413', // Ink
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      
+      {/* Panel Izquierdo: Ilustración/Branding Editorial (Solo en pantallas medianas/grandes) */}
+      <section style={{
+        flex: 1,
+        position: 'relative',
+        backgroundColor: '#efe9de', // Surface card cream
+        borderRight: '1px solid #e6dfd8', // Hairline
+        padding: '64px',
+        display: window.innerWidth > 768 ? 'flex' : 'none',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        overflow: 'hidden'
+      }}>
+        <div style={{ zIndex: 2, maxWidth: '460px', textAlign: 'left' }}>
           <motion.div 
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.6, type: 'spring' }}
-            className="w-16 h-16 rounded-2xl bg-surface-bright/15 backdrop-blur-md flex items-center justify-center text-on-primary border border-surface-bright/25 shadow-lg"
+            style={{
+              width: '56px',
+              height: '56px',
+              borderRadius: '12px',
+              backgroundColor: '#cc785c', // Accent primary coral
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              boxShadow: '0 8px 24px rgba(204, 120, 92, 0.2)',
+              marginBottom: '32px'
+            }}
           >
-            <span className="material-symbols-outlined text-[36px] font-bold text-white">pets</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '28px' }}>pets</span>
           </motion.div>
           
-          <div className="space-y-sm">
-            <h1 className="font-headline-xl text-[44px] font-extrabold tracking-tight leading-[48px] flex items-center gap-sm">
-              <span className="material-symbols-outlined text-[44px] font-bold text-white">pets</span>
-              <span>VetCare <span className="opacity-80">Pro</span></span>
-            </h1>
-            <p className="font-body-lg text-lg opacity-90 leading-relaxed font-light">
-              Únete a nuestra plataforma clínica y obtén acceso directo al historial, citas y cuidado de tu mascota.
-            </p>
-          </div>
+          <h1 style={{
+            fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif",
+            fontSize: '48px',
+            fontWeight: 500,
+            lineHeight: 1.1,
+            letterSpacing: '-1px',
+            color: '#141413',
+            marginBottom: '24px'
+          }}>
+            VetCare Pro
+          </h1>
+          
+          <p style={{
+            fontSize: '18px',
+            lineHeight: 1.6,
+            color: '#3d3d3a', // Body color
+            fontWeight: 400
+          }}>
+            Bienvenido a una nueva era de cuidado veterinario. Regístrate en nuestra plataforma clínica y obtén acceso directo al historial, citas y cuidado de tu mascota.
+          </p>
         </div>
-      </div>
+
+        {/* Ambient background decoration */}
+        <div style={{
+          position: 'absolute',
+          bottom: '-10%',
+          right: '-10%',
+          width: '300px',
+          height: '300px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(204,120,92,0.08) 0%, rgba(204,120,92,0) 70%)',
+          pointerEvents: 'none'
+        }} />
+      </section>
 
       {/* Panel Derecho: Formulario de Registro */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-md bg-surface-bright relative z-10">
-        <div className="absolute top-12 left-12 lg:hidden flex items-center gap-sm">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-            <span className="material-symbols-outlined text-[22px] font-bold">pets</span>
-          </div>
-          <h1 className="font-headline-xl text-xl font-extrabold text-on-surface tracking-tight">
-            VetCare <span className="text-primary font-bold">Pro</span>
-          </h1>
+      <section style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '48px 24px',
+        backgroundColor: '#faf9f5' // Canvas
+      }}>
+        
+        {/* Mobile branding */}
+        <div style={{
+          display: window.innerWidth <= 768 ? 'flex' : 'none',
+          alignItems: 'center',
+          gap: '8px',
+          marginBottom: '32px',
+          alignSelf: 'flex-start'
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: '28px', color: '#cc785c' }}>pets</span>
+          <span style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '-0.5px' }}>VetCare Pro</span>
         </div>
 
-        <motion.main 
-          initial={{ opacity: 0, x: 30 }}
-          animate={{ opacity: 1, x: 0 }}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          className="w-full max-w-[420px] flex flex-col gap-md text-left"
+          style={{ width: '100%', maxWidth: '420px', textAlign: 'left' }}
         >
-          {/* Header del Formulario */}
-          <div>
-            <h2 className="font-headline-xl text-[28px] font-extrabold text-on-surface tracking-tight leading-none mb-2">
+          {/* Header */}
+          <header style={{ marginBottom: '32px' }}>
+            <h2 style={{
+              fontFamily: "'Cormorant Garamond', 'EB Garamond', Georgia, serif",
+              fontSize: '36px',
+              fontWeight: 500,
+              letterSpacing: '-0.5px',
+              color: '#141413',
+              marginBottom: '12px'
+            }}>
               Crear Cuenta
             </h2>
-            <p className="font-body-md text-body-md text-on-surface-variant font-medium">
-              Regístrate para gestionar a tus mascotas.
+            <p style={{ fontSize: '16px', color: '#6c6a64' }}>
+              Regístrate para gestionar a tus mascotas de forma digital.
             </p>
-          </div>
+          </header>
 
-          {/* Error Alert Box con animación */}
+          {/* Error Alert Box */}
           <AnimatePresence>
             {errorMsg && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-error-container/30 border border-error/20 rounded-xl p-sm flex items-center gap-sm overflow-hidden"
+                style={{
+                  backgroundColor: 'rgba(198, 69, 69, 0.1)',
+                  border: '1px solid rgba(198, 69, 69, 0.2)',
+                  borderRadius: '8px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginBottom: '24px',
+                  color: '#c64545',
+                  fontSize: '14px',
+                  overflow: 'hidden'
+                }}
               >
-                <span className="material-symbols-outlined text-error text-[20px] font-semibold">warning</span>
-                <p className="font-body-md text-body-md text-error-container font-medium leading-tight">{errorMsg}</p>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>error</span>
+                <span>{errorMsg}</span>
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-md">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             
-            {/* Full Name */}
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="nombreCompleto">Nombre Completo *</label>
-              <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">person</span>
+            {/* Nombre Completo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label htmlFor="nombreCompleto" style={{
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: 600,
+                color: '#8e8b82'
+              }}>
+                Nombre Completo *
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8e8b82',
+                  fontSize: '20px'
+                }}>
+                  person
+                </span>
                 <input 
-                  className="w-full h-12 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
-                  id="nombreCompleto" 
-                  name="nombreCompleto" 
-                  placeholder="Ej. Juan Pérez" 
-                  type="text" 
+                  id="nombreCompleto"
+                  name="nombreCompleto"
+                  placeholder="Ej. Juan Pérez"
+                  type="text"
+                  required
                   value={nombreCompleto}
                   onChange={(e) => setNombreCompleto(e.target.value)}
                   disabled={isSubmitting}
-                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 42px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #e6dfd8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    color: '#141413',
+                    fontSize: '15px',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#cc785c'}
+                  onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                 />
               </div>
             </div>
 
             {/* Email */}
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="email">Correo Electrónico *</label>
-              <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">mail</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label htmlFor="email" style={{
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: 600,
+                color: '#8e8b82'
+              }}>
+                Correo Electrónico *
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8e8b82',
+                  fontSize: '20px'
+                }}>
+                  mail
+                </span>
                 <input 
-                  className="w-full h-12 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
-                  id="email" 
-                  name="email" 
-                  placeholder="correo@ejemplo.com" 
-                  type="email" 
+                  id="email"
+                  name="email"
+                  placeholder="correo@ejemplo.com"
+                  type="email"
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}
-                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px 12px 42px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #e6dfd8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    color: '#141413',
+                    fontSize: '15px',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#cc785c'}
+                  onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                 />
               </div>
             </div>
 
-            {/* Password Field */}
-            <div className="flex flex-col gap-xs">
-              <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="password">Contraseña *</label>
-              <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">lock</span>
+            {/* Password */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label htmlFor="password" style={{
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                fontWeight: 600,
+                color: '#8e8b82'
+              }}>
+                Contraseña *
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span className="material-symbols-outlined" style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#8e8b82',
+                  fontSize: '20px'
+                }}>
+                  lock
+                </span>
                 <input 
-                  className="w-full h-12 pl-10 pr-12 bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
-                  id="password" 
-                  name="password" 
-                  placeholder="••••••••" 
-                  type={showPassword ? 'text' : 'password'} 
+                  id="password"
+                  name="password"
+                  placeholder="••••••••"
+                  type={showPassword ? 'text' : 'password'}
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isSubmitting}
-                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 44px 12px 42px',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #e6dfd8',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    color: '#141413',
+                    fontSize: '15px',
+                    transition: 'border-color 0.2s'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#cc785c'}
+                  onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                 />
                 <button 
-                  className="absolute right-sm top-1/2 -translate-y-1/2 text-outline hover:text-on-surface transition-colors cursor-pointer" 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={isSubmitting}
+                  style={{
+                    position: 'absolute',
+                    right: '14px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: '#8e8b82',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
                 >
-                  <span className="material-symbols-outlined text-[20px]">
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
                     {showPassword ? 'visibility' : 'visibility_off'}
                   </span>
                 </button>
               </div>
             </div>
 
-            <div className="flex gap-md">
-              {/* DNI */}
-              <div className="flex flex-col gap-xs w-1/2">
-                <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="dni">DNI</label>
-                <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                  <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">badge</span>
+            {/* DNI & Teléfono */}
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label htmlFor="dni" style={{
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontWeight: 600,
+                  color: '#8e8b82'
+                }}>
+                  DNI
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <span className="material-symbols-outlined" style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#8e8b82',
+                    fontSize: '18px'
+                  }}>
+                    badge
+                  </span>
                   <input 
-                    className="w-full h-12 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
-                    id="dni" 
-                    name="dni" 
-                    placeholder="Documento" 
-                    type="text" 
+                    id="dni"
+                    name="dni"
+                    placeholder="Documento"
+                    type="text"
                     value={dni}
                     onChange={(e) => setDni(e.target.value)}
                     disabled={isSubmitting}
+                    style={{
+                      width: '100%',
+                      padding: '10px 10px 10px 38px',
+                      backgroundColor: 'transparent',
+                      border: '1px solid #e6dfd8',
+                      borderRadius: '8px',
+                      outline: 'none',
+                      color: '#141413',
+                      fontSize: '14px',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#cc785c'}
+                    onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                   />
                 </div>
               </div>
 
-              {/* Telefono */}
-              <div className="flex flex-col gap-xs w-1/2">
-                <label className="font-label-md text-label-md text-on-surface font-semibold ml-1" htmlFor="telefono">Teléfono</label>
-                <div className="relative rounded-xl border border-outline-variant/30 bg-surface-container-low/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 transition-all duration-200">
-                  <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-outline">phone</span>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label htmlFor="telefono" style={{
+                  fontSize: '12px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1px',
+                  fontWeight: 600,
+                  color: '#8e8b82'
+                }}>
+                  Teléfono
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <span className="material-symbols-outlined" style={{
+                    position: 'absolute',
+                    left: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#8e8b82',
+                    fontSize: '18px'
+                  }}>
+                    phone
+                  </span>
                   <input 
-                    className="w-full h-12 pl-10 pr-sm bg-transparent font-body-md text-body-md text-on-surface placeholder:text-outline-variant/60 focus:outline-none focus:ring-0" 
-                    id="telefono" 
-                    name="telefono" 
-                    placeholder="Teléfono" 
-                    type="text" 
+                    id="telefono"
+                    name="telefono"
+                    placeholder="Contacto"
+                    type="text"
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
                     disabled={isSubmitting}
+                    style={{
+                      width: '100%',
+                      padding: '10px 10px 10px 38px',
+                      backgroundColor: 'transparent',
+                      border: '1px solid #e6dfd8',
+                      borderRadius: '8px',
+                      outline: 'none',
+                      color: '#141413',
+                      fontSize: '14px',
+                      transition: 'border-color 0.2s'
+                    }}
+                    onFocus={e => e.target.style.borderColor = '#cc785c'}
+                    onBlur={e => e.target.style.borderColor = '#e6dfd8'}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Botón de Registro */}
             <motion.button 
               whileHover={!isSubmitting ? { scale: 1.01 } : {}}
               whileTap={!isSubmitting ? { scale: 0.99 } : {}}
-              className={`w-full h-12 mt-xs font-label-md text-label-md rounded-xl flex items-center justify-center gap-xs transition-all shadow-md font-bold cursor-pointer ${
-                isSubmitting 
-                  ? 'bg-primary/50 text-on-primary/70 cursor-not-allowed' 
-                  : 'bg-primary hover:bg-primary-container text-on-primary shadow-primary/20 hover:shadow-lg'
-              }`} 
               type="submit"
               disabled={isSubmitting}
+              style={{
+                width: '100%',
+                height: '44px',
+                marginTop: '12px',
+                backgroundColor: isSubmitting ? '#e6dfd8' : '#cc785c', // Coral o deshabilitado
+                color: isSubmitting ? '#6c6a64' : '#ffffff',
+                border: 'none',
+                borderRadius: '8px',
+                fontWeight: 600,
+                fontSize: '15px',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: isSubmitting ? 'none' : '0 4px 12px rgba(204, 120, 92, 0.15)',
+                transition: 'background-color 0.2s'
+              }}
+              onMouseOver={e => { if(!isSubmitting) e.currentTarget.style.backgroundColor = '#a9583e'; }}
+              onMouseOut={e => { if(!isSubmitting) e.currentTarget.style.backgroundColor = '#cc785c'; }}
             >
               {isSubmitting ? (
-                <div className="flex items-center gap-sm">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    border: '2px solid #6c6a64',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
                   <span>Registrando...</span>
                 </div>
               ) : (
                 <>
                   <span>Crear Cuenta</span>
-                  <span className="material-symbols-outlined text-[18px] font-bold">person_add</span>
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>person_add</span>
                 </>
               )}
             </motion.button>
           </form>
 
           {/* Enlace de Login */}
-          <div className="text-center mt-sm">
-            <p className="font-body-md text-body-md text-on-surface-variant">
+          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+            <p style={{ fontSize: '14px', color: '#6c6a64' }}>
               ¿Ya tienes cuenta?{' '}
-              <Link to="/login" className="text-primary font-bold hover:underline transition-all">
+              <Link to="/login" style={{
+                color: '#cc785c',
+                fontWeight: 600,
+                textDecoration: 'none',
+                transition: 'color 0.2s'
+              }}
+              onMouseOver={e => e.currentTarget.style.color = '#a9583e'}
+              onMouseOut={e => e.currentTarget.style.color = '#cc785c'}
+              >
                 Inicia sesión aquí
               </Link>
             </p>
           </div>
-        </motion.main>
-      </div>
+        </motion.div>
+      </section>
+
+      {/* Spinner keyframes inject */}
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

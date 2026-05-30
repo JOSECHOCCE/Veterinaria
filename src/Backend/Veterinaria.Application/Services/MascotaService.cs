@@ -33,6 +33,8 @@ public class MascotaService : IMascotaService
                 .ThenInclude(c => c.Servicio)
             .Include(m => m.Citas)
                 .ThenInclude(c => c.Veterinario)
+            .Include(m => m.Citas)
+                .ThenInclude(c => c.Historial)
             .FirstOrDefaultAsync(m => m.Id == id);
     }
 

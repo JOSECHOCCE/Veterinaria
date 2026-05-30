@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
-import api from '../../services/api';
+import { useNavigate } from 'react-router-dom';
+import MascotasService from '../../services/mascotas.service';
 import { useAuth } from '../../context/AuthContext';
 
 interface Mascota {
@@ -17,6 +18,7 @@ interface Mascota {
   activo: boolean;
   usuarioId: number;
   usuarioNombre?: string;
+  alergiasConocidas?: string | null;
 }
 
 interface MascotasResponse {
@@ -34,6 +36,7 @@ interface UsuarioMin {
 
 export default function FichaMascota() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const isAdmin = user?.role === 'Admin';
 
   const [mascotas, setMascotas] = useState<Mascota[]>([]);
@@ -82,14 +85,13 @@ export default function FichaMascota() {
   const fetchMascotas = useCallback(async (q: string = '') => {
     setLoading(true);
     try {
-      const params = q ? `?q=${encodeURIComponent(q)}` : '';
-      const response = await api.get(`/api/Mascotas${params}`);
-      if (response.data.success) {
-        const payload: MascotasResponse = response.data.data;
+      const data = await MascotasService.getMascotas(q);
+      if (data.success) {
+        const payload: MascotasResponse = data.data;
         setMascotas(payload.data);
         setTotal(payload.total);
       } else {
-        toast.error(response.data.message || 'Error al cargar mascotas');
+        toast.error(data.message || 'Error al cargar mascotas');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -101,9 +103,9 @@ export default function FichaMascota() {
 
   const fetchUsuarios = useCallback(async () => {
     try {
-      const response = await api.get('/api/Mascotas/Create');
-      if (response.data.success) {
-        setUsuarios(response.data.data.usuarios || []);
+      const data = await MascotasService.getPropietariosDropdown();
+      if (data.success) {
+        setUsuarios(data.data.usuarios || []);
       }
     } catch (error) {
       console.error('Error fetching owners:', error);
@@ -134,19 +136,18 @@ export default function FichaMascota() {
       const payload = {
         ...mascota,
         activo: !mascota.activo,
-        // Aseguramos nulos correctos
         raza: mascota.raza || null,
         peso: mascota.peso || null,
         color: mascota.color || null,
         fotoUrl: mascota.fotoUrl || null
       };
 
-      const response = await api.put(`/api/Mascotas/${mascota.id}`, payload);
-      if (response.data?.success || response.status === 200) {
+      const data = await MascotasService.updateMascota(mascota.id, payload);
+      if (data.success) {
         setMascotas(mascotas.map(m => m.id === mascota.id ? { ...m, activo: !m.activo } : m));
         toast.success(`Paciente ${mascota.nombre} ${!mascota.activo ? 'activado' : 'desactivado'} con éxito.`);
       } else {
-        toast.error(response.data?.message || 'Error al actualizar el estado.');
+        toast.error(data.message || 'Error al actualizar el estado.');
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Error al actualizar el estado de la mascota.');
@@ -169,12 +170,12 @@ export default function FichaMascota() {
         peso: createForm.peso ? parseFloat(createForm.peso) : null,
         color: createForm.color || null,
         fechaNacimiento: createForm.fechaNacimiento || null,
-        usuarioId: isAdmin ? parseInt(createForm.usuarioId) : 0, // El backend lo asignará si no es admin o es 0
+        usuarioId: isAdmin ? parseInt(createForm.usuarioId) : 0,
         fotoUrl: createForm.fotoUrl || null
       };
 
-      const response = await api.post('/api/Mascotas', payload);
-      if (response.data?.success) {
+      const data = await MascotasService.createMascota(payload);
+      if (data.success) {
         toast.success('Mascota registrada exitosamente.');
         setShowCreateModal(false);
         setCreateForm({
@@ -189,7 +190,7 @@ export default function FichaMascota() {
         });
         fetchMascotas();
       } else {
-        toast.error(response.data?.message || 'Error al crear la mascota.');
+        toast.error(data.message || 'Error al crear la mascota.');
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Error al conectar con el servidor.');
@@ -238,13 +239,13 @@ export default function FichaMascota() {
         activo: editForm.activo
       };
 
-      const response = await api.put(`/api/Mascotas/${selectedMascota.id}`, payload);
-      if (response.data?.success || response.status === 200) {
+      const data = await MascotasService.updateMascota(selectedMascota.id, payload);
+      if (data.success) {
         toast.success('Paciente actualizado correctamente.');
         setShowEditModal(false);
         fetchMascotas();
       } else {
-        toast.error(response.data?.message || 'Error al guardar los cambios.');
+        toast.error(data.message || 'Error al guardar los cambios.');
       }
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Error de conexión.');
@@ -262,13 +263,13 @@ export default function FichaMascota() {
     if (!selectedMascota) return;
 
     try {
-      const response = await api.delete(`/api/Mascotas/${selectedMascota.id}`);
-      if (response.data?.success || response.status === 200) {
+      const data = await MascotasService.deleteMascota(selectedMascota.id);
+      if (data.success) {
         toast.success('Mascota eliminada con éxito.');
         setShowDeleteModal(false);
         fetchMascotas();
       } else {
-        toast.error(response.data?.message || 'No se pudo eliminar la mascota.');
+        toast.error(data.message || 'No se pudo eliminar la mascota.');
       }
     } catch (err: any) {
       const errMsg = err.response?.data?.message || 'Error de servidor al eliminar.';
@@ -345,80 +346,49 @@ export default function FichaMascota() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.4 }}
-      className="w-full text-left space-y-lg"
+      className="w-full text-left max-w-container-max mx-auto px-margin-desktop py-8 bg-[#faf9f5]"
     >
-      {/* Page Header */}
-      <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-md w-full">
-        <div className="flex flex-col gap-xs">
-          <div className="flex items-center gap-xs text-on-surface-variant font-label-md text-label-md">
+      <header className="flex justify-between items-end pb-8 mb-8 border-b border-[#141413]/10 sticky top-0 bg-[#faf9f5]/85 backdrop-blur-[10px] z-40">
+        <div>
+          <nav className="flex items-center gap-2 text-[#6c6a64] font-semibold text-xs uppercase tracking-widest mb-3">
             <span>Gestión</span>
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-            <span className="text-primary font-semibold">Mascotas</span>
-          </div>
-          <h1 className="font-headline-xl text-headline-xl text-on-background font-bold tracking-tight">Directorio de Pacientes</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            {total} mascota{total !== 1 ? 's' : ''} registrada{total !== 1 ? 's' : ''}
-            {searchTerm && (
-              <span> · Resultados para "<span className="text-primary font-semibold">{searchTerm}</span>"</span>
-            )}
-          </p>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-[#cc785c]">Mascotas</span>
+          </nav>
+          <h2 className="editorial-title text-4xl text-[#141413]">Nuestras Mascotas</h2>
+          <p className="font-body-md text-[#3d3d3a]/80 italic mt-1">Unidad Clínica Central</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-on-primary font-bold px-5 py-3 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer h-[44px] shrink-0"
+          className="btn-editorial-primary h-[44px] shrink-0 font-medium px-6 py-3 rounded-[4px] flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_4px_20px_rgba(20,20,19,0.05)]"
         >
-          <span className="material-symbols-outlined text-[20px]">add_circle</span>
-          Registrar Paciente
+          <span className="material-symbols-outlined text-[18px]">add</span>
+          <span>Registrar Mascota</span>
         </button>
       </header>
 
-      {/* Search and Filters */}
-      <section className="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border border-slate-200/50 dark:border-slate-800/50 rounded-2xl p-5 shadow-sm space-y-4 w-full max-w-4xl">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-sm items-center w-full">
-          <div className="flex-1 relative w-full">
-            <span className="material-symbols-outlined text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2 text-[20px]">search</span>
+      <section className="bg-white border border-[#141413]/10 p-6 rounded-[8px] mb-8 shadow-[0_4px_20px_rgba(20,20,19,0.02)]">
+        <form onSubmit={handleSearch} className="grid grid-cols-12 gap-4 items-center w-full">
+          <div className="col-span-12 md:col-span-6 relative">
+            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#6c6a64]/50" style={{ fontSize: '20px' }}>search</span>
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Buscar por nombre, especie, raza, propietario..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline-variant bg-surface-container-lowest text-on-surface font-body-md text-body-md placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all shadow-inner"
+              placeholder="Buscar por nombre, especie, raza..."
+              className="w-full bg-[#faf9f5] border border-[#141413]/10 rounded-[4px] pl-11 pr-4 py-3 font-body-md text-[#141413] placeholder:text-[#6c6a64]/40 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none transition-all"
             />
           </div>
-          <div className="flex gap-sm w-full md:w-auto shrink-0 justify-end">
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-xl font-label-md text-label-md bg-primary text-on-primary hover:bg-primary/95 transition-colors flex items-center gap-2 shadow cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-[18px]">search</span>
-              Buscar
-            </button>
-            {searchTerm && (
-              <button
-                type="button"
-                onClick={handleClearSearch}
-                className="px-4 py-2.5 rounded-xl font-label-md text-label-md border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors flex items-center gap-2 cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">close</span>
-                Limpiar
-              </button>
-            )}
-          </div>
-        </form>
-
-        {/* Advanced Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-3 border-t border-slate-100 dark:border-slate-800/60">
-          <div className="flex flex-1 items-center gap-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Especie:</label>
+          <div className="col-span-12 md:col-span-6 flex gap-3">
             <select
               value={filterEspecie}
               onChange={(e) => setFilterEspecie(e.target.value)}
-              className="w-full sm:w-40 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+              className="flex-1 bg-[#faf9f5] border border-[#141413]/10 rounded-[4px] px-3 py-3 font-medium text-sm text-[#141413] outline-none focus:ring-1 focus:ring-[#cc785c]"
             >
-              <option value="Todos">Todas</option>
+              <option value="Todos">Especie: Todas</option>
               <option value="Perro">Perro</option>
               <option value="Gato">Gato</option>
               <option value="Ave">Ave</option>
@@ -426,51 +396,49 @@ export default function FichaMascota() {
               <option value="Roedor">Roedor</option>
               <option value="Otro">Otro</option>
             </select>
-          </div>
-
-          <div className="flex flex-1 items-center gap-2">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Estado:</label>
             <select
               value={filterActivo}
               onChange={(e) => setFilterActivo(e.target.value)}
-              className="w-full sm:w-40 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+              className="flex-1 bg-[#faf9f5] border border-[#141413]/10 rounded-[4px] px-3 py-3 font-medium text-sm text-[#141413] outline-none focus:ring-1 focus:ring-[#cc785c]"
             >
-              <option value="Todos">Todos</option>
+              <option value="Todos">Estado: Todos</option>
               <option value="Activos">Activos</option>
               <option value="Inactivos">Inactivos</option>
             </select>
-          </div>
-
-          <div className="flex flex-1 items-center gap-2 sm:justify-end">
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider shrink-0">Ordenar:</label>
             <select
               value={sortOrder}
               onChange={(e) => setSortOrder(e.target.value)}
-              className="w-full sm:w-44 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/40 dark:bg-slate-950/40 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-xs font-semibold cursor-pointer"
+              className="flex-1 bg-[#faf9f5] border border-[#141413]/10 rounded-[4px] px-3 py-3 font-medium text-sm text-[#141413] outline-none focus:ring-1 focus:ring-[#cc785c]"
             >
-              <option value="nombre-asc">Nombre (A - Z)</option>
-              <option value="nombre-desc">Nombre (Z - A)</option>
-              <option value="peso-asc">Peso (Menor a Mayor)</option>
-              <option value="peso-desc">Peso (Mayor a Menor)</option>
-              <option value="edad-asc">Edad (Menor a Mayor)</option>
-              <option value="edad-desc">Edad (Mayor a Menor)</option>
+              <option value="nombre-asc">Ordenar: Nombre A-Z</option>
+              <option value="nombre-desc">Ordenar: Nombre Z-A</option>
+              <option value="peso-asc">Peso (asc)</option>
+              <option value="peso-desc">Peso (desc)</option>
+              <option value="edad-asc">Más jóvenes</option>
+              <option value="edad-desc">Más viejos</option>
             </select>
           </div>
-        </div>
+        </form>
+
+        {searchTerm && (
+          <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[#141413]/5 text-xs text-[#6c6a64]">
+            <span>Filtro de búsqueda: <strong>"{searchTerm}"</strong></span>
+            <button
+              onClick={handleClearSearch}
+              className="text-[#cc785c] hover:underline font-bold"
+            >
+              Limpiar filtro
+            </button>
+          </div>
+        )}
       </section>
 
-      {/* Loading Skeleton */}
-      {loading && mascotas.length === 0 ? (
-        <div className="py-20 flex flex-col items-center justify-center gap-4 w-full">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-500 font-semibold animate-pulse">Cargando directorio de mascotas...</p>
-        </div>
-      ) : filteredMascotas.length === 0 ? (
-        <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-xl flex flex-col items-center justify-center text-center gap-sm shadow-sm w-full">
-          <span className="material-symbols-outlined text-[48px] text-outline-variant">pets</span>
-          <h3 className="font-headline-md text-headline-md text-on-surface font-bold">No se encontraron mascotas</h3>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            {searchTerm || filterEspecie !== 'Todos' || filterActivo !== 'Todos' ? 'Intenta con otro término de búsqueda o cambia los filtros.' : 'Aún no hay mascotas registradas.'}
+      {filteredMascotas.length === 0 ? (
+        <div className="bg-white border border-[#141413]/10 p-12 text-center rounded-[8px] flex flex-col items-center justify-center">
+          <span className="material-symbols-outlined text-4xl text-[#cc785c]/40 mb-3">pets</span>
+          <h3 className="editorial-title text-xl text-[#141413] mb-1">Sin registros</h3>
+          <p className="text-[#6c6a64] max-w-sm text-sm">
+            No se encontraron mascotas activas que coincidan con la búsqueda o filtros aplicados.
           </p>
         </div>
       ) : (
@@ -478,545 +446,518 @@ export default function FichaMascota() {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-md w-full"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
           {filteredMascotas.map((mascota) => (
             <motion.div
               key={mascota.id}
               variants={cardVariants}
-              whileHover={{ y: -4 }}
-              className="bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-md cursor-pointer group relative overflow-hidden"
+              onClick={() => {
+                if (user?.role === 'Usuario' || user?.role === 'Cliente') {
+                  navigate(`/cliente/mascotas/${mascota.id}`);
+                } else {
+                  navigate(`/admin/mascotas/${mascota.id}`);
+                }
+              }}
+              className="bg-white border border-[#141413]/10 p-6 rounded-[4px] hover:shadow-[0_12px_32px_rgba(20,20,19,0.06)] hover:-translate-y-1 hover:border-[#cc785c]/30 transition-all duration-300 group cursor-pointer relative overflow-hidden flex flex-col"
             >
-              {/* Background Decoration */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
-
-              {/* Card Header */}
-              <div className="flex justify-between items-start relative z-10">
-                <div className="flex items-center gap-sm min-w-0">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 overflow-hidden border-2 border-surface-container-lowest shadow-sm flex items-center justify-center text-primary shrink-0">
-                    {mascota.fotoUrl ? (
-                      <img src={mascota.fotoUrl} alt={mascota.nombre} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="material-symbols-outlined text-[24px]">{getSpeciesIcon(mascota.especie)}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <h3 className="font-headline-md text-[15px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-primary transition-colors truncate">
-                      {mascota.nombre}
-                    </h3>
-                    <span className="font-label-sm text-[11px] text-on-surface-variant mt-[2px]">
-                      {mascota.especie}{mascota.raza ? ` · ${mascota.raza}` : ''}
-                    </span>
-                  </div>
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-16 h-16 rounded-full overflow-hidden border border-[#cc785c]/10 p-0.5 bg-[#faf9f5] flex items-center justify-center shrink-0">
+                  {mascota.fotoUrl ? (
+                    <img src={mascota.fotoUrl} alt={mascota.nombre} className="w-full h-full rounded-full object-cover" />
+                  ) : (
+                    <span className="material-symbols-outlined text-[32px] text-[#cc785c]">{getSpeciesIcon(mascota.especie)}</span>
+                  )}
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleActivo(mascota);
-                    }}
-                    className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      mascota.activo ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'
-                    }`}
-                  >
-                    <span
-                      className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                        mascota.activo ? 'translate-x-4' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                </div>
-              </div>
-
-              {/* Mascot Details */}
-              <div className="grid grid-cols-2 gap-sm relative z-10 text-[13px]">
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col gap-0.5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Edad</span>
-                  <span className="text-slate-700 dark:text-slate-300 font-semibold truncate">
-                    {calculateAge(mascota.fechaNacimiento)}
+                <div className="flex flex-col items-end gap-1.5">
+                  <span className="bg-[#cc785c]/5 text-[#cc785c] text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full">
+                    {mascota.especie}
                   </span>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800/50 flex flex-col gap-0.5">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Peso</span>
-                  <span className="text-slate-700 dark:text-slate-300 font-semibold truncate">
-                    {mascota.peso ? `${mascota.peso} kg` : 'N/D'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Color details if exists */}
-              {mascota.color && (
-                <div className="flex items-center gap-sm text-[12px] text-on-surface-variant relative z-10 px-1">
-                  <span className="material-symbols-outlined text-[16px] text-slate-400">palette</span>
-                  <span className="text-slate-600 dark:text-slate-300">Color: {mascota.color}</span>
-                </div>
-              )}
-
-              {/* Card Footer: Propietario */}
-              <div className="mt-auto pt-sm border-t border-outline-variant/50 flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-sm min-w-0">
-                  <span className="material-symbols-outlined text-[18px] text-slate-400">person</span>
-                  <div className="flex flex-col min-w-0">
-                    <span className="font-label-sm text-[9px] text-on-surface-variant uppercase tracking-wider leading-none">Propietario</span>
-                    <span className="text-xs font-semibold text-primary truncate mt-0.5">
-                      {mascota.usuarioNombre || 'Sin asignar'}
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${mascota.activo ? 'bg-[#5db872]' : 'bg-[#6c6a64]/30'}`}></span>
+                    <span className={`font-semibold text-[11px] uppercase tracking-wider ${mascota.activo ? 'text-[#5db872]' : 'text-[#6c6a64]/50'}`}>
+                      {mascota.activo ? 'Activo' : 'Inactivo'}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Card Actions hover overlay buttons */}
-              <div className="absolute bottom-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 dark:bg-slate-900/90 p-1.5 rounded-xl shadow border border-outline-variant/20 z-20">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditClick(mascota);
-                  }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-                  title="Editar mascota"
-                >
-                  <span className="material-symbols-outlined text-[16px]">edit</span>
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(mascota);
-                  }}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all cursor-pointer"
-                  title="Eliminar mascota"
-                >
-                  <span className="material-symbols-outlined text-[16px]">delete</span>
-                </button>
+              <h3 className="font-headline-sm text-xl text-[#141413] mb-1 font-semibold group-hover:text-[#cc785c] transition-colors">
+                {mascota.nombre}
+              </h3>
+              <p className="font-body-md text-xs text-[#3d3d3a]/80 mb-5">
+                Prop: <span className="text-[#cc785c] hover:underline font-medium">{mascota.usuarioNombre || 'Sin asignar'}</span>
+              </p>
+
+              <div className="grid grid-cols-2 gap-y-3.5 gap-x-2 border-t border-[#141413]/10 pt-4 mb-6 mt-auto">
+                <div>
+                  <p className="font-semibold text-[10px] text-[#6c6a64]/60 uppercase tracking-widest mb-0.5">Raza</p>
+                  <p className="font-body-md text-xs text-[#141413] truncate font-medium">{mascota.raza || 'Común'}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[10px] text-[#6c6a64]/60 uppercase tracking-widest mb-0.5">Edad</p>
+                  <p className="font-body-md text-xs text-[#141413] font-medium">{calculateAge(mascota.fechaNacimiento)}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[10px] text-[#6c6a64]/60 uppercase tracking-widest mb-0.5">Peso</p>
+                  <p className="font-body-md text-xs text-[#141413] font-medium">{mascota.peso ? `${mascota.peso} kg` : 'N/D'}</p>
+                </div>
+                <div>
+                  <p className="font-semibold text-[10px] text-[#6c6a64]/60 uppercase tracking-widest mb-0.5">Alergias</p>
+                  <p className={`font-body-md text-xs truncate font-semibold ${mascota.alergiasConocidas ? 'text-[#c64545]' : 'text-[#6c6a64]/40'}`}>
+                    {mascota.alergiasConocidas || 'Ninguna'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center border-t border-[#141413]/5 pt-4 mt-auto">
+                <span className="text-[#cc785c] font-semibold text-xs flex items-center gap-1 group-hover:gap-2 transition-all">
+                  Ver Ficha Completa
+                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                </span>
+                
+                {isAdmin && (
+                  <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => handleEditClick(mascota)}
+                      className="p-1 text-[#6c6a64]/60 hover:text-[#cc785c] transition-colors"
+                      title="Editar ficha"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">edit</span>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(mascota)}
+                      className="p-1 text-[#6c6a64]/60 hover:text-[#c64545] transition-colors"
+                      title="Dar de baja"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">delete</span>
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
         </motion.div>
       )}
 
-      {/* Loading indicator for search re-fetch */}
-      {loading && mascotas.length > 0 && (
-        <div className="flex items-center justify-center py-md w-full">
-          <div className="flex items-center gap-sm text-on-surface-variant font-body-md text-body-md">
-            <span className="material-symbols-outlined animate-spin text-primary">progress_activity</span>
-            Buscando mascotas...
+      {loading && (
+        <div className="flex justify-center items-center py-12">
+          <div className="flex items-center gap-3 text-sm text-[#6c6a64]">
+            <span className="material-symbols-outlined animate-spin text-[#cc785c]">progress_activity</span>
+            <span>Cargando datos clínicos...</span>
           </div>
         </div>
       )}
 
-      {/* MODAL CREAR MASCOTA */}
-      {createPortal(
-        <AnimatePresence>
-          {showCreateModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-                onClick={() => setShowCreateModal(false)}
-              />
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 15 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.95, opacity: 0, y: 15 }}
-                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh] text-left z-10"
-              >
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
-                  <div>
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Registrar Paciente</h3>
-                    <p className="text-xs text-slate-500 mt-[2px]">Añade una nueva mascota al registro médico.</p>
-                  </div>
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
+      <AnimatePresence>
+        {showCreateModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCreateModal(false)}
+              className="fixed inset-0 bg-[#141413]/30 backdrop-blur-[2px] z-[55]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-full max-w-[460px] bg-[#faf9f5] border-l border-[#141413]/10 z-[60] flex flex-col shadow-2xl"
+            >
+              <div className="p-8 border-b border-[#141413]/10 flex justify-between items-center bg-white">
+                <div>
+                  <h3 className="font-headline-sm text-2xl text-[#141413]">Registro de Mascota</h3>
+                  <p className="font-body-md text-xs text-[#6c6a64] italic mt-0.5">Nueva entrada clínica</p>
                 </div>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="p-2 hover:bg-[#faf9f5] rounded-full transition-colors cursor-pointer text-[#141413]"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
 
-                <form onSubmit={handleCreateSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-                  <div className="space-y-4">
-                    {/* Nombre */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre del Paciente *</label>
-                      <input
-                        type="text"
+              <form onSubmit={handleCreateSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+                <div className="space-y-5">
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">NOMBRE *</label>
+                    <input
+                      type="text"
+                      required
+                      value={createForm.nombre}
+                      onChange={(e) => setCreateForm({ ...createForm, nombre: e.target.value })}
+                      placeholder="Ej: Zeus"
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">ESPECIE *</label>
+                      <select
+                        value={createForm.especie}
+                        onChange={(e) => setCreateForm({ ...createForm, especie: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="Perro">Perro</option>
+                        <option value="Gato">Gato</option>
+                        <option value="Ave">Ave</option>
+                        <option value="Conejo">Conejo</option>
+                        <option value="Roedor">Roedor</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">SEXO</label>
+                      <select
+                        value={createForm.fotoUrl}
+                        onChange={(e) => setCreateForm({ ...createForm, fotoUrl: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {isAdmin && (
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">PROPIETARIO RESPONSABLE *</label>
+                      <select
                         required
-                        value={createForm.nombre}
-                        onChange={(e) => setCreateForm({ ...createForm, nombre: e.target.value })}
-                        placeholder="Ej. Bruno"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                      />
+                        value={createForm.usuarioId}
+                        onChange={(e) => setCreateForm({ ...createForm, usuarioId: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="">Seleccionar propietario...</option>
+                        {usuarios.map(u => (
+                          <option key={u.id} value={u.id}>{u.nombre}</option>
+                        ))}
+                      </select>
                     </div>
+                  )}
 
-                    {/* Especie y Raza */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Especie *</label>
-                        <select
-                          value={createForm.especie}
-                          onChange={(e) => setCreateForm({ ...createForm, especie: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
-                        >
-                          <option value="Perro">Perro (Canino)</option>
-                          <option value="Gato">Gato (Felino)</option>
-                          <option value="Ave">Ave</option>
-                          <option value="Conejo">Conejo</option>
-                          <option value="Roedor">Roedor</option>
-                          <option value="Otro">Otro</option>
-                        </select>
-                      </div>
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">RAZA</label>
+                    <input
+                      type="text"
+                      value={createForm.raza}
+                      onChange={(e) => setCreateForm({ ...createForm, raza: e.target.value })}
+                      placeholder="Ej: Golden Retriever"
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
 
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Raza</label>
-                        <input
-                          type="text"
-                          value={createForm.raza}
-                          onChange={(e) => setCreateForm({ ...createForm, raza: e.target.value })}
-                          placeholder="Ej. Golden Retriever"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Peso y Color */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Peso (kg)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={createForm.peso}
-                          onChange={(e) => setCreateForm({ ...createForm, peso: e.target.value })}
-                          placeholder="Ej. 14.5"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Color</label>
-                        <input
-                          type="text"
-                          value={createForm.color}
-                          onChange={(e) => setCreateForm({ ...createForm, color: e.target.value })}
-                          placeholder="Ej. Marrón claro"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Fecha Nacimiento */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Fecha de Nacimiento</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">NACIMIENTO</label>
                       <input
                         type="date"
                         value={createForm.fechaNacimiento}
                         onChange={(e) => setCreateForm({ ...createForm, fechaNacimiento: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
                       />
                     </div>
-
-                    {/* Foto URL */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">URL de la Foto</label>
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">PESO (KG)</label>
                       <input
-                        type="text"
-                        value={createForm.fotoUrl}
-                        onChange={(e) => setCreateForm({ ...createForm, fotoUrl: e.target.value })}
-                        placeholder="https://ejemplo.com/foto.jpg"
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
+                        type="number"
+                        step="0.1"
+                        value={createForm.peso}
+                        onChange={(e) => setCreateForm({ ...createForm, peso: e.target.value })}
+                        placeholder="Ej: 15.5"
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
                       />
                     </div>
-
-                    {/* Propietario (Selector solo visible para Admin) */}
-                    {isAdmin && (
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Asignar Propietario *</label>
-                        <select
-                          required
-                          value={createForm.usuarioId}
-                          onChange={(e) => setCreateForm({ ...createForm, usuarioId: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
-                        >
-                          <option value="">-- Seleccionar Propietario --</option>
-                          {usuarios.map(u => (
-                            <option key={u.id} value={u.id}>{u.nombre}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateModal(false)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      {submitting && <div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></div>}
-                      Registrar
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-
-      {/* MODAL EDITAR MASCOTA */}
-      {createPortal(
-        <AnimatePresence>
-          {showEditModal && selectedMascota && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-                onClick={() => setShowEditModal(false)}
-              />
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 15 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.95, opacity: 0, y: 15 }}
-                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col max-h-[90vh] text-left z-10"
-              >
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-gradient-to-r from-primary/5 to-transparent">
                   <div>
-                    <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Editar Datos del Paciente</h3>
-                    <p className="text-xs text-slate-500 mt-[2px]">Actualiza el perfil clínico de la mascota.</p>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">COLOR DE MANTO</label>
+                    <input
+                      type="text"
+                      value={createForm.color}
+                      onChange={(e) => setCreateForm({ ...createForm, color: e.target.value })}
+                      placeholder="Ej: Canela"
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
                   </div>
-                  <button
-                    onClick={() => setShowEditModal(false)}
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined">close</span>
-                  </button>
+
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">ALERGIAS CONOCIDAS</label>
+                    <input
+                      type="text"
+                      value={createForm.fotoUrl}
+                      onChange={(e) => setCreateForm({ ...createForm, fotoUrl: e.target.value })}
+                      placeholder="Ninguna"
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">OBSERVACIONES CLÍNICAS</label>
+                    <textarea
+                      rows={3}
+                      value={createForm.raza}
+                      onChange={(e) => setCreateForm({ ...createForm, raza: e.target.value })}
+                      placeholder="Historial médico general, notas o comentarios..."
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413] resize-none"
+                    />
+                  </div>
                 </div>
 
-                <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
-                  <div className="space-y-4">
-                    {/* Nombre */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Nombre del Paciente *</label>
-                      <input
-                        type="text"
+                <div className="pt-6 border-t border-[#141413]/10 flex gap-4 bg-white -mx-8 px-8 pb-4">
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-[#cc785c] text-white font-semibold text-sm py-4 rounded-[4px] hover:bg-[#a9583e] transition-colors cursor-pointer flex justify-center items-center gap-2 shadow-[0_4px_20px_rgba(20,20,19,0.05)]"
+                  >
+                    {submitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                    <span>Guardar Ficha</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    className="flex-1 border border-[#141413]/20 text-[#6c6a64] font-semibold text-sm py-4 rounded-[4px] hover:bg-[#141413]/5 transition-all cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showEditModal && selectedMascota && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowEditModal(false)}
+              className="fixed inset-0 bg-[#141413]/30 backdrop-blur-[2px] z-[55]"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 right-0 w-full max-w-[460px] bg-[#faf9f5] border-l border-[#141413]/10 z-[60] flex flex-col shadow-2xl"
+            >
+              <div className="p-8 border-b border-[#141413]/10 flex justify-between items-center bg-white">
+                <div>
+                  <h3 className="font-headline-sm text-2xl text-[#141413]">Editar Datos del Paciente</h3>
+                  <p className="font-body-md text-xs text-[#6c6a64] italic mt-0.5">Modificar ficha de {selectedMascota.nombre}</p>
+                </div>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="p-2 hover:bg-[#faf9f5] rounded-full transition-colors cursor-pointer text-[#141413]"
+                >
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <form onSubmit={handleEditSubmit} className="flex-1 overflow-y-auto p-8 space-y-6">
+                <div className="space-y-5">
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">NOMBRE DEL PACIENTE *</label>
+                    <input
+                      type="text"
+                      required
+                      value={editForm.nombre}
+                      onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">ESPECIE *</label>
+                      <select
+                        value={editForm.especie}
+                        onChange={(e) => setEditForm({ ...editForm, especie: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="Perro">Perro</option>
+                        <option value="Gato">Gato</option>
+                        <option value="Ave">Ave</option>
+                        <option value="Conejo">Conejo</option>
+                        <option value="Roedor">Roedor</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">SEXO</label>
+                      <select
+                        value={editForm.fotoUrl}
+                        onChange={(e) => setEditForm({ ...editForm, fotoUrl: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="Macho">Macho</option>
+                        <option value="Hembra">Hembra</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {isAdmin && (
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">PROPIETARIO RESPONSABLE *</label>
+                      <select
                         required
-                        value={editForm.nombre}
-                        onChange={(e) => setEditForm({ ...editForm, nombre: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                      />
+                        value={editForm.usuarioId}
+                        onChange={(e) => setEditForm({ ...editForm, usuarioId: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                      >
+                        <option value="">Seleccionar propietario...</option>
+                        {usuarios.map(u => (
+                          <option key={u.id} value={u.id}>{u.nombre}</option>
+                        ))}
+                      </select>
                     </div>
+                  )}
 
-                    {/* Especie y Raza */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Especie *</label>
-                        <select
-                          value={editForm.especie}
-                          onChange={(e) => setEditForm({ ...editForm, especie: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
-                        >
-                          <option value="Perro">Perro (Canino)</option>
-                          <option value="Gato">Gato (Felino)</option>
-                          <option value="Ave">Ave</option>
-                          <option value="Conejo">Conejo</option>
-                          <option value="Roedor">Roedor</option>
-                          <option value="Otro">Otro</option>
-                        </select>
-                      </div>
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">RAZA</label>
+                    <input
+                      type="text"
+                      value={editForm.raza}
+                      onChange={(e) => setEditForm({ ...editForm, raza: e.target.value })}
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
 
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Raza</label>
-                        <input
-                          type="text"
-                          value={editForm.raza}
-                          onChange={(e) => setEditForm({ ...editForm, raza: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Peso y Color */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Peso (kg)</label>
-                        <input
-                          type="number"
-                          step="0.1"
-                          value={editForm.peso}
-                          onChange={(e) => setEditForm({ ...editForm, peso: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Color</label>
-                        <input
-                          type="text"
-                          value={editForm.color}
-                          onChange={(e) => setEditForm({ ...editForm, color: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Fecha Nacimiento */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Fecha de Nacimiento</label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">NACIMIENTO</label>
                       <input
                         type="date"
                         value={editForm.fechaNacimiento}
                         onChange={(e) => setEditForm({ ...editForm, fechaNacimiento: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
                       />
                     </div>
-
-                    {/* Foto URL */}
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">URL de la Foto</label>
+                    <div>
+                      <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">PESO (KG)</label>
                       <input
-                        type="text"
-                        value={editForm.fotoUrl}
-                        onChange={(e) => setEditForm({ ...editForm, fotoUrl: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold"
+                        type="number"
+                        step="0.1"
+                        value={editForm.peso}
+                        onChange={(e) => setEditForm({ ...editForm, peso: e.target.value })}
+                        className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
                       />
-                    </div>
-
-                    {/* Propietario (Selector solo visible para Admin) */}
-                    {isAdmin && (
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Asignar Propietario *</label>
-                        <select
-                          required
-                          value={editForm.usuarioId}
-                          onChange={(e) => setEditForm({ ...editForm, usuarioId: e.target.value })}
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-sm font-semibold cursor-pointer"
-                        >
-                          <option value="">-- Seleccionar Propietario --</option>
-                          {usuarios.map(u => (
-                            <option key={u.id} value={u.id}>{u.nombre}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {/* Activo Toggle */}
-                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-950/30 rounded-xl border border-slate-100 dark:border-slate-800/50">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">Estado de Alta</span>
-                        <span className="text-xs text-slate-400 mt-0.5">Define si el paciente está activo en la clínica.</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setEditForm({ ...editForm, activo: !editForm.activo })}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                          editForm.activo ? 'bg-primary' : 'bg-slate-300 dark:bg-slate-700'
-                        }`}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                            editForm.activo ? 'translate-x-5' : 'translate-x-0'
-                          }`}
-                        />
-                      </button>
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                  <div>
+                    <label className="block font-semibold text-[10px] text-[#6c6a64] mb-2 uppercase tracking-widest">COLOR DE MANTO</label>
+                    <input
+                      type="text"
+                      value={editForm.color}
+                      onChange={(e) => setEditForm({ ...editForm, color: e.target.value })}
+                      className="w-full bg-white border border-[#141413]/10 rounded-[4px] px-4 py-3 focus:ring-1 focus:ring-[#cc785c] focus:border-[#cc785c] outline-none text-[#141413]"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center bg-white border border-[#141413]/10 p-4 rounded-[4px] mt-2">
+                    <div className="flex flex-col gap-0.5">
+                      <span className="font-semibold text-[10px] text-[#6c6a64] uppercase tracking-wider">Estado de Alta</span>
+                      <span className="text-[10px] text-[#6c6a64]/70">Marcar como mascota activa del hospital.</span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setShowEditModal(false)}
-                      className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                      onClick={() => setEditForm({ ...editForm, activo: !editForm.activo })}
+                      className="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                      style={{ backgroundColor: editForm.activo ? '#cc785c' : '#e6dfd8' }}
                     >
-                      Cancelar
+                      <span
+                        className="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                        style={{ transform: editForm.activo ? 'translateX(16px)' : 'translateX(0)' }}
+                      />
                     </button>
-                    <button
-                      type="submit"
-                      disabled={submitting}
-                      className="px-5 py-2.5 rounded-xl bg-primary hover:bg-primary/95 font-semibold text-sm text-on-primary shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
-                    >
-                      {submitting && <div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin"></div>}
-                      Guardar
-                    </button>
-                  </div>
-                </form>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
-
-      {/* MODAL ELIMINAR MASCOTA */}
-      {createPortal(
-        <AnimatePresence>
-          {showDeleteModal && selectedMascota && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-slate-950/40 backdrop-blur-sm"
-                onClick={() => setShowDeleteModal(false)}
-              />
-              <motion.div
-                initial={{ scale: 0.95, opacity: 0, y: 15 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.95, opacity: 0, y: 15 }}
-                className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-slate-200/50 dark:border-slate-800/50 flex flex-col space-y-4 text-left z-10"
-              >
-                <div className="flex items-center gap-3 text-rose-500">
-                  <span className="material-symbols-outlined text-3xl font-bold bg-rose-50 dark:bg-rose-950/20 p-2 rounded-xl">
-                    warning
-                  </span>
-                  <h3 className="text-lg font-bold">¿Eliminar Mascota?</h3>
-                </div>
-
-                <div className="text-sm text-slate-500 space-y-3">
-                  <p>
-                    Confirmas que deseas eliminar permanentemente a{' '}
-                    <strong className="text-slate-700 dark:text-slate-300">{selectedMascota.nombre}</strong> ({selectedMascota.especie}{selectedMascota.raza ? ` - ${selectedMascota.raza}` : ''}) del sistema.
-                  </p>
-                  <div className="p-3 bg-amber-500/10 border border-amber-500/25 text-amber-700 dark:text-amber-400 rounded-xl text-xs flex gap-2">
-                    <span className="material-symbols-outlined text-[18px] flex-shrink-0">info</span>
-                    <p>
-                      <strong>Aviso de Seguridad:</strong> Si el paciente tiene citas históricas, de atención o registros clínicos,
-                      el backend prevendrá la eliminación física para conservar la integridad legal de la bitácora. Puedes dar de baja de forma segura a la mascota desactivando su estado.
-                    </p>
                   </div>
                 </div>
 
-                <div className="pt-2 flex justify-end gap-3">
+                <div className="pt-6 border-t border-[#141413]/10 flex gap-4 bg-white -mx-8 px-8 pb-4">
                   <button
-                    onClick={() => setShowDeleteModal(false)}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold text-sm text-slate-600 dark:text-slate-400 transition-all cursor-pointer"
+                    type="submit"
+                    disabled={submitting}
+                    className="flex-1 bg-[#cc785c] text-white font-semibold text-sm py-4 rounded-[4px] hover:bg-[#a9583e] transition-colors cursor-pointer flex justify-center items-center gap-2 shadow-[0_4px_20px_rgba(20,20,19,0.05)]"
+                  >
+                    {submitting && <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>}
+                    <span>Guardar Cambios</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 border border-[#141413]/20 text-[#6c6a64] font-semibold text-sm py-4 rounded-[4px] hover:bg-[#141413]/5 transition-all cursor-pointer"
                   >
                     Cancelar
                   </button>
-                  <button
-                    onClick={handleDeleteSubmit}
-                    className="px-5 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 font-semibold text-sm text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
-                  >
-                    Confirmar Eliminación
-                  </button>
                 </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showDeleteModal && selectedMascota && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-[#141413]/30 backdrop-blur-[2px]"
+              onClick={() => setShowDeleteModal(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 15 }}
+              className="relative w-full max-w-md p-8 shadow-2xl flex flex-col space-y-4 text-left z-10 bg-white border border-[#141413]/10 rounded-[4px]"
+            >
+              <div className="flex items-center gap-3 text-[#c64545]">
+                <span className="material-symbols-outlined text-3xl font-bold p-2 bg-[#c64545]/10 rounded-[8px]">
+                  warning
+                </span>
+                <h3 className="editorial-title text-xl text-[#c64545] font-semibold">¿Inactivar Paciente?</h3>
+              </div>
+
+              <div className="text-sm space-y-3 text-[#6c6a64]">
+                <p>
+                  Confirmas que deseas dar de baja o inactivar permanentemente a{' '}
+                  <strong className="text-[#141413]">{selectedMascota.nombre}</strong> ({selectedMascota.especie}{selectedMascota.raza ? ` - ${selectedMascota.raza}` : ''}) del sistema de la clínica.
+                </p>
+                <div className="p-3 text-xs flex gap-2 rounded-[6px] bg-[#d4a017]/10 border border-[#d4a017]/20 text-[#d4a017]">
+                  <span className="material-symbols-outlined text-[18px] flex-shrink-0">info</span>
+                  <p>
+                    <strong>Aviso de Seguridad (RF-13):</strong> Si el paciente tiene citas históricas, de atención o registros clínicos,
+                    el backend prevendrá la eliminación física de la base de datos para conservar la integridad legal de la bitácora. Puedes dar de baja de forma segura a la mascota desactivando su estado y cancelando automáticamente sus citas futuras.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-[#141413]/5">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="btn-editorial-secondary px-5 py-2.5"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDeleteSubmit}
+                  className="btn-editorial-primary px-5 py-2.5 bg-[#c64545] hover:bg-[#a93838]"
+                >
+                  Confirmar Baja
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

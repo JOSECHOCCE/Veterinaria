@@ -4,6 +4,7 @@ using Veterinaria.Application.Interfaces;
 using Veterinaria.Application.DTOs;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -64,6 +65,62 @@ public class ClientesController : ControllerBase
         };
 
         return Ok(Response<object>.Ok(data));
+    }
+
+    // POST: api/Clientes
+    [HttpPost]
+    public async Task<ActionResult<Response<object>>> Create([FromBody] CrearClienteDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(Response<object>.Fail("Datos del formulario inválidos."));
+        }
+
+        var result = await _clienteService.RegistrarClienteAsync(dto);
+        if (result.Success)
+        {
+            return Ok(Response<object>.Ok(result.Cliente, result.Message));
+        }
+        else
+        {
+            if (result.Duplicados != null && result.Duplicados.Any())
+            {
+                return BadRequest(Response<object>.Fail(result.Message, result.Duplicados));
+            }
+            return BadRequest(Response<object>.Fail(result.Message));
+        }
+    }
+
+    // PUT: api/Clientes/5
+    [HttpPut("{id}")]
+    public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] EditarClienteDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(Response<object>.Fail("Datos de edición inválidos."));
+        }
+
+        var result = await _clienteService.EditarClienteAsync(id, dto);
+        if (result.Success)
+        {
+            return Ok(Response<object>.Ok(null, result.Message));
+        }
+        else
+        {
+            if (result.Duplicados != null && result.Duplicados.Any())
+            {
+                return BadRequest(Response<object>.Fail(result.Message, result.Duplicados));
+            }
+            return BadRequest(Response<object>.Fail(result.Message));
+        }
+    }
+
+    // GET: api/Clientes/check-duplicates
+    [HttpGet("check-duplicates")]
+    public async Task<ActionResult<Response<List<DuplicadoDto>>>> CheckDuplicates(string? dni, string? email, string? telefono, int? excluirId)
+    {
+        var duplicados = await _clienteService.DetectarDuplicadosAsync(dni, email, telefono, excluirId);
+        return Ok(Response<List<DuplicadoDto>>.Ok(duplicados, "Verificación de duplicados completada."));
     }
 
     // POST: api/Clientes/ToggleActivo/5
