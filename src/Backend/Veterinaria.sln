@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Infrastructure"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Web", "Veterinaria.Web\Veterinaria.Web.csproj", "{A7915670-3BEE-4309-B60D-89D1BC0A3C9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeterianariaAppTest", "VeterianariaAppTest\VeterianariaAppTest.csproj", "{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Application", "Veterinaria.Application\Veterinaria.Application.csproj", "{0335FE89-414C-4630-A01D-FCE3A5F99723}"
 EndProject
 Global
@@ -59,18 +57,6 @@ Global
 		{A7915670-3BEE-4309-B60D-89D1BC0A3C9D}.Release|x64.Build.0 = Release|Any CPU
 		{A7915670-3BEE-4309-B60D-89D1BC0A3C9D}.Release|x86.ActiveCfg = Release|Any CPU
 		{A7915670-3BEE-4309-B60D-89D1BC0A3C9D}.Release|x86.Build.0 = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|x64.Build.0 = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Debug|x86.Build.0 = Debug|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|x64.ActiveCfg = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|x64.Build.0 = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|x86.ActiveCfg = Release|Any CPU
-		{DE1E73BF-3DEE-4232-8DF5-4C15D9909892}.Release|x86.Build.0 = Release|Any CPU
 		{0335FE89-414C-4630-A01D-FCE3A5F99723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0335FE89-414C-4630-A01D-FCE3A5F99723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0335FE89-414C-4630-A01D-FCE3A5F99723}.Debug|x64.ActiveCfg = Debug|Any CPU

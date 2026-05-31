@@ -158,7 +158,8 @@ public class AuthController : ControllerBase
 
         if (result.Succeeded)
         {
-            // Asignar rol de Usuario (Cliente) por defecto
+            // Asignar rol de Cliente y Usuario por defecto para asegurar compatibilidad
+            await _userManager.AddToRoleAsync(user, "Cliente");
             await _userManager.AddToRoleAsync(user, "Usuario");
 
             // Crear el registro de dominio
@@ -169,7 +170,8 @@ public class AuthController : ControllerBase
                 Email = request.Email,
                 DNI = request.DNI,
                 Telefono = request.Telefono,
-                Rol = "Usuario",
+                Direccion = request.Direccion,
+                Rol = "Cliente", // Rol unificado en dominio
                 Activo = true,
                 FechaRegistro = DateTime.UtcNow
             };
@@ -267,6 +269,7 @@ public class RegisterRequest
 
     public string? DNI { get; set; }
     public string? Telefono { get; set; }
+    public string? Direccion { get; set; }
 }
 
 public class UpdateProfileRequest
