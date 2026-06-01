@@ -155,6 +155,7 @@ builder.Services.AddScoped<Veterinaria.Application.Interfaces.IVeterinarioServic
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IDashboardService, Veterinaria.Application.Services.DashboardService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPagoService, Veterinaria.Application.Services.PagoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.ICitaService, Veterinaria.Application.Services.CitaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAgendaService, Veterinaria.Application.Services.AgendaService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IHistorialClinicoService, Veterinaria.Application.Services.HistorialClinicoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.ITriageService, Veterinaria.Application.Services.TriageService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IConsentimientoService, Veterinaria.Application.Services.ConsentimientoService>();
@@ -162,6 +163,11 @@ builder.Services.AddScoped<Veterinaria.Application.Interfaces.INotificacionServi
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IRealTimeNotificationService, Veterinaria.Web.Services.RealTimeNotificationService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IProductoService, Veterinaria.Application.Services.ProductoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IVentaService, Veterinaria.Application.Services.VentaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAuthService, Veterinaria.Application.Services.AuthService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IUsuarioService, Veterinaria.Application.Services.UsuarioService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.ICorreoService, Veterinaria.Web.Services.CorreoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPortalClienteService, Veterinaria.Application.Services.PortalClienteService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IReporteService, Veterinaria.Application.Services.ReporteService>();
 
 // Configurar Servicio de generación de PDFs (Sigue en Web por ser infraestructura visual o si se desea se puede mover después)
 builder.Services.AddScoped<PdfService>();

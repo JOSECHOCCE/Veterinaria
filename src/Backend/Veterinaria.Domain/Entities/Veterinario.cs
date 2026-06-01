@@ -27,4 +27,6 @@ public class Veterinario
 
     // Navegación
     public virtual ICollection<Cita> Citas { get; set; } = new List<Cita>();
+    public virtual ICollection<HorarioVeterinario> Horarios { get; set; } = new List<HorarioVeterinario>();
+    public virtual ICollection<BloqueoAgenda> Bloqueos { get; set; } = new List<BloqueoAgenda>();
 }

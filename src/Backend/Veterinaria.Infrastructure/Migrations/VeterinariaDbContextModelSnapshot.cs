@@ -279,6 +279,38 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.ToTable("Auditorias");
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.BloqueoAgenda", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaFin")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("FechaInicio")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Motivo")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("VeterinarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VeterinarioId", "FechaInicio", "FechaFin");
+
+                    b.ToTable("BloqueosAgenda");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.Cita", b =>
                 {
                     b.Property<int>("Id")
@@ -286,6 +318,9 @@ namespace Veterinaria.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("EsUrgencia")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Estado")
                         .IsRequired()
@@ -298,6 +333,9 @@ namespace Veterinaria.Infrastructure.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("FechaExpiracionReserva")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("FechaHora")
@@ -457,6 +495,9 @@ namespace Veterinaria.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Cerrado")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CitaId")
                         .HasColumnType("int");
 
@@ -467,6 +508,9 @@ namespace Veterinaria.Infrastructure.Migrations
 
                     b.Property<DateTime>("FechaRegistro")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("FrecuenciaCardiaca")
+                        .HasColumnType("int");
 
                     b.Property<string>("Hallazgos")
                         .HasMaxLength(1000)
@@ -484,12 +528,18 @@ namespace Veterinaria.Infrastructure.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<decimal?>("PesoActual")
+                        .HasColumnType("decimal(5,2)");
+
                     b.Property<DateTime?>("ProximoControl")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Recomendaciones")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
+
+                    b.Property<decimal?>("Temperatura")
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("Tratamiento")
                         .HasMaxLength(1000)
@@ -501,6 +551,71 @@ namespace Veterinaria.Infrastructure.Migrations
                         .IsUnique();
 
                     b.ToTable("HistorialesClinicos");
+                });
+
+            modelBuilder.Entity("Veterinaria.Domain.Entities.HorarioClinica", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EsLaborable")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan>("HoraApertura")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("HoraCierre")
+                        .HasColumnType("time");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiaSemana")
+                        .IsUnique();
+
+                    b.ToTable("HorariosClinica");
+                });
+
+            modelBuilder.Entity("Veterinaria.Domain.Entities.HorarioVeterinario", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan?>("DescansoFin")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("DescansoInicio")
+                        .HasColumnType("time");
+
+                    b.Property<int>("DiaSemana")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("EsLaborable")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan>("HoraFin")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("HoraInicio")
+                        .HasColumnType("time");
+
+                    b.Property<int>("VeterinarioId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VeterinarioId", "DiaSemana")
+                        .IsUnique();
+
+                    b.ToTable("HorariosVeterinario");
                 });
 
             modelBuilder.Entity("Veterinaria.Domain.Entities.Mascota", b =>
@@ -639,6 +754,10 @@ namespace Veterinaria.Infrastructure.Migrations
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
 
+                    b.Property<string>("Observacion")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Referencia")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -724,6 +843,10 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.Property<int>("DuracionMinutos")
                         .HasColumnType("int");
 
+                    b.Property<string>("EspecialidadRequerida")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -732,6 +855,9 @@ namespace Veterinaria.Infrastructure.Migrations
                     b.Property<decimal>("Precio")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
+
+                    b.Property<bool>("RequiereVeterinario")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -896,6 +1022,13 @@ namespace Veterinaria.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("RecibirRecordatorios")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Rol")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1038,6 +1171,17 @@ namespace Veterinaria.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Veterinaria.Domain.Entities.BloqueoAgenda", b =>
+                {
+                    b.HasOne("Veterinaria.Domain.Entities.Veterinario", "Veterinario")
+                        .WithMany("Bloqueos")
+                        .HasForeignKey("VeterinarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Veterinario");
+                });
+
             modelBuilder.Entity("Veterinaria.Domain.Entities.Cita", b =>
                 {
                     b.HasOne("Veterinaria.Domain.Entities.Mascota", "Mascota")
@@ -1111,6 +1255,17 @@ namespace Veterinaria.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Cita");
+                });
+
+            modelBuilder.Entity("Veterinaria.Domain.Entities.HorarioVeterinario", b =>
+                {
+                    b.HasOne("Veterinaria.Domain.Entities.Veterinario", "Veterinario")
+                        .WithMany("Horarios")
+                        .HasForeignKey("VeterinarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Veterinario");
                 });
 
             modelBuilder.Entity("Veterinaria.Domain.Entities.Mascota", b =>
@@ -1213,7 +1368,11 @@ namespace Veterinaria.Infrastructure.Migrations
 
             modelBuilder.Entity("Veterinaria.Domain.Entities.Veterinario", b =>
                 {
+                    b.Navigation("Bloqueos");
+
                     b.Navigation("Citas");
+
+                    b.Navigation("Horarios");
                 });
 #pragma warning restore 612, 618
         }

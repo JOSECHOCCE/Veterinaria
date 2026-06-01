@@ -42,6 +42,10 @@ public class Cita
 
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
+    // Campos para Reserva Temporal y Urgencias (RF-25, RF-37)
+    public DateTime? FechaExpiracionReserva { get; set; }
+    public bool EsUrgencia { get; set; } = false;
+
     // Navegación
     public virtual Mascota Mascota { get; set; } = default!;
     public virtual Veterinario Veterinario { get; set; } = default!;

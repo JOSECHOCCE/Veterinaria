@@ -18,4 +18,5 @@ public interface IPagoService
     Task<Pago?> GetPagoByIdAsync(int pagoId);
     Task<(bool Success, string Message)> AnularPagoAsync(int pagoId, string motivo);
     Task<List<Pago>> GetPagosPorUsuarioAsync(int usuarioId);
+    Task<(bool Success, Pago? Pago, string? Error)> RegistrarCobroManualAsync(int citaId, decimal montoTotalAjustado, decimal montoAbonado, string metodoPago, string? referencia, string? observacion, string usuarioOperador);
 }

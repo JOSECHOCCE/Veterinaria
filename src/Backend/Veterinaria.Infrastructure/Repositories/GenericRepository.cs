@@ -34,6 +34,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         await _set.AddAsync(entity);
     }
 
+    public async Task AddRangeAsync(IEnumerable<T> entities)
+    {
+        await _set.AddRangeAsync(entities);
+    }
+
     public void Update(T entity)
     {
         _set.Update(entity);
@@ -42,5 +47,10 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     public void Remove(T entity)
     {
         _set.Remove(entity);
+    }
+
+    public void RemoveRange(IEnumerable<T> entities)
+    {
+        _set.RemoveRange(entities);
     }
 }

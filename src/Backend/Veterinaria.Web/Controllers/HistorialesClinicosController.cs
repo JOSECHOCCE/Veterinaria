@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Veterinaria.Application.DTOs;
 using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
@@ -22,15 +23,14 @@ public class HistorialesClinicosController : ControllerBase
         _mapper = mapper;
     }
 
+    private string? GetUserEmail() => User.FindFirst(ClaimTypes.Email)?.Value;
+    private bool IsAdmin() => User.IsInRole("Admin");
+
     [HttpGet]
     public async Task<ActionResult<Response<object>>> Index([FromQuery] int mascotaId, [FromQuery] int page = 1)
     {
         var mascota = await _historialService.GetMascotaWithUsuarioAsync(mascotaId);
-
-        if (mascota == null)
-        {
-            return NotFound(Response<object>.Fail("Mascota no encontrada."));
-        }
+        if (mascota == null) return NotFound(Response<object>.Fail("Mascota no encontrada."));
 
         var historiales = await _historialService.GetHistorialesByMascotaIdAsync(mascotaId);
         var historialesDto = _mapper.Map<List<HistorialClinicoDto>>(historiales);
@@ -58,92 +58,13 @@ public class HistorialesClinicosController : ControllerBase
         return Ok(Response<object>.Ok(result));
     }
 
-    [HttpGet("create/{citaId}")]
-    [Authorize(Roles = "Admin,Veterinario")]
-    public async Task<ActionResult<Response<object>>> CreateGet(int citaId)
-    {
-        var cita = await _historialService.GetCitaForHistorialAsync(citaId);
-
-        if (cita == null)
-        {
-            return NotFound(Response<object>.Fail("Cita no encontrada."));
-        }
-
-        if (cita.Estado != "Completada")
-        {
-            return BadRequest(Response<object>.Fail("Solo se puede crear historial clínico para citas completadas."));
-        }
-
-        var historialExistente = await _historialService.ExistsHistorialForCitaAsync(citaId);
-
-        if (historialExistente)
-        {
-            return BadRequest(Response<object>.Fail("Ya existe un historial clínico para esta cita."));
-        }
-
-        var historialDto = new HistorialClinicoDto
-        {
-            CitaId = citaId,
-            FechaRegistro = DateTime.Now
-        };
-
-        var result = new
-        {
-            HistorialDto = historialDto,
-            Cita = cita
-        };
-
-        return Ok(Response<object>.Ok(result));
-    }
-
-    [HttpPost]
-    [Authorize(Roles = "Admin,Veterinario")]
-    public async Task<ActionResult<Response<object>>> Create([FromBody] HistorialClinicoDto historialDto)
-    {
-        var cita = await _historialService.GetCitaForHistorialAsync(historialDto.CitaId);
-
-        if (cita == null)
-        {
-            return NotFound(Response<object>.Fail("Cita no encontrada."));
-        }
-
-        if (cita.Estado != "Completada")
-        {
-            return BadRequest(Response<object>.Fail("Solo se puede crear historial clínico para citas completadas."));
-        }
-
-        var historialExistente = await _historialService.ExistsHistorialForCitaAsync(historialDto.CitaId);
-
-        if (historialExistente)
-        {
-            return BadRequest(Response<object>.Fail("Ya existe un historial clínico para esta cita."));
-        }
-
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(Response<object>.Fail("Model state is invalid."));
-        }
-
-        var historial = _mapper.Map<HistorialClinico>(historialDto);
-        historial.FechaRegistro = DateTime.Now;
-
-        await _historialService.AddHistorialAsync(historial);
-
-        return Ok(Response<object>.Ok(historial.CitaId, "Historial clínico creado exitosamente."));
-    }
-
     [HttpGet("details/{citaId}")]
     public async Task<ActionResult<Response<object>>> Details(int citaId)
     {
         var historial = await _historialService.GetHistorialByCitaIdAsync(citaId);
-
-        if (historial == null)
-        {
-            return NotFound(Response<object>.Fail("Historial clínico no encontrado para esta cita."));
-        }
+        if (historial == null) return NotFound(Response<object>.Fail("Historial clínico no encontrado para esta cita."));
 
         var historialDto = _mapper.Map<HistorialClinicoDto>(historial);
-
         historialDto.VeterinarioNombre = historial.Cita.Veterinario?.Nombre;
         historialDto.ServicioNombre = historial.Cita.Servicio?.Nombre;
         historialDto.FechaCita = historial.Cita.FechaHora;
@@ -163,14 +84,10 @@ public class HistorialesClinicosController : ControllerBase
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin,Veterinario")]
-    public async Task<ActionResult<Response<object>>> EditGet(int id)
+    public async Task<ActionResult<Response<object>>> GetById(int id)
     {
         var historial = await _historialService.GetHistorialByIdAsync(id);
-
-        if (historial == null)
-        {
-            return NotFound(Response<object>.Fail("Historial clínico no encontrado."));
-        }
+        if (historial == null) return NotFound(Response<object>.Fail("Historial clínico no encontrado."));
 
         var historialDto = _mapper.Map<HistorialClinicoDto>(historial);
         var result = new
@@ -182,46 +99,51 @@ public class HistorialesClinicosController : ControllerBase
         return Ok(Response<object>.Ok(result));
     }
 
+    [HttpPost]
+    [Authorize(Roles = "Admin,Veterinario")]
+    public async Task<ActionResult<Response<object>>> Create([FromBody] HistorialClinicoDto historialDto)
+    {
+        if (!ModelState.IsValid) return BadRequest(Response<object>.Fail("Datos inválidos."));
+
+        var historial = _mapper.Map<HistorialClinico>(historialDto);
+        var (success, guardado, error) = await _historialService.GuardarBorradorAsync(historial, GetUserEmail(), IsAdmin());
+
+        if (!success) return BadRequest(Response<object>.Fail(error ?? "Error al guardar borrador."));
+
+        return Ok(Response<object>.Ok(guardado?.CitaId, "Atención guardada exitosamente."));
+    }
+
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin,Veterinario")]
     public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] HistorialClinicoDto historialDto)
     {
-        if (id != historialDto.Id)
-        {
-            return BadRequest(Response<object>.Fail("ID mismatch."));
-        }
+        if (id != historialDto.Id) return BadRequest(Response<object>.Fail("ID mismatch."));
+        if (!ModelState.IsValid) return BadRequest(Response<object>.Fail("Datos inválidos."));
 
-        var historialExistente = await _historialService.GetHistorialByIdAsync(id);
+        var historial = _mapper.Map<HistorialClinico>(historialDto);
+        var (success, actualizado, error) = await _historialService.ActualizarBorradorAsync(historial, GetUserEmail(), IsAdmin());
 
-        if (historialExistente == null)
-        {
-            return NotFound(Response<object>.Fail("Historial clínico no encontrado."));
-        }
+        if (!success) return BadRequest(Response<object>.Fail(error ?? "Error al actualizar borrador."));
 
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(Response<object>.Fail("Model state is invalid."));
-        }
+        return Ok(Response<object>.Ok(actualizado?.CitaId, "Atención actualizada exitosamente."));
+    }
 
-        historialExistente.Diagnostico = historialDto.Diagnostico;
-        historialExistente.Tratamiento = historialDto.Tratamiento;
-        historialExistente.Medicamentos = historialDto.Medicamentos;
-        historialExistente.Observaciones = historialDto.Observaciones;
+    [HttpPost("Cerrar/{citaId}")]
+    [Authorize(Roles = "Admin,Veterinario")]
+    public async Task<ActionResult<Response<object>>> CerrarAtencion(int citaId)
+    {
+        var (success, error) = await _historialService.CerrarAtencionAsync(citaId, GetUserEmail(), IsAdmin());
 
-        await _historialService.UpdateHistorialAsync(historialExistente);
+        if (!success) return BadRequest(Response<object>.Fail(error ?? "Error al cerrar la atención."));
 
-        return Ok(Response<object>.Ok(historialExistente.CitaId, "Historial clínico actualizado exitosamente."));
+        return Ok(Response<object>.Ok(citaId, "Atención clínica cerrada. La cita pasó a estado Completada."));
     }
 
     [HttpGet("descargarpdf/{citaId}")]
     public async Task<ActionResult<Response<object>>> DescargarPDF(int citaId)
     {
         var historial = await _historialService.GetHistorialByCitaIdAsync(citaId);
-
-        if (historial == null)
-        {
-            return NotFound(Response<object>.Fail("Historial clínico no encontrado."));
-        }
+        if (historial == null) return NotFound(Response<object>.Fail("Historial clínico no encontrado."));
 
         return Ok(Response<object>.Ok("La funcionalidad de descarga de PDF será implementada próximamente."));
     }

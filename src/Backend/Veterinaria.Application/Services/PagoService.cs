@@ -300,6 +300,76 @@ public class PagoService : IPagoService
             .ToListAsync();
     }
 
+    public async Task<(bool Success, Pago? Pago, string? Error)> RegistrarCobroManualAsync(int citaId, decimal montoTotalAjustado, decimal montoAbonado, string metodoPago, string? referencia, string? observacion, string usuarioOperador)
+    {
+        if (montoAbonado <= 0)
+            return (false, null, "El monto abonado no puede ser cero o negativo.");
+
+        if (montoTotalAjustado <= 0)
+            return (false, null, "El monto total ajustado no puede ser cero o negativo.");
+
+        var metodosValidos = new[] { "Efectivo", "Tarjeta", "Transferencia", "Yape", "Plin" };
+        if (!metodosValidos.Contains(metodoPago))
+            return (false, null, "El método de pago no es válido.");
+
+        var cita = await _unitOfWork.Citas.GetByIdAsync(citaId);
+        if (cita == null)
+            return (false, null, "Cita no encontrada.");
+
+        if (cita.Estado != "Completada")
+            return (false, null, "Solo se pueden registrar cobros en citas en estado 'Completada'.");
+
+        if (cita.EstadoPago == "Pagado")
+            return (false, null, "La cita ya se encuentra totalmente pagada.");
+
+        // Regla 4: Precio final diferente debe justificarse
+        var montoOriginal = cita.Servicio?.Precio ?? cita.MontoTotal;
+        if (montoTotalAjustado != montoOriginal && string.IsNullOrWhiteSpace(observacion))
+            return (false, null, "Debe ingresar una observación justificando el cambio de precio total.");
+
+        // Calcular nuevo monto total
+        cita.MontoTotal = montoTotalAjustado;
+        
+        var tipoPago = "Completo";
+        if (cita.MontoPagado + montoAbonado < cita.MontoTotal)
+            tipoPago = "Parcial";
+        else if (cita.MontoPagado > 0)
+            tipoPago = "Restante";
+
+        var refGenerada = string.IsNullOrWhiteSpace(referencia) 
+            ? $"COB-{DateTime.Now:yyyyMMdd}-{citaId:D4}-{new Random().Next(1000, 9999)}"
+            : referencia;
+
+        var pago = new Pago
+        {
+            CitaId = citaId,
+            Monto = montoAbonado,
+            MetodoPago = metodoPago,
+            TipoPago = tipoPago,
+            Referencia = refGenerada,
+            Observacion = observacion,
+            FechaPago = DateTime.Now
+        };
+
+        await _unitOfWork.Pagos.AddAsync(pago);
+
+        cita.MontoPagado += montoAbonado;
+        cita.TipoPago = tipoPago;
+        cita.EstadoPago = cita.MontoPagado >= cita.MontoTotal ? "Pagado" : "Parcial";
+
+        _unitOfWork.Citas.Update(cita);
+        await _unitOfWork.CommitAsync();
+
+        await _auditoriaService.RegistrarAccionAsync(
+            "Registrar Cobro Manual",
+            "Pago",
+            pago.Id.ToString(),
+            $"Cobro manual de S/. {pago.Monto} registrado por {usuarioOperador}. Medio: {metodoPago}. Cita ID: {pago.CitaId}"
+        );
+
+        return (true, pago, null);
+    }
+
     private static string EncriptarDatos(string texto)
     {
         if (string.IsNullOrEmpty(texto)) return string.Empty;

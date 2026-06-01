@@ -15,11 +15,13 @@ public class ClienteService : IClienteService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IAuditoriaService _auditoriaService;
 
-    public ClienteService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager)
+    public ClienteService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IAuditoriaService auditoriaService)
     {
         _unitOfWork = unitOfWork;
         _userManager = userManager;
+        _auditoriaService = auditoriaService;
     }
 
     public async Task<(IEnumerable<Usuario> Usuarios, Dictionary<int, int> CitasPorUsuario)> GetClientesAsync(string buscar, bool mostrarInactivos)
@@ -134,6 +136,14 @@ public class ClienteService : IClienteService
             }
         }
 
+        string estadoActual = usuario.Activo ? "Activado" : "Desactivado";
+        await _auditoriaService.RegistrarAccionAsync(
+            "ToggleActivo", 
+            "Cliente", 
+            usuario.Id.ToString(), 
+            $"Se cambió el estado del cliente a {estadoActual}."
+        );
+
         return true;
     }
 
@@ -183,6 +193,13 @@ public class ClienteService : IClienteService
                     await _userManager.SetLockoutEndDateAsync(appUser, DateTimeOffset.MaxValue);
                 }
             }
+
+            await _auditoriaService.RegistrarAccionAsync(
+                "Desactivar", 
+                "Cliente", 
+                usuario.Id.ToString(), 
+                "Desactivación en cascada del cliente y sus mascotas."
+            );
 
             return (true, $"Cliente '{usuario.Nombre}' y sus mascotas han sido desactivados.");
         }
@@ -264,7 +281,14 @@ public class ClienteService : IClienteService
             return (false, $"El correo electrónico '{dto.Email}' ya está registrado por {emailDuplicado.ClienteExistenteNombre}.", null, duplicados);
         }
 
-        // Si se detectan duplicados y no se ignoran, retornar advertencia
+        // Si se encuentra un DNI duplicado, SIEMPRE es un bloqueo duro según regla de negocio
+        var dniDuplicado = duplicados.FirstOrDefault(d => d.Tipo == "DNI");
+        if (dniDuplicado != null)
+        {
+            return (false, $"El documento de identidad '{dto.DNI}' ya está registrado por {dniDuplicado.ClienteExistenteNombre}.", null, duplicados);
+        }
+
+        // Si se detectan otros duplicados (teléfono) y no se ignoran, retornar advertencia
         if (duplicados.Any() && !dto.IgnorarDuplicados)
         {
             return (false, "Se detectaron posibles clientes duplicados en el sistema.", null, duplicados);
@@ -310,6 +334,7 @@ public class ClienteService : IClienteService
             Telefono = dto.Telefono,
             DNI = dto.DNI,
             Direccion = dto.Direccion,
+            Observaciones = dto.Observaciones,
             Rol = "Cliente",
             Activo = true,
             FechaRegistro = DateTime.UtcNow,
@@ -318,6 +343,13 @@ public class ClienteService : IClienteService
 
         await _unitOfWork.Usuarios.AddAsync(domainUser);
         await _unitOfWork.CommitAsync();
+
+        await _auditoriaService.RegistrarAccionAsync(
+            "Crear", 
+            "Cliente", 
+            domainUser.Id.ToString(), 
+            $"Se registró el cliente {domainUser.Nombre}."
+        );
 
         return (true, "Cliente registrado exitosamente.", domainUser, duplicados);
     }
@@ -340,7 +372,14 @@ public class ClienteService : IClienteService
             return (false, $"El correo electrónico '{dto.Email}' ya está registrado por {emailDuplicado.ClienteExistenteNombre}.", duplicados);
         }
 
-        // Si se detectan duplicados y no se ignoran, retornar advertencia
+        // Si se encuentra un DNI duplicado, SIEMPRE es un bloqueo duro según regla de negocio
+        var dniDuplicado = duplicados.FirstOrDefault(d => d.Tipo == "DNI");
+        if (dniDuplicado != null)
+        {
+            return (false, $"El documento de identidad '{dto.DNI}' ya está registrado por {dniDuplicado.ClienteExistenteNombre}.", duplicados);
+        }
+
+        // Si se detectan otros duplicados (teléfono) y no se ignoran, retornar advertencia
         if (duplicados.Any() && !dto.IgnorarDuplicados)
         {
             return (false, "Se detectaron posibles clientes duplicados en el sistema.", duplicados);
@@ -411,9 +450,17 @@ public class ClienteService : IClienteService
         domainUser.Telefono = dto.Telefono;
         domainUser.DNI = dto.DNI;
         domainUser.Direccion = dto.Direccion;
+        domainUser.Observaciones = dto.Observaciones;
 
         _unitOfWork.Usuarios.Update(domainUser);
         await _unitOfWork.CommitAsync();
+
+        await _auditoriaService.RegistrarAccionAsync(
+            "Editar", 
+            "Cliente", 
+            domainUser.Id.ToString(), 
+            $"Se editaron los datos del cliente {domainUser.Nombre}."
+        );
 
         return (true, "Cliente actualizado exitosamente.", duplicados);
     }

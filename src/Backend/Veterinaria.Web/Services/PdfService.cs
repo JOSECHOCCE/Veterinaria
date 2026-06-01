@@ -524,4 +524,127 @@ public class PdfService
             });
         });
     }
+
+    public byte[] GenerarReporteCitasPdf(Veterinaria.Application.DTOs.ReporteCitasDto dto)
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                page.Header().Element(c => ComposeHeader(c, "REPORTE DE CITAS Y ATENCIONES"));
+                page.Content().Element(c => ComposeContentReporteCitas(c, dto));
+                page.Footer().Element(ComposeFooter);
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    private void ComposeContentReporteCitas(IContainer container, Veterinaria.Application.DTOs.ReporteCitasDto dto)
+    {
+        container.PaddingVertical(20).Column(column =>
+        {
+            column.Item().Text($"Período: {dto.FechaInicio:dd/MM/yyyy} al {dto.FechaFin:dd/MM/yyyy}").Bold();
+            column.Item().PaddingTop(5).Text($"Total Citas: {dto.TotalCitas} (Completadas: {dto.Completadas}, Canceladas: {dto.Canceladas}, Pendientes: {dto.Pendientes})");
+            
+            column.Item().PaddingTop(15).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(1.5f);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Text("ID").Bold();
+                    header.Cell().Text("Fecha").Bold();
+                    header.Cell().Text("Estado").Bold();
+                    header.Cell().Text("Mascota").Bold();
+                    header.Cell().Text("Veterinario").Bold();
+                    header.Cell().Text("Monto").Bold();
+                });
+
+                foreach (var item in dto.Detalle)
+                {
+                    table.Cell().Text(item.CitaId.ToString());
+                    table.Cell().Text(item.FechaHora.ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Text(item.Estado);
+                    table.Cell().Text(item.Mascota);
+                    table.Cell().Text(item.Veterinario);
+                    table.Cell().Text($"€{item.MontoTotal:N2}");
+                }
+            });
+        });
+    }
+
+    public byte[] GenerarReporteIngresosPdf(Veterinaria.Application.DTOs.ReporteIngresosDto dto)
+    {
+        QuestPDF.Settings.License = LicenseType.Community;
+
+        var document = Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(30);
+                page.DefaultTextStyle(x => x.FontSize(10));
+
+                page.Header().Element(c => ComposeHeader(c, "REPORTE DE INGRESOS"));
+                page.Content().Element(c => ComposeContentReporteIngresos(c, dto));
+                page.Footer().Element(ComposeFooter);
+            });
+        });
+
+        return document.GeneratePdf();
+    }
+
+    private void ComposeContentReporteIngresos(IContainer container, Veterinaria.Application.DTOs.ReporteIngresosDto dto)
+    {
+        container.PaddingVertical(20).Column(column =>
+        {
+            column.Item().Text($"Período: {dto.FechaInicio:dd/MM/yyyy} al {dto.FechaFin:dd/MM/yyyy}").Bold();
+            column.Item().PaddingTop(5).Text($"Total Ingresos: €{dto.TotalIngresos:N2} (Efectivo: €{dto.TotalEfectivo:N2}, Tarjeta: €{dto.TotalTarjeta:N2})");
+            
+            column.Item().PaddingTop(15).Table(table =>
+            {
+                table.ColumnsDefinition(columns =>
+                {
+                    columns.RelativeColumn(1);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(2);
+                    columns.RelativeColumn(4);
+                    columns.RelativeColumn(2);
+                });
+
+                table.Header(header =>
+                {
+                    header.Cell().Text("ID").Bold();
+                    header.Cell().Text("Fecha").Bold();
+                    header.Cell().Text("Método").Bold();
+                    header.Cell().Text("Concepto").Bold();
+                    header.Cell().Text("Monto").Bold();
+                });
+
+                foreach (var item in dto.Detalle)
+                {
+                    table.Cell().Text(item.PagoId.ToString());
+                    table.Cell().Text(item.FechaPago.ToString("dd/MM/yyyy HH:mm"));
+                    table.Cell().Text(item.MetodoPago);
+                    table.Cell().Text(item.Concepto);
+                    table.Cell().Text($"€{item.Monto:N2}");
+                }
+            });
+        });
+    }
 }

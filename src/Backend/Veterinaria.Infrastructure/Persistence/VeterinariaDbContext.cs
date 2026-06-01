@@ -25,6 +25,11 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Producto> Productos => Set<Producto>();
     public DbSet<Venta> Ventas => Set<Venta>();
     public DbSet<DetalleVenta> DetallesVentas => Set<DetalleVenta>();
+    
+    // Agenda y Gestión de Citas
+    public DbSet<HorarioClinica> HorariosClinica => Set<HorarioClinica>();
+    public DbSet<HorarioVeterinario> HorariosVeterinario => Set<HorarioVeterinario>();
+    public DbSet<BloqueoAgenda> BloqueosAgenda => Set<BloqueoAgenda>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -61,6 +66,9 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.Rol)
                 .HasMaxLength(20);
+
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(500);
 
             entity.HasMany(e => e.Mascotas)
                 .WithOne(m => m.Usuario)
@@ -126,6 +134,38 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
                 .WithOne(c => c.Veterinario)
                 .HasForeignKey(c => c.VeterinarioId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(e => e.Horarios)
+                .WithOne(h => h.Veterinario)
+                .HasForeignKey(h => h.VeterinarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(e => e.Bloqueos)
+                .WithOne(b => b.Veterinario)
+                .HasForeignKey(b => b.VeterinarioId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // HorarioClinica
+        modelBuilder.Entity<HorarioClinica>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.DiaSemana).IsUnique(); // Solo un registro por día de la semana
+        });
+
+        // HorarioVeterinario
+        modelBuilder.Entity<HorarioVeterinario>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.VeterinarioId, e.DiaSemana }).IsUnique(); // Solo un horario por día para cada vet
+        });
+
+        // BloqueoAgenda
+        modelBuilder.Entity<BloqueoAgenda>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Motivo).IsRequired().HasMaxLength(200);
+            entity.HasIndex(e => new { e.VeterinarioId, e.FechaInicio, e.FechaFin });
         });
 
         // Servicio
@@ -145,6 +185,9 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
 
             entity.Property(e => e.Precio)
                 .HasPrecision(10, 2);
+
+            entity.Property(e => e.EspecialidadRequerida)
+                .HasMaxLength(100);
 
             entity.HasMany(e => e.Citas)
                 .WithOne(c => c.Servicio)

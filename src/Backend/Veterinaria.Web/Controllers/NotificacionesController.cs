@@ -143,4 +143,33 @@ public class NotificacionesController : ControllerBase
             _ => "bi-info-circle-fill"
         };
     }
+
+    [HttpPut("Preferencias")]
+    public async Task<ActionResult<Response<object>>> ActualizarPreferencias([FromBody] PreferenciasRequest request)
+    {
+        var usuario = await GetCurrentUsuarioAsync();
+        if (usuario == null) return Unauthorized(Response<object>.Fail("No autorizado"));
+
+        usuario.RecibirRecordatorios = request.RecibirRecordatorios;
+        _unitOfWork.Usuarios.Update(usuario);
+        await _unitOfWork.CommitAsync();
+
+        return Ok(Response<object>.Ok(new { success = true, recibirRecordatorios = usuario.RecibirRecordatorios }, "Preferencias actualizadas correctamente."));
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("ProcesarAlertasDiarias")]
+    public async Task<ActionResult<Response<object>>> ProcesarAlertasDiarias()
+    {
+        // En una aplicación en producción, esto sería llamado por un Worker Service o Hangfire.
+        // Aquí lo exponemos como endpoint manual para pruebas del prototipo.
+        await _notificacionService.ProcesarAlertasDiariasAsync();
+        
+        return Ok(Response<object>.Ok(new { success = true }, "Alertas diarias procesadas y generadas correctamente."));
+    }
+}
+
+public class PreferenciasRequest
+{
+    public bool RecibirRecordatorios { get; set; }
 }

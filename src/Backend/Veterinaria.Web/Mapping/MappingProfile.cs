@@ -23,6 +23,8 @@ public class MappingProfile : Profile
 
         // Servicio <-> ServicioDto
         CreateMap<Servicio, ServicioDto>().ReverseMap();
+        CreateMap<Veterinaria.Application.DTOs.CrearServicioDto, Servicio>();
+        CreateMap<Veterinaria.Application.DTOs.EditarServicioDto, Servicio>();
 
         // Cita <-> CitaDto
         CreateMap<Cita, CitaDto>()

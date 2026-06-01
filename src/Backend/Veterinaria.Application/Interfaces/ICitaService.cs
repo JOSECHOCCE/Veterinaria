@@ -23,6 +23,7 @@ public interface ICitaService
     Task<(bool EsValida, string? MensajeError)> ValidarFechaCitaAsync(int veterinarioId, DateTime fechaHora);
     
     // Commands
+    Task<Cita> ReservaTemporalCitaAsync(Cita cita, decimal precioServicio);
     Task<Cita> CreateCitaAsync(Cita cita, decimal precioServicio);
     Task<Mascota> CreateMascotaAsync(Mascota mascota);
     Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo, DateTime? nuevaFechaHora = null, int? nuevoVeterinarioId = null, string? reprogramadoPorUsuarioId = null);

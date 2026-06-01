@@ -13,11 +13,13 @@ public class NotificacionService : INotificacionService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRealTimeNotificationService _realTimeService;
+    private readonly ICorreoService _correoService;
 
-    public NotificacionService(IUnitOfWork unitOfWork, IRealTimeNotificationService realTimeService)
+    public NotificacionService(IUnitOfWork unitOfWork, IRealTimeNotificationService realTimeService, ICorreoService correoService)
     {
         _unitOfWork = unitOfWork;
         _realTimeService = realTimeService;
+        _correoService = correoService;
     }
 
     public async Task<Notificacion> CrearNotificacionAsync(int usuarioId, string titulo, string mensaje, string tipo = "Info", string? icono = null, string? urlAccion = null)
@@ -119,15 +121,24 @@ public class NotificacionService : INotificacionService
     {
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
         if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "🎉 ¡Cita Confirmada!";
+        var mensaje = $"Tu cita para {mascota.Nombre} ha sido confirmada para el {cita.FechaHora:dd/MM/yyyy} a las {cita.FechaHora:HH:mm}.";
 
         await CrearNotificacionAsync(
             mascota.UsuarioId,
-            "🎉 ¡Cita Confirmada!",
-            $"Tu cita para {mascota.Nombre} ha sido confirmada para el {cita.FechaHora:dddd dd 'de' MMMM} a las {cita.FechaHora:HH:mm}.",
+            titulo,
+            mensaje,
             "Success",
             "bi-calendar-check",
             "/cliente/mis-citas"
         );
+
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
     }
 
     public async Task NotificarCitaEnProcesoAsync(Cita cita)
@@ -169,15 +180,48 @@ public class NotificacionService : INotificacionService
     {
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
         if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "❌ Cita Cancelada";
+        var mensaje = $"La cita de {mascota.Nombre} programada para el {cita.FechaHora:dd/MM/yyyy HH:mm} ha sido cancelada.";
 
         await CrearNotificacionAsync(
             mascota.UsuarioId,
-            "❌ Cita Cancelada",
-            $"La cita de {mascota.Nombre} programada para el {cita.FechaHora:dd/MM/yyyy HH:mm} ha sido cancelada.",
+            titulo,
+            mensaje,
             "Warning",
             "bi-x-circle",
             "/cliente/mis-citas"
         );
+
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
+    }
+
+    public async Task NotificarCitaReprogramadaAsync(Cita cita)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
+        if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "🔄 Cita Reprogramada";
+        var mensaje = $"La cita de {mascota.Nombre} ha sido reprogramada para el {cita.FechaHora:dd/MM/yyyy HH:mm}.";
+
+        await CrearNotificacionAsync(
+            mascota.UsuarioId,
+            titulo,
+            mensaje,
+            "Info",
+            "bi-calendar-event",
+            "/cliente/mis-citas"
+        );
+
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
     }
 
     public async Task NotificarRecordatorioCitaAsync(Cita cita)
@@ -185,15 +229,51 @@ public class NotificacionService : INotificacionService
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
         var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(cita.VeterinarioId);
         if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "⏰ Recordatorio de Cita";
+        var mensaje = $"Tienes una cita para {mascota.Nombre} mañana a las {cita.FechaHora:HH:mm} con Dr. {veterinario?.Nombre ?? ""}. ¡No olvides asistir!";
 
         await CrearNotificacionAsync(
             mascota.UsuarioId,
-            "⏰ Recordatorio de Cita",
-            $"Tienes una cita para {mascota.Nombre} mañana a las {cita.FechaHora:HH:mm} con Dr. {veterinario?.Nombre ?? ""}. ¡No olvides asistir!",
+            titulo,
+            mensaje,
             "Info",
             "bi-bell",
             "/cliente/mis-citas"
         );
+
+        if (usuario != null && usuario.RecibirRecordatorios && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
+    }
+
+    public async Task NotificarProximoControlAsync(HistorialClinico atencion)
+    {
+        if (atencion.ProximoControl == null) return;
+        var cita = await _unitOfWork.Citas.GetByIdAsync(atencion.CitaId);
+        if (cita == null) return;
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
+        if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "🗓️ Sugerencia de Próximo Control";
+        var mensaje = $"El próximo control sugerido para {mascota.Nombre} es alrededor del {atencion.ProximoControl.Value:dd/MM/yyyy}. Puedes agendar tu cita desde el portal.";
+
+        await CrearNotificacionAsync(
+            mascota.UsuarioId,
+            titulo,
+            mensaje,
+            "Info",
+            "bi-calendar-plus",
+            "/cliente/nueva-cita"
+        );
+
+        if (usuario != null && usuario.RecibirRecordatorios && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
     }
 
     public async Task NotificarPagoRecibidoAsync(Cita cita, decimal monto)
@@ -238,6 +318,79 @@ public class NotificacionService : INotificacionService
                 "bi-calendar-plus",
                 $"/admin/agenda" // URL de la Agenda
             );
+        }
+    }
+
+    public async Task ProcesarAlertasDiariasAsync()
+    {
+        var ahora = DateTime.Now;
+        var manana = ahora.AddDays(1).Date;
+        var pasadoManana = ahora.AddDays(2).Date;
+
+        // 1. Recordatorios 24h antes (Citas Confirmadas para mañana)
+        var citasManana = await _unitOfWork.Citas.GetAll()
+            .Where(c => c.Estado == "Confirmada" && c.FechaHora.Date == manana)
+            .ToListAsync();
+
+        foreach (var cita in citasManana)
+        {
+            await NotificarRecordatorioCitaAsync(cita);
+        }
+
+        // 2. Citas próximas a vencer sin confirmación (para personal)
+        var citasPendientesPorVencer = await _unitOfWork.Citas.GetAll()
+            .Where(c => c.Estado == "Pendiente de confirmación" && c.FechaHora <= pasadoManana)
+            .ToListAsync();
+
+        var personal = await _unitOfWork.Usuarios.GetAll()
+            .Where(u => u.Activo && (u.Rol == "Recepcionista" || u.Rol == "Admin"))
+            .ToListAsync();
+
+        foreach (var cita in citasPendientesPorVencer)
+        {
+            foreach (var p in personal)
+            {
+                await CrearNotificacionAsync(
+                    p.Id,
+                    "⚠️ Cita Pendiente por Vencer",
+                    $"Una cita solicitada para el {cita.FechaHora:dd/MM/yyyy HH:mm} sigue sin confirmación.",
+                    "Warning",
+                    "bi-exclamation-triangle",
+                    "/admin/agenda"
+                );
+            }
+        }
+
+        // 3. Citas con pago pendiente de más de 3 días (para personal)
+        var hace3Dias = ahora.AddDays(-3);
+        var pagosPendientes = await _unitOfWork.Citas.GetAll()
+            .Where(c => c.Estado == "Completada" && c.EstadoPago != "Pagado" && c.FechaHora <= hace3Dias)
+            .ToListAsync();
+
+        foreach (var cita in pagosPendientes)
+        {
+            foreach (var p in personal)
+            {
+                await CrearNotificacionAsync(
+                    p.Id,
+                    "💸 Pago Pendiente Retrasado",
+                    $"La cita del {cita.FechaHora:dd/MM/yyyy} tiene un pago pendiente de S/. {(cita.MontoTotal - cita.MontoPagado):N2}.",
+                    "Warning",
+                    "bi-cash",
+                    "/admin/pagos"
+                );
+            }
+        }
+
+        // 4. Próximo control sugerido (Atenciones cuyo ProximoControl es en 3 días)
+        var enTresDias = ahora.AddDays(3).Date;
+        var atencionesParaControl = await _unitOfWork.HistorialesClinicos.GetAll()
+            .Where(a => a.ProximoControl != null && a.ProximoControl.Value.Date == enTresDias)
+            .ToListAsync();
+
+        foreach (var atencion in atencionesParaControl)
+        {
+            await NotificarProximoControlAsync(atencion);
         }
     }
 }

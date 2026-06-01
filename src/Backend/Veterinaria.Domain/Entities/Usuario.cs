@@ -28,6 +28,8 @@ public class Usuario
 
     public bool Activo { get; set; } = true;
 
+    public bool RecibirRecordatorios { get; set; } = true; // Preferencia del cliente para recordatorios no críticos
+
     public DateTime FechaRegistro { get; set; }
 
     // Vínculo con Identity
@@ -36,4 +38,7 @@ public class Usuario
 
     // Navegación
     public virtual ICollection<Mascota> Mascotas { get; set; } = new List<Mascota>();
+
+    [MaxLength(500)]
+    public string? Observaciones { get; set; }
 }

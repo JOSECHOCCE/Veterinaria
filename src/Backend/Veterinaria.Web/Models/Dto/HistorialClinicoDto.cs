@@ -10,6 +10,17 @@ public class HistorialClinicoDto
     [Display(Name = "Cita")]
     public int CitaId { get; set; }
 
+    [Display(Name = "Peso Actual (kg)")]
+    public decimal? PesoActual { get; set; }
+
+    [Display(Name = "Temperatura (°C)")]
+    public decimal? Temperatura { get; set; }
+
+    [Display(Name = "Frecuencia Cardíaca (lpm)")]
+    public int? FrecuenciaCardiaca { get; set; }
+
+    public bool Cerrado { get; set; }
+
     [Required(ErrorMessage = "El diagnóstico es requerido")]
     [MaxLength(1000, ErrorMessage = "El diagnóstico no puede exceder 1000 caracteres")]
     [Display(Name = "Diagnóstico")]

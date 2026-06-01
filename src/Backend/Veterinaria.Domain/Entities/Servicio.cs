@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -18,6 +19,11 @@ public class Servicio
 
     [Column(TypeName = "decimal(10,2)")]
     public decimal Precio { get; set; }
+
+    public bool RequiereVeterinario { get; set; } = true;
+
+    [MaxLength(100)]
+    public string? EspecialidadRequerida { get; set; }
 
     public bool Activo { get; set; } = true;
 

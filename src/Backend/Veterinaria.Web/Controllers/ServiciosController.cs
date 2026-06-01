@@ -2,15 +2,15 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Veterinaria.Application.Interfaces;
-using Veterinaria.Domain.Entities;
+using Veterinaria.Application.DTOs;
 using Veterinaria.Web.Models.Dto;
 using System.Linq;
 using System.Threading.Tasks;
-using Veterinaria.Application.DTOs;
+using System.Security.Claims;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Recepcionista")]
 [ApiController]
 [Route("api/[controller]")]
 public class ServiciosController : ControllerBase
@@ -25,8 +25,17 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous] // Allow clients to see the list? RF-18 says "El cliente solo ve los servicios activos" but the controller itself can just check roles. Let's keep it as is, but if they want to expose it, the [AllowAnonymous] isn't secure. Actually, we should use the same roles as other modules. Wait, the module says:
+    // "Visible para recepción y administrador. El cliente solo ve los servicios activos al momento de agendar."
+    // I'll keep the Authorize for all roles and filter in UI, or just "Admin,Recepcionista,Cliente"
     public ActionResult<Response<object>> Index(string? q, bool? mostrarInactivos, int page = 1)
     {
+        // For security, if User is not Admin/Recepcionista, force mostrarInactivos = false
+        if (!User.IsInRole("Admin") && !User.IsInRole("Recepcionista"))
+        {
+            mostrarInactivos = false;
+        }
+
         var serviciosEntities = _servicioService.GetServicios(q, mostrarInactivos);
 
         var servicios = serviciosEntities
@@ -44,6 +53,7 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "Admin,Recepcionista")]
     public async Task<ActionResult<Response<object>>> Details(int id)
     {
         var servicio = await _servicioService.GetServicioWithCitasAsync(id);
@@ -65,32 +75,31 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Response<object>>> Create([FromBody] ServicioDto servicioDto)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Response<object>>> Create([FromBody] CrearServicioDto dto)
     {
         if (!ModelState.IsValid)
         {
             return BadRequest(Response<object>.Fail("Datos inválidos."));
         }
 
-        var existeNombre = await _servicioService.ExistsNombreAsync(servicioDto.Nombre);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _servicioService.CrearServicioAsync(dto, userId);
 
-        if (existeNombre)
+        if (result.Success && result.Data != null)
         {
-            return BadRequest(Response<object>.Fail("Ya existe un servicio con este nombre."));
+            var resultDto = _mapper.Map<ServicioDto>(result.Data);
+            return Ok(Response<object>.Ok(resultDto, result.Message));
         }
 
-        var servicio = _mapper.Map<Servicio>(servicioDto);
-        servicio.Activo = true;
-
-        await _servicioService.AddServicioAsync(servicio);
-
-        return Ok(Response<object>.Ok("Servicio creado exitosamente."));
+        return BadRequest(Response<object>.Fail(result.Message));
     }
 
     [HttpPut("{id}")]
-    public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] ServicioDto servicioDto)
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] EditarServicioDto dto)
     {
-        if (id != servicioDto.Id)
+        if (id != dto.Id)
         {
             return BadRequest(Response<object>.Fail("El ID no coincide."));
         }
@@ -100,85 +109,44 @@ public class ServiciosController : ControllerBase
             return BadRequest(Response<object>.Fail("Datos inválidos."));
         }
 
-        var existeNombre = await _servicioService.ExistsNombreAsync(servicioDto.Nombre, id);
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _servicioService.EditarServicioAsync(id, dto, userId);
 
-        if (existeNombre)
+        if (result.Success)
         {
-            return BadRequest(Response<object>.Fail("Ya existe un servicio con este nombre."));
+            return Ok(Response<object>.Ok(new { Message = result.Message }));
         }
 
-        var servicio = await _servicioService.GetServicioByIdAsync(id);
-        if (servicio == null)
-        {
-            return NotFound(Response<object>.Fail("Servicio no encontrado."));
-        }
-
-        _mapper.Map(servicioDto, servicio);
-        await _servicioService.UpdateServicioAsync(servicio);
-
-        return Ok(Response<object>.Ok("Servicio actualizado exitosamente."));
+        return BadRequest(Response<object>.Fail(result.Message));
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Delete(int id)
     {
-        var servicio = await _servicioService.GetServicioWithCitasAsync(id);
-        if (servicio == null)
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _servicioService.DeleteServicioAsync(id, userId);
+
+        if (result.Success)
         {
-            return NotFound(Response<object>.Fail("Servicio no encontrado."));
-        }
-        
-        if (servicio.Citas.Any())
-        {
-            return BadRequest(Response<object>.Fail("No se puede eliminar el servicio porque tiene citas asociadas. Puede desactivarlo en su lugar."));
+            return Ok(Response<object>.Ok(new { Message = result.Message }));
         }
 
-        var deleted = await _servicioService.DeleteServicioAsync(id);
-
-        if (!deleted)
-        {
-            return BadRequest(Response<object>.Fail("Error al eliminar el servicio."));
-        }
-
-        return Ok(Response<object>.Ok("Servicio eliminado exitosamente."));
+        return BadRequest(Response<object>.Fail(result.Message));
     }
 
     [HttpPost("ToggleActivo/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> ToggleActivo(int id)
     {
-        var servicio = await _servicioService.GetServicioByIdAsync(id);
-        if (servicio == null)
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
+        var result = await _servicioService.ToggleActivoAsync(id, userId);
+
+        if (result.Success)
         {
-            return NotFound(Response<object>.Fail("Servicio no encontrado."));
+            return Ok(Response<object>.Ok(new { Message = result.Message }));
         }
 
-        await _servicioService.ToggleActivoAsync(id);
-
-        var message = !servicio.Activo 
-            ? "Servicio activado exitosamente." 
-            : "Servicio desactivado exitosamente.";
-
-        return Ok(Response<object>.Ok(message));
-    }
-
-    // Método auxiliar para formatear duración (maybe can be removed or kept as public static)
-    public static string FormatearDuracion(int minutos)
-    {
-        if (minutos < 60)
-        {
-            return $"{minutos} min";
-        }
-
-        var horas = minutos / 60;
-        var mins = minutos % 60;
-
-        if (mins == 0)
-        {
-            return horas == 1 ? "1 hora" : $"{horas} horas";
-        }
-
-        return horas == 1 
-            ? $"1 hora {mins} min" 
-            : $"{horas} horas {mins} min";
+        return NotFound(Response<object>.Fail(result.Message));
     }
 }

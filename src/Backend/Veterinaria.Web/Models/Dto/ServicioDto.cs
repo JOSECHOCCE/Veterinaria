@@ -23,6 +23,13 @@ public class ServicioDto
     [DataType(DataType.Currency)]
     public decimal Precio { get; set; }
 
+    [Display(Name = "Requiere Veterinario Asignado")]
+    public bool RequiereVeterinario { get; set; } = true;
+
+    [Display(Name = "Especialidad Requerida")]
+    [MaxLength(100, ErrorMessage = "La especialidad no puede exceder 100 caracteres")]
+    public string? EspecialidadRequerida { get; set; }
+
     [Display(Name = "Activo")]
     public bool Activo { get; set; } = true;
 }

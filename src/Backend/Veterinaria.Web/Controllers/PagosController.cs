@@ -154,6 +154,36 @@ public class PagosController : ControllerBase
         return Ok(Response<string>.Ok(message));
     }
 
+    [HttpPost("RegistrarCobro")]
+    [Authorize(Roles = "Admin,Recepcionista")]
+    public async Task<ActionResult<Response<object>>> RegistrarCobro([FromBody] RegistrarCobroRequestDto request)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(Response<object>.Fail("Datos de pago inválidos."));
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var domainUser = await _unitOfWork.Usuarios.GetAll().FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
+        var nombreOperador = domainUser?.Nombre ?? "Sistema";
+
+        var (success, pago, error) = await _pagoService.RegistrarCobroManualAsync(
+            request.CitaId,
+            request.MontoTotalAjustado,
+            request.MontoAbonado,
+            request.MetodoPago,
+            request.ReferenciaOpcional,
+            request.Observacion,
+            nombreOperador
+        );
+
+        if (!success)
+            return BadRequest(Response<object>.Fail(error ?? "Error al registrar el cobro."));
+
+        return Ok(Response<object>.Ok(new { 
+            Message = $"Cobro registrado exitosamente. Referencia: {pago?.Referencia}", 
+            PagoId = pago?.Id 
+        }));
+    }
+
     [HttpGet("mis-pagos")]
     [Authorize(Roles = "Usuario,Admin")]
     public async Task<ActionResult<Response<object>>> MisPagos()

@@ -115,12 +115,46 @@ public class CitaService : ICitaService
         if (veterinario == null || !veterinario.Activo)
             return false;
 
+        var diaSemana = (int)fechaHora.DayOfWeek;
         var horaCita = fechaHora.TimeOfDay;
         var horaFinCita = horaCita.Add(TimeSpan.FromMinutes(duracionMinutos));
 
-        if (horaCita < veterinario.HorarioInicio || horaFinCita > veterinario.HorarioFin)
-            return false;
+        // Validar Horario Clínica
+        var horarioClinica = await _unitOfWork.HorariosClinica.GetAll().FirstOrDefaultAsync(h => h.DiaSemana == diaSemana);
+        if (horarioClinica != null)
+        {
+            if (!horarioClinica.EsLaborable) return false;
+            if (horaCita < horarioClinica.HoraApertura || horaFinCita > horarioClinica.HoraCierre) return false;
+        }
 
+        // Validar Horario Veterinario
+        var horarioVet = await _unitOfWork.HorariosVeterinario.GetAll().FirstOrDefaultAsync(h => h.VeterinarioId == veterinarioId && h.DiaSemana == diaSemana);
+        if (horarioVet != null)
+        {
+            if (!horarioVet.EsLaborable) return false;
+            if (horaCita < horarioVet.HoraInicio || horaFinCita > horarioVet.HoraFin) return false;
+            if (horarioVet.DescansoInicio.HasValue && horarioVet.DescansoFin.HasValue)
+            {
+                bool solapaDescanso = !(horaFinCita <= horarioVet.DescansoInicio.Value || horaCita >= horarioVet.DescansoFin.Value);
+                if (solapaDescanso) return false;
+            }
+        }
+        else
+        {
+            // Fallback al horario general si no hay específico
+            if (horaCita < veterinario.HorarioInicio || horaFinCita > veterinario.HorarioFin)
+                return false;
+        }
+
+        // Validar Bloqueos
+        var finNuevaDate = fechaHora.AddMinutes(duracionMinutos);
+        var bloqueos = await _unitOfWork.BloqueosAgenda.GetAll()
+            .Where(b => b.VeterinarioId == veterinarioId && b.FechaInicio < finNuevaDate && b.FechaFin > fechaHora)
+            .AnyAsync();
+        
+        if (bloqueos) return false;
+
+        // Validar Citas
         var fechaInicio = fechaHora.Date;
         var fechaFin = fechaInicio.AddDays(1);
 
@@ -129,20 +163,23 @@ public class CitaService : ICitaService
             .Where(c => c.VeterinarioId == veterinarioId
                      && c.FechaHora >= fechaInicio
                      && c.FechaHora < fechaFin
-                     && c.Estado != "Cancelada"
+                     && c.Estado != "Cancelada" && c.Estado != "Rechazada" && c.Estado != "NoAsistio"
                      && (citaIdExcluir == null || c.Id != citaIdExcluir))
             .ToListAsync();
 
-        var inicioCitaNueva = fechaHora;
-        var finCitaNueva = fechaHora.AddMinutes(duracionMinutos);
+        var ahora = DateTime.UtcNow;
 
         foreach (var citaExistente in citasDelDia)
         {
+            // Ignorar reservas expiradas
+            if (citaExistente.Estado == "ReservaTemporal" && citaExistente.FechaExpiracionReserva.HasValue && citaExistente.FechaExpiracionReserva.Value < ahora)
+                continue;
+
             var duracionExistente = citaExistente.Servicio?.DuracionMinutos ?? 30;
             var inicioCitaExistente = citaExistente.FechaHora;
             var finCitaExistente = citaExistente.FechaHora.AddMinutes(duracionExistente);
 
-            bool hayConflicto = !(finCitaNueva <= inicioCitaExistente || inicioCitaNueva >= finCitaExistente);
+            bool hayConflicto = !(finNuevaDate <= inicioCitaExistente || fechaHora >= finCitaExistente);
             if (hayConflicto)
                 return false;
         }
@@ -160,11 +197,9 @@ public class CitaService : ICitaService
         if (!citaIds.Any())
             return false;
 
-        var citasConPagoPendiente = await _unitOfWork.Citas.GetAll()
+        return await _unitOfWork.Citas.GetAll()
             .Where(c => citaIds.Contains(c.Id) && c.EstadoPago == "Parcial" && c.Estado == "Completada")
             .AnyAsync();
-
-        return citasConPagoPendiente;
     }
 
     public async Task<List<DateTime>> ObtenerHorariosDisponiblesAsync(int veterinarioId, DateTime fecha)
@@ -174,11 +209,28 @@ public class CitaService : ICitaService
         if (veterinario == null || !veterinario.Activo)
             return horariosDisponibles;
 
+        var diaSemana = (int)fecha.DayOfWeek;
+        
+        var horarioClinica = await _unitOfWork.HorariosClinica.GetAll().FirstOrDefaultAsync(h => h.DiaSemana == diaSemana);
+        if (horarioClinica != null && !horarioClinica.EsLaborable) return horariosDisponibles;
+
+        var horarioVet = await _unitOfWork.HorariosVeterinario.GetAll().FirstOrDefaultAsync(h => h.VeterinarioId == veterinarioId && h.DiaSemana == diaSemana);
+        if (horarioVet != null && !horarioVet.EsLaborable) return horariosDisponibles;
+
+        var horaInicio = horarioVet?.HoraInicio ?? veterinario.HorarioInicio;
+        var horaFin = horarioVet?.HoraFin ?? veterinario.HorarioFin;
+
+        if (horarioClinica != null)
+        {
+            if (horaInicio < horarioClinica.HoraApertura) horaInicio = horarioClinica.HoraApertura;
+            if (horaFin > horarioClinica.HoraCierre) horaFin = horarioClinica.HoraCierre;
+        }
+
         var slotDuracion = 30;
         var fechaBase = fecha.Date;
-        var horaActual = veterinario.HorarioInicio;
+        var horaActual = horaInicio;
 
-        while (horaActual.Add(TimeSpan.FromMinutes(slotDuracion)) <= veterinario.HorarioFin)
+        while (horaActual.Add(TimeSpan.FromMinutes(slotDuracion)) <= horaFin)
         {
             var slotDateTime = fechaBase.Add(horaActual);
             
@@ -188,23 +240,53 @@ public class CitaService : ICitaService
                 continue;
             }
 
-            horariosDisponibles.Add(slotDateTime);
+            // Excluir descanso
+            bool enDescanso = false;
+            if (horarioVet?.DescansoInicio != null && horarioVet?.DescansoFin != null)
+            {
+                var finSlotHora = horaActual.Add(TimeSpan.FromMinutes(slotDuracion));
+                enDescanso = !(finSlotHora <= horarioVet.DescansoInicio.Value || horaActual >= horarioVet.DescansoFin.Value);
+            }
+
+            if (!enDescanso)
+            {
+                horariosDisponibles.Add(slotDateTime);
+            }
+
             horaActual = horaActual.Add(TimeSpan.FromMinutes(slotDuracion));
         }
 
-        var fechaInicio = fechaBase;
-        var fechaFin = fechaBase.AddDays(1);
+        // Excluir bloqueos
+        var fechaFinDia = fechaBase.AddDays(1);
+        var bloqueos = await _unitOfWork.BloqueosAgenda.GetAll()
+            .Where(b => b.VeterinarioId == veterinarioId && b.FechaFin > fechaBase && b.FechaInicio < fechaFinDia)
+            .ToListAsync();
 
+        foreach (var b in bloqueos)
+        {
+            horariosDisponibles.RemoveAll(slot =>
+            {
+                var finSlot = slot.AddMinutes(slotDuracion);
+                return !(finSlot <= b.FechaInicio || slot >= b.FechaFin);
+            });
+        }
+
+        // Excluir citas
         var citasDelDia = await _unitOfWork.Citas.GetAll()
             .Include(c => c.Servicio)
             .Where(c => c.VeterinarioId == veterinarioId
-                     && c.FechaHora >= fechaInicio
-                     && c.FechaHora < fechaFin
-                     && c.Estado != "Cancelada")
+                     && c.FechaHora >= fechaBase
+                     && c.FechaHora < fechaFinDia
+                     && c.Estado != "Cancelada" && c.Estado != "Rechazada" && c.Estado != "NoAsistio")
             .ToListAsync();
+
+        var ahora = DateTime.UtcNow;
 
         foreach (var cita in citasDelDia)
         {
+            if (cita.Estado == "ReservaTemporal" && cita.FechaExpiracionReserva.HasValue && cita.FechaExpiracionReserva.Value < ahora)
+                continue;
+
             var duracionCita = cita.Servicio?.DuracionMinutos ?? 30;
             var inicioCita = cita.FechaHora;
             var finCita = cita.FechaHora.AddMinutes(duracionCita);
@@ -234,15 +316,31 @@ public class CitaService : ICitaService
         if (!veterinario.Activo)
             return (false, "El veterinario seleccionado no está activo.");
 
+        var diaSemana = (int)fechaHora.DayOfWeek;
+        
+        var horarioClinica = await _unitOfWork.HorariosClinica.GetAll().FirstOrDefaultAsync(h => h.DiaSemana == diaSemana);
+        if (horarioClinica != null && !horarioClinica.EsLaborable) 
+            return (false, "La clínica no atiende ese día.");
+
+        var horarioVet = await _unitOfWork.HorariosVeterinario.GetAll().FirstOrDefaultAsync(h => h.VeterinarioId == veterinarioId && h.DiaSemana == diaSemana);
+        if (horarioVet != null && !horarioVet.EsLaborable) 
+            return (false, "El veterinario no atiende ese día.");
+
+        var horaInicio = horarioVet?.HoraInicio ?? veterinario.HorarioInicio;
+        var horaFin = horarioVet?.HoraFin ?? veterinario.HorarioFin;
         var horaCita = fechaHora.TimeOfDay;
-        if (horaCita < veterinario.HorarioInicio)
-            return (false, $"La hora de la cita ({horaCita:hh\\:mm}) es antes del horario de inicio del veterinario ({veterinario.HorarioInicio:hh\\:mm}).");
 
-        if (horaCita >= veterinario.HorarioFin)
-            return (false, $"La hora de la cita ({horaCita:hh\\:mm}) es después del horario de fin del veterinario ({veterinario.HorarioFin:hh\\:mm}).");
+        if (horaCita < horaInicio)
+            return (false, $"La hora de la cita es antes del horario de inicio del veterinario ({horaInicio:hh\\:mm}).");
 
-        if (fechaHora.DayOfWeek == DayOfWeek.Sunday)
-            return (false, "No se pueden programar citas los domingos.");
+        if (horaCita >= horaFin)
+            return (false, $"La hora de la cita es después del horario de fin del veterinario ({horaFin:hh\\:mm}).");
+
+        if (horarioClinica != null)
+        {
+            if (horaCita < horarioClinica.HoraApertura || horaCita >= horarioClinica.HoraCierre)
+                return (false, "La cita está fuera del horario general de la clínica.");
+        }
 
         return (true, null);
     }
@@ -254,50 +352,89 @@ public class CitaService : ICitaService
         return mascota;
     }
 
+    public async Task<Cita> ReservaTemporalCitaAsync(Cita cita, decimal precioServicio)
+    {
+        var esValida = await ValidarYConfigurarCitaAsync(cita, "ReservaTemporal", precioServicio);
+        cita.FechaExpiracionReserva = DateTime.UtcNow.AddMinutes(5);
+
+        await _unitOfWork.Citas.AddAsync(cita);
+        await _unitOfWork.CommitAsync();
+        return cita;
+    }
+
     public async Task<Cita> CreateCitaAsync(Cita cita, decimal precioServicio)
     {
-        // Validar que el servicio esté activo (RF-21)
+        // Determinamos el estado según el rol (el controller puede configurar el estado correcto o dejarlo PendienteConfirmacion por portal)
+        if (string.IsNullOrEmpty(cita.Estado))
+        {
+            cita.Estado = "PendienteConfirmacion";
+        }
+
+        await ValidarYConfigurarCitaAsync(cita, cita.Estado, precioServicio);
+
+        await _unitOfWork.Citas.AddAsync(cita);
+        await _unitOfWork.CommitAsync();
+        return cita;
+    }
+
+    private async Task<bool> ValidarYConfigurarCitaAsync(Cita cita, string estadoInicial, decimal precioServicio)
+    {
         var servicio = await _unitOfWork.Servicios.GetByIdAsync(cita.ServicioId);
         if (servicio == null || !servicio.Activo)
             throw new InvalidOperationException("El servicio seleccionado no está disponible.");
 
-        // Validar que la mascota esté activa (RF-13)
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
         if (mascota == null || !mascota.Activo)
             throw new InvalidOperationException("La mascota seleccionada no está activa.");
 
-        // RF-21: Validar que la mascota no tenga cita activa en el mismo horario
         var duracion = servicio.DuracionMinutos;
-        var finNueva = cita.FechaHora.AddMinutes(duracion);
+        
+        // Validación Especialidad (Regla 13)
+        if (!string.IsNullOrEmpty(servicio.EspecialidadRequerida))
+        {
+            var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(cita.VeterinarioId);
+            if (veterinario == null || string.IsNullOrEmpty(veterinario.Especialidad) || !veterinario.Especialidad.Contains(servicio.EspecialidadRequerida))
+            {
+                throw new InvalidOperationException($"El servicio requiere especialidad: {servicio.EspecialidadRequerida}");
+            }
+        }
 
+        // Validar mascota no tenga cita concurrente (Regla 4)
+        var finNueva = cita.FechaHora.AddMinutes(duracion);
         var mascotaConflicto = await _unitOfWork.Citas.GetAll()
             .Include(c => c.Servicio)
             .Where(c => c.MascotaId == cita.MascotaId
-                     && c.Estado != "Cancelada" && c.Estado != "NoAsistio")
+                     && c.Estado != "Cancelada" && c.Estado != "Rechazada" && c.Estado != "NoAsistio")
             .ToListAsync();
 
+        var ahora = DateTime.UtcNow;
         foreach (var existente in mascotaConflicto)
         {
+            if (existente.Estado == "ReservaTemporal" && existente.FechaExpiracionReserva.HasValue && existente.FechaExpiracionReserva.Value < ahora)
+                continue;
+
             var durExistente = existente.Servicio?.DuracionMinutos ?? 30;
             var finExistente = existente.FechaHora.AddMinutes(durExistente);
             if (!(finNueva <= existente.FechaHora || cita.FechaHora >= finExistente))
                 throw new InvalidOperationException("La mascota ya tiene una cita programada en ese horario.");
         }
 
-        // RF-21: Validar disponibilidad real del veterinario para evitar solapamientos
-        var veterinarioDisponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion);
-        if (!veterinarioDisponible)
-            throw new InvalidOperationException("El veterinario seleccionado ya tiene otra cita agendada en ese horario.");
+        // Validar disponibilidad real (Reglas 1, 2, 3)
+        // Bypass si es urgencia y el admin forzó, pero el requerimiento base dice que urgecnia puede sobreescribir. Lo mantenemos simple.
+        if (!cita.EsUrgencia)
+        {
+            var veterinarioDisponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion);
+            if (!veterinarioDisponible)
+                throw new InvalidOperationException("El bloque seleccionado ya no se encuentra disponible.");
+        }
 
-        cita.Estado = "Solicitada";
+        cita.Estado = estadoInicial;
         cita.EstadoPago = "Pendiente";
         cita.MontoTotal = precioServicio;
         cita.MontoPagado = 0;
         cita.FechaCreacion = DateTime.UtcNow;
-
-        await _unitOfWork.Citas.AddAsync(cita);
-        await _unitOfWork.CommitAsync();
-        return cita;
+        
+        return true;
     }
 
     public async Task<(bool Success, Cita? Cita)> EditCitaAsync(int id, string nuevoEstado, string? motivo, DateTime? nuevaFechaHora = null, int? nuevoVeterinarioId = null, string? reprogramadoPorUsuarioId = null)
@@ -306,7 +443,6 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null);
 
-        // Detectar si hay reprogramación (cambio de fecha o de profesional)
         bool esReprogramacion = false;
         DateTime fechaAnterior = cita.FechaHora;
         int veterinarioAnteriorId = cita.VeterinarioId;
@@ -325,6 +461,16 @@ public class CitaService : ICitaService
 
         if (esReprogramacion)
         {
+            // Regla 14: Validar disponibilidad en reprogramación
+            var servicio = await _unitOfWork.Servicios.GetByIdAsync(cita.ServicioId);
+            var duracion = servicio?.DuracionMinutos ?? 30;
+            var disponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion, cita.Id);
+            if (!disponible)
+            {
+                throw new InvalidOperationException("El nuevo horario no está disponible.");
+            }
+
+            cita.Estado = "Reprogramada"; // Diagrama de estados
             cita.ReprogramadoPorUsuarioId = reprogramadoPorUsuarioId;
             cita.FechaReprogramacion = DateTime.UtcNow;
             cita.MotivoReprogramacion = motivo;
@@ -336,7 +482,7 @@ public class CitaService : ICitaService
                 "Reprogramar Cita",
                 "Cita",
                 cita.Id.ToString(),
-                $"Cita reprogramada. Fecha anterior: {fechaAnterior:yyyy-MM-dd HH:mm}, nueva: {cita.FechaHora:yyyy-MM-dd HH:mm}. Vet anterior: {veterinarioAnteriorId}, nuevo: {cita.VeterinarioId}. Motivo: {motivo}"
+                $"Reprogramada. Fecha anterior: {fechaAnterior:yyyy-MM-dd HH:mm}, nueva: {cita.FechaHora:yyyy-MM-dd HH:mm}. Vet ant: {veterinarioAnteriorId}, nuevo: {cita.VeterinarioId}."
             );
         }
         else
@@ -351,7 +497,7 @@ public class CitaService : ICitaService
                 "Modificar Cita",
                 "Cita",
                 cita.Id.ToString(),
-                $"Cita modificada. Estado actual: {nuevoEstado}. Motivo: {motivo}"
+                $"Modificada. Estado: {nuevoEstado}. Motivo: {motivo}"
             );
         }
 
@@ -367,10 +513,11 @@ public class CitaService : ICitaService
         if (!isAdmin && (currentUsuarioId == null || cita.Mascota.UsuarioId != currentUsuarioId))
             return (false, null, "Forbid");
 
-        if (cita.Estado != "Solicitada" && cita.Estado != "Pendiente" && cita.Estado != "Confirmada" && cita.Estado != "EnEspera")
-            return (false, null, "Solo se pueden cancelar citas en estado 'Solicitada', 'Pendiente', 'Confirmada' o 'EnEspera'.");
+        var permitidosCancelacion = new[] { "ReservaTemporal", "PendienteConfirmacion", "PendienteAsignacion", "Confirmada", "EnEspera", "Reprogramada" };
+        if (!permitidosCancelacion.Contains(cita.Estado))
+            return (false, null, "No se puede cancelar en el estado actual.");
 
-        // RF-24: El cliente solo puede cancelar con al menos 2 horas de anticipación
+        // Regla 11: Cancelación con 2 horas (solo clientes)
         if (!isAdmin && cita.FechaHora <= DateTime.Now.AddHours(2))
             return (false, null, "Solo puedes cancelar citas con al menos 2 horas de anticipación.");
 
@@ -378,12 +525,11 @@ public class CitaService : ICitaService
         _unitOfWork.Citas.Update(cita);
         await _unitOfWork.CommitAsync();
 
-        // Registrar auditoría (RNF-09)
         await _auditoriaService.RegistrarAccionAsync(
             "Cancelar Cita",
             "Cita",
             cita.Id.ToString(),
-            $"Cita cancelada por {(isAdmin ? "Administración/Recepcionista" : "Cliente")}. ID de usuario del cliente solicitante: {currentUsuarioId}"
+            $"Cancelada por {(isAdmin ? "Administración/Recepcionista" : "Cliente")}. UsuarioID: {currentUsuarioId}"
         );
 
         return (true, cita, null);
@@ -395,8 +541,8 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null);
 
-        // Solo se puede completar desde EnProceso, EnEspera o Confirmada
-        if (cita.Estado != "EnProceso" && cita.Estado != "EnEspera" && cita.Estado != "Confirmada")
+        // Regla 36: CompletarCita viene de EnAtencion
+        if (cita.Estado != "EnAtencion" && cita.Estado != "EnProceso")
             return (false, null);
 
         cita.Estado = "Completada";
@@ -405,17 +551,23 @@ public class CitaService : ICitaService
         return (true, cita);
     }
 
-    // Mapa de transiciones de estado válidas según requerimientos
     private static readonly Dictionary<string, string[]> _transicionesValidas = new()
     {
-        ["Solicitada"]  = new[] { "Confirmada", "Cancelada", "NoAsistio" },
-        ["Pendiente"]   = new[] { "Confirmada", "Cancelada", "NoAsistio" },
-        ["Confirmada"]  = new[] { "EnEspera", "EnProceso", "Cancelada", "NoAsistio" },
-        ["EnEspera"]    = new[] { "EnProceso", "Cancelada", "NoAsistio" },
-        ["EnProceso"]   = new[] { "Completada", "Cancelada" },
-        ["Completada"]  = Array.Empty<string>(),
-        ["Cancelada"]   = Array.Empty<string>(),
-        ["NoAsistio"]   = Array.Empty<string>(),
+        ["ReservaTemporal"]         = new[] { "PendienteConfirmacion", "Libre" },
+        ["PendienteConfirmacion"]   = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["PendienteAsignacion"]     = new[] { "Confirmada", "Cancelada", "Rechazada" },
+        ["Confirmada"]              = new[] { "EnEspera", "EnAtencion", "Cancelada", "NoAsistio", "Reprogramada" },
+        ["Reprogramada"]            = new[] { "Confirmada", "Cancelada" },
+        ["EnEspera"]                = new[] { "EnAtencion", "Cancelada", "NoAsistio" },
+        ["EnAtencion"]              = new[] { "Completada", "Cancelada" },
+        ["Completada"]              = Array.Empty<string>(),
+        ["Cancelada"]               = Array.Empty<string>(),
+        ["Rechazada"]               = Array.Empty<string>(),
+        ["NoAsistio"]               = Array.Empty<string>(),
+        // Para backwards compatibility temporal si quedan datos viejos
+        ["Solicitada"]              = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["Pendiente"]               = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["EnProceso"]               = new[] { "Completada", "Cancelada" },
     };
 
     public async Task<(bool Success, Cita? Cita, string? Error)> CambiarEstadoAsync(int id, string nuevoEstado)
@@ -424,19 +576,26 @@ public class CitaService : ICitaService
         if (cita == null)
             return (false, null, "No encontrado");
 
-        var estadosValidos = new[] { "Solicitada", "Pendiente", "Confirmada", "EnEspera", "EnProceso", "Completada", "Cancelada", "NoAsistio" };
-        if (!estadosValidos.Contains(nuevoEstado))
+        if (!_transicionesValidas.ContainsKey(nuevoEstado) && !nuevoEstado.Equals("Libre"))
             return (false, null, "Estado no válido.");
 
-        // Validar transición permitida
         if (_transicionesValidas.TryGetValue(cita.Estado, out var permitidos))
         {
             if (!permitidos.Contains(nuevoEstado))
                 return (false, null, $"No se puede cambiar de '{cita.Estado}' a '{nuevoEstado}'.");
         }
 
-        cita.Estado = nuevoEstado;
-        _unitOfWork.Citas.Update(cita);
+        // Si es "Libre" desde ReservaTemporal, la borramos físicamente o la marcamos.
+        if (nuevoEstado == "Libre")
+        {
+            _unitOfWork.Citas.Remove(cita);
+        }
+        else
+        {
+            cita.Estado = nuevoEstado;
+            _unitOfWork.Citas.Update(cita);
+        }
+        
         await _unitOfWork.CommitAsync();
         
         return (true, cita, null);

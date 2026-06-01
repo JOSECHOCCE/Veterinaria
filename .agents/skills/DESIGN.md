@@ -1,16 +1,5 @@
 ---
 
-
-## Source of Truth for Implementation
-
-For any screen generated from Stitch MCP:
-1. Stitch provides layout structure, section hierarchy, and rough component composition.
-2. DESIGN.md is the final authority for visual identity.
-3. If a Stitch export conflicts with DESIGN.md, DESIGN.md wins.
-4. Never preserve Stitch colors, radii, shadows, or typography if they differ from this design system.
-5. Waldenburg is only for display headlines and hero moments; Inter is mandatory for forms, tables, dense data, and navigation.
-6. Gradient orbs are atmospheric only; they must never reduce readability in dashboards, tables, or clinical forms.
-
 version: alpha
 name: Claude-design-analysis
 description: A warm-canvas editorial interface for Anthropic's Claude product. The system anchors on a tinted cream canvas with serif display headlines, warm coral CTAs, and dark navy product surfaces (code editor mockups, model showcase cards). Brand voltage comes from the cream/coral pairing — deliberately warm and humanist where most AI brands use cool blue + slate. Type voice runs a slab-serif display ("Copernicus" / Tiempos Headline) for h1/h2 and a humanist sans for body. The signature Anthropic black-radial-spike mark anchors the wordmark.

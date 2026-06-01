@@ -18,7 +18,12 @@ public interface INotificacionService
     Task NotificarCitaEnProcesoAsync(Cita cita);
     Task NotificarCitaCompletadaAsync(Cita cita);
     Task NotificarCitaCanceladaAsync(Cita cita);
+    Task NotificarCitaReprogramadaAsync(Cita cita);
     Task NotificarRecordatorioCitaAsync(Cita cita);
     Task NotificarPagoRecibidoAsync(Cita cita, decimal monto);
     Task NotificarNuevaCitaSolicitadaAsync(Cita cita);
+    Task NotificarProximoControlAsync(HistorialClinico atencion);
+    
+    // Procesamiento diario de alertas (Cron job / Manual trigger)
+    Task ProcesarAlertasDiariasAsync();
 }

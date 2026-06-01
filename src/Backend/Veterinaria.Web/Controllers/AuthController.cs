@@ -1,19 +1,11 @@
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using System.Linq;
-using System;
-using Veterinaria.Domain.Entities;
 using Veterinaria.Application.DTOs;
-using Veterinaria.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
+using Veterinaria.Application.Interfaces;
+using Veterinaria.Domain.Entities;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -21,84 +13,35 @@ namespace Veterinaria.Web.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
+    private readonly IAuthService _authService;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly VeterinariaDbContext _context;
-    private readonly IConfiguration _configuration;
 
-    public AuthController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, VeterinariaDbContext context, IConfiguration configuration)
+    public AuthController(
+        IAuthService authService,
+        SignInManager<ApplicationUser> signInManager,
+        UserManager<ApplicationUser> userManager)
     {
+        _authService = authService;
         _signInManager = signInManager;
         _userManager = userManager;
-        _context = context;
-        _configuration = configuration;
     }
 
     [HttpPost("login")]
-    public async Task<ActionResult<Response<object>>> Login([FromBody] LoginRequest request)
+    public async Task<ActionResult<Response<LoginResponseDto>>> Login([FromBody] LoginRequestDto request)
     {
-        if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        if (!ModelState.IsValid)
         {
-            return BadRequest(Response<object>.Fail("El correo y la contraseña son requeridos."));
+            return BadRequest(Response<LoginResponseDto>.Fail("Datos de inicio de sesión inválidos."));
         }
 
-        // Buscar el usuario por email
-        var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null)
+        var result = await _authService.LoginAsync(request);
+        if (!result.Success)
         {
-            return BadRequest(Response<object>.Fail("Credenciales inválidas."));
+            return BadRequest(result);
         }
 
-        // Verificar si el usuario de dominio está activo
-        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == user.Id);
-        if (domainUser != null && !domainUser.Activo)
-        {
-            return BadRequest(Response<object>.Fail("Tu cuenta ha sido desactivada. Contacta al administrador."));
-        }
-
-        // Intentar iniciar sesión
-        var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
-        if (isPasswordValid)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            var userRole = roles.FirstOrDefault() ?? "Usuario";
-
-            // Generar Token JWT
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "SuperSecretKeyForVeterinariaApp2026!AwesomeKeyWithLength32");
-            
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Email, user.Email ?? ""),
-                new Claim(ClaimTypes.Name, user.NombreCompleto ?? ""),
-                new Claim(ClaimTypes.Role, userRole)
-            };
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "1440")),
-                Issuer = _configuration["Jwt:Issuer"],
-                Audience = _configuration["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            var data = new
-            {
-                Email = user.Email,
-                NombreCompleto = user.NombreCompleto,
-                Role = userRole,
-                Token = tokenString
-            };
-
-            return Ok(Response<object>.Ok(data, "Sesión iniciada con éxito."));
-        }
-
-        return BadRequest(Response<object>.Fail("Credenciales inválidas."));
+        return Ok(result);
     }
 
     [HttpPost("logout")]
@@ -113,20 +56,24 @@ public class AuthController : ControllerBase
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user != null)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(userId))
             {
-                var roles = await _userManager.GetRolesAsync(user);
-                var userRole = roles.FirstOrDefault() ?? "Usuario";
-
-                var data = new
+                var appUser = await _userManager.FindByIdAsync(userId);
+                if (appUser != null)
                 {
-                    Email = user.Email,
-                    NombreCompleto = user.NombreCompleto,
-                    Role = userRole
-                };
+                    var roles = await _userManager.GetRolesAsync(appUser);
+                    var userRole = roles.FirstOrDefault() ?? "Usuario";
 
-                return Ok(Response<object>.Ok(data, "Sesión activa recuperada."));
+                    var data = new
+                    {
+                        Email = appUser.Email,
+                        NombreCompleto = appUser.NombreCompleto,
+                        Role = userRole
+                    };
+
+                    return Ok(Response<object>.Ok(data, "Sesión activa recuperada."));
+                }
             }
         }
 
@@ -134,157 +81,86 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<Response<object>>> Register([FromBody] RegisterRequest request)
+    public async Task<ActionResult<Response<string>>> Register([FromBody] RegisterRequestDto request)
     {
-        if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
+        if (!ModelState.IsValid)
         {
-            return BadRequest(Response<object>.Fail("Datos de registro inválidos."));
+            return BadRequest(Response<string>.Fail("Datos de registro inválidos."));
         }
 
-        var existingUser = await _userManager.FindByEmailAsync(request.Email);
-        if (existingUser != null)
+        var result = await _authService.RegisterAsync(request);
+        if (!result.Success)
         {
-            return BadRequest(Response<object>.Fail("El correo electrónico ya está registrado."));
+            return BadRequest(result);
         }
 
-        var user = new ApplicationUser
-        {
-            UserName = request.Email,
-            Email = request.Email,
-            NombreCompleto = request.NombreCompleto
-        };
-
-        var result = await _userManager.CreateAsync(user, request.Password);
-
-        if (result.Succeeded)
-        {
-            // Asignar rol de Cliente y Usuario por defecto para asegurar compatibilidad
-            await _userManager.AddToRoleAsync(user, "Cliente");
-            await _userManager.AddToRoleAsync(user, "Usuario");
-
-            // Crear el registro de dominio
-            var domainUser = new Usuario
-            {
-                ApplicationUserId = user.Id,
-                Nombre = request.NombreCompleto,
-                Email = request.Email,
-                DNI = request.DNI,
-                Telefono = request.Telefono,
-                Direccion = request.Direccion,
-                Rol = "Cliente", // Rol unificado en dominio
-                Activo = true,
-                FechaRegistro = DateTime.UtcNow
-            };
-
-            _context.Usuarios.Add(domainUser);
-            await _context.SaveChangesAsync();
-
-            return Ok(Response<object>.Ok(new { Email = user.Email }, "Usuario registrado con éxito."));
-        }
-
-        return BadRequest(Response<object>.Fail("Error al registrar el usuario: " + string.Join(", ", result.Errors.Select(e => e.Description))));
+        return Ok(result);
     }
 
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     [HttpGet("profile")]
     public async Task<ActionResult<Response<object>>> GetProfile()
     {
-        var appUser = await _userManager.GetUserAsync(User);
-        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
-
-        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
-
-        return Ok(Response<object>.Ok(new
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
         {
-            NombreCompleto = appUser.NombreCompleto,
-            Email = appUser.Email,
-            Telefono = domainUser?.Telefono ?? "",
-            DNI = domainUser?.DNI ?? "",
-            Direccion = domainUser?.Direccion ?? ""
-        }));
+            return Unauthorized(Response<object>.Fail("No autenticado."));
+        }
+
+        var result = await _authService.GetProfileAsync(userId);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
     }
 
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     [HttpPut("profile")]
-    public async Task<ActionResult<Response<object>>> UpdateProfile([FromBody] UpdateProfileRequest request)
+    public async Task<ActionResult<Response<string>>> UpdateProfile([FromBody] UpdateProfileRequestDto request)
     {
-        var appUser = await _userManager.GetUserAsync(User);
-        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(Response<string>.Fail("Datos de edición de perfil inválidos."));
+        }
 
-        var domainUser = await _context.Usuarios.FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
-        if (domainUser == null) return NotFound(Response<object>.Fail("Perfil no encontrado."));
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(Response<string>.Fail("No autenticado."));
+        }
 
-        // Actualizar nombre en Identity
-        appUser.NombreCompleto = request.NombreCompleto;
-        await _userManager.UpdateAsync(appUser);
+        var result = await _authService.UpdateProfileAsync(userId, request);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
 
-        // Actualizar datos en dominio
-        domainUser.Nombre = request.NombreCompleto;
-        domainUser.Telefono = request.Telefono;
-        domainUser.DNI = request.DNI;
-        domainUser.Direccion = request.Direccion;
-        await _context.SaveChangesAsync();
-
-        return Ok(Response<object>.Ok("Perfil actualizado correctamente."));
+        return Ok(result);
     }
 
-    [Microsoft.AspNetCore.Authorization.Authorize]
+    [Authorize]
     [HttpPost("change-password")]
-    public async Task<ActionResult<Response<object>>> ChangePassword([FromBody] ChangePasswordRequest request)
+    public async Task<ActionResult<Response<string>>> ChangePassword([FromBody] ChangePasswordRequestDto request)
     {
-        var appUser = await _userManager.GetUserAsync(User);
-        if (appUser == null) return Unauthorized(Response<object>.Fail("No autenticado."));
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(Response<string>.Fail("Datos de cambio de contraseña inválidos."));
+        }
 
-        var result = await _userManager.ChangePasswordAsync(appUser, request.CurrentPassword, request.NewPassword);
-        if (!result.Succeeded)
-            return BadRequest(Response<object>.Fail("Error: " + string.Join(", ", result.Errors.Select(e => e.Description))));
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            return Unauthorized(Response<string>.Fail("No autenticado."));
+        }
 
-        return Ok(Response<object>.Ok("Contraseña actualizada correctamente."));
+        var result = await _authService.ChangePasswordAsync(userId, request);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
     }
-}
-
-public class LoginRequest
-{
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    public string Password { get; set; } = string.Empty;
-
-    public bool RememberMe { get; set; } = false;
-}
-
-public class RegisterRequest
-{
-    [Required]
-    public string NombreCompleto { get; set; } = string.Empty;
-
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; } = string.Empty;
-
-    [Required]
-    public string Password { get; set; } = string.Empty;
-
-    public string? DNI { get; set; }
-    public string? Telefono { get; set; }
-    public string? Direccion { get; set; }
-}
-
-public class UpdateProfileRequest
-{
-    [Required]
-    public string NombreCompleto { get; set; } = string.Empty;
-    public string? Telefono { get; set; }
-    public string? DNI { get; set; }
-    public string? Direccion { get; set; }
-}
-
-public class ChangePasswordRequest
-{
-    [Required]
-    public string CurrentPassword { get; set; } = string.Empty;
-    [Required]
-    public string NewPassword { get; set; } = string.Empty;
 }

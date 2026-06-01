@@ -20,8 +20,11 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<Triage> Triages { get; }
     public IGenericRepository<Consentimiento> Consentimientos { get; }
     public IGenericRepository<Producto> Productos { get; }
-    public IGenericRepository<Venta> Ventas { get; }
-    public IGenericRepository<DetalleVenta> DetallesVentas { get; }
+    public IGenericRepository<Venta> Ventas { get; private set; }
+    public IGenericRepository<DetalleVenta> DetallesVentas { get; private set; }
+    public IGenericRepository<HorarioClinica> HorariosClinica { get; private set; }
+    public IGenericRepository<HorarioVeterinario> HorariosVeterinario { get; private set; }
+    public IGenericRepository<BloqueoAgenda> BloqueosAgenda { get; private set; }
 
     public UnitOfWork(VeterinariaDbContext context)
     {
@@ -40,6 +43,9 @@ public class UnitOfWork : IUnitOfWork
         Productos = new GenericRepository<Producto>(_context);
         Ventas = new GenericRepository<Venta>(_context);
         DetallesVentas = new GenericRepository<DetalleVenta>(_context);
+        HorariosClinica = new GenericRepository<HorarioClinica>(_context);
+        HorariosVeterinario = new GenericRepository<HorarioVeterinario>(_context);
+        BloqueosAgenda = new GenericRepository<BloqueoAgenda>(_context);
     }
 
     public async Task<int> CommitAsync()

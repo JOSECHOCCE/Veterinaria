@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Veterinaria.Domain.Entities;
 
@@ -8,6 +9,14 @@ public class HistorialClinico
 
     // Foreign Key (unique - relación uno a uno)
     public int CitaId { get; set; }
+
+    [Column(TypeName = "decimal(5,2)")]
+    public decimal? PesoActual { get; set; }
+
+    [Column(TypeName = "decimal(5,2)")]
+    public decimal? Temperatura { get; set; }
+
+    public int? FrecuenciaCardiaca { get; set; }
 
     [Required]
     [MaxLength(1000)]
@@ -34,6 +43,8 @@ public class HistorialClinico
     public DateTime? ProximoControl { get; set; }
 
     public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
+
+    public bool Cerrado { get; set; } = false;
 
     // Navegación
     public virtual Cita Cita { get; set; } = default!;

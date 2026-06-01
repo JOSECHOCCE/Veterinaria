@@ -25,6 +25,9 @@ public class Pago
     [MaxLength(20)]
     public string? UltimosDigitosTarjeta { get; set; } // Últimos 4 dígitos de la tarjeta
 
+    [MaxLength(500)]
+    public string? Observacion { get; set; } // Justificación si el monto total varía o notas adicionales
+
     public DateTime FechaPago { get; set; } = DateTime.Now;
 
     // Navegación
