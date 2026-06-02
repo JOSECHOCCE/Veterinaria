@@ -1,5 +1,42 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD,opsz@100..700,0..1,-50..200,20..48&display=swap');
+@import "tailwindcss";
+
+
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-active: var(--color-primary-active);
+  --color-primary-disabled: var(--color-primary-disabled);
+  --color-ink: var(--color-ink);
+  --color-body: var(--color-body);
+  --color-body-strong: var(--color-body-strong);
+  --color-muted: var(--color-muted);
+  --color-muted-soft: var(--color-muted-soft);
+  
+  --color-hairline: var(--color-hairline);
+  --color-hairline-soft: var(--color-hairline-soft);
+  --color-hairline-strong: var(--color-hairline-strong);
+  
+  --color-canvas: var(--color-canvas);
+  --color-canvas-soft: var(--color-canvas-soft);
+  --color-canvas-deep: var(--color-canvas-deep);
+  
+  --color-surface-card: var(--color-surface-card);
+  --color-surface-strong: var(--color-surface-strong);
+  --color-surface-cream-strong: var(--color-surface-cream-strong);
+  --color-surface-dark: var(--color-surface-dark);
+  --color-surface-dark-elevated: var(--color-surface-dark-elevated);
+  
+  --color-on-primary: var(--color-on-primary);
+  --color-on-dark: var(--color-on-dark);
+  --color-on-dark-soft: var(--color-on-dark-soft);
+  
+  --color-semantic-error: var(--color-semantic-error);
+  --color-semantic-success: var(--color-semantic-success);
+  --color-semantic-warning: var(--color-semantic-warning);
+
+  --font-display: var(--font-family-display);
+  --font-body: var(--font-family-body);
+}
 
 :root {
   /* Colors - Strictly from DESIGN.md "Editorial Compassion" */
@@ -294,7 +331,7 @@ body {
   gap: var(--spacing-lg);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .editorial-grid {
     grid-template-cols: repeat(2, 1fr);
   }
@@ -305,4 +342,64 @@ body {
     grid-template-cols: repeat(3, 1fr);
   }
 }
+
+/* ==========================================
+   LAYOUT RESPONSIVO SPLIT-SCREEN & UTILS
+   ========================================== */
+.split-screen-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.split-screen-left {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--spacing-xl);
+}
+
+.split-screen-right {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+}
+
+.flex-row-desktop {
+  display: flex;
+  flex-direction: column;
+}
+
+.w-half-desktop {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .split-screen-container {
+    flex-direction: row;
+  }
+  .split-screen-left {
+    width: 50%;
+    min-height: 100dvh;
+  }
+  .split-screen-right {
+    width: 50%;
+    min-height: 100dvh;
+  }
+  .flex-row-desktop {
+    flex-direction: row;
+  }
+  .w-half-desktop {
+    width: 50%;
+  }
+}
+
+.hover-bg-canvas-soft:hover {
+  background-color: var(--color-canvas-soft) !important;
+}
+
 
