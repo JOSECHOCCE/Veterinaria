@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Preferencias de Notificación - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Assuming Copernicus/Tiempos and StyreneB are loaded externally or falling back to standard serif/sans -->
+<style>
+        @font-face {
+            font-family: 'Copernicus';
+            src: local('Georgia'), local('Times New Roman'), serif; /* Fallback for visual testing */
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'), sans-serif; /* Fallback */
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'), sans-serif; /* Fallback */
+            font-weight: 500;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "hairline": "#e6dfd8",
+                        "body-strong": "#252523",
+                        "outline-variant": "#dac1ba",
+                        "secondary-container": "#e6e2de",
+                        "canvas": "#faf9f5",
+                        "surface-bright": "#fff8f6",
+                        "primary-fixed": "#ffdbd0",
+                        "tertiary-container": "#0f8378",
+                        "surface-container-high": "#f4e5e1",
+                        "error-container": "#ffdad6",
+                        "surface-card": "#efe9de",
+                        "outline": "#87736d",
+                        "error": "#c64545",
+                        "on-surface-variant": "#54433e",
+                        "surface-tint": "#924a31",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "secondary-fixed": "#e6e2de",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#fff8f6",
+                        "on-background": "#211a18",
+                        "tertiary": "#00685f",
+                        "on-primary-container": "#fffbff",
+                        "inverse-surface": "#372e2c",
+                        "primary-container": "#ad5f45",
+                        "on-primary-fixed": "#390c00",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "surface-container-low": "#fff1ed",
+                        "on-tertiary": "#ffffff",
+                        "body-muted": "#3d3d3a",
+                        "on-secondary-fixed": "#1c1b19",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-surface": "#211a18",
+                        "primary-fixed-dim": "#ffb59d",
+                        "on-secondary": "#ffffff",
+                        "inverse-on-surface": "#fdede9",
+                        "accent-teal": "#5db8a6",
+                        "on-secondary-container": "#666461",
+                        "surface-soft": "#f5f0e8",
+                        "on-primary-fixed-variant": "#75331c",
+                        "background": "#fff8f6",
+                        "on-secondary-fixed-variant": "#484644",
+                        "ink": "#141413",
+                        "surface-container": "#faebe6",
+                        "surface-dim": "#e6d7d3",
+                        "surface-variant": "#efdfdb",
+                        "accent-amber": "#e8a55a",
+                        "primary": "#8f482f",
+                        "on-tertiary-container": "#f4fffc",
+                        "surface-container-highest": "#efdfdb",
+                        "success": "#5db872",
+                        "tertiary-fixed": "#94f3e6",
+                        "secondary": "#605e5b",
+                        "inverse-primary": "#ffb59d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "md": "16px",
+                        "margin": "2rem",
+                        "sm": "12px",
+                        "xs": "8px",
+                        "section": "96px",
+                        "xxs": "4px",
+                        "xxl": "48px",
+                        "gutter": "1.5rem",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                        "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                        "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                        "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                        "caption": ["StyreneB", "Inter", "sans-serif"],
+                        "button": ["StyreneB", "Inter", "sans-serif"],
+                        "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                        "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                        "title-md": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-caps": ["inter"],
+                        "body-md": ["StyreneB", "Inter", "sans-serif"],
+                        "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                        "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "display-md": ["Copernicus", "Tiempos Headline", "serif"]
+                    },
+                    "fontSize": {
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom Toggle Switch Styles for minimal aesthetic */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: theme('colors.secondary-fixed-dim');
+            transition: .3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        input:checked + .toggle-slider {
+            background-color: theme('colors.primary');
+        }
+        input:focus + .toggle-slider {
+            box-shadow: 0 0 1px theme('colors.primary');
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+        /* Disabled state */
+        input:disabled + .toggle-slider {
+            background-color: theme('colors.primary-fixed-dim');
+            cursor: not-allowed;
+        }
+        input:disabled + .toggle-slider:before {
+            background-color: theme('colors.canvas');
+        }
+    </style>
+</head>
+<body class="bg-canvas text-body-strong font-body-md antialiased min-h-screen flex selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Responsive wrapper -->
+<div class="flex w-full h-screen overflow-hidden">
+<!-- SideNavBar (Client Portal JSON Translation) -->
+<!-- style_component_shape: "docked left-0 h-full w-64" -->
+<!-- style_shell_layout: "flex flex-col h-screen sticky top-0 p-md gap-xs" -->
+<!-- style_separation_logic: "bg-surface-card dark:bg-surface-container border-r border-hairline dark:border-outline" -->
+<nav class="hidden md:flex flex-col h-screen sticky top-0 p-md gap-xs w-64 bg-surface-card border-r border-hairline z-10 shrink-0">
+<!-- Header -->
+<div class="flex items-center gap-sm mb-lg px-xs mt-xs">
+<div class="w-10 h-10 rounded-full bg-surface-soft border border-hairline overflow-hidden flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div>
+<!-- style_brand_logo: "font-display-md text-display-md text-primary" -> Using display-sm for fit -->
+<h2 class="font-display-sm text-title-lg text-primary leading-none">Portal del Cliente</h2>
+<p class="font-caption text-caption text-secondary mt-1">VetCare Pro</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-xxs flex-1">
+<!-- Inactive: Dashboard -->
+<a class="flex items-center gap-sm px-sm py-sm rounded-lg text-body-muted hover:bg-surface-soft hover:text-primary transition-all duration-300 ease-in-out font-title-sm text-title-sm group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">grid_view</span>
+<span>Dashboard</span>
+</a>
+<!-- Inactive: Mis Mascotas -->
+<a class="flex items-center gap-sm px-sm py-sm rounded-lg text-body-muted hover:bg-surface-soft hover:text-primary transition-all duration-300 ease-in-out font-title-sm text-title-sm group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">pets</span>
+<span>Mis Mascotas</span>
+</a>
+<!-- Inactive: Mis Citas -->
+<a class="flex items-center gap-sm px-sm py-sm rounded-lg text-body-muted hover:bg-surface-soft hover:text-primary transition-all duration-300 ease-in-out font-title-sm text-title-sm group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">event</span>
+<span>Mis Citas</span>
+</a>
+<!-- Active: Preferencias -->
+<!-- style_active_navigation: "text-primary bg-surface-soft font-bold rounded-lg" -->
+<a class="flex items-center gap-sm px-sm py-sm rounded-lg text-primary bg-surface-soft font-bold font-title-sm text-title-sm" href="#">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Preferencias</span>
+</a>
+</div>
+<!-- Bottom user action (simulated) -->
+<div class="mt-auto border-t border-hairline pt-sm">
+<a class="flex items-center gap-sm px-sm py-sm rounded-lg text-body-muted hover:bg-surface-soft hover:text-primary transition-all duration-300 ease-in-out font-title-sm text-title-sm group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">logout</span>
+<span>Cerrar Sesión</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 overflow-y-auto bg-canvas relative">
+<!-- Mobile Header (Fallback since SideNav is hidden on mobile) -->
+<div class="md:hidden flex items-center justify-between px-lg h-16 border-b border-hairline bg-canvas sticky top-0 z-20">
+<h1 class="font-display-sm text-title-lg text-primary">VetCare Pro</h1>
+<button class="text-secondary"><span class="material-symbols-outlined">menu</span></button>
+</div>
+<!-- Content Container -->
+<div class="max-w-4xl mx-auto px-margin py-xl md:py-section">
+<!-- Page Header -->
+<header class="mb-xl">
+<h1 class="font-display-md text-display-md text-ink mb-sm">Preferencias de Notificación</h1>
+<p class="font-body-md text-body-md text-secondary max-w-2xl">
+                        Gestiona cómo y cuándo VetCare Pro se comunica contigo. Ajusta tus alertas para mantenerte informado sobre la salud de tus mascotas sin saturar tu bandeja de entrada.
+                    </p>
+</header>
+<!-- Settings Form -->
+<form class="space-y-lg flex flex-col">
+<!-- Form Section: High-end Bento/Card style layout -->
+<div class="bg-surface-card rounded-xl border border-hairline overflow-hidden">
+<!-- List Item 1: Citas y Atención (Mandatory) -->
+<div class="p-lg md:px-xl md:py-lg flex flex-col md:flex-row md:items-start justify-between gap-md border-b border-hairline bg-surface-soft/50">
+<div class="flex-1">
+<div class="flex items-center gap-xs mb-1">
+<h3 class="font-title-md text-title-md text-ink">Citas y Atención</h3>
+<span class="material-symbols-outlined text-secondary text-[18px]">lock</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary max-w-xl">
+                                    Recordatorios esenciales de citas programadas, confirmaciones y avisos de llegada. Estas notificaciones son necesarias para el correcto funcionamiento de nuestro servicio clínico y no pueden desactivarse.
+                                </p>
+</div>
+<div class="flex items-center h-full pt-1">
+<label class="toggle-switch cursor-not-allowed" title="Notificaciones obligatorias">
+<input checked="" disabled="" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<!-- List Item 2: Comunicaciones Clínicas -->
+<div class="p-lg md:px-xl md:py-lg flex flex-col md:flex-row md:items-start justify-between gap-md border-b border-hairline hover:bg-surface-soft transition-colors duration-200">
+<div class="flex-1">
+<h3 class="font-title-md text-title-md text-ink mb-1">Comunicaciones Clínicas</h3>
+<p class="font-body-sm text-body-sm text-secondary max-w-xl">
+                                    Recibe alertas sobre campañas de vacunación estacionales, consejos de salud preventiva, boletines informativos y recomendaciones personalizadas para tus mascotas.
+                                </p>
+</div>
+<div class="flex items-center h-full pt-1">
+<label class="toggle-switch">
+<input checked="" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+<!-- List Item 3: Administración de Cuenta -->
+<div class="p-lg md:px-xl md:py-lg flex flex-col md:flex-row md:items-start justify-between gap-md hover:bg-surface-soft transition-colors duration-200">
+<div class="flex-1">
+<h3 class="font-title-md text-title-md text-ink mb-1">Administración de Cuenta</h3>
+<p class="font-body-sm text-body-sm text-secondary max-w-xl">
+                                    Alertas relacionadas con el estado de tu cuenta, avisos de saldos pendientes, resúmenes de facturación y cambios en nuestras políticas de servicio.
+                                </p>
+</div>
+<div class="flex items-center h-full pt-1">
+<label class="toggle-switch">
+<input type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+</div>
+</div>
+<!-- Action Area -->
+<div class="flex flex-col-reverse sm:flex-row justify-end items-center gap-md mt-xl pt-md border-t border-hairline">
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg font-button text-button text-ink bg-transparent border border-ink hover:bg-surface-card transition-colors duration-200" type="button">
+                            Descartar cambios
+                        </button>
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg font-button text-button text-on-primary bg-primary hover:bg-surface-tint transition-colors duration-200 shadow-sm" type="button">
+                            Guardar preferencias
+                        </button>
+</div>
+</form>
+</div>
+</main>
+</div>
+</body></html>

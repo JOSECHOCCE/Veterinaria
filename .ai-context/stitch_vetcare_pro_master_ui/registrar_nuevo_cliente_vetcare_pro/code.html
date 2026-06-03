@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Registrar Cliente</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Copernicus:ital,wght@0,400;0,700;1,400&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#faebe6",
+                      "primary-container": "#ad5f45",
+                      "on-background": "#211a18",
+                      "tertiary": "#00685f",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed-variant": "#75331c",
+                      "surface-container-low": "#fff1ed",
+                      "accent-amber": "#e8a55a",
+                      "primary": "#8f482f",
+                      "on-secondary-fixed": "#1c1b19",
+                      "surface-tint": "#924a31",
+                      "on-surface": "#211a18",
+                      "on-primary-container": "#fffbff",
+                      "error": "#c64545",
+                      "inverse-primary": "#ffb59d",
+                      "surface-soft": "#f5f0e8",
+                      "primary-fixed": "#ffdbd0",
+                      "secondary-fixed": "#e6e2de",
+                      "surface-container-high": "#f4e5e1",
+                      "secondary-fixed-dim": "#cac6c2",
+                      "background": "#fff8f6",
+                      "primary-fixed-dim": "#ffb59d",
+                      "surface-variant": "#efdfdb",
+                      "on-secondary-container": "#666461",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#e6e2de",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#54433e",
+                      "surface-container-highest": "#efdfdb",
+                      "surface-card": "#efe9de",
+                      "success": "#5db872",
+                      "inverse-on-surface": "#fdede9",
+                      "outline-variant": "#dac1ba",
+                      "on-tertiary-container": "#f4fffc",
+                      "ink": "#141413",
+                      "accent-teal": "#5db8a6",
+                      "surface": "#fff8f6",
+                      "canvas": "#faf9f5",
+                      "secondary": "#605e5b",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#e6d7d3",
+                      "inverse-surface": "#372e2c",
+                      "on-tertiary-fixed": "#00201d",
+                      "hairline": "#e6dfd8",
+                      "body-strong": "#252523",
+                      "surface-bright": "#fff8f6",
+                      "body-muted": "#3d3d3a",
+                      "outline": "#87736d",
+                      "on-secondary-fixed-variant": "#484644",
+                      "tertiary-fixed-dim": "#77d7ca",
+                      "tertiary-container": "#0f8378",
+                      "on-primary-fixed": "#390c00",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#94f3e6",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxs": "4px",
+                      "md": "16px",
+                      "gutter": "1.5rem",
+                      "xxl": "48px",
+                      "sm": "12px",
+                      "section": "96px",
+                      "margin": "2rem",
+                      "xl": "32px",
+                      "xs": "8px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                      "caption": ["Inter", "sans-serif"],
+                      "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                      "caption-uppercase": ["Inter", "sans-serif"],
+                      "body-md": ["Inter", "sans-serif"],
+                      "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                      "title-md": ["Inter", "sans-serif"],
+                      "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                      "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                      "button": ["Inter", "sans-serif"],
+                      "title-lg": ["Inter", "sans-serif"],
+                      "caption-caps": ["Inter", "sans-serif"],
+                      "title-sm": ["Inter", "sans-serif"],
+                      "nav-link": ["Inter", "sans-serif"],
+                      "body-sm": ["Inter", "sans-serif"]
+              },
+              "fontSize": {
+                      "display-md": ["36px", {"lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400"}],
+                      "caption": ["13px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400"}],
+                      "caption-uppercase": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                      "display-sm": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400"}],
+                      "title-md": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "display-xl": ["64px", {"lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400"}],
+                      "code": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "button": ["14px", {"lineHeight": "1", "fontWeight": "500"}],
+                      "title-lg": ["22px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "caption-caps": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "title-sm": ["16px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "nav-link": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "body-sm": ["14px", {"lineHeight": "1.55", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for an editorial feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #faf9f5; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e6dfd8; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cac6c2; 
+        }
+    </style>
+</head>
+<body class="bg-canvas text-ink font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar Component (From JSON Schema) -->
+<aside class="h-screen w-72 left-0 sticky top-0 bg-surface-card dark:bg-surface-dim border-r border-hairline flex flex-col py-lg gap-md z-10 hidden md:flex">
+<!-- Header -->
+<div class="px-xl mb-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<div>
+<h1 class="font-display-md text-display-md text-ink leading-none text-[24px]">VetCare Pro</h1>
+<p class="font-caption text-caption text-body-muted">Premium Animal Health</p>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col gap-sm overflow-y-auto mt-sm">
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+                Overview
+            </a>
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">clinical_notes</span>
+                Medical Records
+            </a>
+<!-- Active State Navigation -->
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm bg-canvas text-primary font-bold rounded-l-full ml-4 shadow-sm relative after:content-[''] after:absolute after:right-0 after:top-0 after:bottom-0 after:w-1 after:bg-primary after:rounded-l-full" href="#">
+<span class="material-symbols-outlined text-xl" data-weight="fill">groups</span>
+                Pet Owners
+            </a>
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">payments</span>
+                Billing
+            </a>
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">biotech</span>
+                Laboratory
+            </a>
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-xl">badge</span>
+                Staff
+            </a>
+</nav>
+<!-- CTA & Footer -->
+<div class="px-4 mt-auto space-y-sm">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded-lg font-button text-button shadow-sm hover:bg-surface-tint transition-colors flex items-center justify-center gap-xs">
+<span class="material-symbols-outlined text-lg">add</span>
+                New Consultation
+            </button>
+<div class="pt-sm border-t border-hairline mt-sm">
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">help</span>
+                    Help Center
+                </a>
+<a class="flex items-center gap-md px-md py-sm font-title-sm text-title-sm text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">logout</span>
+                    Logout
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto relative">
+<!-- Mobile Top Bar Fallback -->
+<header class="md:hidden flex justify-between items-center px-gutter h-20 bg-canvas border-b border-hairline sticky top-0 z-20">
+<h1 class="font-display-sm text-display-sm font-bold text-ink">VetCare Pro</h1>
+<button class="text-ink"><span class="material-symbols-outlined">menu</span></button>
+</header>
+<div class="max-w-4xl w-full mx-auto px-gutter py-xl md:py-section flex-1">
+<!-- Page Header -->
+<div class="mb-xl">
+<a class="inline-flex items-center gap-xs text-body-muted hover:text-primary font-caption text-caption mb-md transition-colors" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Volver a Pet Owners
+                </a>
+<h2 class="font-display-lg text-display-lg text-ink">Registrar Cliente</h2>
+<p class="font-body-md text-body-md text-body-muted mt-2 max-w-2xl">Complete la información requerida para dar de alta a un nuevo propietario de mascota en el sistema clínico.</p>
+</div>
+<!-- Registration Form -->
+<form class="space-y-lg">
+<!-- Section 1: Datos Personales (Bento Card Style) -->
+<div class="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-surface-variant transition-colors group-hover:bg-primary/20"></div>
+<h3 class="font-title-lg text-title-lg text-ink mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-weight="fill">person</span>
+                        Datos Personales
+                    </h3>
+<p class="font-body-sm text-body-sm text-body-muted mb-lg">Información de identidad primaria del propietario.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-lg gap-y-md">
+<!-- Nombre Completo (Full Width) -->
+<div class="md:col-span-2">
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="nombre">Nombre Completo <span class="text-error">*</span></label>
+<input class="w-full bg-canvas border border-hairline rounded-lg px-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" id="nombre" name="nombre" placeholder="Ej. Mariana de las Mercedes Gómez" required="" type="text"/>
+</div>
+<!-- Documento -->
+<div>
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="documento">Documento (DNI/Pasaporte) <span class="text-error">*</span></label>
+<input class="w-full bg-canvas border border-hairline rounded-lg px-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" id="documento" name="documento" placeholder="Ej. 34.567.890" required="" type="text"/>
+</div>
+<!-- Correo Electrónico -->
+<div>
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="email">Correo Electrónico</label>
+<input class="w-full bg-canvas border border-hairline rounded-lg px-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" id="email" name="email" placeholder="mariana.gomez@ejemplo.com" type="email"/>
+</div>
+</div>
+</div>
+<!-- Section 2: Datos de Contacto (Bento Card Style) -->
+<div class="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-surface-variant transition-colors group-hover:bg-accent-amber/20"></div>
+<h3 class="font-title-lg text-title-lg text-ink mb-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-accent-amber" data-weight="fill">contact_phone</span>
+                        Datos de Contacto
+                    </h3>
+<p class="font-body-sm text-body-sm text-body-muted mb-lg">Información para notificaciones clínicas y facturación.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-lg gap-y-md">
+<!-- Teléfono -->
+<div class="md:col-span-1">
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="telefono">Teléfono Principal <span class="text-error">*</span></label>
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-4 text-body-muted">
+<span class="material-symbols-outlined text-lg">call</span>
+</span>
+<input class="w-full bg-canvas border border-hairline rounded-lg pl-12 pr-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" id="telefono" name="telefono" placeholder="+54 9 11 1234-5678" required="" type="tel"/>
+</div>
+</div>
+<!-- Dirección (Full Width) -->
+<div class="md:col-span-2">
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="direccion">Dirección Residencial</label>
+<input class="w-full bg-canvas border border-hairline rounded-lg px-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm" id="direccion" name="direccion" placeholder="Av. del Libertador 1234, Piso 5A" type="text"/>
+</div>
+<!-- Observaciones (Full Width) -->
+<div class="md:col-span-2">
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="observaciones">Observaciones Administrativas</label>
+<textarea class="w-full bg-canvas border border-hairline rounded-lg px-4 py-3 font-body-md text-body-md text-ink placeholder:text-outline focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all shadow-sm resize-none" id="observaciones" name="observaciones" placeholder="Ej. Prefiere contacto por WhatsApp para recordatorios..." rows="3"></textarea>
+<p class="font-caption text-caption text-body-muted mt-1 text-right">0 / 250</p>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col-reverse sm:flex-row justify-end items-center gap-md pt-md border-t border-hairline">
+<button class="w-full sm:w-auto px-lg py-3 font-button text-button text-ink bg-transparent border border-ink rounded-lg hover:bg-surface-soft hover:shadow-sm transition-all" type="button">
+                        Guardar
+                    </button>
+<button class="w-full sm:w-auto px-lg py-3 font-button text-button text-on-primary bg-primary rounded-lg hover:bg-surface-tint shadow-sm hover:shadow transition-all flex items-center justify-center gap-sm" type="submit">
+<span class="material-symbols-outlined text-sm">save</span>
+                        Guardar y abrir ficha
+                    </button>
+</div>
+</form>
+</div>
+</main>
+</body></html>

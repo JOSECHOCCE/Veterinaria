@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Using a placeholder for Copernicus as it's a premium font, substituting with a similar high-quality serif via Google Fonts for rendering purposes, though classes remain exactly as specified in config -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Mapping the design system font families to available web fonts for demonstration */
+        @font-face {
+            font-family: 'Copernicus';
+            src: local('Playfair Display'), serif;
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'), sans-serif;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "surface-container-high": "#f4e5e1",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fff8f6",
+                        "surface-tint": "#924a31",
+                        "surface-bright": "#fff8f6",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#ffdbd0",
+                        "body-strong": "#252523",
+                        "surface": "#fff8f6",
+                        "on-tertiary-container": "#f4fffc",
+                        "surface-card": "#efe9de",
+                        "on-surface-variant": "#54433e",
+                        "tertiary-container": "#0f8378",
+                        "on-secondary-fixed-variant": "#484644",
+                        "body-muted": "#3d3d3a",
+                        "on-secondary-fixed": "#1c1b19",
+                        "on-tertiary-fixed": "#00201d",
+                        "ink": "#141413",
+                        "primary": "#8f482f",
+                        "tertiary": "#00685f",
+                        "primary-container": "#ad5f45",
+                        "tertiary-fixed": "#94f3e6",
+                        "secondary-fixed": "#e6e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#ffb59d",
+                        "surface-soft": "#f5f0e8",
+                        "on-primary-fixed": "#390c00",
+                        "inverse-surface": "#372e2c",
+                        "hairline": "#e6dfd8",
+                        "on-surface": "#211a18",
+                        "surface-container-highest": "#efdfdb",
+                        "surface-dim": "#e6d7d3",
+                        "primary-fixed-dim": "#ffb59d",
+                        "error": "#c64545",
+                        "surface-variant": "#efdfdb",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#666461",
+                        "surface-container-low": "#fff1ed",
+                        "outline-variant": "#dac1ba",
+                        "on-background": "#211a18",
+                        "accent-teal": "#5db8a6",
+                        "on-error-container": "#93000a",
+                        "accent-amber": "#e8a55a",
+                        "inverse-on-surface": "#fdede9",
+                        "canvas": "#faf9f5",
+                        "on-primary-fixed-variant": "#75331c",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "surface-container": "#faebe6",
+                        "outline": "#87736d",
+                        "secondary": "#605e5b",
+                        "secondary-container": "#e6e2de",
+                        "success": "#5db872",
+                        "secondary-fixed-dim": "#cac6c2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "2rem",
+                        "xs": "8px",
+                        "gutter": "1.5rem",
+                        "section": "96px",
+                        "md": "16px",
+                        "xxs": "4px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xl": "32px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                        "button": ["StyreneB", "Inter", "sans-serif"],
+                        "title-md": ["StyreneB", "Inter", "sans-serif"],
+                        "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                        "caption": ["StyreneB", "Inter", "sans-serif"],
+                        "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                        "body-md": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                        "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                        "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                        "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                        "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-caps": ["inter"],
+                        "display-xl": ["Copernicus", "Tiempos Headline", "serif"]
+                    },
+                    "fontSize": {
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }]
+                    }
+                },
+            }
+        }
+    </script>
+</head>
+<body class="bg-canvas text-ink antialiased flex flex-col md:flex-row min-h-screen">
+<!-- Mobile Bottom Navigation (Responsive Pivot) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface-soft border-t border-hairline z-50 px-md py-sm flex justify-between items-center shadow-lg">
+<a class="flex flex-col items-center gap-xs text-primary font-bold" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-nav-link text-nav-link text-[10px]">Dashboard</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-secondary" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-nav-link text-nav-link text-[10px]">My Pets</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-secondary" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-nav-link text-nav-link text-[10px]">Citas</span>
+</a>
+<a class="flex flex-col items-center gap-xs text-secondary" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-nav-link text-nav-link text-[10px]">Billing</span>
+</a>
+</nav>
+<!-- SideNavBar (Desktop from JSON) -->
+<aside class="hidden md:flex flex-col bg-surface-soft border-r border-hairline h-screen w-64 fixed left-0 top-0 py-xl px-md z-40">
+<!-- Header -->
+<div class="mb-xl flex items-center gap-md px-sm">
+<img alt="Client profile picture" class="w-12 h-12 rounded-full object-cover border border-hairline" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0ssfOorsi3DBmz279Rsrz3M7iTgINb6H3tMaDBpRo9JJB8Fhdw1UoNvs5PpDSfUsQ3P94rVWOhNvkD5opKvK5hgZFBgbY-RDJDsxHGEsEn1m4Jb6ZtaVoAvNcYvBMWk3DFabxCd43ZJfzlE_ck6CE35WBIURBT6SWXYwK-WmDVIVsk9P4h7zwUp6bOfBQ1dRFNBz-qP5PtN8oYvpLtfm1llCfGLwN4x1sw3YCzQ0IwU9t58jXo9k8qZmCHQukMW06LFzWhdfAhaY"/>
+<div>
+<h2 class="font-display-sm text-[20px] leading-tight text-primary">PetParent Portal</h2>
+<p class="font-caption text-caption text-secondary">Premium Veterinary Care</p>
+</div>
+</div>
+<!-- Main Nav Tabs -->
+<nav class="flex-1 space-y-sm">
+<!-- Active Tab: Dashboard -->
+<a class="flex items-center gap-md px-sm py-sm text-primary font-bold border-r-2 border-primary hover:bg-surface-card transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-nav-link text-nav-link">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-nav-link text-nav-link">My Pets</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-nav-link text-nav-link">Appointments</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-nav-link text-nav-link">Billing</span>
+</a>
+<a class="flex items-center gap-md px-sm py-sm text-secondary hover:text-primary hover:bg-surface-card transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-nav-link text-nav-link">Settings</span>
+</a>
+</nav>
+<!-- CTA -->
+<div class="mt-auto mb-lg">
+<button class="w-full bg-primary text-on-primary py-sm px-md rounded-full font-button text-button hover:opacity-80 transition-opacity">
+                Book Appointment
+            </button>
+</div>
+<!-- Footer Nav Tabs -->
+<div class="pt-md border-t border-hairline space-y-sm">
+<a class="flex items-center gap-md px-sm py-xs text-secondary hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">help_outline</span>
+<span class="font-nav-link text-[13px]">Support</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs text-secondary hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="font-nav-link text-[13px]">Sign Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<main class="flex-1 md:ml-64 p-lg md:p-xl lg:px-section pb-24 md:pb-xl flex flex-col gap-lg w-full max-w-[1440px] mx-auto">
+<!-- Alerts Banner -->
+<div class="bg-error-container text-on-error-container p-md rounded-lg flex items-start sm:items-center gap-sm border border-[#ffb4ab]">
+<span class="material-symbols-outlined text-error mt-1 sm:mt-0">warning</span>
+<div class="flex-1">
+<span class="font-title-sm text-title-sm block sm:inline">Acción Requerida:</span>
+<span class="font-body-sm text-body-sm sm:ml-xs block sm:inline">La vacuna contra la rabia de Luna está vencida desde hace 3 días.</span>
+</div>
+<button class="bg-error text-on-error px-sm py-xs rounded-full font-button text-[12px] hover:opacity-90 ml-auto whitespace-nowrap hidden sm:block">Agendar Vacuna</button>
+</div>
+<!-- Welcome Block & Quick Actions -->
+<div class="flex flex-col xl:flex-row gap-lg justify-between items-start mt-md">
+<div class="max-w-2xl">
+<h1 class="font-display-md text-display-md text-ink mb-xs">Hola, Elena</h1>
+<p class="font-body-md text-body-md text-secondary">Bienvenida de nuevo a VetCare Pro. Aquí tienes un resumen del bienestar de tus mascotas para el día de hoy.</p>
+</div>
+<div class="flex flex-wrap gap-sm mt-md xl:mt-0">
+<button class="bg-primary text-on-primary px-lg py-sm rounded-full font-button text-button hover:opacity-90 transition-opacity flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Solicitar Nueva Cita
+                </button>
+<button class="bg-surface-card border border-hairline text-ink px-lg py-sm rounded-full font-button text-button hover:bg-surface-soft transition-colors">
+                    Mis Pagos
+                </button>
+<button class="bg-surface-card border border-hairline text-ink px-lg py-sm rounded-full font-button text-button hover:bg-surface-soft transition-colors">
+                    Historial Clínico
+                </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg mt-md">
+<!-- Pets Carousel/Grid (Spans 8 cols) -->
+<section class="lg:col-span-8 flex flex-col gap-md">
+<h2 class="font-display-sm text-display-sm text-ink border-b border-hairline pb-sm">Mis Mascotas</h2>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
+<!-- Luna Card -->
+<div class="bg-surface-card rounded-xl p-sm flex flex-col border border-transparent hover:border-hairline transition-all">
+<div class="w-full h-48 bg-cover bg-center rounded-lg mb-md" data-alt="A warm, highly detailed professional photograph of a golden retriever dog resting comfortably in a sunlit modern living room. The lighting is soft and golden, evoking a sense of calm and health. The color palette is composed of warm creams, soft browns, and subtle natural tones that match a premium, organic editorial aesthetic. The mood is welcoming, serene, and sophisticated." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAQCqUdNP_nMTOHgu6-kuz-XKoshwJTDrv8h8B1enKTCynpQstmQztP4ZgGhBqlt0JptV7ZIB6q1vuBMZXmhfhBmFw6WypmkZgQDERsAo3XlfQv8kU6EEmj8B-bvhUuBDKZ-aehN-HSDns1VXSIm2lZ-UgnlZjQZ7JjarYXRdXqxnRzWZuTYxHoiT3TdXG5Wz3PfoINQIaS1RD9LnsZ6xXg_w3JYNv4D6ehOvqbwXQbPwkvN6zLuMuQN_EcBoqM3g3KjBAdqWgQKSU')"></div>
+<div class="px-sm pb-sm flex justify-between items-end">
+<div>
+<h3 class="font-title-lg text-title-lg text-ink">Luna</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-xxs">Golden Retriever • 3 años</p>
+</div>
+<div class="bg-surface-soft p-xs rounded-full">
+<span class="material-symbols-outlined text-primary text-[20px]">female</span>
+</div>
+</div>
+</div>
+<!-- Max Card -->
+<div class="bg-surface-card rounded-xl p-sm flex flex-col border border-transparent hover:border-hairline transition-all">
+<div class="w-full h-48 bg-cover bg-center rounded-lg mb-md" data-alt="A sharp, beautifully composed portrait of an elegant tabby cat sitting attentively by a window. Soft, diffused daylight highlights the texture of its fur against a minimalist cream background. The color scheme relies on natural earthy tones, deep blacks, and crisp whites, adhering to a refined, high-end editorial visual language. The atmosphere is quiet and dignified." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCHSTfg09bud_N8YJd49AoEiVqGcQ09m-Cib2uD1e9hMmLVm1uGfe7D1sgetDGtmlF4bhnl_v6uzq-11B1VO8TYNHBTJdhczeZv7YLYBCQHCIRnIi-ig3iHRauiMImI9S0zAd64_klahJdOcgAVwT86o4UTfR14xfZZWVioqHkY3VhN9dpz_1Uxm5ztXqypuWJvI-9euSeOFMtdRFuxQuRlaSeBtFqTi0Iztdh2FUTqhY_Gu4MKEhLM5PC9YmXrIOhWRgYk5cz4RwY')"></div>
+<div class="px-sm pb-sm flex justify-between items-end">
+<div>
+<h3 class="font-title-lg text-title-lg text-ink">Max</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-xxs">Tabby Doméstico • 5 años</p>
+</div>
+<div class="bg-surface-soft p-xs rounded-full">
+<span class="material-symbols-outlined text-tertiary-container text-[20px]">male</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Upcoming Appointments (Spans 4 cols) -->
+<section class="lg:col-span-4 bg-surface-soft rounded-xl border border-hairline p-lg flex flex-col">
+<div class="flex justify-between items-center mb-md pb-sm border-b border-hairline">
+<h2 class="font-display-sm text-[22px] leading-tight text-ink">Próximas Citas</h2>
+<button class="text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<ul class="flex flex-col gap-md">
+<!-- Appointment Item 1 -->
+<li class="bg-canvas p-md rounded-lg border border-hairline shadow-sm relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex justify-between items-start mb-xs">
+<span class="font-caption-uppercase text-caption-uppercase text-primary tracking-widest">Mañana</span>
+<span class="font-title-sm text-title-sm text-ink">10:30 AM</span>
+</div>
+<h4 class="font-title-md text-title-md text-ink mb-xxs">Control General</h4>
+<p class="font-body-sm text-body-sm text-secondary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">pets</span> Max
+                        </p>
+<p class="font-body-sm text-body-sm text-secondary flex items-center gap-xs mt-xxs">
+<span class="material-symbols-outlined text-[16px]">person</span> Dra. Ramírez
+                        </p>
+</li>
+<!-- Appointment Item 2 -->
+<li class="bg-canvas p-md rounded-lg border border-hairline shadow-sm relative overflow-hidden opacity-80">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-secondary-container"></div>
+<div class="flex justify-between items-start mb-xs">
+<span class="font-caption-uppercase text-caption-uppercase text-secondary tracking-widest">15 Nov</span>
+<span class="font-title-sm text-title-sm text-ink">4:00 PM</span>
+</div>
+<h4 class="font-title-md text-title-md text-ink mb-xxs">Vacunación Anual</h4>
+<p class="font-body-sm text-body-sm text-secondary flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">pets</span> Luna
+                        </p>
+</li>
+</ul>
+<div class="mt-auto pt-lg">
+<button class="w-full bg-transparent border border-outline text-ink py-sm rounded-full font-button text-button hover:bg-surface-card transition-colors">
+                        Ver Calendario Completo
+                    </button>
+</div>
+</section>
+</div>
+</main>
+</body></html>

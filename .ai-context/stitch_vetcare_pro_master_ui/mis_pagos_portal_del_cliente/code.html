@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PetParent Portal - Mis Pagos</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Copernicus:ital,wght@0,400;0,700;1,400;1,700&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "surface-container-high": "#f4e5e1",
+                        "on-tertiary": "#ffffff",
+                        "background": "#fff8f6",
+                        "surface-tint": "#924a31",
+                        "surface-bright": "#fff8f6",
+                        "error-container": "#ffdad6",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#ffdbd0",
+                        "body-strong": "#252523",
+                        "surface": "#fff8f6",
+                        "on-tertiary-container": "#f4fffc",
+                        "surface-card": "#efe9de",
+                        "on-surface-variant": "#54433e",
+                        "tertiary-container": "#0f8378",
+                        "on-secondary-fixed-variant": "#484644",
+                        "body-muted": "#3d3d3a",
+                        "on-secondary-fixed": "#1c1b19",
+                        "on-tertiary-fixed": "#00201d",
+                        "ink": "#141413",
+                        "primary": "#8f482f",
+                        "tertiary": "#00685f",
+                        "primary-container": "#ad5f45",
+                        "tertiary-fixed": "#94f3e6",
+                        "secondary-fixed": "#e6e2de",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#ffb59d",
+                        "surface-soft": "#f5f0e8",
+                        "on-primary-fixed": "#390c00",
+                        "inverse-surface": "#372e2c",
+                        "hairline": "#e6dfd8",
+                        "on-surface": "#211a18",
+                        "surface-container-highest": "#efdfdb",
+                        "surface-dim": "#e6d7d3",
+                        "primary-fixed-dim": "#ffb59d",
+                        "error": "#c64545",
+                        "surface-variant": "#efdfdb",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-container": "#666461",
+                        "surface-container-low": "#fff1ed",
+                        "outline-variant": "#dac1ba",
+                        "on-background": "#211a18",
+                        "accent-teal": "#5db8a6",
+                        "on-error-container": "#93000a",
+                        "accent-amber": "#e8a55a",
+                        "inverse-on-surface": "#fdede9",
+                        "canvas": "#faf9f5",
+                        "on-primary-fixed-variant": "#75331c",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#fffbff",
+                        "surface-container": "#faebe6",
+                        "outline": "#87736d",
+                        "secondary": "#605e5b",
+                        "secondary-container": "#e6e2de",
+                        "success": "#5db872",
+                        "secondary-fixed-dim": "#cac6c2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "2rem",
+                        "xs": "8px",
+                        "gutter": "1.5rem",
+                        "section": "96px",
+                        "md": "16px",
+                        "xxs": "4px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xl": "32px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "display-md": ["Copernicus, Tiempos Headline, serif"],
+                        "button": ["StyreneB, Inter, sans-serif"],
+                        "title-md": ["StyreneB, Inter, sans-serif"],
+                        "title-lg": ["StyreneB, Inter, sans-serif"],
+                        "caption": ["StyreneB, Inter, sans-serif"],
+                        "display-sm": ["Copernicus, Tiempos Headline, serif"],
+                        "body-md": ["StyreneB, Inter, sans-serif"],
+                        "caption-uppercase": ["StyreneB, Inter, sans-serif"],
+                        "nav-link": ["StyreneB, Inter, sans-serif"],
+                        "display-lg": ["Copernicus, Tiempos Headline, serif"],
+                        "title-sm": ["StyreneB, Inter, sans-serif"],
+                        "code": ["JetBrains Mono, ui-monospace, monospace"],
+                        "body-sm": ["StyreneB, Inter, sans-serif"],
+                        "caption-caps": ["Inter, sans-serif"],
+                        "display-xl": ["Copernicus, Tiempos Headline, serif"]
+                    },
+                    "fontSize": {
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-canvas text-ink font-body-md antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex bg-canvas border-r border-hairline flex-col h-full py-xl px-md h-screen w-64 fixed left-0 top-0 z-50">
+<div class="mb-xxl flex flex-col items-start px-md">
+<h1 class="font-display-sm text-display-sm text-primary">PetParent Portal</h1>
+<p class="font-caption text-caption text-secondary mt-xs">Premium Veterinary Care</p>
+</div>
+<ul class="flex flex-col gap-sm flex-grow">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-nav-link text-nav-link">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-nav-link text-nav-link">My Pets</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-nav-link text-nav-link">Appointments</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-2 border-primary bg-surface-soft opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-nav-link text-nav-link">Billing</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-nav-link text-nav-link">Settings</span>
+</a>
+</li>
+</ul>
+<div class="mt-auto flex flex-col gap-md">
+<button class="w-full bg-primary text-on-primary font-button text-button py-sm px-md rounded-lg hover:opacity-90 transition-opacity">
+                Book Appointment
+            </button>
+<ul class="flex flex-col gap-sm mt-md border-t border-hairline pt-md">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span class="font-nav-link text-nav-link">Support</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:bg-surface-card hover:text-primary transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-nav-link text-nav-link">Sign Out</span>
+</a>
+</li>
+</ul>
+<div class="flex items-center gap-md px-md mt-md">
+<img alt="Client profile picture" class="w-10 h-10 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzZ5hvGvu3EbJXqiC8phLtRRF1JTo0umx0Mu-_xqe1wqOGHT-ve_xfXg4QlovlmhQiAmDSMPx5J8wR7T51P7ELOYdRCkIjv5auWuo453Vfk8wh6TNY1pyOOxxE8kMbqN-lEvgeVqj0RS0k6LTLudoJuv-0ySkBYOqcRsRD9JMyjEG9tAdrjGMgomLMeVEj7zT34lsSq1yJ4f46qpqbq_-QW-gbW911EolHvheKBB3web_EQzbwEnEC5mSQ9L9F5zHTMEknE9Qvn0c"/>
+<span class="font-title-sm text-title-sm">Jane Doe</span>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 md:ml-64 bg-canvas overflow-y-auto h-screen p-margin md:p-section pt-xxl">
+<div class="max-w-5xl mx-auto">
+<header class="mb-xl flex flex-col md:flex-row justify-between items-start md:items-end gap-md">
+<div>
+<h2 class="font-display-md text-display-md text-ink mb-xs">Mis Pagos</h2>
+<p class="font-body-md text-body-md text-secondary max-w-xl">Historial financiero transparente de los cuidados de tus mascotas. Revisa, descarga y administra tus comprobantes.</p>
+</div>
+</header>
+<!-- Resumen Financiero (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-xl">
+<div class="bg-surface-card p-lg rounded-xl border border-hairline flex flex-col justify-between">
+<div>
+<span class="font-caption-caps text-caption-caps text-secondary uppercase block mb-xs">Total Pagado Este Mes</span>
+<span class="font-display-sm text-display-sm text-ink">$450.00</span>
+</div>
+<div class="mt-md flex items-center gap-xs text-success">
+<span class="material-symbols-outlined text-[18px]">trending_up</span>
+<span class="font-caption text-caption">+12% vs mes anterior</span>
+</div>
+</div>
+<div class="bg-surface-soft p-lg rounded-xl border border-hairline flex flex-col justify-between">
+<div>
+<span class="font-caption-caps text-caption-caps text-secondary uppercase block mb-xs">Próximo Vencimiento</span>
+<span class="font-display-sm text-display-sm text-ink">$120.00</span>
+</div>
+<div class="mt-md flex items-center gap-xs text-primary">
+<span class="material-symbols-outlined text-[18px]">event</span>
+<span class="font-caption text-caption">Consulta Control - 15 Oct</span>
+</div>
+</div>
+<div class="bg-[#181715] text-canvas p-lg rounded-xl flex flex-col justify-center items-center relative overflow-hidden">
+<div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary to-transparent"></div>
+<div class="relative z-10 text-center">
+<span class="material-symbols-outlined text-4xl mb-sm text-primary-fixed-dim">verified_user</span>
+<p class="font-title-sm text-title-sm">Pagos 100% Seguros</p>
+</div>
+</div>
+</div>
+<!-- Tabla de Historial -->
+<div class="bg-surface p-lg md:p-xl rounded-xl border border-hairline">
+<h3 class="font-title-md text-title-md mb-lg">Historial de Transacciones</h3>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-hairline">
+<th class="font-caption-caps text-caption-caps text-secondary py-sm px-sm uppercase">Fecha</th>
+<th class="font-caption-caps text-caption-caps text-secondary py-sm px-sm uppercase">Concepto / Servicio</th>
+<th class="font-caption-caps text-caption-caps text-secondary py-sm px-sm uppercase">Método</th>
+<th class="font-caption-caps text-caption-caps text-secondary py-sm px-sm uppercase text-right">Monto</th>
+<th class="font-caption-caps text-caption-caps text-secondary py-sm px-sm uppercase text-center">Comprobante</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm">
+<tr class="border-b border-hairline-soft hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm text-secondary">10 Oct 2023</td>
+<td class="py-md px-sm">
+<div class="font-title-sm text-title-sm">Vacunación Anual - Max</div>
+<div class="text-secondary mt-xxs text-xs">Dr. Ramírez</div>
+</td>
+<td class="py-md px-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">credit_card</span>
+                                        **** 4589
+                                    </div>
+</td>
+<td class="py-md px-sm font-title-sm text-title-sm text-right">$150.00</td>
+<td class="py-md px-sm text-center">
+<button class="text-primary hover:text-primary-container p-xs rounded-full hover:bg-surface-card transition-colors inline-flex items-center justify-center">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+<tr class="border-b border-hairline-soft hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm text-secondary">28 Sep 2023</td>
+<td class="py-md px-sm">
+<div class="font-title-sm text-title-sm">Ecografía - Luna</div>
+<div class="text-secondary mt-xxs text-xs">Dra. Silva</div>
+</td>
+<td class="py-md px-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">account_balance</span>
+                                        Transferencia
+                                    </div>
+</td>
+<td class="py-md px-sm font-title-sm text-title-sm text-right">$300.00</td>
+<td class="py-md px-sm text-center">
+<button class="text-primary hover:text-primary-container p-xs rounded-full hover:bg-surface-card transition-colors inline-flex items-center justify-center">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm text-secondary">15 Ago 2023</td>
+<td class="py-md px-sm">
+<div class="font-title-sm text-title-sm">Consulta General - Bella</div>
+<div class="text-secondary mt-xxs text-xs">Dr. Ramírez</div>
+</td>
+<td class="py-md px-sm">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-[16px] text-secondary">credit_card</span>
+                                        **** 4589
+                                    </div>
+</td>
+<td class="py-md px-sm font-title-sm text-title-sm text-right">$85.00</td>
+<td class="py-md px-sm text-center">
+<button class="text-primary hover:text-primary-container p-xs rounded-full hover:bg-surface-card transition-colors inline-flex items-center justify-center">
+<span class="material-symbols-outlined">download</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

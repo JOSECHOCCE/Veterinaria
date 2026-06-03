@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Mascotas - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-low": "#fff1ed",
+                    "canvas": "#faf9f5",
+                    "surface": "#fff8f6",
+                    "secondary-fixed": "#e6e2de",
+                    "on-tertiary-fixed-variant": "#005049",
+                    "on-tertiary-fixed": "#00201d",
+                    "secondary-fixed-dim": "#cac6c2",
+                    "on-tertiary-container": "#f4fffc",
+                    "primary": "#8f482f",
+                    "tertiary-fixed-dim": "#77d7ca",
+                    "inverse-surface": "#372e2c",
+                    "hairline": "#e6dfd8",
+                    "outline": "#87736d",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-container": "#ad5f45",
+                    "accent-amber": "#e8a55a",
+                    "surface-container": "#faebe6",
+                    "success": "#5db872",
+                    "accent-teal": "#5db8a6",
+                    "ink": "#141413",
+                    "tertiary-container": "#0f8378",
+                    "tertiary": "#00685f",
+                    "surface-bright": "#fff8f6",
+                    "outline-variant": "#dac1ba",
+                    "background": "#fff8f6",
+                    "on-error-container": "#93000a",
+                    "primary-fixed": "#ffdbd0",
+                    "on-background": "#211a18",
+                    "body-muted": "#3d3d3a",
+                    "inverse-primary": "#ffb59d",
+                    "on-primary-fixed": "#390c00",
+                    "surface-tint": "#924a31",
+                    "secondary": "#605e5b",
+                    "on-surface": "#211a18",
+                    "on-secondary-fixed-variant": "#484644",
+                    "on-error": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#e6e2de",
+                    "surface-card": "#efe9de",
+                    "primary-fixed-dim": "#ffb59d",
+                    "surface-dim": "#e6d7d3",
+                    "error-container": "#ffdad6",
+                    "error": "#c64545",
+                    "surface-variant": "#efdfdb",
+                    "inverse-on-surface": "#fdede9",
+                    "on-surface-variant": "#54433e",
+                    "tertiary-fixed": "#94f3e6",
+                    "on-primary-fixed-variant": "#75331c",
+                    "body-strong": "#252523",
+                    "on-secondary-fixed": "#1c1b19",
+                    "surface-soft": "#f5f0e8",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-container": "#666461",
+                    "surface-container-highest": "#efdfdb",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#fffbff",
+                    "surface-container-high": "#f4e5e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "section": "96px",
+                    "sm": "12px",
+                    "xxs": "4px",
+                    "xl": "32px",
+                    "xs": "8px",
+                    "md": "16px",
+                    "xxl": "48px",
+                    "gutter": "1.5rem",
+                    "lg": "24px",
+                    "margin": "2rem"
+            },
+            "fontFamily": {
+                    "code": [
+                            "JetBrains Mono, ui-monospace, monospace"
+                    ],
+                    "caption-caps": [
+                            "Inter, sans-serif"
+                    ],
+                    "caption": [
+                            "Inter, sans-serif"
+                    ],
+                    "nav-link": [
+                            "Inter, sans-serif"
+                    ],
+                    "display-md": [
+                            "Georgia, serif"
+                    ],
+                    "title-lg": [
+                            "Inter, sans-serif"
+                    ],
+                    "title-md": [
+                            "Inter, sans-serif"
+                    ],
+                    "body-sm": [
+                            "Inter, sans-serif"
+                    ],
+                    "caption-uppercase": [
+                            "Inter, sans-serif"
+                    ],
+                    "title-sm": [
+                            "Inter, sans-serif"
+                    ],
+                    "display-sm": [
+                            "Georgia, serif"
+                    ],
+                    "button": [
+                            "Inter, sans-serif"
+                    ],
+                    "display-xl": [
+                            "Georgia, serif"
+                    ],
+                    "body-md": [
+                            "Inter, sans-serif"
+                    ],
+                    "display-lg": [
+                            "Georgia, serif"
+                    ]
+            },
+            "fontSize": {
+                    "code": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.6",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "caption-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "1.5px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "caption": [
+                            "13px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "nav-link": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "display-md": [
+                            "36px",
+                            {
+                                    "lineHeight": "1.15",
+                                    "letterSpacing": "-0.5px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "title-lg": [
+                            "22px",
+                            {
+                                    "lineHeight": "1.3",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "title-md": [
+                            "18px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "body-sm": [
+                            "14px",
+                            {
+                                    "lineHeight": "1.55",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "caption-uppercase": [
+                            "12px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "letterSpacing": "1.5px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "title-sm": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.4",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "display-sm": [
+                            "28px",
+                            {
+                                    "lineHeight": "1.2",
+                                    "letterSpacing": "-0.3px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "button": [
+                            "14px",
+                            {
+                                    "lineHeight": "1",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "display-xl": [
+                            "64px",
+                            {
+                                    "lineHeight": "1.05",
+                                    "letterSpacing": "-1.5px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "1.55",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-lg": [
+                            "48px",
+                            {
+                                    "lineHeight": "1.1",
+                                    "letterSpacing": "-1px",
+                                    "fontWeight": "400"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #faf9f5; /* canvas */
+            color: #141413; /* ink */
+        }
+        /* Custom scrollbar for an editorial feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #faf9f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e6dfd8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cac6c2;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-container-low border-r border-hairline py-xl px-md z-20">
+<div class="mb-xl px-xs">
+<h1 class="font-display-md text-display-md text-primary font-bold tracking-tight">VetCare Pro</h1>
+<p class="font-caption text-caption text-body-muted mt-1">Gestión Veterinaria</p>
+</div>
+<div class="mb-lg px-xs">
+<button class="w-full bg-primary text-on-primary font-button text-button py-sm px-md rounded-lg flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                Nuevo Paciente
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+                        Resumen
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-primary font-bold border-r-2 border-primary bg-surface-container-high font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
+                        Expedientes
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">group</span>
+                        Dueños
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+                        Facturación
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">calendar_today</span>
+                        Agenda
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+                        Personal
+                    </a>
+</li>
+</ul>
+</div>
+<div class="mt-auto pt-lg border-t border-hairline">
+<ul class="space-y-1">
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                        Configuración
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-body-muted hover:bg-surface-container-high transition-colors font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+                        Ayuda
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col min-h-screen bg-canvas">
+<!-- TopAppBar (Desktop) -->
+<header class="hidden md:flex justify-between items-center h-16 px-xl sticky top-0 bg-canvas z-10">
+<div class="flex items-center gap-md">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-body-muted text-[20px]">search</span>
+<input class="pl-10 pr-4 py-1.5 bg-surface-soft border border-hairline rounded-full font-body-sm text-body-sm text-ink focus:outline-none focus:border-outline focus:ring-1 focus:ring-outline w-64 transition-all" placeholder="Buscar paciente..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-lg">
+<nav class="flex items-center gap-md">
+<a class="font-nav-link text-nav-link text-body-muted hover:text-primary transition-all" href="#">Hoy</a>
+<a class="font-nav-link text-nav-link text-body-muted hover:text-primary transition-all" href="#">Urgencias</a>
+<a class="font-nav-link text-nav-link text-body-muted hover:text-primary transition-all" href="#">Farmacia</a>
+</nav>
+<div class="flex items-center gap-sm border-l border-hairline pl-lg">
+<button class="text-body-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-body-muted hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Mobile Header (Simplified) -->
+<header class="md:hidden flex justify-between items-center px-md py-sm bg-surface-container-low border-b border-hairline sticky top-0 z-10">
+<h1 class="font-display-sm text-display-sm text-primary font-bold">VetCare Pro</h1>
+<button class="text-ink">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<!-- Page Content -->
+<div class="flex-1 px-md md:px-xl py-lg md:py-xl max-w-7xl mx-auto w-full">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-md mb-xl">
+<div>
+<p class="font-caption-uppercase text-caption-uppercase text-outline mb-2">Directorio</p>
+<h2 class="font-display-lg text-display-lg text-ink">Gestión de Pacientes</h2>
+</div>
+<div class="flex items-center gap-sm">
+<button class="bg-surface-soft border border-hairline text-ink font-button text-button py-sm px-md rounded-lg flex items-center justify-center gap-2 hover:bg-surface-card transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filtros
+                    </button>
+<button class="bg-primary text-on-primary font-button text-button py-sm px-md rounded-lg flex items-center justify-center gap-2 hover:bg-surface-tint transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">pets</span>
+                        Registrar Mascota
+                    </button>
+</div>
+</div>
+<!-- Main Directory Card -->
+<div class="bg-surface-card rounded-xl p-md md:p-lg border border-hairline shadow-sm">
+<!-- Toolbar -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+<!-- Search -->
+<div class="relative w-full sm:w-96">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-body-muted text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-outline focus:ring-1 focus:ring-outline transition-all" placeholder="Buscar por nombre, dueño o chip..." type="text"/>
+</div>
+<!-- Quick Filters -->
+<div class="flex items-center gap-xs overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
+<button class="px-3 py-1 rounded-full bg-primary-container text-on-primary-container font-caption text-caption whitespace-nowrap">Todos</button>
+<button class="px-3 py-1 rounded-full bg-canvas border border-hairline text-body-muted font-caption text-caption whitespace-nowrap hover:bg-surface-soft">Caninos</button>
+<button class="px-3 py-1 rounded-full bg-canvas border border-hairline text-body-muted font-caption text-caption whitespace-nowrap hover:bg-surface-soft">Felinos</button>
+<button class="px-3 py-1 rounded-full bg-canvas border border-hairline text-body-muted font-caption text-caption whitespace-nowrap hover:bg-surface-soft">Exóticos</button>
+</div>
+</div>
+<!-- Data Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-hairline text-body-muted font-caption-uppercase text-caption-uppercase">
+<th class="py-sm px-sm font-medium">Mascota</th>
+<th class="py-sm px-sm font-medium">Especie / Raza</th>
+<th class="py-sm px-sm font-medium">Dueño Responsable</th>
+<th class="py-sm px-sm font-medium">Estado</th>
+<th class="py-sm px-sm font-medium text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-ink">
+<!-- Row 1 -->
+<tr class="border-b border-hairline-soft hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">pets</span>
+</div>
+<div>
+<p class="font-title-sm text-title-sm font-medium">Luna</p>
+<p class="font-caption text-caption text-body-muted">#PAC-001</p>
+</div>
+</div>
+</td>
+<td class="py-md px-sm">
+<p>Canino</p>
+<p class="text-body-muted text-caption">Golden Retriever</p>
+</td>
+<td class="py-md px-sm">
+<p>Carlos Mendoza</p>
+<p class="text-body-muted text-caption">555-0192</p>
+</td>
+<td class="py-md px-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-success font-caption text-caption border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                                        Activa
+                                    </span>
+</td>
+<td class="py-md px-sm text-right">
+<button class="text-body-muted hover:text-primary p-1 rounded hover:bg-canvas transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-hairline-soft hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">pets</span>
+</div>
+<div>
+<p class="font-title-sm text-title-sm font-medium">Milo</p>
+<p class="font-caption text-caption text-body-muted">#PAC-082</p>
+</div>
+</div>
+</td>
+<td class="py-md px-sm">
+<p>Felino</p>
+<p class="text-body-muted text-caption">Siamés</p>
+</td>
+<td class="py-md px-sm">
+<p>Ana Ruiz</p>
+<p class="text-body-muted text-caption">555-4431</p>
+</td>
+<td class="py-md px-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-success font-caption text-caption border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                                        Activa
+                                    </span>
+</td>
+<td class="py-md px-sm text-right">
+<button class="text-body-muted hover:text-primary p-1 rounded hover:bg-canvas transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 (Atenuada) -->
+<tr class="border-b border-hairline-soft hover:bg-surface-soft transition-colors group opacity-75">
+<td class="py-md px-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">cruelty_free</span>
+</div>
+<div>
+<p class="font-title-sm text-title-sm font-medium text-body-muted">Coco</p>
+<p class="font-caption text-caption text-outline">#PAC-114</p>
+</div>
+</div>
+</td>
+<td class="py-md px-sm text-body-muted">
+<p>Exótico</p>
+<p class="text-outline text-caption">Conejo Enano</p>
+</td>
+<td class="py-md px-sm text-body-muted">
+<p>Luis Vargas</p>
+<p class="text-outline text-caption">555-8820</p>
+</td>
+<td class="py-md px-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-variant text-body-muted font-caption text-caption border border-outline-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        Atenuada
+                                    </span>
+</td>
+<td class="py-md px-sm text-right">
+<button class="text-body-muted hover:text-primary p-1 rounded hover:bg-canvas transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-soft transition-colors group">
+<td class="py-md px-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-dim flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">pets</span>
+</div>
+<div>
+<p class="font-title-sm text-title-sm font-medium">Toby</p>
+<p class="font-caption text-caption text-body-muted">#PAC-205</p>
+</div>
+</div>
+</td>
+<td class="py-md px-sm">
+<p>Canino</p>
+<p class="text-body-muted text-caption">Bulldog Francés</p>
+</td>
+<td class="py-md px-sm">
+<p>Elena Gómez</p>
+<p class="text-body-muted text-caption">555-1198</p>
+</td>
+<td class="py-md px-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-success font-caption text-caption border border-success/20">
+<span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                                        Activa
+                                    </span>
+</td>
+<td class="py-md px-sm text-right">
+<button class="text-body-muted hover:text-primary p-1 rounded hover:bg-canvas transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="flex items-center justify-between border-t border-hairline mt-md pt-md">
+<p class="font-caption text-caption text-body-muted">Mostrando 1-4 de 124 pacientes</p>
+<div class="flex items-center gap-xs">
+<button class="w-8 h-8 flex items-center justify-center rounded border border-hairline text-body-muted hover:bg-surface-soft disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-hairline bg-primary text-on-primary font-caption text-caption">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-hairline text-ink hover:bg-surface-soft font-caption text-caption">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-hairline text-ink hover:bg-surface-soft font-caption text-caption">3</button>
+<span class="text-body-muted px-1">...</span>
+<button class="w-8 h-8 flex items-center justify-center rounded border border-hairline text-body-muted hover:bg-surface-soft">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="md:hidden fixed bottom-0 w-full bg-surface-container-low border-t border-hairline pb-safe z-20">
+<div class="flex justify-around items-center h-16">
+<a class="flex flex-col items-center justify-center w-full h-full text-body-muted hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">dashboard</span>
+<span class="font-caption-uppercase text-[10px]">Resumen</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-primary font-medium" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">clinical_notes</span>
+<span class="font-caption-uppercase text-[10px]">Expedientes</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-body-muted hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">group</span>
+<span class="font-caption-uppercase text-[10px]">Dueños</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-body-muted hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">calendar_today</span>
+<span class="font-caption-uppercase text-[10px]">Agenda</span>
+</a>
+</div>
+</nav>
+</body></html>

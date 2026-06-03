@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Ficha del Cliente</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Custom scrollbar for an editorial feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e6dfd8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #dac1ba;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#faebe6",
+                      "primary-container": "#ad5f45",
+                      "on-background": "#211a18",
+                      "tertiary": "#00685f",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary-fixed-variant": "#75331c",
+                      "surface-container-low": "#fff1ed",
+                      "accent-amber": "#e8a55a",
+                      "primary": "#8f482f",
+                      "on-secondary-fixed": "#1c1b19",
+                      "surface-tint": "#924a31",
+                      "on-surface": "#211a18",
+                      "on-primary-container": "#fffbff",
+                      "error": "#c64545",
+                      "inverse-primary": "#ffb59d",
+                      "surface-soft": "#f5f0e8",
+                      "primary-fixed": "#ffdbd0",
+                      "secondary-fixed": "#e6e2de",
+                      "surface-container-high": "#f4e5e1",
+                      "secondary-fixed-dim": "#cac6c2",
+                      "background": "#fff8f6",
+                      "primary-fixed-dim": "#ffb59d",
+                      "surface-variant": "#efdfdb",
+                      "on-secondary-container": "#666461",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "on-primary": "#ffffff",
+                      "secondary-container": "#e6e2de",
+                      "error-container": "#ffdad6",
+                      "on-surface-variant": "#54433e",
+                      "surface-container-highest": "#efdfdb",
+                      "surface-card": "#efe9de",
+                      "success": "#5db872",
+                      "inverse-on-surface": "#fdede9",
+                      "outline-variant": "#dac1ba",
+                      "on-tertiary-container": "#f4fffc",
+                      "ink": "#141413",
+                      "accent-teal": "#5db8a6",
+                      "surface": "#fff8f6",
+                      "canvas": "#faf9f5",
+                      "secondary": "#605e5b",
+                      "on-error-container": "#93000a",
+                      "surface-dim": "#e6d7d3",
+                      "inverse-surface": "#372e2c",
+                      "on-tertiary-fixed": "#00201d",
+                      "hairline": "#e6dfd8",
+                      "body-strong": "#252523",
+                      "surface-bright": "#fff8f6",
+                      "body-muted": "#3d3d3a",
+                      "outline": "#87736d",
+                      "on-secondary-fixed-variant": "#484644",
+                      "tertiary-fixed-dim": "#77d7ca",
+                      "tertiary-container": "#0f8378",
+                      "on-primary-fixed": "#390c00",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed": "#94f3e6",
+                      "on-secondary": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xxs": "4px",
+                      "md": "16px",
+                      "gutter": "1.5rem",
+                      "xxl": "48px",
+                      "sm": "12px",
+                      "section": "96px",
+                      "margin": "2rem",
+                      "xl": "32px",
+                      "xs": "8px",
+                      "lg": "24px"
+              },
+              "fontFamily": {
+                      "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                      "caption": ["StyreneB", "Inter", "sans-serif"],
+                      "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                      "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                      "body-md": ["StyreneB", "Inter", "sans-serif"],
+                      "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                      "title-md": ["StyreneB", "Inter", "sans-serif"],
+                      "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                      "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                      "button": ["StyreneB", "Inter", "sans-serif"],
+                      "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                      "caption-caps": ["Inter", "sans-serif"],
+                      "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                      "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                      "body-sm": ["StyreneB", "Inter", "sans-serif"]
+              },
+              "fontSize": {
+                      "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                      "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                      "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                      "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                      "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                      "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                      "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                      "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                      "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                      "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                      "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                      "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }]
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-canvas text-ink font-body-md antialiased selection:bg-primary-fixed selection:text-ink">
+<div class="flex min-h-screen">
+<!-- Desktop SideNavBar -->
+<aside class="hidden md:flex flex-col py-lg gap-md bg-surface-card dark:bg-surface-dim h-screen w-72 left-0 sticky top-0 border-r border-hairline z-40">
+<div class="px-gutter mb-xl">
+<div class="w-12 h-12 rounded-full bg-ink flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-canvas">pets</span>
+</div>
+<h1 class="font-display-md text-display-md text-ink">VetCare Pro</h1>
+<p class="font-caption text-caption text-body-muted">Premium Animal Health</p>
+</div>
+<nav class="flex-1 flex flex-col gap-xs">
+<!-- Inactive -->
+<a class="flex items-center gap-sm py-sm px-4 text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-title-sm text-title-sm">Overview</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-4 text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="clinical_notes">clinical_notes</span>
+<span class="font-title-sm text-title-sm">Medical Records</span>
+</a>
+<!-- Active: Semantic match for Ficha del Cliente -->
+<a class="flex items-center gap-sm py-sm px-4 bg-canvas text-primary font-bold rounded-l-full ml-4 shadow-sm relative before:absolute before:right-0 before:top-0 before:h-full before:w-1 before:bg-canvas" href="#">
+<span class="material-symbols-outlined fill" data-icon="groups">groups</span>
+<span class="font-title-sm text-title-sm">Pet Owners</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-4 text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-title-sm text-title-sm">Billing</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-4 text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-title-sm text-title-sm">Laboratory</span>
+</a>
+<a class="flex items-center gap-sm py-sm px-4 text-body-muted hover:text-ink hover:bg-surface-variant/30 rounded-lg mx-4 hover:translate-x-1 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="font-title-sm text-title-sm">Staff</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto flex flex-col gap-sm">
+<button class="w-full bg-primary text-on-primary font-button text-button py-sm rounded-lg hover:bg-surface-tint transition-colors">
+                    New Consultation
+                </button>
+<div class="h-px bg-hairline my-sm w-full"></div>
+<a class="flex items-center gap-sm py-xs px-2 text-body-muted hover:text-ink" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span>
+<span class="font-caption text-caption">Help Center</span>
+</a>
+<a class="flex items-center gap-sm py-xs px-2 text-body-muted hover:text-ink" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="logout">logout</span>
+<span class="font-caption text-caption">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Mobile TopNavBar -->
+<header class="md:hidden fixed top-0 left-0 w-full z-40 bg-canvas dark:bg-canvas border-b border-hairline flex justify-between items-center h-20 px-gutter">
+<span class="font-display-sm text-display-sm font-bold text-ink dark:text-canvas">VetCare Pro</span>
+<div class="flex items-center gap-md">
+<button class="text-body-muted hover:text-ink"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-body-muted hover:text-ink"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+<img alt="Veterinary Surgeon Profile" class="w-8 h-8 rounded-full border border-hairline" data-alt="A small, circular profile picture showing a professional headshot of a veterinary surgeon. Warm, inviting lighting against a clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-lnk3XDN_mpK_H0K0XPnJ-nFVrejNlddloy4lsDCByhAqUZtPwpFbnfs4Rku0hxTzHF26gwiR8UCszzaKa1d9u-L1sOQuNi7VLbqlfcLY6oTEiIJrsIEu53PfAKIR0Neqru3sinhDBELXMILKP2Fx-T816k0U_mGonaVcR8BzVGkjAmEl10oeZyUGXlqR1-q485ye-PDfZcWDnOpGZfyUlfGcAcCWuuLsDWYT_516OTbCo3x7ULNV3GWofA0wkuD_APLiOJiaKIU"/>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-screen-2xl mx-auto md:px-xl px-gutter pt-24 md:pt-xl pb-xxl flex flex-col gap-section">
+<!-- Context & Header -->
+<div class="flex flex-col gap-lg md:flex-row md:items-start md:justify-between w-full">
+<div class="flex flex-col gap-sm max-w-2xl">
+<div class="flex items-center gap-md mb-xs">
+<a class="text-body-muted hover:text-ink flex items-center gap-xxs font-caption text-caption uppercase tracking-wider" href="#">
+<span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                            Directorio
+                        </a>
+<span class="inline-flex items-center gap-xxs px-3 py-1 rounded-full bg-surface-soft border border-hairline text-ink font-caption text-caption">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+                            Activo
+                        </span>
+</div>
+<h2 class="font-display-lg text-display-lg text-ink m-0 p-0 leading-none">María Domínguez</h2>
+<div class="flex flex-wrap gap-x-xl gap-y-sm mt-md">
+<div class="flex items-center gap-sm text-body-muted">
+<span class="material-symbols-outlined text-[18px]">phone_iphone</span>
+<span class="font-body-md text-body-md">+34 612 345 678</span>
+</div>
+<div class="flex items-center gap-sm text-body-muted">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+<span class="font-body-md text-body-md">m.dominguez@ejemplo.com</span>
+</div>
+<div class="flex items-center gap-sm text-body-muted w-full md:w-auto">
+<span class="material-symbols-outlined text-[18px]">location_on</span>
+<span class="font-body-md text-body-md">Calle Mayor 42, 3ºB. Madrid</span>
+</div>
+</div>
+</div>
+<!-- Primary Actions -->
+<div class="flex items-center gap-sm mt-md md:mt-0">
+<button class="px-4 py-2 border border-ink text-ink font-button text-button rounded-lg hover:bg-surface-soft transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                        Editar Ficha
+                    </button>
+<button class="px-4 py-2 border border-transparent text-error hover:bg-error-container/30 font-button text-button rounded-lg transition-colors flex items-center gap-sm">
+<span class="material-symbols-outlined text-[18px]">block</span>
+                        Inactivar
+                    </button>
+</div>
+</div>
+<!-- Bento Layout Content -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Left Column (Main Info) -->
+<div class="lg:col-span-8 flex flex-col gap-xxl">
+<!-- Mascotas Block -->
+<section>
+<div class="flex items-end justify-between mb-lg border-b border-hairline pb-sm">
+<h3 class="font-display-sm text-display-sm text-ink">Mis Mascotas</h3>
+<button class="text-primary hover:text-surface-tint font-button text-button flex items-center gap-xxs transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                Registrar nueva
+                            </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Pet Card 1 -->
+<div class="group bg-surface-card rounded-xl p-lg flex flex-col gap-md transition-colors hover:bg-surface-soft relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-high rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-canvas">
+<div class="w-full h-full bg-cover bg-center" data-alt="A close-up portrait of an adorable Beagle puppy looking slightly up towards the camera. The lighting is warm and natural, creating a soft, editorial aesthetic against a blurred, light-toned background. The image feels deeply humanistic and high-quality." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVwrLwbe9jndPERz7d_mmxnaFHVxw62fN4rHuxrtktqO0A0UCik_QGngae4oduRNovdwndoJUqCUkLnbzZwSTydfKy8ycwSC6_R2NehkYugbwZS2fF_6sCvavZ6QC_CjLT-SUbC3Z1r9sC9_t8gRxqaLc2vLFl0U969VEVWuTY6Petj_VV9fuMBuN4CzEzp1J22uzw6mOEJs9Uqd7HE97P0lBv3DDoc3-UO6Ri8AMgBavqbFKWZA-HavA1Ho5oqH0W6XeCCWjp7Tg');"></div>
+</div>
+<button class="text-body-muted hover:text-ink"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-ink">Lupo</h4>
+<p class="font-body-sm text-body-sm text-body-muted mt-1">Perro · Beagle · 3 años</p>
+</div>
+<div class="mt-auto pt-sm border-t border-hairline flex gap-sm">
+<span class="inline-flex items-center gap-1 text-xs font-caption text-secondary">
+<span class="material-symbols-outlined text-[14px]">vaccines</span> Al día
+                                    </span>
+</div>
+</div>
+<!-- Pet Card 2 -->
+<div class="group bg-surface-card rounded-xl p-lg flex flex-col gap-md transition-colors hover:bg-surface-soft relative overflow-hidden">
+<div class="absolute top-0 right-0 w-24 h-24 bg-surface-container-high rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-canvas">
+<div class="w-full h-full bg-cover bg-center" data-alt="A serene portrait of a sleek grey cat looking contemplatively out of frame. Soft, natural light illuminates the subject, highlighting the texture of its fur. The overall tone is calm, intellectual, and grounded in a warm-canvas editorial style." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAgoLi6df5aDvEQqqPPDQR6UnKOH-KkSRJ_zOdrEwMrDfpUdDbYswHW-6wOSsDtc_6OwMnji_Sgn0sUUJJZNhiaXiTG5NX1UkmOHK5MOunoxvSErzbzKn4JToe2cRQg3ixbYrld3jGa5OxbIJ4_FBUMRZ3nlj8AWVrdu4G1f8mKxe2McHJHNAJwY2vFCCbF2wbc4u4-3oyR38mf5Jmto6B8e4BOqGzhAizFbiFhefesoBKOHcZLUA-NkXra4V2T8PBULB1YEQOrwn0');"></div>
+</div>
+<button class="text-body-muted hover:text-ink"><span class="material-symbols-outlined">more_vert</span></button>
+</div>
+<div>
+<h4 class="font-title-lg text-title-lg text-ink">Misha</h4>
+<p class="font-body-sm text-body-sm text-body-muted mt-1">Gato · Común Europeo · 7 años</p>
+</div>
+<div class="mt-auto pt-sm border-t border-hairline flex gap-sm">
+<span class="inline-flex items-center gap-1 text-xs font-caption text-error">
+<span class="material-symbols-outlined text-[14px]">warning</span> Revisión dental
+                                    </span>
+</div>
+</div>
+</div>
+</section>
+<!-- Historial Block -->
+<section>
+<div class="flex items-end justify-between mb-lg border-b border-hairline pb-sm">
+<h3 class="font-display-sm text-display-sm text-ink">Historial de Citas</h3>
+</div>
+<div class="relative pl-6 border-l border-hairline flex flex-col gap-lg ml-xs">
+<!-- Timeline Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-canvas border-2 border-primary z-10"></div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-xs sm:gap-md">
+<span class="font-caption-uppercase text-caption-uppercase text-body-muted w-24 flex-shrink-0">12 NOV 2023</span>
+<div class="bg-surface-card rounded-lg p-4 flex-1">
+<div class="flex justify-between items-start mb-sm">
+<h5 class="font-title-sm text-title-sm text-ink">Vacunación Anual (Lupo)</h5>
+<span class="text-success text-xs font-caption bg-success/10 px-2 py-0.5 rounded-sm">Completada</span>
+</div>
+<p class="font-body-sm text-body-sm text-body-muted">Dosis de polivalente y rabia administradas sin incidencias. Siguiente dosis recomendada en 12 meses.</p>
+<div class="mt-md flex items-center gap-sm text-xs font-caption text-secondary">
+<span class="material-symbols-outlined text-[14px]">person</span> Dr. Alejandro Ruiz
+                                        </div>
+</div>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-surface-card border-2 border-outline z-10"></div>
+<div class="flex flex-col sm:flex-row sm:items-baseline gap-xs sm:gap-md">
+<span class="font-caption-uppercase text-caption-uppercase text-body-muted w-24 flex-shrink-0">05 SEP 2023</span>
+<div class="bg-canvas border border-hairline rounded-lg p-4 flex-1 hover:bg-surface-soft transition-colors cursor-pointer">
+<h5 class="font-title-sm text-title-sm text-ink mb-sm">Consulta Digestiva (Misha)</h5>
+<p class="font-body-sm text-body-sm text-body-muted">Pérdida de apetito leve. Se prescribe dieta blanda y observación.</p>
+</div>
+</div>
+</div>
+</div>
+<button class="mt-md text-body-muted hover:text-ink font-caption text-caption flex items-center gap-xs ml-6">
+                            Ver historial completo <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</section>
+</div>
+<!-- Right Column (Sidebar metrics/actions) -->
+<div class="lg:col-span-4 flex flex-col gap-xl">
+<!-- Call to Action Card -->
+<div class="bg-surface-container-low rounded-xl p-xl border border-hairline flex flex-col gap-md text-center items-center">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-xs">
+<span class="material-symbols-outlined text-[24px]">calendar_month</span>
+</div>
+<h3 class="font-display-sm text-display-sm text-ink leading-tight">Planificar visita</h3>
+<p class="font-body-sm text-body-sm text-body-muted">Agenda la próxima revisión o consulta para cualquiera de las mascotas asociadas.</p>
+<button class="w-full mt-sm bg-primary text-on-primary font-button text-button py-3 rounded-lg hover:bg-surface-tint transition-colors shadow-sm">
+                            Crear cita
+                        </button>
+</div>
+<!-- Financial Summary -->
+<div class="bg-surface-card rounded-xl p-lg flex flex-col gap-md">
+<div class="flex items-center gap-sm border-b border-hairline pb-sm mb-xs">
+<span class="material-symbols-outlined text-ink">account_balance_wallet</span>
+<h3 class="font-title-md text-title-md text-ink">Resumen Financiero</h3>
+</div>
+<div class="flex flex-col gap-xs">
+<span class="font-caption text-caption text-body-muted uppercase tracking-wide">Deuda Pendiente</span>
+<div class="flex items-baseline gap-sm">
+<span class="font-display-md text-display-md text-ink">€45,00</span>
+<span class="inline-flex items-center gap-1 text-xs font-caption text-error bg-error/10 px-2 py-0.5 rounded">
+                                    Factura vencida
+                                </span>
+</div>
+<p class="font-body-sm text-body-sm text-body-muted mt-1">Corresponde a Consulta Digestiva (05 SEP).</p>
+</div>
+<div class="mt-sm pt-md border-t border-hairline flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-body-muted">Último pago:</span>
+<span class="font-title-sm text-title-sm text-ink">€85,00 (12 NOV)</span>
+</div>
+<button class="mt-md w-full border border-ink text-ink font-button text-button py-2 rounded-lg hover:bg-surface-soft transition-colors">
+                            Ver Facturación
+                        </button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

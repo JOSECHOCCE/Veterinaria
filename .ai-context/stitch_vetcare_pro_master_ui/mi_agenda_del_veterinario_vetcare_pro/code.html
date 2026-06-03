@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Mi Agenda</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Note: Copernicus and StyreneB are assumed to be loaded or fallback to Inter/Serif -->
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-tint": "#924a31",
+                      "body-muted": "#3d3d3a",
+                      "on-secondary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-container": "#0f8378",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "accent-amber": "#e8a55a",
+                      "outline": "#87736d",
+                      "on-error": "#ffffff",
+                      "inverse-surface": "#372e2c",
+                      "secondary-fixed-dim": "#cac6c2",
+                      "inverse-primary": "#ffb59d",
+                      "inverse-on-surface": "#fdede9",
+                      "secondary-fixed": "#e6e2de",
+                      "tertiary-fixed": "#94f3e6",
+                      "on-surface": "#211a18",
+                      "surface-container-low": "#fff1ed",
+                      "error": "#c64545",
+                      "on-secondary-fixed": "#1c1b19",
+                      "canvas": "#faf9f5",
+                      "body-strong": "#252523",
+                      "surface-soft": "#f5f0e8",
+                      "on-primary-fixed": "#390c00",
+                      "surface-dim": "#e6d7d3",
+                      "ink": "#141413",
+                      "surface-variant": "#efdfdb",
+                      "primary-container": "#ad5f45",
+                      "on-surface-variant": "#54433e",
+                      "secondary": "#605e5b",
+                      "on-tertiary-fixed": "#00201d",
+                      "surface-card": "#efe9de",
+                      "surface": "#fff8f6",
+                      "on-primary-container": "#fffbff",
+                      "primary-fixed": "#ffdbd0",
+                      "secondary-container": "#e6e2de",
+                      "hairline": "#e6dfd8",
+                      "surface-container-highest": "#efdfdb",
+                      "surface-container-lowest": "#ffffff",
+                      "on-tertiary-container": "#f4fffc",
+                      "on-primary-fixed-variant": "#75331c",
+                      "success": "#5db872",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#211a18",
+                      "outline-variant": "#dac1ba",
+                      "on-secondary-container": "#666461",
+                      "accent-teal": "#5db8a6",
+                      "tertiary-fixed-dim": "#77d7ca",
+                      "on-error-container": "#93000a",
+                      "background": "#fff8f6",
+                      "surface-bright": "#fff8f6",
+                      "primary-fixed-dim": "#ffb59d",
+                      "primary": "#8f482f",
+                      "surface-container": "#faebe6",
+                      "on-primary": "#ffffff",
+                      "tertiary": "#00685f",
+                      "surface-container-high": "#f4e5e1",
+                      "on-secondary-fixed-variant": "#484644"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "md": "16px",
+                      "xxl": "48px",
+                      "sm": "12px",
+                      "gutter": "1.5rem",
+                      "xs": "8px",
+                      "section": "96px",
+                      "margin": "2rem",
+                      "lg": "24px",
+                      "xxs": "4px"
+              },
+              "fontFamily": {
+                      "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                      "caption-caps": ["Inter", "sans-serif"],
+                      "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                      "button": ["StyreneB", "Inter", "sans-serif"],
+                      "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                      "caption": ["StyreneB", "Inter", "sans-serif"],
+                      "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                      "title-md": ["StyreneB", "Inter", "sans-serif"],
+                      "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                      "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                      "body-md": ["StyreneB", "Inter", "sans-serif"],
+                      "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                      "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                      "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                      "code": ["JetBrains Mono", "ui-monospace", "monospace"]
+              },
+              "fontSize": {
+                      "title-sm": ["16px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "caption-caps": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "nav-link": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "button": ["14px", {"lineHeight": "1", "fontWeight": "500"}],
+                      "caption-uppercase": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "caption": ["13px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "title-lg": ["22px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "title-md": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "display-xl": ["64px", {"lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400"}],
+                      "display-md": ["36px", {"lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400"}],
+                      "body-md": ["16px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                      "display-sm": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                      "code": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-canvas text-ink font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar Component -->
+<nav class="bg-surface-card h-screen w-64 fixed left-0 top-0 flex flex-col py-xl px-md z-50">
+<!-- Brand Area -->
+<div class="flex items-center gap-sm mb-xl px-sm">
+<div class="w-10 h-10 rounded-lg bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-weight="fill" style="font-variation-settings: 'FILL' 1;">pets</span>
+</div>
+<div>
+<h1 class="font-display-sm text-display-sm text-on-surface leading-none">VetCare Pro</h1>
+<p class="font-caption text-caption text-on-surface-variant">Veterinary Clinic Management</p>
+</div>
+</div>
+<!-- Main Navigation Tabs -->
+<div class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Resumen
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">clinical_notes</span>
+                Historias Clínicas
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Clientes
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Pagos y Cobros
+            </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-primary font-bold border-r-2 border-primary bg-surface-soft/50 font-nav-link text-nav-link opacity-90 transition-all" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                Agenda
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">badge</span>
+                Personal
+            </a>
+</div>
+<!-- CTA Button -->
+<button class="mt-auto mb-lg w-full bg-primary text-on-primary font-button text-button py-3 rounded-lg hover:bg-primary/90 transition-colors">
+            New Appointment
+        </button>
+<!-- Footer Tabs -->
+<div class="flex flex-col gap-xs border-t border-hairline pt-md">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Configuración
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+                Soporte
+            </a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 px-xl sticky top-0 z-40 bg-canvas/80 backdrop-blur-md border-b border-hairline w-full">
+<!-- Search -->
+<div class="flex items-center w-96 relative">
+<span class="material-symbols-outlined absolute left-3 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-soft border border-hairline rounded-full py-2 pl-10 pr-4 font-body-sm text-body-sm focus:outline-none focus:border-primary transition-colors" placeholder="Buscar pacientes, clientes..." type="text"/>
+</div>
+<!-- Actions -->
+<div class="flex items-center gap-md">
+<div class="flex gap-sm text-on-secondary-container">
+<button class="p-2 hover:bg-surface-soft rounded-full transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-soft rounded-full transition-colors">
+<span class="material-symbols-outlined">help_center</span>
+</button>
+</div>
+<div class="h-6 w-px bg-hairline mx-xs"></div>
+<button class="text-error font-button text-button hover:bg-error-container/50 px-3 py-1.5 rounded-lg transition-colors">
+                    Emergency Mode
+                </button>
+<button class="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                    Check In
+                </button>
+<!-- Profile -->
+<div class="ml-sm w-9 h-9 rounded-full overflow-hidden border border-hairline">
+<img alt="Professional Veterinarian Profile" class="w-full h-full object-cover" data-alt="A brightly lit, professional headshot of a smiling veterinarian wearing dark blue scrubs, standing in a clean, modern clinic with a warm cream-colored background. The lighting is soft and flattering, creating a trustworthy and academic editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAGTuQceBcUkJH6GFlj0diJcxTEkUgjbLA27eJwQPv9eztrN8KFW5AZLOKNQNcqP0-hAqc6QpKhmp8Idjr3IG6_6W1Ti9E0yerpClkAKAn8LSKVykYX6xuKyoFztu4ikjov1RQMIXHmOY2CR9AyuCka0eEzQTpK6mFsMyorNrnnxnxaXDxRRkhfudS7ZqMgyt-MpsEInxQgjFeSlAAZ76BZh9lQ_guls2qTPVxhtfGeoLlSkpF8mvrK9wj5Kstc3UWjJYCpLWXHfds"/>
+</div>
+</div>
+</header>
+<!-- Canvas Area -->
+<main class="flex-1 p-xl max-w-[1200px] w-full mx-auto">
+<!-- Page Header -->
+<header class="mb-xl">
+<h2 class="font-display-md text-display-md text-ink mb-xs">Mi Agenda de Hoy</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Jueves, 26 de Octubre • 3 pacientes en espera</p>
+</header>
+<!-- Metrics / Segment Filters -->
+<div class="flex gap-sm mb-lg border-b border-hairline pb-sm">
+<button class="font-title-sm text-title-sm text-primary border-b-2 border-primary pb-2 px-2">Turno Actual (Mañana)</button>
+<button class="font-title-sm text-title-sm text-on-surface-variant hover:text-ink transition-colors pb-2 px-2">Tarde</button>
+<button class="font-title-sm text-title-sm text-on-surface-variant hover:text-ink transition-colors pb-2 px-2">Completadas</button>
+</div>
+<!-- List Header (Columns) -->
+<div class="grid grid-cols-12 gap-4 px-lg py-sm mb-xs text-on-surface-variant font-caption-uppercase text-caption-uppercase border-b border-hairline-soft">
+<div class="col-span-2">Hora</div>
+<div class="col-span-4">Paciente &amp; Cliente</div>
+<div class="col-span-3">Motivo</div>
+<div class="col-span-3 text-right">Acciones</div>
+</div>
+<!-- Queue Container -->
+<div class="flex flex-col gap-sm">
+<!-- Row 1: IN TREATMENT (High Priority) -->
+<article class="bg-surface-soft border border-primary/20 rounded-xl p-lg flex items-center grid grid-cols-12 gap-4 transition-all hover:shadow-sm">
+<div class="col-span-2 flex flex-col justify-center">
+<span class="font-title-lg text-title-lg text-ink">09:00</span>
+<span class="font-caption text-caption text-primary flex items-center gap-1 mt-1">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> En curso
+                        </span>
+</div>
+<div class="col-span-4 flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-card border border-hairline flex-shrink-0">
+<img alt="Beagle Dog" class="w-full h-full object-cover" data-alt="A high-quality studio portrait of a Beagle dog looking attentively off-camera, set against a warm, minimalist cream background. The lighting is soft and editorial, emphasizing the dog's expressive features in a clean, premium light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlYoQcr15iztsuU78xl3ZsCUjNttRUA5LmLVRMxkBhJB_Zqxtap6mGwtG8Q1K13o6oadOv2mzjc_CAWoUhkoTO_OwWGDLBDHugfD02ncaKKwO0ZYI1A8xyi1oUoHBOcoaFfU22CXzEGIIVR2yOAL3WZn5_EMpx5wZPbRbbGy8D7sqDzKWYLU9W8EhqOQjELzlvFSvysM2AWHyByhxxprH28oejn8n5xqnJW0rwLq8LtomlMSO554m7YbK-UxZKcNOFdNqVrvAHqiw"/>
+</div>
+<div>
+<h3 class="font-title-sm text-title-sm text-ink">Oliver</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Canino, Beagle • Carlos Méndez</p>
+</div>
+</div>
+<div class="col-span-3 flex flex-col justify-center">
+<span class="font-body-md text-body-md text-ink">Control Post-operatorio</span>
+<span class="font-caption text-caption text-on-surface-variant">Dr. Ramírez (Tú)</span>
+</div>
+<div class="col-span-3 flex justify-end items-center gap-sm">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-button text-button px-3 py-2">
+<span class="material-symbols-outlined text-lg">clinical_notes</span>
+<span class="hidden xl:inline">Ver Historia</span>
+</button>
+<button class="bg-surface text-primary border border-primary/30 font-button text-button px-4 py-2 rounded-lg hover:bg-surface-soft transition-colors">
+                            Continuar
+                        </button>
+</div>
+</article>
+<!-- Row 2: WAITING (Checked in) -->
+<article class="bg-surface-card rounded-xl p-lg flex items-center grid grid-cols-12 gap-4 transition-all hover:bg-surface-soft">
+<div class="col-span-2 flex flex-col justify-center">
+<span class="font-title-lg text-title-lg text-ink">09:30</span>
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-accent-amber/10 text-accent-amber font-caption-caps text-caption-caps w-max mt-1 border border-accent-amber/20">
+                            En Espera
+                        </span>
+</div>
+<div class="col-span-4 flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-card border border-hairline flex-shrink-0">
+<img alt="Siamese Cat" class="w-full h-full object-cover" data-alt="A sharp, minimalist studio shot of a sleek Siamese cat looking directly at the lens. The background is a soft, warm cream color. The lighting highlights the cat's blue eyes and dark points, fitting a high-end editorial canvas style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvn57ZXNdInNhv_lXNtlWcFsXpaBYmZiIZamO6T8BmXQPF9VFC5aq274PlxinJP9vDXrg08wPubZV58czmbxvWmIXlyVqOB6BnEdyquFP_LWBQJvxnBA_36A6pTA6HoV6B8WEhB5euAdzYSyhIARsqX9G7fimdhiOI_VsPmyNCh6LdUiawIRN-g3qLLuSs1JKyuXH2iuYtbA0fRIp_o7QgmjcgUSwg9IVV4j4QSoZB_7q5UkFNPlTA2xhEkeAtHJ0AIheNISz-Vno"/>
+</div>
+<div>
+<h3 class="font-title-sm text-title-sm text-ink">Luna</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Felino, Siamés • Ana García</p>
+</div>
+</div>
+<div class="col-span-3 flex flex-col justify-center">
+<span class="font-body-md text-body-md text-ink">Vacunación Anual</span>
+<span class="font-caption text-caption text-on-surface-variant">Preventiva</span>
+</div>
+<div class="col-span-3 flex justify-end items-center gap-sm">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-button text-button px-3 py-2">
+<span class="material-symbols-outlined text-lg">clinical_notes</span>
+</button>
+<button class="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+                            Iniciar Tratamiento
+                        </button>
+</div>
+</article>
+<!-- Row 3: WAITING (Checked in) -->
+<article class="bg-surface-card rounded-xl p-lg flex items-center grid grid-cols-12 gap-4 transition-all hover:bg-surface-soft">
+<div class="col-span-2 flex flex-col justify-center">
+<span class="font-title-lg text-title-lg text-ink">10:00</span>
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-accent-amber/10 text-accent-amber font-caption-caps text-caption-caps w-max mt-1 border border-accent-amber/20">
+                            En Espera
+                        </span>
+</div>
+<div class="col-span-4 flex items-center gap-md">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-soft border border-hairline flex-shrink-0 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined">cruelty_free</span>
+</div>
+<div>
+<h3 class="font-title-sm text-title-sm text-ink">Tambor</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Exótico, Conejo • Luis Pineda</p>
+</div>
+</div>
+<div class="col-span-3 flex flex-col justify-center">
+<span class="font-body-md text-body-md text-ink">Consulta Dermatológica</span>
+<span class="font-caption text-caption text-on-surface-variant">Especialidad</span>
+</div>
+<div class="col-span-3 flex justify-end items-center gap-sm">
+<button class="text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1 font-button text-button px-3 py-2">
+<span class="material-symbols-outlined text-lg">clinical_notes</span>
+</button>
+<button class="bg-primary text-on-primary font-button text-button px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors shadow-sm">
+                            Iniciar Tratamiento
+                        </button>
+</div>
+</article>
+<!-- Row 4: CONFIRMED (Not checked in yet) -->
+<article class="bg-surface-card/50 rounded-xl p-lg flex items-center grid grid-cols-12 gap-4 border border-transparent hover:border-hairline transition-all">
+<div class="col-span-2 flex flex-col justify-center opacity-75">
+<span class="font-title-lg text-title-lg text-on-surface-variant">10:45</span>
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-surface-variant text-on-surface-variant font-caption-caps text-caption-caps w-max mt-1">
+                            Confirmada
+                        </span>
+</div>
+<div class="col-span-4 flex items-center gap-md opacity-90">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-soft border border-hairline flex-shrink-0">
+<img alt="Golden Retriever" class="w-full h-full object-cover grayscale-[20%]" data-alt="A beautifully lit studio portrait of a Golden Retriever smiling softly, set against a smooth, warm canvas background. The image has a clean, minimalist editorial feel, emphasizing the rich golden tones of the fur against the pristine cream setting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDTbDbPDizNwNHAkerdRQvqXOwFI6qu_gfcGr-fJ0zdCO5fw_q26gEC5wm0A-IokY08FduMrQKnSWuTXE60LcUtIakwzbAzHZ8jZrWa1IG4Jm2My9-KKBAbIBOnOhA8iy5PJGskc1Nu02Tr-TAbO_D8KPFiFzFMNuAZD_JC64fELsBzRRMh5i3pLqGR5htxEH2PFD91-4misSGxZuXId7qBk1JRiqAi35f98MQwxj8HacIw181w0SoG1wE5B-MxplMUy_Od53utqg"/>
+</div>
+<div>
+<h3 class="font-title-sm text-title-sm text-ink">Max</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Canino, Golden Ret. • Familia Soto</p>
+</div>
+</div>
+<div class="col-span-3 flex flex-col justify-center opacity-90">
+<span class="font-body-md text-body-md text-ink">Limpieza Dental</span>
+<span class="font-caption text-caption text-on-surface-variant">Procedimiento</span>
+</div>
+<div class="col-span-3 flex justify-end items-center gap-sm">
+<button class="text-on-surface-variant hover:text-ink transition-colors flex items-center gap-1 font-button text-button px-3 py-2">
+<span class="material-symbols-outlined text-lg">clinical_notes</span>
+<span class="hidden xl:inline">Revisar Ficha</span>
+</button>
+</div>
+</article>
+</div>
+</main>
+</div>
+</body></html>

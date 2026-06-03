@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Configuración de Horarios y Bloqueos - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Import necessary fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+        /* Font fallbacks in case custom fonts fail */
+        @font-face {
+            font-family: 'Copernicus';
+            src: local('Georgia'), local('Times New Roman');
+            /* In a real scenario, Copernicus webfont would be loaded here */
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter');
+            /* In a real scenario, StyreneB webfont would be loaded here */
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#ffdbd0",
+                        "inverse-on-surface": "#fdede9",
+                        "tertiary-container": "#0f8378",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#e6d7d3",
+                        "on-surface": "#211a18",
+                        "success": "#5db872",
+                        "on-primary-container": "#fffbff",
+                        "surface-container-low": "#fff1ed",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "outline-variant": "#dac1ba",
+                        "on-surface-variant": "#54433e",
+                        "accent-amber": "#e8a55a",
+                        "surface-container": "#faebe6",
+                        "secondary-fixed": "#e6e2de",
+                        "tertiary": "#00685f",
+                        "surface": "#fff8f6",
+                        "on-tertiary-container": "#f4fffc",
+                        "surface-card": "#efe9de",
+                        "body-strong": "#252523",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#1c1b19",
+                        "on-primary": "#ffffff",
+                        "on-background": "#211a18",
+                        "primary-container": "#ad5f45",
+                        "error": "#c64545",
+                        "secondary": "#605e5b",
+                        "background": "#fff8f6",
+                        "surface-soft": "#f5f0e8",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#ffb59d",
+                        "accent-teal": "#5db8a6",
+                        "canvas": "#faf9f5",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "body-muted": "#3d3d3a",
+                        "ink": "#141413",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "tertiary-fixed": "#94f3e6",
+                        "on-tertiary-fixed": "#00201d",
+                        "surface-bright": "#fff8f6",
+                        "inverse-surface": "#372e2c",
+                        "surface-variant": "#efdfdb",
+                        "surface-tint": "#924a31",
+                        "surface-container-high": "#f4e5e1",
+                        "primary": "#8f482f",
+                        "on-secondary-fixed-variant": "#484644",
+                        "on-primary-fixed": "#390c00",
+                        "on-error-container": "#93000a",
+                        "hairline": "#e6dfd8",
+                        "surface-container-highest": "#efdfdb",
+                        "secondary-container": "#e6e2de",
+                        "primary-fixed-dim": "#ffb59d",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-container": "#666461",
+                        "outline": "#87736d",
+                        "on-primary-fixed-variant": "#75331c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xxs": "4px",
+                        "gutter": "1.5rem",
+                        "md": "16px",
+                        "margin": "2rem",
+                        "xs": "8px",
+                        "section": "96px",
+                        "sm": "12px"
+                    },
+                    "fontFamily": {
+                        "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                        "button": ["StyreneB", "Inter", "sans-serif"],
+                        "body-md": ["StyreneB", "Inter", "sans-serif"],
+                        "caption": ["StyreneB", "Inter", "sans-serif"],
+                        "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                        "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                        "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                        "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                        "caption-caps": ["inter"],
+                        "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                        "title-md": ["StyreneB", "Inter", "sans-serif"],
+                        "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                        "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                        "body-sm": ["StyreneB", "Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-canvas text-on-surface antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen left-0 top-0 w-64 bg-canvas border-r border-hairline py-xl shrink-0 sticky">
+<div class="px-lg mb-xl">
+<h1 class="font-display-md text-display-md text-primary">VetCare Pro</h1>
+<p class="font-body-sm text-body-sm text-body-muted mt-xs">Premium Management</p>
+</div>
+<div class="px-lg mb-lg">
+<button class="w-full bg-primary text-on-primary font-button text-button py-sm rounded-lg hover:opacity-90 transition-opacity">
+                New Appointment
+            </button>
+</div>
+<ul class="flex flex-col space-y-xxs flex-grow">
+<!-- Active state based on Settings/Agenda context -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Overview
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">folder_shared</span>
+                    Clinical Records
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">group</span>
+                    Clients
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">payments</span>
+                    Billing
+                </a>
+</li>
+<!-- Active Tab -->
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-primary border-r-2 border-primary font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                    Agenda
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">badge</span>
+                    Staff
+                </a>
+</li>
+</ul>
+<div class="mt-auto">
+<ul class="flex flex-col space-y-xxs">
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">help</span>
+                        Help Center
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-lg py-sm text-body-muted font-nav-link text-nav-link hover:bg-surface-soft transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined">logout</span>
+                        Logout
+                    </a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col min-w-0">
+<!-- Top Navigation Area (Mobile) -->
+<header class="md:hidden flex justify-between items-center w-full px-lg h-16 sticky top-0 z-40 bg-surface/90 backdrop-blur-sm border-b border-hairline">
+<div class="font-display-sm text-display-sm text-primary">VetCare Pro</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary cursor-pointer active:opacity-80">notifications</span>
+<span class="material-symbols-outlined text-primary cursor-pointer active:opacity-80">settings</span>
+</div>
+</header>
+<!-- Page Header -->
+<div class="px-xl py-xl md:py-xxl max-w-[1440px] mx-auto w-full">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-lg mb-xl">
+<div>
+<h2 class="font-display-lg text-display-lg text-ink">Configuración de Horarios</h2>
+<p class="font-body-md text-body-md text-body-muted mt-sm max-w-2xl">
+                        Administre la disponibilidad general de la clínica, los horarios específicos de los veterinarios y los bloqueos manuales para días festivos o emergencias.
+                    </p>
+</div>
+<div class="flex gap-md shrink-0">
+<button class="px-lg py-sm rounded-DEFAULT border border-ink text-ink font-button text-button hover:bg-surface-soft transition-colors bg-canvas">
+                        Descartar Cambios
+                    </button>
+<button class="px-lg py-sm rounded-DEFAULT bg-primary text-on-primary font-button text-button hover:opacity-90 transition-opacity">
+                        Guardar Plantilla
+                    </button>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-hairline mb-xl overflow-x-auto no-scrollbar">
+<button class="px-lg py-sm font-title-sm text-title-sm text-primary border-b-2 border-primary whitespace-nowrap">
+                    Horario General
+                </button>
+<button class="px-lg py-sm font-title-sm text-title-sm text-body-muted hover:text-ink whitespace-nowrap transition-colors">
+                    Horarios de Veterinarios
+                </button>
+<button class="px-lg py-sm font-title-sm text-title-sm text-body-muted hover:text-ink whitespace-nowrap transition-colors">
+                    Bloqueos Manuales
+                </button>
+</div>
+<!-- Grid Layout for General Hours -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+<!-- Main Schedule Matrix -->
+<div class="lg:col-span-8 space-y-lg">
+<div class="bg-surface-card rounded-lg p-lg">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-title-lg text-title-lg text-ink">Matriz de Apertura Semanal</h3>
+<span class="material-symbols-outlined text-body-muted">info</span>
+</div>
+<div class="border border-hairline rounded-DEFAULT overflow-hidden bg-canvas">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-soft">
+<tr>
+<th class="py-sm px-md font-caption-caps text-caption-caps text-body-muted border-b border-hairline w-1/4">Día</th>
+<th class="py-sm px-md font-caption-caps text-caption-caps text-body-muted border-b border-hairline w-1/4">Estado</th>
+<th class="py-sm px-md font-caption-caps text-caption-caps text-body-muted border-b border-hairline w-1/4">Apertura</th>
+<th class="py-sm px-md font-caption-caps text-caption-caps text-body-muted border-b border-hairline w-1/4">Cierre</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-hairline-soft">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Lunes</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Abierto
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="08:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="20:00"/></td>
+</tr>
+<tr class="border-b border-hairline-soft">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Martes</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Abierto
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="08:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="20:00"/></td>
+</tr>
+<tr class="border-b border-hairline-soft">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Miércoles</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Abierto
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="08:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="20:00"/></td>
+</tr>
+<tr class="border-b border-hairline-soft">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Jueves</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Abierto
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="08:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="20:00"/></td>
+</tr>
+<tr class="border-b border-hairline-soft">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Viernes</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Abierto
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="08:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="18:00"/></td>
+</tr>
+<tr class="border-b border-hairline-soft bg-surface-container-low">
+<td class="py-sm px-md font-body-sm text-body-sm text-ink">Sábado</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-variant text-surface-tint font-caption text-caption">
+                                                Media Jornada
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="09:00"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm focus:border-primary focus:ring-0 w-full max-w-[120px]" type="time" value="14:00"/></td>
+</tr>
+<tr>
+<td class="py-sm px-md font-body-sm text-body-sm text-body-muted">Domingo</td>
+<td class="py-sm px-md">
+<span class="inline-flex items-center gap-xs px-sm py-xxs rounded-full bg-surface-container-high text-body-muted font-caption text-caption">
+                                                Cerrado
+                                            </span>
+</td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm opacity-50 w-full max-w-[120px]" disabled="" type="time"/></td>
+<td class="py-sm px-md"><input class="bg-transparent border border-hairline rounded-DEFAULT px-sm py-xxs font-body-sm text-body-sm opacity-50 w-full max-w-[120px]" disabled="" type="time"/></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Sidebar for Blocks and Quick Actions -->
+<div class="lg:col-span-4 space-y-xl">
+<!-- Quick Blocks Section -->
+<div class="bg-surface-soft p-lg border border-hairline">
+<h3 class="font-title-lg text-title-lg text-ink mb-md">Bloqueos Próximos</h3>
+<div class="space-y-sm">
+<div class="flex items-start gap-sm p-sm bg-canvas border border-hairline">
+<span class="material-symbols-outlined text-primary mt-xxs">event_busy</span>
+<div>
+<h4 class="font-title-sm text-title-sm text-ink">Día de la Independencia</h4>
+<p class="font-caption text-caption text-body-muted">16 Septiembre (Todo el día)</p>
+</div>
+</div>
+<div class="flex items-start gap-sm p-sm bg-canvas border border-hairline">
+<span class="material-symbols-outlined text-accent-amber mt-xxs">construction</span>
+<div>
+<h4 class="font-title-sm text-title-sm text-ink">Mantenimiento Quirófano</h4>
+<p class="font-caption text-caption text-body-muted">22 Octubre (14:00 - 18:00)</p>
+</div>
+</div>
+</div>
+<button class="mt-lg w-full flex items-center justify-center gap-xs py-sm border border-primary text-primary font-button text-button hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                            Añadir Bloqueo Manual
+                        </button>
+</div>
+<!-- Configuration Summary -->
+<div class="bg-surface-card p-lg rounded-lg">
+<h3 class="font-title-sm text-title-sm text-ink mb-sm">Resumen de Capacidad</h3>
+<div class="space-y-xs">
+<div class="flex justify-between border-b border-hairline-soft py-xxs">
+<span class="font-body-sm text-body-sm text-body-muted">Horas Semanales</span>
+<span class="font-title-sm text-title-sm text-ink">65 hrs</span>
+</div>
+<div class="flex justify-between border-b border-hairline-soft py-xxs">
+<span class="font-body-sm text-body-sm text-body-muted">Veterinarios Activos</span>
+<span class="font-title-sm text-title-sm text-ink">4</span>
+</div>
+<div class="flex justify-between py-xxs">
+<span class="font-body-sm text-body-sm text-body-muted">Citas Estimadas/Semana</span>
+<span class="font-title-sm text-title-sm text-primary">~130</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

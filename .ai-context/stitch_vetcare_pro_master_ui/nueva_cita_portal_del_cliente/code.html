@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Programar Cita</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed": "#ffdbd0",
+                      "inverse-on-surface": "#fdede9",
+                      "tertiary-container": "#0f8378",
+                      "error-container": "#ffdad6",
+                      "on-secondary": "#ffffff",
+                      "surface-dim": "#e6d7d3",
+                      "on-surface": "#211a18",
+                      "success": "#5db872",
+                      "on-primary-container": "#fffbff",
+                      "surface-container-low": "#fff1ed",
+                      "on-tertiary-fixed-variant": "#005049",
+                      "outline-variant": "#dac1ba",
+                      "on-surface-variant": "#54433e",
+                      "accent-amber": "#e8a55a",
+                      "surface-container": "#faebe6",
+                      "secondary-fixed": "#e6e2de",
+                      "tertiary": "#00685f",
+                      "surface": "#fff8f6",
+                      "on-tertiary-container": "#f4fffc",
+                      "surface-card": "#efe9de",
+                      "body-strong": "#252523",
+                      "on-error": "#ffffff",
+                      "on-secondary-fixed": "#1c1b19",
+                      "on-primary": "#ffffff",
+                      "on-background": "#211a18",
+                      "primary-container": "#ad5f45",
+                      "error": "#c64545",
+                      "secondary": "#605e5b",
+                      "background": "#fff8f6",
+                      "surface-soft": "#f5f0e8",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#ffb59d",
+                      "accent-teal": "#5db8a6",
+                      "canvas": "#faf9f5",
+                      "secondary-fixed-dim": "#cac6c2",
+                      "body-muted": "#3d3d3a",
+                      "ink": "#141413",
+                      "tertiary-fixed-dim": "#77d7ca",
+                      "tertiary-fixed": "#94f3e6",
+                      "on-tertiary-fixed": "#00201d",
+                      "surface-bright": "#fff8f6",
+                      "inverse-surface": "#372e2c",
+                      "surface-variant": "#efdfdb",
+                      "surface-tint": "#924a31",
+                      "surface-container-high": "#f4e5e1",
+                      "primary": "#8f482f",
+                      "on-secondary-fixed-variant": "#484644",
+                      "on-primary-fixed": "#390c00",
+                      "on-error-container": "#93000a",
+                      "hairline": "#e6dfd8",
+                      "surface-container-highest": "#efdfdb",
+                      "secondary-container": "#e6e2de",
+                      "primary-fixed-dim": "#ffb59d",
+                      "surface-container-lowest": "#ffffff",
+                      "on-secondary-container": "#666461",
+                      "outline": "#87736d",
+                      "on-primary-fixed-variant": "#75331c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "32px",
+                      "lg": "24px",
+                      "xxl": "48px",
+                      "xxs": "4px",
+                      "gutter": "1.5rem",
+                      "md": "16px",
+                      "margin": "2rem",
+                      "xs": "8px",
+                      "section": "96px",
+                      "sm": "12px"
+              },
+              "fontFamily": {
+                      "title-sm": ["Inter", "sans-serif"],
+                      "nav-link": ["Inter", "sans-serif"],
+                      "button": ["Inter", "sans-serif"],
+                      "body-md": ["Inter", "sans-serif"],
+                      "caption": ["Inter", "sans-serif"],
+                      "title-lg": ["Inter", "sans-serif"],
+                      "display-sm": ["Georgia", "serif"],
+                      "display-lg": ["Georgia", "serif"],
+                      "display-md": ["Georgia", "serif"],
+                      "caption-caps": ["Inter", "sans-serif"],
+                      "caption-uppercase": ["Inter", "sans-serif"],
+                      "title-md": ["Inter", "sans-serif"],
+                      "display-xl": ["Georgia", "serif"],
+                      "code": ["JetBrains Mono", "monospace"],
+                      "body-sm": ["Inter", "sans-serif"]
+              },
+              "fontSize": {
+                      "title-sm": ["16px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "nav-link": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "button": ["14px", {"lineHeight": "1", "fontWeight": "500"}],
+                      "body-md": ["16px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                      "caption": ["13px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "title-lg": ["22px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                      "display-sm": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400"}],
+                      "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400"}],
+                      "display-md": ["36px", {"lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400"}],
+                      "caption-caps": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "caption-uppercase": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                      "title-md": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                      "display-xl": ["64px", {"lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400"}],
+                      "code": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "body-sm": ["14px", {"lineHeight": "1.55", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        /* Fallback for Copernicus if not loaded locally in this env, using Georgia as configured in tailwind above */
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-canvas text-body-strong font-body-md antialiased min-h-screen flex flex-col">
+<!-- Top Navigation Context (Transactional Mode) -->
+<header class="w-full flex justify-between items-center px-xl py-lg sticky top-0 z-50 bg-canvas/90 backdrop-blur-md">
+<button class="flex items-center gap-xs text-body-muted hover:text-ink transition-colors font-button text-button">
+<span class="material-symbols-outlined">arrow_back</span>
+            Volver al Portal
+        </button>
+<div class="font-display-sm text-display-sm text-primary">VetCare Pro</div>
+<div class="flex items-center gap-sm bg-surface-soft border border-hairline rounded-full px-md py-xs shadow-sm">
+<span class="material-symbols-outlined text-accent-amber animate-pulse" style="font-size: 18px;">timer</span>
+<span class="font-code text-code text-ink">04:59</span>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col items-center w-full px-gutter pb-section pt-xl">
+<div class="max-w-4xl w-full">
+<!-- Header Section -->
+<div class="text-center mb-xxl">
+<h1 class="font-display-lg text-display-lg text-ink mb-sm">Programar Cita</h1>
+<p class="font-body-md text-body-md text-body-muted max-w-lg mx-auto">Selecciona la fecha y hora ideal para la visita de tu mascota. Mantendremos este espacio reservado por 5 minutos.</p>
+</div>
+<!-- Stepper Component (Visual Indicator) -->
+<div class="flex items-center justify-between mb-xl relative">
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-px bg-hairline z-0"></div>
+<div class="absolute left-0 top-1/2 -translate-y-1/2 w-1/2 h-px bg-primary z-0 transition-all duration-500"></div>
+<div class="flex flex-col items-center z-10 gap-xs">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-sm text-title-sm shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">check</span>
+</div>
+<span class="font-caption text-caption text-body-muted">Mascota</span>
+</div>
+<div class="flex flex-col items-center z-10 gap-xs">
+<div class="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-title-sm text-title-sm shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 16px;">check</span>
+</div>
+<span class="font-caption text-caption text-body-muted">Servicio</span>
+</div>
+<div class="flex flex-col items-center z-10 gap-xs">
+<div class="w-8 h-8 rounded-full bg-surface-card border-2 border-primary text-primary flex items-center justify-center font-title-sm text-title-sm shadow-sm">
+                        3
+                    </div>
+<span class="font-caption text-caption text-ink font-semibold">Fecha y Hora</span>
+</div>
+<div class="flex flex-col items-center z-10 gap-xs opacity-50">
+<div class="w-8 h-8 rounded-full bg-surface border border-hairline text-body-muted flex items-center justify-center font-title-sm text-title-sm">
+                        4
+                    </div>
+<span class="font-caption text-caption text-body-muted">Motivo</span>
+</div>
+<div class="flex flex-col items-center z-10 gap-xs opacity-50">
+<div class="w-8 h-8 rounded-full bg-surface border border-hairline text-body-muted flex items-center justify-center font-title-sm text-title-sm">
+                        5
+                    </div>
+<span class="font-caption text-caption text-body-muted">Confirmar</span>
+</div>
+</div>
+<!-- Wizard Content Area (Bento Layout) -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-lg">
+<!-- Left Column: Summary of previous steps -->
+<div class="md:col-span-4 flex flex-col gap-md">
+<div class="bg-surface-soft border border-hairline rounded-xl p-lg flex flex-col gap-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-primary font-button text-button hover:underline">Editar</button>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-body-muted tracking-widest">Paso 1 • Mascota</span>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-card border border-hairline flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-outline-variant" style="font-size: 24px;">pets</span>
+</div>
+<div>
+<h3 class="font-title-md text-title-md text-ink">Luna</h3>
+<p class="font-body-sm text-body-sm text-body-muted">Golden Retriever, 3 años</p>
+</div>
+</div>
+</div>
+<div class="bg-surface-soft border border-hairline rounded-xl p-lg flex flex-col gap-sm relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-sm opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-primary font-button text-button hover:underline">Editar</button>
+</div>
+<span class="font-caption-uppercase text-caption-uppercase text-body-muted tracking-widest">Paso 2 • Servicio</span>
+<div>
+<h3 class="font-title-md text-title-md text-ink">Consulta General</h3>
+<p class="font-body-sm text-body-sm text-body-muted">Revisión de rutina y vacunación anual.</p>
+</div>
+<div class="mt-xs inline-flex w-fit bg-canvas border border-hairline rounded-full px-sm py-xxs font-caption text-caption text-ink">
+<span class="material-symbols-outlined text-body-muted mr-xs" style="font-size: 14px;">schedule</span> 30 min
+                        </div>
+</div>
+</div>
+<!-- Right Column: Current Step (Date & Time) -->
+<div class="md:col-span-8 bg-surface border border-hairline rounded-xl p-xl shadow-sm">
+<h2 class="font-title-lg text-title-lg text-ink mb-xl border-b border-hairline pb-md">Selecciona Fecha y Hora</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-xl">
+<!-- Interactive Calendar (Mockup) -->
+<div>
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-title-md text-title-md text-ink">Octubre 2023</h3>
+<div class="flex gap-xs">
+<button class="p-xs rounded-lg hover:bg-surface-soft text-body-muted transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
+<button class="p-xs rounded-lg hover:bg-surface-soft text-ink transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-xs text-center font-caption text-caption text-body-muted mb-sm">
+<div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sa</div><div>Do</div>
+</div>
+<div class="grid grid-cols-7 gap-xs text-center font-body-sm text-body-sm">
+<!-- Empty days -->
+<div class="p-sm text-outline-variant">28</div><div class="p-sm text-outline-variant">29</div><div class="p-sm text-outline-variant">30</div>
+<!-- Active days -->
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">1</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">2</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">3</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">4</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">5</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">6</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">7</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">8</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">9</button>
+<button class="p-sm rounded-lg bg-primary text-on-primary font-medium shadow-sm">10</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">11</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">12</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">13</button>
+<button class="p-sm rounded-lg hover:bg-surface-soft text-ink transition-colors">14</button>
+<!-- ... more days ... -->
+</div>
+</div>
+<!-- Time Slots -->
+<div class="flex flex-col">
+<h3 class="font-title-md text-title-md text-ink mb-md">Horarios Disponibles</h3>
+<p class="font-caption text-caption text-body-muted mb-md">Para el Jueves, 10 de Octubre</p>
+<div class="grid grid-cols-2 gap-sm">
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">09:00 AM</button>
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">09:30 AM</button>
+<button class="py-sm px-md rounded-lg border border-primary bg-primary-fixed text-primary-fixed-on font-body-sm text-body-sm transition-colors text-center font-medium shadow-sm">10:00 AM</button>
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">11:00 AM</button>
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">02:00 PM</button>
+<button class="py-sm px-md rounded-lg border border-hairline text-outline-variant font-body-sm text-body-sm bg-surface-soft cursor-not-allowed text-center line-through">02:30 PM</button>
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">03:30 PM</button>
+<button class="py-sm px-md rounded-lg border border-hairline hover:border-primary text-ink font-body-sm text-body-sm transition-colors text-center bg-canvas">04:00 PM</button>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<div class="mt-xl pt-lg border-t border-hairline flex justify-end gap-md">
+<button class="px-xl py-sm rounded-lg border border-ink text-ink font-button text-button hover:bg-surface-soft transition-colors">Atrás</button>
+<button class="px-xl py-sm rounded-lg bg-primary text-on-primary font-button text-button hover:bg-surface-tint transition-colors shadow-sm">Continuar</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

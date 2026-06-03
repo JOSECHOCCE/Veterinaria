@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Anular Pago - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#dac1ba",
+                        "primary-fixed": "#ffdbd0",
+                        "surface-bright": "#fff8f6",
+                        "outline": "#87736d",
+                        "success": "#5db872",
+                        "on-primary-container": "#fffbff",
+                        "background": "#fff8f6",
+                        "primary-container": "#ad5f45",
+                        "body-strong": "#252523",
+                        "on-primary-fixed": "#390c00",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed-variant": "#484644",
+                        "on-secondary-fixed": "#1c1b19",
+                        "surface": "#fff8f6",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#00685f",
+                        "inverse-surface": "#372e2c",
+                        "surface-card": "#efe9de",
+                        "secondary-fixed": "#e6e2de",
+                        "on-primary": "#ffffff",
+                        "primary": "#8f482f",
+                        "on-primary-fixed-variant": "#75331c",
+                        "error": "#c64545",
+                        "surface-variant": "#efdfdb",
+                        "secondary": "#605e5b",
+                        "on-surface": "#211a18",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary-fixed-dim": "#ffb59d",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "tertiary-container": "#0f8378",
+                        "surface-tint": "#924a31",
+                        "surface-container-high": "#f4e5e1",
+                        "surface-soft": "#f5f0e8",
+                        "canvas": "#faf9f5",
+                        "on-background": "#211a18",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#e6d7d3",
+                        "on-tertiary-fixed": "#00201d",
+                        "inverse-on-surface": "#fdede9",
+                        "inverse-primary": "#ffb59d",
+                        "surface-container-highest": "#efdfdb",
+                        "accent-amber": "#e8a55a",
+                        "surface-container": "#faebe6",
+                        "ink": "#141413",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#fff1ed",
+                        "on-secondary-container": "#666461",
+                        "on-tertiary-container": "#f4fffc",
+                        "hairline": "#e6dfd8",
+                        "on-surface-variant": "#54433e",
+                        "secondary-container": "#e6e2de",
+                        "accent-teal": "#5db8a6",
+                        "body-muted": "#3d3d3a",
+                        "tertiary-fixed": "#94f3e6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "xxs": "4px",
+                        "section": "96px",
+                        "xxl": "48px",
+                        "md": "16px",
+                        "lg": "24px",
+                        "gutter": "1.5rem",
+                        "sm": "12px",
+                        "xl": "32px",
+                        "margin": "2rem"
+                    },
+                    "fontFamily": {
+                        "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                        "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "title-md": ["StyreneB", "Inter", "sans-serif"],
+                        "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                        "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "button": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                        "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                        "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                        "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                        "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                        "caption": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-caps": ["inter"],
+                        "body-md": ["StyreneB", "Inter", "sans-serif"],
+                        "display-xl": ["Copernicus", "Tiempos Headline", "serif"]
+                    },
+                    "fontSize": {
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #faf9f5;
+            color: #211a18;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-canvas text-on-background flex h-screen overflow-hidden">
+<!-- TopNavBar (Web) / BottomNavBar (Mobile) suppression logic: 
+         This is a transactional/task-focused screen ("Anular Pago"). 
+         According to The "Destination" Rule & Automatic Suppression, the navigation shell MUST be excluded. 
+         Prioritize the content canvas. -->
+<main class="flex-1 overflow-y-auto w-full h-full p-4 md:p-8 flex items-center justify-center">
+<!-- Center Container -->
+<div class="max-w-2xl w-full">
+<!-- Context / Breadcrumb Header -->
+<div class="mb-lg flex items-center gap-xs">
+<button aria-label="Volver" class="text-secondary hover:text-primary transition-colors flex items-center justify-center p-2 rounded-full hover:bg-surface-soft">
+<span class="material-symbols-outlined text-xl">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="font-caption text-caption text-secondary">Pagos y Cobros / Detalles</span>
+<h1 class="font-display-sm text-display-sm text-ink font-bold">Anular Pago</h1>
+</div>
+</div>
+<!-- Main Action Card -->
+<div class="bg-surface-card rounded-xl p-xl border border-hairline shadow-sm relative overflow-hidden">
+<!-- Decorative subtle top border for error context -->
+<div class="absolute top-0 left-0 w-full h-1 bg-error"></div>
+<div class="mb-lg">
+<div class="flex items-start gap-md mb-md">
+<div class="bg-error-container text-on-error-container p-sm rounded-full flex-shrink-0">
+<span class="material-symbols-outlined" data-weight="fill">warning</span>
+</div>
+<div>
+<h2 class="font-title-lg text-title-lg text-ink mb-xs">Atención: Acción Irreversible</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                                Estás a punto de anular permanentemente esta transacción. Los registros contables se actualizarán para reflejar esta anulación y no podrá ser deshecha.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Transaction Summary -->
+<div class="bg-canvas border border-hairline rounded-lg p-md mb-lg">
+<h3 class="font-title-sm text-title-sm text-ink mb-sm pb-xs border-b border-hairline">Resumen del Pago</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div>
+<span class="font-caption text-caption text-secondary block">ID Transacción</span>
+<span class="font-code text-code text-ink">#TRX-98234-A</span>
+</div>
+<div>
+<span class="font-caption text-caption text-secondary block">Fecha Original</span>
+<span class="font-body-sm text-body-sm text-ink">14 Oct 2023, 10:30 AM</span>
+</div>
+<div>
+<span class="font-caption text-caption text-secondary block">Cliente</span>
+<span class="font-body-sm text-body-sm text-ink">Maria González (Max)</span>
+</div>
+<div>
+<span class="font-caption text-caption text-secondary block">Monto a Revertir</span>
+<span class="font-title-md text-title-md text-ink font-bold">$1,250.00 MXN</span>
+</div>
+</div>
+</div>
+<!-- Reason Form -->
+<form action="#" method="POST">
+<div class="mb-lg">
+<label class="block font-title-sm text-title-sm text-ink mb-xs" for="reason">
+                            Motivo de la Anulación <span class="text-error">*</span>
+</label>
+<p class="font-caption text-caption text-secondary mb-sm">Por favor, detalla la razón operativa o administrativa para anular este cobro. Este campo es obligatorio para auditoría.</p>
+<textarea class="w-full bg-canvas border border-outline-variant rounded-lg p-sm font-body-md text-body-md text-ink focus:ring-1 focus:ring-error focus:border-error transition-colors resize-none placeholder-secondary-fixed-dim" id="reason" name="reason" placeholder="Ej. Error en el monto ingresado, cliente solicitó reembolso..." required="" rows="4"></textarea>
+</div>
+<!-- Actions -->
+<div class="flex items-center justify-end gap-md pt-md border-t border-hairline">
+<button class="px-md py-sm rounded-lg font-button text-button text-ink bg-transparent border border-outline-variant hover:bg-surface-soft transition-colors" type="button">
+                            Cancelar
+                        </button>
+<!-- Submit button uses error semantics but keeps the brand's solid button styling approach -->
+<button class="px-md py-sm rounded-lg font-button text-button text-on-error bg-error hover:bg-on-error-container transition-colors flex items-center gap-xs" type="submit">
+<span class="material-symbols-outlined text-[18px]">delete_forever</span>
+                            Confirmar Anulación
+                        </button>
+</div>
+</form>
+</div>
+<div class="mt-md text-center">
+<p class="font-caption text-caption text-secondary">
+                    Registrado por: Dr. Roberto Alva (Administrador)
+                </p>
+</div>
+</div>
+</main>
+<script>
+        // Simple form validation logic for demonstration
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const reason = document.getElementById('reason').value.trim();
+            if(reason.length < 5) {
+                alert('El motivo de anulación es muy corto. Por favor proporcione más detalles.');
+            } else {
+                // In a real app, submit via AJAX and show success state
+                this.querySelector('button[type="submit"]').innerHTML = '<span class="material-symbols-outlined text-[18px] animate-spin">refresh</span> Procesando...';
+                setTimeout(() => {
+                    alert('Pago anulado exitosamente.');
+                    // redirect back
+                }, 1000);
+            }
+        });
+    </script>
+</body></html>

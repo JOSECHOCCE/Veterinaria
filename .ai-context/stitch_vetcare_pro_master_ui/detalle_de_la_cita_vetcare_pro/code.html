@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Detalle de Cita - VetCare Pro</title>
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Copernicus / Tiempos Headline Fallback (Using a generic serif for rendering if actual font missing, but applying specific classes) -->
+<style>
+        @font-face {
+            font-family: 'Copernicus';
+            src: local('Georgia'), local('Times New Roman'), serif; /* Fallback for rendering display */
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'), sans-serif; /* Fallback */
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-filled {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<!-- Tailwind CSS Setup -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-primary": "#ffb59d",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "inverse-surface": "#372e2c",
+                        "secondary-fixed": "#e6e2de",
+                        "outline": "#87736d",
+                        "on-error-container": "#93000a",
+                        "hairline": "#e6dfd8",
+                        "surface": "#fff8f6",
+                        "background": "#fff8f6",
+                        "tertiary-container": "#0f8378",
+                        "outline-variant": "#dac1ba",
+                        "primary-fixed": "#ffdbd0",
+                        "surface-container-high": "#f4e5e1",
+                        "surface-container-highest": "#efdfdb",
+                        "primary-container": "#ad5f45",
+                        "on-secondary-container": "#666461",
+                        "on-tertiary-container": "#f4fffc",
+                        "canvas": "#faf9f5",
+                        "surface-container-low": "#fff1ed",
+                        "on-tertiary-fixed": "#00201d",
+                        "surface-bright": "#fff8f6",
+                        "on-secondary-fixed-variant": "#484644",
+                        "ink": "#141413",
+                        "on-secondary": "#ffffff",
+                        "accent-amber": "#e8a55a",
+                        "surface-dim": "#e6d7d3",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "on-primary": "#ffffff",
+                        "on-secondary-fixed": "#1c1b19",
+                        "tertiary": "#00685f",
+                        "secondary": "#605e5b",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "on-tertiary": "#ffffff",
+                        "body-strong": "#252523",
+                        "tertiary-fixed": "#94f3e6",
+                        "primary-fixed-dim": "#ffb59d",
+                        "on-surface": "#211a18",
+                        "accent-teal": "#5db8a6",
+                        "surface-soft": "#f5f0e8",
+                        "surface-card": "#efe9de",
+                        "error": "#c64545",
+                        "inverse-on-surface": "#fdede9",
+                        "surface-variant": "#efdfdb",
+                        "success": "#5db872",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#fffbff",
+                        "on-background": "#211a18",
+                        "on-primary-fixed": "#390c00",
+                        "on-surface-variant": "#54433e",
+                        "on-primary-fixed-variant": "#75331c",
+                        "secondary-container": "#e6e2de",
+                        "primary": "#8f482f",
+                        "body-muted": "#3d3d3a",
+                        "surface-container": "#faebe6",
+                        "on-error": "#ffffff",
+                        "surface-tint": "#924a31"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "margin": "2rem",
+                        "sm": "12px",
+                        "gutter": "1.5rem",
+                        "section": "96px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "xxs": "4px",
+                        "xs": "8px"
+                    },
+                    "fontFamily": {
+                        "display-xl": ["Copernicus, Tiempos Headline, serif"],
+                        "display-lg": ["Copernicus, Tiempos Headline, serif"],
+                        "code": ["JetBrains Mono, ui-monospace, monospace"],
+                        "title-md": ["StyreneB, Inter, sans-serif"],
+                        "caption-uppercase": ["StyreneB, Inter, sans-serif"],
+                        "caption": ["StyreneB, Inter, sans-serif"],
+                        "body-sm": ["StyreneB, Inter, sans-serif"],
+                        "display-md": ["Copernicus, Tiempos Headline, serif"],
+                        "title-lg": ["StyreneB, Inter, sans-serif"],
+                        "body-md": ["StyreneB, Inter, sans-serif"],
+                        "caption-caps": ["inter"],
+                        "button": ["StyreneB, Inter, sans-serif"],
+                        "nav-link": ["StyreneB, Inter, sans-serif"],
+                        "title-sm": ["StyreneB, Inter, sans-serif"],
+                        "display-sm": ["Copernicus, Tiempos Headline, serif"]
+                    },
+                    "fontSize": {
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-canvas text-ink antialiased min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed flex flex-col">
+<!-- Sub-page Focused View. Global Navigation (SideNav/TopNav) is suppressed to prioritize the Canvas as per "Destination" and "Task-Focused" rules. -->
+<main class="flex-1 max-w-[1200px] w-full mx-auto px-gutter py-xl md:py-xxl flex flex-col gap-lg">
+<!-- Contextual Header -->
+<header class="flex flex-col gap-sm md:gap-md border-b border-hairline pb-lg mb-sm">
+<a class="inline-flex items-center gap-xs text-secondary hover:text-primary transition-colors w-fit group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+<span class="font-nav-link text-nav-link">Volver a la Agenda</span>
+</a>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+<div>
+<div class="flex items-center gap-sm mb-xs">
+<span class="font-caption-uppercase text-caption-uppercase text-secondary tracking-widest uppercase">ID: CITA-8492</span>
+<span class="inline-flex items-center px-sm py-xxs rounded-full bg-surface-dim text-ink font-caption text-caption whitespace-nowrap">
+<span class="w-2 h-2 rounded-full bg-accent-amber mr-xs"></span>
+                            Esperando en Sala
+                        </span>
+</div>
+<h1 class="font-display-lg text-display-lg text-ink">Consulta General</h1>
+</div>
+<div class="flex items-center gap-sm">
+<button aria-label="Imprimir" class="w-10 h-10 flex items-center justify-center rounded-DEFAULT border border-hairline bg-surface hover:bg-surface-soft transition-colors text-ink">
+<span class="material-symbols-outlined text-[20px]">print</span>
+</button>
+<button aria-label="Editar" class="w-10 h-10 flex items-center justify-center rounded-DEFAULT border border-hairline bg-surface hover:bg-surface-soft transition-colors text-ink">
+<span class="material-symbols-outlined text-[20px]">edit</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg lg:gap-xl">
+<!-- Left Column: Details & Audit (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col gap-lg">
+<!-- Time & Location Strip -->
+<section class="bg-surface-container-lowest border border-hairline rounded-xl p-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-card flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">calendar_today</span>
+</div>
+<div>
+<h2 class="font-title-sm text-title-sm text-ink mb-xxs">14 de Noviembre, 2023</h2>
+<p class="font-body-sm text-body-sm text-secondary">10:00 AM - 10:45 AM (45 min)</p>
+</div>
+</div>
+<div class="hidden sm:block w-px h-10 bg-hairline"></div>
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-lg bg-surface-card flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[24px]">meeting_room</span>
+</div>
+<div>
+<h2 class="font-title-sm text-title-sm text-ink mb-xxs">Consultorio 3</h2>
+<p class="font-body-sm text-body-sm text-secondary">Edificio Principal</p>
+</div>
+</div>
+</section>
+<!-- Bento Grid: Client & Pet -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Pet Card -->
+<article class="bg-surface-card rounded-xl p-lg flex flex-col relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8 pointer-events-none"></div>
+<div class="flex items-start justify-between mb-md relative z-10">
+<div class="flex gap-sm items-center">
+<span class="material-symbols-outlined text-secondary icon-filled">pets</span>
+<span class="font-caption-uppercase text-caption-uppercase text-secondary tracking-wider">Paciente</span>
+</div>
+</div>
+<div class="flex items-center gap-md mb-md relative z-10">
+<img alt="Retrato de un perro Golden Retriever mirando atentamente." class="w-16 h-16 rounded-full object-cover border-2 border-surface-container-lowest shadow-sm" data-alt="A close-up portrait of a friendly Golden Retriever dog looking attentive. The background is slightly blurred with soft, warm lighting. The image has a high-quality, professional editorial style, fitting for a modern veterinary clinic app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDujCJ9P8kmlWsUyRAvPuY0QVq1d0RkCmkNVE2AzvyvNJ7YhJWZ2P7UMCLP3QZJL6uF6gxdgxD4jozrbJnRqQL08md5bes4nXdfLX58wjEw97JjVYnYA93jGuUdIuriPzsAWB_DqmcHpE-Hc0rU7D1Hno_pHj-hlZlL1WWc_f0XdQil5ZkL3zj8pMcsbd_dXD2kyHGV3a_IRLYhb6UpMBA6xL7Z3hLg02VeR2RWSaXPqQz1-ridP78j-E7EiEWaG9XCYms7Us2J0ao"/>
+<div>
+<h3 class="font-display-sm text-display-sm text-ink leading-none mb-xs">Luna</h3>
+<p class="font-body-sm text-body-sm text-secondary">Golden Retriever • Hembra</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-y-sm gap-x-md mt-auto pt-md border-t border-hairline/50 relative z-10">
+<div>
+<span class="block font-caption text-caption text-secondary mb-xxs">Edad</span>
+<span class="font-body-md text-body-md text-ink">4 años, 2 meses</span>
+</div>
+<div>
+<span class="block font-caption text-caption text-secondary mb-xxs">Peso</span>
+<span class="font-body-md text-body-md text-ink">28.5 kg</span>
+</div>
+</div>
+</article>
+<!-- Client Card -->
+<article class="bg-surface-soft rounded-xl p-lg flex flex-col relative overflow-hidden">
+<div class="absolute bottom-0 right-0 w-24 h-24 bg-tertiary-container/5 rounded-tl-full -mr-4 -mb-4 pointer-events-none"></div>
+<div class="flex items-start justify-between mb-md relative z-10">
+<div class="flex gap-sm items-center">
+<span class="material-symbols-outlined text-secondary">person</span>
+<span class="font-caption-uppercase text-caption-uppercase text-secondary tracking-wider">Cliente</span>
+</div>
+<button aria-label="Ver perfil completo" class="text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-[20px]">open_in_new</span>
+</button>
+</div>
+<div class="mb-md relative z-10">
+<h3 class="font-display-sm text-display-sm text-ink leading-none mb-xs">Carlos Mendoza</h3>
+<p class="font-body-sm text-body-sm text-secondary">Cliente desde 2019</p>
+</div>
+<div class="flex flex-col gap-sm mt-auto relative z-10">
+<a class="flex items-center gap-sm text-body-sm font-body-sm text-ink hover:text-primary transition-colors" href="tel:+34600123456">
+<span class="material-symbols-outlined text-[18px] text-secondary">call</span>
+                                +34 600 123 456
+                            </a>
+<a class="flex items-center gap-sm text-body-sm font-body-sm text-ink hover:text-primary transition-colors truncate" href="mailto:carlos.m@example.com">
+<span class="material-symbols-outlined text-[18px] text-secondary">mail</span>
+                                carlos.m@example.com
+                            </a>
+</div>
+</article>
+</section>
+<!-- Medical Context / Notes -->
+<section class="bg-surface-container-lowest border border-hairline rounded-xl p-lg">
+<h3 class="font-title-md text-title-md text-ink mb-md flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">description</span>
+                        Motivo de la Consulta
+                    </h3>
+<div class="bg-canvas p-md rounded-lg border border-hairline">
+<p class="font-body-md text-body-md text-ink leading-relaxed">
+                            Revisión anual rutinaria y vacunación múltiple. El cliente reporta que Luna ha estado bebiendo un poco más de agua de lo normal en la última semana, pero su apetito y energía se mantienen normales. Traer cartilla de vacunación.
+                        </p>
+</div>
+</section>
+<!-- Assigned Professional -->
+<section class="bg-surface-container-lowest border border-hairline rounded-xl p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<img alt="Retrato de un veterinario profesional en uniforme." class="w-12 h-12 rounded-full object-cover border border-hairline" data-alt="A portrait of a male veterinary professional wearing a neat, dark clinical scrub. He has a warm, trustworthy expression. The background is a clean, well-lit modern clinic setting in soft focus. High-quality editorial style lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBksAmhBeS9VjXpa2DWd7B2mnh-qIv6n4l43WvdZEJP06KgNNBsoGkZg275_rZE6ZcYG5jI3UYCYpgSogwe_6DEBsEIprDxvdfdo6RkkKQiyAbMzHl4ChHtChAJv2RFrc0bypL2EZtOJpzp3J__Z86AVrmFX5McUHKjeYnn1OIbjpTXV6ZJmhI8nlU0XbpVZSIZhr5BycKAhdjAganx2gpd6WWd7pxV66OB0Peb6K01RomifSkB93cPBgFI6-bQyNOESGi1iK4Eq_M"/>
+<div>
+<span class="block font-caption text-caption text-secondary mb-xxs">Veterinario Asignado</span>
+<h4 class="font-title-sm text-title-sm text-ink">Dr. Alejandro Ríos</h4>
+</div>
+</div>
+<button class="text-secondary hover:text-primary transition-colors text-body-sm font-button flex items-center gap-xs">
+                        Reasignar <span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+</button>
+</section>
+</div>
+<!-- Right Column: Actions & Status (4 Cols) -->
+<aside class="lg:col-span-4 flex flex-col gap-lg">
+<!-- Primary Actions Card -->
+<div class="bg-[#181715] rounded-xl p-lg shadow-xl text-on-primary border border-[#2a2926]">
+<h3 class="font-display-sm text-display-sm text-surface-soft mb-sm">Acciones de Estado</h3>
+<p class="font-body-sm text-body-sm text-outline-variant mb-lg">El paciente se encuentra actualmente registrado en recepción.</p>
+<div class="flex flex-col gap-sm">
+<button class="w-full bg-primary hover:bg-surface-tint text-on-primary font-button text-button py-md px-lg rounded-DEFAULT transition-colors flex justify-center items-center gap-sm">
+<span class="material-symbols-outlined text-[20px]">stethoscope</span>
+                            Iniciar Consulta
+                        </button>
+<div class="grid grid-cols-2 gap-sm mt-xs">
+<button class="bg-[#252320] hover:bg-[#32302c] text-surface-soft border border-[#3a3834] font-button text-button py-sm px-md rounded-DEFAULT transition-colors">
+                                Reprogramar
+                            </button>
+<button class="bg-[#252320] hover:bg-[#32302c] text-error border border-[#3a3834] font-button text-button py-sm px-md rounded-DEFAULT transition-colors">
+                                Cancelar Cita
+                            </button>
+</div>
+</div>
+</div>
+<!-- Status History Timeline -->
+<div class="bg-surface-soft rounded-xl p-lg border border-hairline flex-1">
+<h3 class="font-title-md text-title-md text-ink mb-lg flex items-center gap-xs">
+<span class="material-symbols-outlined text-secondary">history</span>
+                        Historial de Estado
+                    </h3>
+<div class="relative pl-sm">
+<!-- Vertical Line -->
+<div class="absolute left-[11px] top-2 bottom-6 w-px bg-hairline"></div>
+<!-- Timeline Items -->
+<div class="flex flex-col gap-md">
+<!-- Current State -->
+<div class="relative flex gap-md items-start group">
+<div class="w-6 h-6 rounded-full bg-accent-amber border-4 border-surface-soft flex-shrink-0 relative z-10 flex items-center justify-center"></div>
+<div class="pt-xxs">
+<h4 class="font-title-sm text-title-sm text-ink leading-tight">Llegada Registrada</h4>
+<p class="font-caption text-caption text-secondary mt-xxs">14 Nov, 09:48 AM por Recepción</p>
+</div>
+</div>
+<!-- Past State 1 -->
+<div class="relative flex gap-md items-start opacity-70">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-soft flex-shrink-0 relative z-10"></div>
+<div class="pt-xxs">
+<h4 class="font-title-sm text-title-sm text-ink leading-tight">Cita Confirmada</h4>
+<p class="font-caption text-caption text-secondary mt-xxs">12 Nov, 16:30 PM (Vía WhatsApp)</p>
+</div>
+</div>
+<!-- Past State 2 -->
+<div class="relative flex gap-md items-start opacity-50">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-soft flex-shrink-0 relative z-10"></div>
+<div class="pt-xxs">
+<h4 class="font-title-sm text-title-sm text-ink leading-tight">Cita Creada</h4>
+<p class="font-caption text-caption text-secondary mt-xxs">05 Nov, 11:15 AM por Cliente (App)</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

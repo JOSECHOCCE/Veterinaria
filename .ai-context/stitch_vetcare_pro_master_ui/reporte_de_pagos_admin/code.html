@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Reporte de Pagos - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Copernicus,+Tiempos+Headline,+serif:wght@100..900&amp;family=StyreneB,+Inter,+sans-serif:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#f4e5e1",
+                        "on-primary": "#ffffff",
+                        "inverse-on-surface": "#fdede9",
+                        "tertiary-container": "#0f8378",
+                        "surface-tint": "#924a31",
+                        "secondary-container": "#e6e2de",
+                        "surface-soft": "#f5f0e8",
+                        "on-error-container": "#93000a",
+                        "on-background": "#211a18",
+                        "background": "#fff8f6",
+                        "surface-variant": "#efdfdb",
+                        "on-error": "#ffffff",
+                        "success": "#5db872",
+                        "primary-fixed": "#ffdbd0",
+                        "on-tertiary": "#ffffff",
+                        "hairline": "#e6dfd8",
+                        "on-surface": "#211a18",
+                        "body-strong": "#252523",
+                        "error": "#c64545",
+                        "tertiary-fixed": "#94f3e6",
+                        "outline-variant": "#dac1ba",
+                        "accent-amber": "#e8a55a",
+                        "surface-container-highest": "#efdfdb",
+                        "surface-container": "#faebe6",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#fff8f6",
+                        "surface-container-low": "#fff1ed",
+                        "primary-fixed-dim": "#ffb59d",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "secondary": "#605e5b",
+                        "canvas": "#faf9f5",
+                        "body-muted": "#3d3d3a",
+                        "on-secondary-fixed": "#1c1b19",
+                        "surface-card": "#efe9de",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "primary-container": "#ad5f45",
+                        "on-primary-fixed": "#390c00",
+                        "ink": "#141413",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-surface-variant": "#54433e",
+                        "primary": "#8f482f",
+                        "on-tertiary-container": "#f4fffc",
+                        "secondary-fixed": "#e6e2de",
+                        "tertiary": "#00685f",
+                        "on-secondary-fixed-variant": "#484644",
+                        "inverse-surface": "#372e2c",
+                        "inverse-primary": "#ffb59d",
+                        "surface-container-lowest": "#ffffff",
+                        "accent-teal": "#5db8a6",
+                        "surface-dim": "#e6d7d3",
+                        "on-primary-container": "#fffbff",
+                        "outline": "#87736d",
+                        "on-primary-fixed-variant": "#75331c",
+                        "on-secondary-container": "#666461",
+                        "surface": "#fff8f6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "8px",
+                        "xl": "32px",
+                        "xxl": "48px",
+                        "md": "16px",
+                        "margin": "2rem",
+                        "lg": "24px",
+                        "gutter": "1.5rem",
+                        "xxs": "4px",
+                        "sm": "12px",
+                        "section": "96px"
+                    },
+                    "fontFamily": {
+                        "caption-caps": ["inter"],
+                        "caption": ["StyreneB, Inter, sans-serif"],
+                        "caption-uppercase": ["StyreneB, Inter, sans-serif"],
+                        "button": ["StyreneB, Inter, sans-serif"],
+                        "body-md": ["StyreneB, Inter, sans-serif"],
+                        "display-md": ["Copernicus, Tiempos Headline, serif"],
+                        "nav-link": ["StyreneB, Inter, sans-serif"],
+                        "title-sm": ["StyreneB, Inter, sans-serif"],
+                        "title-lg": ["StyreneB, Inter, sans-serif"],
+                        "title-md": ["StyreneB, Inter, sans-serif"],
+                        "display-xl": ["Copernicus, Tiempos Headline, serif"],
+                        "body-sm": ["StyreneB, Inter, sans-serif"],
+                        "display-lg": ["Copernicus, Tiempos Headline, serif"],
+                        "code": ["JetBrains Mono, ui-monospace, monospace"],
+                        "display-sm": ["Copernicus, Tiempos Headline, serif"]
+                    },
+                    "fontSize": {
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #faf9f5; /* canvas */ }
+    </style>
+</head>
+<body class="font-body-md text-body-md text-on-surface antialiased bg-canvas flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="bg-surface-container dark:bg-inverse-surface h-screen w-64 fixed left-0 top-0 border-r border-surface-soft dark:border-surface-container-highest flex flex-col h-full py-lg z-20 hidden md:flex">
+<div class="px-lg mb-xl flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="pets">pets</span>
+<div>
+<h1 class="font-display-sm text-display-sm text-primary dark:text-primary-fixed-dim leading-none">VetCare Pro</h1>
+<p class="font-caption text-caption text-secondary mt-1">Veterinary Excellence</p>
+</div>
+</div>
+<nav class="flex-1 px-sm">
+<ul class="space-y-xs">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                        Resumen
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="folder_shared">folder_shared</span>
+                        Expedientes
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                        Dueños
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary font-bold border-r-2 border-primary bg-surface-variant/30 hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+                        Facturación
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+                        Agenda
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary hover:text-primary transition-colors hover:bg-surface-variant/50 dark:hover:bg-surface-variant/20 transition-all duration-200 ease-in-out font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+                        Personal
+                    </a>
+</li>
+</ul>
+</nav>
+<div class="px-lg mt-auto pt-lg border-t border-hairline">
+<div class="flex items-center gap-sm">
+<img alt="Admin Profile" class="w-10 h-10 rounded-full object-cover border border-hairline" data-alt="A close-up portrait of a professional woman in her 30s with glasses, smiling warmly. She is in a bright, modern office with soft white lighting. The aesthetic is clean, trustworthy, and matches a high-end corporate or medical professional profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBr2ULCsTJO1BBneZxdoGjEadUB0GT2xN3DNpfKkDr_hQuhl410N6b_7inN7L6H7fenCOHcs0Vdg_pnt4oHPxt9aBu6f64d2aX4XL6GLZgu3EjVo2-JrqUNaYPGK1U-btV7aRP8ZxHAI2017AEOAFwoADW9apz4TCegsPxEujs1ES8aW02aX_LNn1zyMylcdLIwLEqhgPaimukT6vUxlYit9RvOVkQ0_T4TGW4xjPUuuS6n8zXpyaf2V3F7h0vO1IxEMllN8w29rfM"/>
+<div>
+<p class="font-title-sm text-title-sm text-ink">Admin User</p>
+<p class="font-caption text-caption text-secondary">admin@vetcare.pro</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col min-h-screen relative">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-background docked full-width top-0 sticky z-10 flex justify-between items-center w-full px-xl py-md border-b border-hairline dark:border-outline-variant transition-opacity duration-150">
+<div class="flex-1 flex items-center">
+<div class="relative w-full max-w-md hidden md:block">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary" data-icon="search">search</span>
+<input class="w-full pl-[40px] pr-sm py-sm bg-surface-soft border border-hairline rounded-lg font-body-sm text-body-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Buscar pagos, clientes..." type="text"/>
+</div>
+<div class="md:hidden flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="pets">pets</span>
+<h1 class="font-display-sm text-display-sm text-primary leading-none">VetCare Pro</h1>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-secondary hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="md:hidden">
+<img alt="Admin Profile" class="w-8 h-8 rounded-full object-cover border border-hairline" data-alt="A close-up portrait of a professional woman in her 30s with glasses, smiling warmly. She is in a bright, modern office with soft white lighting. The aesthetic is clean, trustworthy, and matches a high-end corporate or medical professional profile." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa4w8N9DcDdvcSL26Q6TczTV8DRhNKGSpVQfCCW3xTrIjFauXnUU1iub-zqIYGZZ0rhWbWsKQPoYqEdQY4oo7Gk8HrNN3z3o9HKxodsmifgV97gICJseL3dxu-jMASXVnWXKqIKlQYSYaO2NcCFw_w6zMfWenqihQwjRvBi9qfEO4qyHMI4O5EXyuJjiJcpzL0GuQegqaKqi2E9Rzh8i65sNhaPADxt3fzH3yN6aCX_Kyoj2N4kpd6HHFhlygtt14DezKWTO4cNFI"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-xl max-w-[1440px] mx-auto w-full space-y-section">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-lg border-b border-hairline pb-lg">
+<div>
+<h2 class="font-display-lg text-display-lg text-ink">Reporte de Pagos</h2>
+<p class="font-body-md text-body-md text-secondary mt-2">Auditoría financiera y estado de cuenta consolidado.</p>
+</div>
+<div class="flex gap-md">
+<button class="bg-surface-soft border border-ink text-ink px-lg py-sm rounded-lg font-button text-button hover:bg-surface-variant transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="filter_list">filter_list</span>
+                        Filtrar Mes
+                    </button>
+<button class="bg-primary text-white px-lg py-sm rounded-lg font-button text-button hover:bg-primary-container transition-colors flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+                        Exportar Contable
+                    </button>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<!-- KPI Card 1 -->
+<div class="bg-surface-card rounded-xl p-lg border border-hairline relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-lg opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<p class="font-caption-caps text-caption-caps text-secondary mb-xs uppercase tracking-widest">Total Cobrado (Mes)</p>
+<h3 class="font-display-md text-display-md text-ink mt-sm">$124,500.00</h3>
+<div class="mt-md flex items-center gap-xs text-success">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="font-caption text-caption">+12.5% vs mes anterior</span>
+</div>
+</div>
+<!-- KPI Card 2 -->
+<div class="bg-surface-card rounded-xl p-lg border border-hairline relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-lg opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-primary" data-icon="credit_card">credit_card</span>
+</div>
+<p class="font-caption-caps text-caption-caps text-secondary mb-xs uppercase tracking-widest">Desglose Principal</p>
+<div class="mt-md space-y-sm">
+<div class="flex justify-between items-center">
+<span class="font-body-sm text-body-sm text-secondary">Tarjeta</span>
+<span class="font-title-sm text-title-sm text-ink">65%</span>
+</div>
+<div class="w-full bg-hairline rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 65%"></div>
+</div>
+<div class="flex justify-between items-center mt-sm">
+<span class="font-body-sm text-body-sm text-secondary">Efectivo</span>
+<span class="font-title-sm text-title-sm text-ink">35%</span>
+</div>
+<div class="w-full bg-hairline rounded-full h-1.5">
+<div class="bg-accent-amber h-1.5 rounded-full" style="width: 35%"></div>
+</div>
+</div>
+</div>
+<!-- KPI Card 3 -->
+<div class="bg-surface-dark rounded-xl p-lg border border-surface-variant relative overflow-hidden group shadow-lg" style="background-color: #181715;">
+<div class="absolute top-0 right-0 p-lg opacity-5 transition-opacity">
+<span class="material-symbols-outlined text-6xl text-white" data-icon="pending_actions">pending_actions</span>
+</div>
+<p class="font-caption-caps text-caption-caps text-secondary-fixed-dim mb-xs uppercase tracking-widest">Cartera Pendiente</p>
+<h3 class="font-display-md text-display-md text-white mt-sm">$18,200.00</h3>
+<div class="mt-md flex items-center gap-xs text-error">
+<span class="material-symbols-outlined text-sm" data-icon="warning">warning</span>
+<span class="font-caption text-caption">Requiere atención (14 facturas)</span>
+</div>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface rounded-xl border border-hairline overflow-hidden">
+<div class="p-lg border-b border-hairline flex justify-between items-center bg-surface-soft">
+<h3 class="font-title-lg text-title-lg text-ink">Registro de Transacciones</h3>
+<div class="flex gap-sm">
+<input class="px-sm py-xs border border-hairline rounded bg-surface font-body-sm text-body-sm focus:outline-none focus:border-primary" placeholder="Buscar folio o cliente..." type="text"/>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-hairline bg-surface">
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest">Fecha</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest">Folio</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest">Cliente / Paciente</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest">Método</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest text-right">Monto</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest text-center">Estado</th>
+<th class="p-md font-caption-caps text-caption-caps text-secondary uppercase tracking-widest text-center">Acción</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-hairline">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-soft/50 transition-colors">
+<td class="p-md text-ink">24 Oct, 2023</td>
+<td class="p-md font-code text-code text-secondary">#INV-8842</td>
+<td class="p-md">
+<div class="font-title-sm text-title-sm text-ink">María González</div>
+<div class="text-secondary font-caption text-caption">Luna (Golden Retriever)</div>
+</td>
+<td class="p-md text-ink flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="credit_card">credit_card</span> Tarjeta
+                                </td>
+<td class="p-md font-display-sm text-display-sm text-ink text-right text-lg" style="font-size: 1.125rem;">$1,250.00</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-surface-card text-ink font-caption text-caption border border-hairline">
+<span class="w-1.5 h-1.5 rounded-full bg-success mr-1.5"></span> Pagado
+                                    </span>
+</td>
+<td class="p-md text-center">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-soft/50 transition-colors">
+<td class="p-md text-ink">24 Oct, 2023</td>
+<td class="p-md font-code text-code text-secondary">#INV-8841</td>
+<td class="p-md">
+<div class="font-title-sm text-title-sm text-ink">Carlos Ruíz</div>
+<div class="text-secondary font-caption text-caption">Max (Bulldog)</div>
+</td>
+<td class="p-md text-ink flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="payments">payments</span> Efectivo
+                                </td>
+<td class="p-md font-display-sm text-display-sm text-ink text-right text-lg" style="font-size: 1.125rem;">$450.00</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-surface-card text-ink font-caption text-caption border border-hairline">
+<span class="w-1.5 h-1.5 rounded-full bg-success mr-1.5"></span> Pagado
+                                    </span>
+</td>
+<td class="p-md text-center">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 (Pending) -->
+<tr class="hover:bg-surface-soft/50 transition-colors bg-surface-container-low">
+<td class="p-md text-ink">22 Oct, 2023</td>
+<td class="p-md font-code text-code text-secondary">#INV-8835</td>
+<td class="p-md">
+<div class="font-title-sm text-title-sm text-ink">Ana Torres</div>
+<div class="text-secondary font-caption text-caption">Simba (Gato)</div>
+</td>
+<td class="p-md text-ink flex items-center gap-xs text-secondary italic">
+                                    --
+                                </td>
+<td class="p-md font-display-sm text-display-sm text-primary text-right text-lg" style="font-size: 1.125rem;">$3,800.00</td>
+<td class="p-md text-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-error-container text-on-error-container font-caption text-caption border border-outline-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span> Pendiente
+                                    </span>
+</td>
+<td class="p-md text-center">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="more_vert">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-sm border-t border-hairline bg-surface-soft flex justify-center">
+<button class="text-secondary font-button text-button hover:text-primary transition-colors py-xs">Ver más registros</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

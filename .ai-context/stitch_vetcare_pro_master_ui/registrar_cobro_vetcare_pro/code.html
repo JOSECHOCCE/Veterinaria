@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+
+<html class="antialiased" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Registrar Cobro - VetCare Pro</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Copernicus:ital,wght@0,400;0,700;1,400&amp;family=JetBrains+Mono:wght@400&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom font definitions to map to config if CDN fonts don't match perfectly */
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'); /* Fallback for prototype */
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#dac1ba",
+                    "primary-fixed": "#ffdbd0",
+                    "surface-bright": "#fff8f6",
+                    "outline": "#87736d",
+                    "success": "#5db872",
+                    "on-primary-container": "#fffbff",
+                    "background": "#fff8f6",
+                    "primary-container": "#ad5f45",
+                    "body-strong": "#252523",
+                    "on-primary-fixed": "#390c00",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed-variant": "#484644",
+                    "on-secondary-fixed": "#1c1b19",
+                    "surface": "#fff8f6",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#00685f",
+                    "inverse-surface": "#372e2c",
+                    "surface-card": "#efe9de",
+                    "secondary-fixed": "#e6e2de",
+                    "on-primary": "#ffffff",
+                    "primary": "#8f482f",
+                    "on-primary-fixed-variant": "#75331c",
+                    "error": "#c64545",
+                    "surface-variant": "#efdfdb",
+                    "secondary": "#605e5b",
+                    "on-surface": "#211a18",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-fixed-variant": "#005049",
+                    "primary-fixed-dim": "#ffb59d",
+                    "tertiary-fixed-dim": "#77d7ca",
+                    "tertiary-container": "#0f8378",
+                    "surface-tint": "#924a31",
+                    "surface-container-high": "#f4e5e1",
+                    "surface-soft": "#f5f0e8",
+                    "canvas": "#faf9f5",
+                    "on-background": "#211a18",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#e6d7d3",
+                    "on-tertiary-fixed": "#00201d",
+                    "inverse-on-surface": "#fdede9",
+                    "inverse-primary": "#ffb59d",
+                    "surface-container-highest": "#efdfdb",
+                    "accent-amber": "#e8a55a",
+                    "surface-container": "#faebe6",
+                    "ink": "#141413",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#cac6c2",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#fff1ed",
+                    "on-secondary-container": "#666461",
+                    "on-tertiary-container": "#f4fffc",
+                    "hairline": "#e6dfd8",
+                    "on-surface-variant": "#54433e",
+                    "secondary-container": "#e6e2de",
+                    "accent-teal": "#5db8a6",
+                    "body-muted": "#3d3d3a",
+                    "tertiary-fixed": "#94f3e6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "8px",
+                    "xxs": "4px",
+                    "section": "96px",
+                    "xxl": "48px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "gutter": "1.5rem",
+                    "sm": "12px",
+                    "xl": "32px",
+                    "margin": "2rem"
+            },
+            "fontFamily": {
+                    "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                    "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                    "title-md": ["StyreneB", "Inter", "sans-serif"],
+                    "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                    "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                    "button": ["StyreneB", "Inter", "sans-serif"],
+                    "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                    "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                    "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                    "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                    "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                    "caption": ["StyreneB", "Inter", "sans-serif"],
+                    "caption-caps": ["Inter", "sans-serif"],
+                    "body-md": ["StyreneB", "Inter", "sans-serif"],
+                    "display-xl": ["Copernicus", "Tiempos Headline", "serif"]
+            },
+            "fontSize": {
+                    "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                    "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                    "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                    "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                    "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                    "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                    "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                    "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                    "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                    "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500" }],
+                    "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                    "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-canvas text-on-surface font-body-md min-h-screen flex w-full overflow-hidden">
+<!-- Mobile Top Navigation (Visible only on mobile per guidelines) -->
+<header class="md:hidden flex justify-between items-center px-lg py-sm w-full sticky top-0 z-50 bg-surface-bright border-b border-hairline">
+<div class="flex items-center gap-sm">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<span class="font-display-sm text-display-sm text-primary">VetCare Pro</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</button>
+<button class="text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-hairline">
+<img alt="Veterinario Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3g_t4w3gxNNNJb4Iejbmp6OFsHLtOnetncinEiaaBy-LJ2BfYhMCiQHrXU0z6HGTIOYuci5K5SQXW2-Xv-yh8R9kOgQ7sqGn5MWhvhL2bki5AuT4mEDa10busV11EKFY8e1XerItEBgqhHfcqGSR3LrRG2q5Kb_Vyo0MyCVO8A-1MMYrdCoj4x2iQH9lbrUYXKVtdN3WSiMJeArMX0D25Ze2CoWdKXwxQRz_mPDDEQqovAWVBiTulA_lhuPp45fnfXKuNdK8QeL0"/>
+</div>
+</div>
+</header>
+<!-- Side Navigation (Desktop) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-surface-card border-r border-hairline p-md gap-xs z-40">
+<!-- Brand Header -->
+<div class="flex flex-col gap-xxs px-sm py-lg mb-md border-b border-hairline">
+<h1 class="font-display-md text-display-md text-primary tracking-tight">VetCare Pro</h1>
+<p class="font-caption text-caption text-on-surface-variant">Gestión Veterinaria</p>
+</div>
+<!-- Primary Action -->
+<div class="px-sm mb-lg">
+<button class="w-full flex items-center justify-center gap-sm bg-primary text-on-primary font-button text-button py-sm rounded-lg hover:bg-primary-container transition-colors duration-200">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 18px;">add</span>
+                Nueva Cita
+            </button>
+</div>
+<!-- Navigation Links -->
+<nav class="flex flex-col gap-xs flex-1 overflow-y-auto">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link text-on-surface-variant hover:text-primary hover:bg-surface-soft transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                Resumen
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link text-on-surface-variant hover:text-primary hover:bg-surface-soft transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+                Historias Clínicas
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link text-on-surface-variant hover:text-primary hover:bg-surface-soft transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+                Clientes
+            </a>
+<!-- Active Tab: Pagos y Cobros -->
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link bg-primary-container text-on-primary-container font-bold translate-x-1 transition-transform shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="payments" data-weight="fill" style="font-variation-settings: 'FILL' 1;">payments</span>
+                Pagos y Cobros
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link text-on-surface-variant hover:text-primary hover:bg-surface-soft transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+                Agenda
+            </a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg font-nav-link text-nav-link text-on-surface-variant hover:text-primary hover:bg-surface-soft transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+                Personal
+            </a>
+</nav>
+<!-- User Profile Bottom -->
+<div class="mt-auto pt-md border-t border-hairline px-sm pb-sm">
+<div class="flex items-center gap-sm cursor-pointer hover:bg-surface-soft p-sm rounded-lg transition-colors">
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-hairline">
+<img alt="Veterinario Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGCrdNWC4-OUKUz9LqsxByTGfgU0Iox2Qv45C7-k-MLcCLPoIRIaE6_WA2xLsOGV85HcrGbvVLEvIO5BM6uDINF_m-7_g4rI_O6Z-wj7jGE5EgX8_biCtuT3VTXVeqTWK5MZicX-fiSxfrKDEsKKINXezIA4aqS9fWMsCtoVb6vRnh46qyVPSJI9c4X4kgzmGynzVhlbdcS_q9dI0let0uIGaMn4Y6yOV5Q3fdUqjSBq4rfxK_2Qmu_oFaPgXR_x9z3BEXAW8gxTg"/>
+</div>
+<div class="flex flex-col">
+<span class="font-title-sm text-title-sm text-ink">Dr. A. Gómez</span>
+<span class="font-caption text-caption text-secondary">Veterinario Jefe</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col md:ml-64 h-screen overflow-y-auto bg-canvas">
+<!-- Desktop Top App Bar (Semantic Shell - Destination Rule) -->
+<header class="hidden md:flex justify-between items-center px-xl py-md w-full sticky top-0 z-30 bg-canvas/90 backdrop-blur-sm">
+<div class="flex items-center bg-surface-soft rounded-full px-md py-xs border border-hairline w-64 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-secondary mr-sm" data-icon="search" style="font-size: 20px;">search</span>
+<input class="bg-transparent border-none focus:outline-none focus:ring-0 w-full font-body-sm text-body-sm text-ink placeholder:text-secondary" placeholder="Buscar pacientes o dueños..." type="text"/>
+</div>
+<div class="flex items-center gap-md">
+<button class="w-10 h-10 rounded-full flex items-center justify-center text-secondary hover:bg-surface-soft hover:text-ink transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Page Content -->
+<div class="p-lg md:p-xl lg:px-section lg:py-xl flex-1 w-full max-w-7xl mx-auto flex flex-col gap-lg">
+<!-- Context Header -->
+<div class="flex items-center gap-sm text-secondary mb-xs">
+<a class="font-body-sm text-body-sm hover:text-ink transition-colors flex items-center gap-xs" href="#">
+<span class="material-symbols-outlined" data-icon="arrow_back" style="font-size: 16px;">arrow_back</span>
+                    Volver a Resumen
+                </a>
+</div>
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-md">
+<div>
+<h2 class="font-display-md text-display-md text-ink tracking-tight mb-xxs">Registrar Cobro</h2>
+<p class="font-body-md text-body-md text-secondary">Complete la información para procesar el pago del servicio.</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="inline-flex items-center gap-xs bg-surface-soft border border-hairline px-sm py-xxs rounded-full font-caption-uppercase text-caption-uppercase text-ink">
+<span class="w-2 h-2 rounded-full bg-accent-amber"></span>
+                        Pendiente
+                    </span>
+<span class="font-code text-code text-secondary">Ref: #CX-2023-089</span>
+</div>
+</div>
+<!-- Main Layout: Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl items-start">
+<!-- Left Column: Summary Card -->
+<div class="lg:col-span-4 flex flex-col gap-md">
+<div class="bg-surface-soft rounded-xl p-lg border border-hairline flex flex-col gap-lg">
+<h3 class="font-title-md text-title-md text-ink border-b border-hairline pb-sm">Resumen de Consulta</h3>
+<!-- Client & Patient Details -->
+<div class="flex flex-col gap-md">
+<div class="flex gap-md items-start">
+<div class="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-primary border border-outline-variant shrink-0">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+</div>
+<div>
+<p class="font-caption text-caption text-secondary mb-1">Cliente</p>
+<p class="font-title-sm text-title-sm text-ink">Mariana Domínguez</p>
+<p class="font-body-sm text-body-sm text-secondary">+54 11 4567-8901</p>
+</div>
+</div>
+<div class="flex gap-md items-start">
+<div class="w-10 h-10 rounded-full bg-surface-card flex items-center justify-center text-accent-teal border border-outline-variant shrink-0">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+</div>
+<div>
+<p class="font-caption text-caption text-secondary mb-1">Paciente</p>
+<p class="font-title-sm text-title-sm text-ink">Tango</p>
+<p class="font-body-sm text-body-sm text-secondary">Bulldog Francés · 3 años</p>
+</div>
+</div>
+</div>
+<!-- Services List -->
+<div class="flex flex-col gap-sm pt-md border-t border-hairline">
+<p class="font-caption text-caption text-secondary mb-xs">Servicios Prestados</p>
+<div class="flex justify-between items-start">
+<span class="font-body-md text-body-md text-ink">Consulta General</span>
+<span class="font-code text-code text-ink">$850.00</span>
+</div>
+<div class="flex justify-between items-start">
+<span class="font-body-md text-body-md text-ink">Vacuna Antirrábica</span>
+<span class="font-code text-code text-ink">$450.00</span>
+</div>
+</div>
+<!-- Total -->
+<div class="bg-canvas rounded-lg p-md border border-hairline mt-sm flex justify-between items-center">
+<span class="font-title-lg text-title-lg text-ink">Total</span>
+<span class="font-display-sm text-display-sm text-primary">$1,300.00</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Payment Form -->
+<div class="lg:col-span-8 bg-surface-card rounded-xl p-xl border border-hairline shadow-[0_4px_24px_-12px_rgba(20,20,19,0.05)]">
+<form class="flex flex-col gap-xl">
+<!-- Amount -->
+<div class="flex flex-col gap-sm">
+<label class="font-title-sm text-title-sm text-ink" for="amount">Monto a Cobrar</label>
+<div class="relative w-full max-w-sm">
+<span class="absolute left-md top-1/2 -translate-y-1/2 font-display-sm text-display-sm text-secondary">$</span>
+<input class="w-full bg-canvas border border-hairline rounded-lg py-md pl-12 pr-md font-display-sm text-display-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary transition-all shadow-inner placeholder:text-secondary-fixed-dim" id="amount" readonly="" type="text" value="1300.00"/>
+</div>
+<p class="font-caption text-caption text-secondary">El monto total coincide con el resumen de servicios.</p>
+</div>
+<hr class="border-hairline"/>
+<!-- Payment Method -->
+<div class="flex flex-col gap-md">
+<label class="font-title-sm text-title-sm text-ink">Método de Pago</label>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+<!-- Option: Efectivo -->
+<label class="cursor-pointer relative">
+<input checked="" class="peer sr-only" name="payment_method" type="radio" value="cash"/>
+<div class="flex flex-col items-center justify-center gap-sm p-md rounded-xl border border-outline-variant bg-canvas peer-checked:border-primary peer-checked:bg-surface-soft peer-checked:text-primary transition-all hover:bg-surface-soft">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-body-sm text-body-sm text-center">Efectivo</span>
+</div>
+</label>
+<!-- Option: Tarjeta -->
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="payment_method" type="radio" value="card"/>
+<div class="flex flex-col items-center justify-center gap-sm p-md rounded-xl border border-outline-variant bg-canvas text-secondary peer-checked:border-primary peer-checked:bg-surface-soft peer-checked:text-primary transition-all hover:bg-surface-soft">
+<span class="material-symbols-outlined" data-icon="credit_card">credit_card</span>
+<span class="font-body-sm text-body-sm text-center">Tarjeta</span>
+</div>
+</label>
+<!-- Option: Transferencia -->
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="payment_method" type="radio" value="transfer"/>
+<div class="flex flex-col items-center justify-center gap-sm p-md rounded-xl border border-outline-variant bg-canvas text-secondary peer-checked:border-primary peer-checked:bg-surface-soft peer-checked:text-primary transition-all hover:bg-surface-soft">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="font-body-sm text-body-sm text-center">Transferencia</span>
+</div>
+</label>
+<!-- Option: Billetera Virtual -->
+<label class="cursor-pointer relative">
+<input class="peer sr-only" name="payment_method" type="radio" value="wallet"/>
+<div class="flex flex-col items-center justify-center gap-sm p-md rounded-xl border border-outline-variant bg-canvas text-secondary peer-checked:border-primary peer-checked:bg-surface-soft peer-checked:text-primary transition-all hover:bg-surface-soft">
+<span class="material-symbols-outlined" data-icon="phone_iphone">phone_iphone</span>
+<span class="font-body-sm text-body-sm text-center">Billetera Digital</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Reference Input (Conditional appearance logic usually handled by JS, static here) -->
+<div class="flex flex-col gap-sm">
+<label class="font-title-sm text-title-sm text-ink" for="reference">Referencia de Operación <span class="text-secondary font-body-sm font-normal">(Opcional para efectivo)</span></label>
+<input class="w-full bg-canvas border border-hairline rounded-lg px-md py-sm font-body-md text-body-md text-ink focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-secondary-fixed-dim" id="reference" placeholder="Ej. Número de ticket o código de transferencia" type="text"/>
+</div>
+<!-- Observations -->
+<div class="flex flex-col gap-sm">
+<label class="font-title-sm text-title-sm text-ink" for="observations">Observaciones Internas</label>
+<textarea class="w-full bg-canvas border border-hairline rounded-lg px-md py-sm font-body-md text-body-md text-ink focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none placeholder:text-secondary-fixed-dim" id="observations" placeholder="Añadir notas sobre el pago, descuentos aplicados o recordatorios..." rows="3"></textarea>
+</div>
+<hr class="border-hairline my-sm"/>
+<!-- Actions -->
+<div class="flex flex-col sm:flex-row items-center justify-end gap-md pt-sm">
+<button class="w-full sm:w-auto px-lg py-sm rounded-lg border border-ink text-ink font-button text-button hover:bg-surface-variant transition-colors flex items-center justify-center gap-sm" type="button">
+<span class="material-symbols-outlined" data-icon="receipt_long" style="font-size: 20px;">receipt_long</span>
+                                Imprimir Comprobante
+                            </button>
+<button class="w-full sm:w-auto px-xl py-sm rounded-lg bg-primary text-on-primary font-button text-button hover:bg-primary-container transition-colors shadow-sm flex items-center justify-center gap-sm" type="button">
+<span class="material-symbols-outlined" data-icon="check_circle" style="font-size: 20px;">check_circle</span>
+                                Confirmar Pago
+                            </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</main>
+<!-- Script to handle custom icons substitution -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const icons = document.querySelectorAll('.material-symbols-outlined[data-icon]');
+            icons.forEach(icon => {
+                icon.textContent = icon.getAttribute('data-icon');
+            });
+        });
+    </script>
+</body></html>

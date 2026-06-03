@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCare Pro - Agenda Operativa</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Note: Copernicus/Tiempos are commercial fonts. Using a high-quality standard serif fallback for rendering purpose if they fail to load, but maintaining the requested stack in config. -->
+<!-- Tailwind Theme Configuration (Design System Source of Truth) -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-primary": "#ffb59d",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed-dim": "#77d7ca",
+                    "inverse-surface": "#372e2c",
+                    "secondary-fixed": "#e6e2de",
+                    "outline": "#87736d",
+                    "on-error-container": "#93000a",
+                    "hairline": "#e6dfd8",
+                    "surface": "#fff8f6",
+                    "background": "#fff8f6",
+                    "tertiary-container": "#0f8378",
+                    "outline-variant": "#dac1ba",
+                    "primary-fixed": "#ffdbd0",
+                    "surface-container-high": "#f4e5e1",
+                    "surface-container-highest": "#efdfdb",
+                    "primary-container": "#ad5f45",
+                    "on-secondary-container": "#666461",
+                    "on-tertiary-container": "#f4fffc",
+                    "canvas": "#faf9f5",
+                    "surface-container-low": "#fff1ed",
+                    "on-tertiary-fixed": "#00201d",
+                    "surface-bright": "#fff8f6",
+                    "on-secondary-fixed-variant": "#484644",
+                    "ink": "#141413",
+                    "on-secondary": "#ffffff",
+                    "accent-amber": "#e8a55a",
+                    "surface-dim": "#e6d7d3",
+                    "secondary-fixed-dim": "#cac6c2",
+                    "on-primary": "#ffffff",
+                    "on-secondary-fixed": "#1c1b19",
+                    "tertiary": "#00685f",
+                    "secondary": "#605e5b",
+                    "on-tertiary-fixed-variant": "#005049",
+                    "on-tertiary": "#ffffff",
+                    "body-strong": "#252523",
+                    "tertiary-fixed": "#94f3e6",
+                    "primary-fixed-dim": "#ffb59d",
+                    "on-surface": "#211a18",
+                    "accent-teal": "#5db8a6",
+                    "surface-soft": "#f5f0e8",
+                    "surface-card": "#efe9de",
+                    "error": "#c64545",
+                    "inverse-on-surface": "#fdede9",
+                    "surface-variant": "#efdfdb",
+                    "success": "#5db872",
+                    "error-container": "#ffdad6",
+                    "on-primary-container": "#fffbff",
+                    "on-background": "#211a18",
+                    "on-primary-fixed": "#390c00",
+                    "on-surface-variant": "#54433e",
+                    "on-primary-fixed-variant": "#75331c",
+                    "secondary-container": "#e6e2de",
+                    "primary": "#8f482f",
+                    "body-muted": "#3d3d3a",
+                    "surface-container": "#faebe6",
+                    "on-error": "#ffffff",
+                    "surface-tint": "#924a31"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "margin": "2rem",
+                    "sm": "12px",
+                    "gutter": "1.5rem",
+                    "section": "96px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "xxl": "48px",
+                    "xxs": "4px",
+                    "xs": "8px"
+            },
+            "fontFamily": {
+                    "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                    "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                    "code": ["JetBrains Mono", "ui-monospace", "monospace"],
+                    "title-md": ["StyreneB", "Inter", "sans-serif"],
+                    "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                    "caption": ["StyreneB", "Inter", "sans-serif"],
+                    "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                    "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                    "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                    "body-md": ["StyreneB", "Inter", "sans-serif"],
+                    "caption-caps": ["inter", "sans-serif"],
+                    "button": ["StyreneB", "Inter", "sans-serif"],
+                    "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                    "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                    "display-sm": ["Copernicus", "Tiempos Headline", "serif"]
+            },
+            "fontSize": {
+                    "display-xl": ["64px", {"lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400"}],
+                    "code": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                    "title-md": ["18px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "caption-uppercase": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                    "caption": ["13px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "body-sm": ["14px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                    "display-md": ["36px", {"lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400"}],
+                    "title-lg": ["22px", {"lineHeight": "1.3", "fontWeight": "500"}],
+                    "body-md": ["16px", {"lineHeight": "1.55", "fontWeight": "400"}],
+                    "caption-caps": ["12px", {"lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500"}],
+                    "button": ["14px", {"lineHeight": "1", "fontWeight": "500"}],
+                    "nav-link": ["14px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "title-sm": ["16px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                    "display-sm": ["28px", {"lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+</head>
+<body class="bg-canvas text-on-surface font-body-md text-body-md antialiased overflow-hidden flex h-screen">
+<!-- Shared Component: SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-surface-container-low dark:bg-inverse-surface flex flex-col py-lg px-md z-50 shadow-[1px_0_0_0_rgba(230,223,216,1)]">
+<!-- Header/Brand -->
+<div class="flex items-center gap-sm mb-margin px-xs">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary">sound_detection_dog_barking</span>
+</div>
+<div>
+<h1 class="font-display-sm text-display-sm font-bold text-primary dark:text-inverse-primary leading-none">VetCare Pro</h1>
+<p class="font-caption text-caption text-secondary mt-1">Gestión Veterinaria</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<ul class="flex flex-col gap-xs mt-md">
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary dark:text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">dashboard</span>
+<span class="font-nav-link text-nav-link">Resumen</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary dark:text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">clinical_notes</span>
+<span class="font-nav-link text-nav-link">Historias Clínicas</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary dark:text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">groups</span>
+<span class="font-nav-link text-nav-link">Clientes</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary dark:text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">payments</span>
+<span class="font-nav-link text-nav-link">Pagos y Cobros</span>
+</a>
+</li>
+<!-- Active State -->
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg bg-surface-container-high text-primary dark:text-inverse-primary font-bold border-r-4 border-primary transition-opacity opacity-90 relative" href="#">
+<span class="material-symbols-outlined text-[20px] font-variation-settings-'FILL'-1">calendar_today</span>
+<span class="font-nav-link text-nav-link">Agenda</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-secondary dark:text-secondary-fixed-dim hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-primary">badge</span>
+<span class="font-nav-link text-nav-link">Personal</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- Main Workspace -->
+<div class="flex-1 ml-64 flex flex-col h-full bg-canvas relative">
+<!-- Shared Component: TopNavBar -->
+<header class="flex justify-between items-center w-full px-margin py-sm bg-surface dark:bg-background border-b border-hairline dark:border-outline-variant z-40 relative shrink-0">
+<!-- Search Bar (on_left configuration) -->
+<div class="flex-1 max-w-md">
+<div class="flex items-center bg-surface-container-lowest border border-hairline rounded-full px-md py-xs focus-within:border-primary focus-within:ring-1 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-secondary mr-sm text-[20px]">search</span>
+<input class="w-full bg-transparent border-none outline-none font-body-sm text-body-sm text-ink placeholder:text-secondary focus:ring-0 p-0" placeholder="Buscar pacientes o dueños..." type="text"/>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md shrink-0">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-soft transition-colors relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border border-surface"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-secondary hover:text-primary hover:bg-surface-soft transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="h-8 w-px bg-hairline mx-xs"></div>
+<button class="flex items-center gap-sm hover:opacity-80 transition-opacity">
+<div class="text-right hidden lg:block">
+<p class="font-title-sm text-title-sm text-ink leading-tight">Dr. Usuario</p>
+<p class="font-caption text-caption text-secondary">Veterinario Titular</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-card overflow-hidden border border-hairline">
+<img alt="Dr. Usuario" class="w-full h-full object-cover" data-alt="A professional headshot of a male veterinarian wearing dark navy scrubs. He has a warm, trustworthy expression and short dark hair. The lighting is soft and natural, suggesting a modern, clean clinic environment. The background is slightly blurred with subtle warm white tones, matching a light-mode UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlaHTZuSoIhzQG7fHro61IsBdWuVL1fhAUGt5an1Q9OxFO-fyJJRqgRsBzeK8LO67jEE93eyjY9TqyQv2mLWg3UuqluCV7Mi6c3bIJj7SjyTjV9n1ynH0zn7BUpsNe1Y80rOXNR3s145XahxD3pf13hDbHcsMcesXkX09jMyuclFsR1bNSB5Tf1mDOLBBBfW_KB22oJja0F6_fZdDihuMsk6WwGgoBiXvlOqFuSAeIUs17bM1GzCBwMAR5ta39f2Urjoop_GTbjpQ"/>
+</div>
+</button>
+</div>
+</header>
+<!-- Canvas Content Area -->
+<main class="flex-1 overflow-y-auto p-lg md:p-xl scrollbar-hide">
+<div class="max-w-[1440px] mx-auto">
+<!-- Page Header & Actions -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
+<div>
+<h2 class="font-display-lg text-display-lg text-ink tracking-tight mb-xs">Agenda de la Clínica</h2>
+<p class="font-body-md text-body-md text-secondary">Martes, 24 de Octubre de 2023</p>
+</div>
+<div class="flex items-center gap-sm">
+<button class="flex items-center justify-center gap-xs px-md py-sm bg-surface-card text-ink border border-hairline rounded-lg font-button text-button hover:bg-surface-soft transition-colors">
+<span class="material-symbols-outlined text-[18px]">print</span>
+                            Imprimir
+                        </button>
+<button class="flex items-center justify-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-lg font-button text-button hover:bg-surface-tint shadow-sm transition-all hover:-translate-y-px">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                            Nueva Cita
+                        </button>
+</div>
+</div>
+<!-- Control Bar (Filters) -->
+<div class="bg-surface-card rounded-xl border border-hairline p-md mb-lg flex flex-wrap lg:flex-nowrap items-center justify-between gap-md shadow-sm">
+<!-- Date View Toggle -->
+<div class="flex items-center bg-surface-soft rounded-lg p-xs border border-hairline">
+<button class="px-md py-xs rounded font-title-sm text-title-sm bg-surface-lowest text-ink shadow-sm transition-all">Día</button>
+<button class="px-md py-xs rounded font-title-sm text-title-sm text-secondary hover:text-ink transition-all">Semana</button>
+</div>
+<!-- Filters Group -->
+<div class="flex flex-wrap items-center gap-md">
+<!-- Vet Filter -->
+<div class="relative">
+<select class="appearance-none bg-surface-lowest border border-hairline text-ink font-body-sm text-body-sm rounded-lg pl-sm pr-xl py-sm focus:ring-primary focus:border-primary cursor-pointer w-48">
+<option>Todos los Veterinarios</option>
+<option>Dra. Ana López</option>
+<option>Dr. Carlos Ruiz</option>
+</select>
+<span class="material-symbols-outlined absolute right-sm top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+</div>
+<div class="w-px h-6 bg-hairline hidden md:block"></div>
+<!-- Status Toggles -->
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-hairline bg-surface-lowest text-ink hover:bg-surface-soft transition-colors">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="font-caption text-caption">Confirmada</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-hairline bg-surface-lowest text-ink hover:bg-surface-soft transition-colors">
+<span class="w-2 h-2 rounded-full bg-accent-amber"></span>
+<span class="font-caption text-caption">Pendiente</span>
+</button>
+<button class="flex items-center gap-xs px-sm py-xs rounded-full border border-hairline bg-surface-lowest text-ink hover:bg-surface-soft transition-colors opacity-60">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-caption text-caption line-through">En Tratamiento</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Calendar Grid View (Bento/Modern Structure) -->
+<div class="bg-surface-lowest rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
+<!-- Time Track / Content Area -->
+<div class="relative min-h-[600px] flex flex-col divide-y divide-hairline">
+<!-- 08:00 AM Row -->
+<div class="flex">
+<div class="w-24 shrink-0 py-md pr-md text-right border-r border-hairline bg-canvas">
+<span class="font-caption-uppercase text-caption-uppercase text-secondary">08:00 AM</span>
+</div>
+<div class="flex-1 p-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-sm relative min-h-[100px]">
+<!-- Empty Slot -->
+</div>
+</div>
+<!-- 09:00 AM Row -->
+<div class="flex">
+<div class="w-24 shrink-0 py-md pr-md text-right border-r border-hairline bg-canvas">
+<span class="font-caption-uppercase text-caption-uppercase text-secondary">09:00 AM</span>
+</div>
+<div class="flex-1 p-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-sm relative min-h-[120px]">
+<!-- Appointment Card: Confirmed -->
+<div class="bg-surface-card rounded-lg p-sm border-l-4 border-success shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer group">
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-md text-title-md text-ink group-hover:text-primary transition-colors">Luna</h3>
+<span class="material-symbols-outlined text-success text-[18px]">check_circle</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mb-xs">Familia Gómez</p>
+<div class="inline-flex items-center gap-xs bg-surface-lowest px-2 py-1 rounded font-caption text-caption text-ink border border-hairline">
+<span class="material-symbols-outlined text-[14px] text-tertiary">vaccines</span>
+                                            Vacunación Anual
+                                        </div>
+</div>
+<div class="mt-md flex items-center justify-between border-t border-hairline pt-sm">
+<span class="font-caption text-caption text-secondary">Dra. Ana López</span>
+<span class="font-caption-uppercase text-caption-uppercase text-ink font-bold">09:00 - 09:30</span>
+</div>
+</div>
+<!-- Empty Track Space -->
+</div>
+</div>
+<!-- 10:00 AM Row -->
+<div class="flex bg-surface-soft/30">
+<div class="w-24 shrink-0 py-md pr-md text-right border-r border-hairline bg-canvas">
+<span class="font-caption-uppercase text-caption-uppercase text-ink font-bold">10:00 AM</span>
+</div>
+<div class="flex-1 p-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-sm relative min-h-[140px]">
+<!-- Current Time Indicator Line (Simulated) -->
+<div class="absolute left-0 right-0 top-1/2 h-px bg-primary z-10 pointer-events-none flex items-center">
+<div class="w-2 h-2 rounded-full bg-primary -ml-1"></div>
+</div>
+<!-- Appointment Card: Pending -->
+<div class="bg-surface-card rounded-lg p-sm border-l-4 border-accent-amber shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer group relative z-20 mt-4">
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-md text-title-md text-ink group-hover:text-primary transition-colors">Thor</h3>
+<span class="material-symbols-outlined text-accent-amber text-[18px]">schedule</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mb-xs">Martín Rodríguez</p>
+<div class="inline-flex items-center gap-xs bg-surface-lowest px-2 py-1 rounded font-caption text-caption text-ink border border-hairline">
+<span class="material-symbols-outlined text-[14px] text-accent-teal">content_cut</span>
+                                            Peluquería y Baño
+                                        </div>
+</div>
+<div class="mt-md flex items-center justify-between border-t border-hairline pt-sm">
+<span class="font-caption text-caption text-secondary">Personal Aux.</span>
+<span class="font-caption-uppercase text-caption-uppercase text-ink font-bold">10:15 - 11:15</span>
+</div>
+</div>
+<!-- Appointment Card: In Treatment -->
+<div class="bg-surface-lowest border border-primary/20 rounded-lg p-sm border-l-4 border-l-primary shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow cursor-pointer group relative z-20">
+<div>
+<div class="flex justify-between items-start mb-xs">
+<h3 class="font-title-md text-title-md text-primary group-hover:text-surface-tint transition-colors">Max</h3>
+<span class="flex h-2 w-2 relative mt-1 mr-1">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mb-xs">Elena Castro</p>
+<div class="inline-flex items-center gap-xs bg-surface-soft px-2 py-1 rounded font-caption text-caption text-primary border border-primary/10">
+<span class="material-symbols-outlined text-[14px]">local_hospital</span>
+                                            Consulta General (Urgencia)
+                                        </div>
+</div>
+<div class="mt-md flex items-center justify-between border-t border-hairline pt-sm">
+<span class="font-caption text-caption text-secondary">Dr. Carlos Ruiz</span>
+<span class="font-caption-uppercase text-caption-uppercase text-primary font-bold">10:00 - ?</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 11:00 AM Row -->
+<div class="flex">
+<div class="w-24 shrink-0 py-md pr-md text-right border-r border-hairline bg-canvas">
+<span class="font-caption-uppercase text-caption-uppercase text-secondary">11:00 AM</span>
+</div>
+<div class="flex-1 p-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-sm relative min-h-[100px]">
+<!-- Empty Slot -->
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

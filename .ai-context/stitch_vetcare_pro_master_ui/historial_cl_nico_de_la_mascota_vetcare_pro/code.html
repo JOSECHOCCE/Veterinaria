@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Historial Clínico - VetCare Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        /* Fallback for proprietary fonts to ensure typography structure holds */
+        @font-face {
+            font-family: 'Copernicus';
+            src: local('Georgia'), local('Times New Roman'), serif;
+        }
+        @font-face {
+            font-family: 'StyreneB';
+            src: local('Inter'), sans-serif;
+        }
+        
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#924a31",
+                        "body-muted": "#3d3d3a",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#0f8378",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "accent-amber": "#e8a55a",
+                        "outline": "#87736d",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#372e2c",
+                        "secondary-fixed-dim": "#cac6c2",
+                        "inverse-primary": "#ffb59d",
+                        "inverse-on-surface": "#fdede9",
+                        "secondary-fixed": "#e6e2de",
+                        "tertiary-fixed": "#94f3e6",
+                        "on-surface": "#211a18",
+                        "surface-container-low": "#fff1ed",
+                        "error": "#c64545",
+                        "on-secondary-fixed": "#1c1b19",
+                        "canvas": "#faf9f5",
+                        "body-strong": "#252523",
+                        "surface-soft": "#f5f0e8",
+                        "on-primary-fixed": "#390c00",
+                        "surface-dim": "#e6d7d3",
+                        "ink": "#141413",
+                        "surface-variant": "#efdfdb",
+                        "primary-container": "#ad5f45",
+                        "on-surface-variant": "#54433e",
+                        "secondary": "#605e5b",
+                        "on-tertiary-fixed": "#00201d",
+                        "surface-card": "#efe9de",
+                        "surface": "#fff8f6",
+                        "on-primary-container": "#fffbff",
+                        "primary-fixed": "#ffdbd0",
+                        "secondary-container": "#e6e2de",
+                        "hairline": "#e6dfd8",
+                        "surface-container-highest": "#efdfdb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-container": "#f4fffc",
+                        "on-primary-fixed-variant": "#75331c",
+                        "success": "#5db872",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#211a18",
+                        "outline-variant": "#dac1ba",
+                        "on-secondary-container": "#666461",
+                        "accent-teal": "#5db8a6",
+                        "tertiary-fixed-dim": "#77d7ca",
+                        "on-error-container": "#93000a",
+                        "background": "#fff8f6",
+                        "surface-bright": "#fff8f6",
+                        "primary-fixed-dim": "#ffb59d",
+                        "primary": "#8f482f",
+                        "surface-container": "#faebe6",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#00685f",
+                        "surface-container-high": "#f4e5e1",
+                        "on-secondary-fixed-variant": "#484644"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "md": "16px",
+                        "xxl": "48px",
+                        "sm": "12px",
+                        "gutter": "1.5rem",
+                        "xs": "8px",
+                        "section": "96px",
+                        "margin": "2rem",
+                        "lg": "24px",
+                        "xxs": "4px"
+                    },
+                    "fontFamily": {
+                        "title-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-caps": ["Inter", "sans-serif"],
+                        "nav-link": ["StyreneB", "Inter", "sans-serif"],
+                        "button": ["StyreneB", "Inter", "sans-serif"],
+                        "caption-uppercase": ["StyreneB", "Inter", "sans-serif"],
+                        "caption": ["StyreneB", "Inter", "sans-serif"],
+                        "title-lg": ["StyreneB", "Inter", "sans-serif"],
+                        "title-md": ["StyreneB", "Inter", "sans-serif"],
+                        "display-xl": ["Copernicus", "Tiempos Headline", "serif"],
+                        "display-md": ["Copernicus", "Tiempos Headline", "serif"],
+                        "body-md": ["StyreneB", "Inter", "sans-serif"],
+                        "display-sm": ["Copernicus", "Tiempos Headline", "serif"],
+                        "display-lg": ["Copernicus", "Tiempos Headline", "serif"],
+                        "body-sm": ["StyreneB", "Inter", "sans-serif"],
+                        "code": ["JetBrains Mono", "ui-monospace", "monospace"]
+                    },
+                    "fontSize": {
+                        "title-sm": ["16px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "caption-caps": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500", "textTransform": "uppercase" }],
+                        "nav-link": ["14px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "button": ["14px", { "lineHeight": "1", "fontWeight": "500" }],
+                        "caption-uppercase": ["12px", { "lineHeight": "1.4", "letterSpacing": "1.5px", "fontWeight": "500", "textTransform": "uppercase" }],
+                        "caption": ["13px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "title-lg": ["22px", { "lineHeight": "1.3", "fontWeight": "500" }],
+                        "title-md": ["18px", { "lineHeight": "1.4", "fontWeight": "500" }],
+                        "display-xl": ["64px", { "lineHeight": "1.05", "letterSpacing": "-1.5px", "fontWeight": "400" }],
+                        "display-md": ["36px", { "lineHeight": "1.15", "letterSpacing": "-0.5px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "display-sm": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.3px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "1.1", "letterSpacing": "-1px", "fontWeight": "400" }],
+                        "body-sm": ["14px", { "lineHeight": "1.55", "fontWeight": "400" }],
+                        "code": ["14px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-canvas text-on-surface font-body-md antialiased selection:bg-surface-tint selection:text-white">
+<!-- App Container -->
+<div class="flex h-screen overflow-hidden">
+<!-- SideNavBar Component -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-card flex flex-col py-xl px-md z-50 border-r border-hairline">
+<!-- Brand -->
+<div class="mb-xl px-sm">
+<h1 class="font-display-sm text-display-sm text-on-surface">VetCare Pro</h1>
+<p class="font-caption text-caption text-on-surface-variant mt-1">Veterinary Clinic Management</p>
+</div>
+<!-- CTA -->
+<button class="mb-xl w-full py-sm px-md bg-primary-container text-on-primary-container font-button text-button rounded-full hover:bg-surface-tint hover:text-white transition-colors duration-200 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-size: 18px;">add</span>
+                New Appointment
+            </button>
+<!-- Navigation Tabs -->
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Resumen
+                </a>
+<!-- Active Tab -->
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-primary font-bold border-r-2 border-primary bg-surface-soft opacity-90 transition-all font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined fill">clinical_notes</span>
+                    Historias Clínicas
+                </a>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">groups</span>
+                    Clientes
+                </a>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">payments</span>
+                    Pagos y Cobros
+                </a>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                    Agenda
+                </a>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">badge</span>
+                    Personal
+                </a>
+</nav>
+<!-- Footer Tabs -->
+<div class="mt-auto space-y-2 pt-lg border-t border-hairline">
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Configuración
+                </a>
+<a class="flex items-center gap-3 px-sm py-sm rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-soft transition-colors duration-200 font-nav-link text-nav-link" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+                    Soporte
+                </a>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<div class="flex-1 flex flex-col ml-64 bg-canvas overflow-y-auto">
+<!-- TopNavBar Component -->
+<header class="flex justify-between items-center h-16 px-xl sticky top-0 z-40 bg-canvas/90 backdrop-blur-md border-b border-hairline">
+<!-- Left: Breadcrumb/Context (Replacing Search based on minimal layout needs, but respecting Search_bar intent if it was global) -->
+<div class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<span>Pacientes</span>
+<span class="material-symbols-outlined mx-2" style="font-size: 16px;">chevron_right</span>
+<span class="text-on-surface font-medium">Historial Clínico</span>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-lg">
+<div class="flex items-center gap-sm text-on-secondary-container">
+<button class="hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-soft">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="hover:text-primary transition-colors p-1 rounded-full hover:bg-surface-soft">
+<span class="material-symbols-outlined">help_center</span>
+</button>
+</div>
+<div class="h-6 w-px bg-hairline mx-2"></div>
+<div class="flex items-center gap-md">
+<button class="font-button text-button text-error hover:bg-error-container hover:text-on-error-container px-sm py-1 rounded transition-colors duration-200">
+                            Emergency Mode
+                        </button>
+<button class="bg-canvas border border-ink text-ink font-button text-button px-md py-sm rounded-full hover:bg-surface-card transition-colors duration-200">
+                            Check In
+                        </button>
+</div>
+</div>
+</header>
+<!-- Main Content: Canvas -->
+<main class="flex-1 p-xl max-w-5xl mx-auto w-full pb-section">
+<!-- Patient Header (Editorial Profile Style) -->
+<section class="mb-section flex items-end gap-xl border-b border-hairline pb-xl">
+<div class="w-32 h-32 rounded-full overflow-hidden bg-surface-card flex-shrink-0 border-4 border-canvas shadow-sm relative">
+<img alt="Luna Golden Retriever" class="w-full h-full object-cover" data-alt="A high-quality, professional studio portrait of a friendly Golden Retriever named Luna. The dog is looking slightly off-camera with a bright expression. The lighting is soft and warm, emphasizing the rich golden tones of the fur. The background is a clean, minimalistic cream canvas (#faf9f5) to match a prestige editorial aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzWKlBH19O7Z8IAS-mqzmAFdvFnVR-oC5h3DiJOI1JL4RipuG00Fr1ubumGJHOm6sEdcuaAqWNcaaT1JQdEHNpuTsdQ67giOnpsrIRk7X2Na7IINPpmRa_9pUDFqsUMwQfu07jteDdlIYmwwMDyEqvOvPrvLD7PS1Zje7dRbzkJfdKLBena9CD8xCl-43BfnBcG_iZFWyI0lEdS-F4EIONNrd-AhD59K5zsfHmaiVgVDSnM5QtNUAap7PvQmJNBJ96iGq7hD8xKP4"/>
+</div>
+<div class="flex-1 mb-2">
+<div class="flex justify-between items-baseline mb-sm">
+<h2 class="font-display-lg text-display-lg text-ink">Luna</h2>
+<span class="bg-surface-soft text-on-surface-variant font-caption-caps text-caption-caps px-sm py-1 rounded-full border border-hairline">
+                                ID: #VC-89201
+                            </span>
+</div>
+<ul class="flex gap-lg text-body-md text-on-surface-variant font-body-md">
+<li class="flex items-center gap-1"><span class="font-medium text-on-surface">Especie:</span> Canina (Golden Retriever)</li>
+<li class="flex items-center gap-1"><span class="font-medium text-on-surface">Edad:</span> 4 años, 2 meses</li>
+<li class="flex items-center gap-1"><span class="font-medium text-on-surface">Peso:</span> 28.5 kg</li>
+<li class="flex items-center gap-1"><span class="font-medium text-on-surface">Sexo:</span> Hembra (Esterilizada)</li>
+</ul>
+</div>
+</section>
+<!-- Timeline Section Header -->
+<div class="flex justify-between items-center mb-xl">
+<h3 class="font-display-sm text-display-sm text-on-surface">Historial Médico</h3>
+<div class="flex gap-sm">
+<button class="text-on-surface-variant hover:text-primary font-button text-button flex items-center gap-1 bg-surface-soft px-md py-sm rounded-full">
+<span class="material-symbols-outlined" style="font-size: 18px;">filter_list</span>
+                            Filtrar
+                        </button>
+</div>
+</div>
+<!-- Timeline Container (Reverse Chronological) -->
+<div class="relative pl-xl border-l-2 border-surface-variant space-y-xl ml-xs">
+<!-- Timeline Item 1: Most Recent (High Contrast Card) -->
+<article class="relative group">
+<!-- Node -->
+<div class="absolute -left-[45px] top-4 w-5 h-5 rounded-full bg-primary ring-4 ring-canvas flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-canvas"></div>
+</div>
+<!-- Card Content -->
+<div class="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm transition-transform duration-300 group-hover:-translate-y-1">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h4 class="font-title-lg text-title-lg text-primary mb-1">15 de Octubre, 2023</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 16px;">stethoscope</span>
+                                        Dr. Alejandro Martínez
+                                    </p>
+</div>
+<span class="bg-surface-tint text-on-primary font-caption-caps text-caption-caps px-sm py-1 rounded-full">
+                                    Consulta General
+                                </span>
+</div>
+<div class="space-y-md mt-md">
+<!-- Diagnosis -->
+<div>
+<h5 class="font-caption-caps text-caption-caps text-on-surface-variant mb-1">Diagnóstico</h5>
+<p class="font-body-md text-body-md text-on-surface font-medium">Otitis Externa Leve (Oído Derecho)</p>
+</div>
+<!-- Treatment -->
+<div>
+<h5 class="font-caption-caps text-caption-caps text-on-surface-variant mb-1">Tratamiento Administrado</h5>
+<ul class="font-body-md text-body-md text-on-surface list-disc pl-5 space-y-1">
+<li>Limpieza ótica profunda en clínica.</li>
+<li>Prescripción: Gotas óticas (Otomax) - 4 gotas c/12 hrs por 7 días.</li>
+</ul>
+</div>
+<!-- Alerts / Notes -->
+<div class="bg-surface-container-high p-md rounded-lg flex items-start gap-sm border-l-2 border-accent-amber">
+<span class="material-symbols-outlined text-accent-amber mt-0.5" style="font-size: 20px;">info</span>
+<div>
+<h5 class="font-caption-caps text-caption-caps text-on-surface-variant mb-1">Observaciones</h5>
+<p class="font-body-sm text-body-sm text-on-surface">El conducto auditivo estaba moderadamente inflamado. Propietario reporta rascado frecuente hace 2 días. Evitar baños hasta la revisión.</p>
+</div>
+</div>
+</div>
+<div class="mt-lg pt-md border-t border-hairline flex justify-between items-center">
+<div class="flex items-center gap-2 text-primary font-medium font-body-sm text-body-sm bg-surface-soft px-3 py-1 rounded-full">
+<span class="material-symbols-outlined" style="font-size: 16px;">event_repeat</span>
+                                    Próximo Control: 22 de Octubre, 2023
+                                </div>
+<button class="font-button text-button text-on-surface hover:text-primary transition-colors flex items-center gap-1 group-hover:underline">
+                                    Ver Detalle Completo
+                                    <span class="material-symbols-outlined" style="font-size: 18px;">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Timeline Item 2: Routine Vacs -->
+<article class="relative group">
+<!-- Node -->
+<div class="absolute -left-[43px] top-4 w-4 h-4 rounded-full bg-surface-variant ring-4 ring-canvas"></div>
+<!-- Card Content -->
+<div class="bg-surface-soft rounded-xl p-lg border border-hairline/50 transition-colors duration-300 hover:bg-surface-card">
+<div class="flex justify-between items-start mb-md">
+<div>
+<h4 class="font-title-md text-title-md text-ink mb-1">10 de Marzo, 2023</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 16px;">stethoscope</span>
+                                        Dra. Sofía Ramírez
+                                    </p>
+</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-caption-caps text-caption-caps px-sm py-1 rounded-full">
+                                    Vacunación Anual
+                                </span>
+</div>
+<div class="space-y-md mt-md">
+<div>
+<h5 class="font-caption-caps text-caption-caps text-on-surface-variant mb-1">Procedimiento</h5>
+<p class="font-body-md text-body-md text-on-surface">Aplicación de vacuna Múltiple (Sextuple) y Antirrábica. Desparasitación interna preventiva (Milbemicina/Praziquantel).</p>
+</div>
+<div class="flex gap-2 mt-2">
+<span class="bg-surface-card px-2 py-1 rounded font-body-sm text-body-sm text-on-surface-variant border border-hairline flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 14px;">check_circle</span>
+                                        Examen Físico: Normal
+                                    </span>
+</div>
+</div>
+<div class="mt-md flex justify-end">
+<button class="font-button text-button text-on-surface-variant hover:text-primary transition-colors">
+                                    Expandir
+                                </button>
+</div>
+</div>
+</article>
+<!-- Timeline Item 3: Older record -->
+<article class="relative group opacity-80 hover:opacity-100 transition-opacity duration-300">
+<!-- Node -->
+<div class="absolute -left-[43px] top-4 w-4 h-4 rounded-full bg-surface-variant ring-4 ring-canvas"></div>
+<!-- Card Content -->
+<div class="bg-canvas rounded-xl p-lg border border-hairline">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<h4 class="font-title-md text-title-md text-ink mb-1">22 de Agosto, 2022</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined" style="font-size: 16px;">stethoscope</span>
+                                        Dr. Alejandro Martínez
+                                    </p>
+</div>
+<span class="bg-surface-variant text-on-surface-variant font-caption-caps text-caption-caps px-sm py-1 rounded-full">
+                                    Consulta Dermatológica
+                                </span>
+</div>
+<div class="mt-sm">
+<p class="font-body-md text-body-md text-on-surface line-clamp-2">
+                                    Paciente presenta prurito en zona dorsal lumbar. Se realiza raspado cutáneo resultando negativo a ectoparásitos. Diagnóstico presuntivo: Dermatitis alérgica a la picadura de pulga (DAPP). Se administró tratamiento tópico y sistémico.
+                                </p>
+</div>
+<div class="mt-md flex justify-end">
+<button class="font-button text-button text-on-surface-variant hover:text-primary transition-colors">
+                                    Expandir
+                                </button>
+</div>
+</div>
+</article>
+<!-- End of Timeline Indicator -->
+<div class="pt-xl flex justify-center pb-xl">
+<button class="bg-surface-card border border-hairline text-on-surface-variant font-button text-button px-xl py-sm rounded-full hover:bg-surface-soft hover:text-ink transition-colors duration-200">
+                            Cargar Registros Anteriores
+                        </button>
+</div>
+</div>
+</main>
+</div>
+</div>
+</body></html>
