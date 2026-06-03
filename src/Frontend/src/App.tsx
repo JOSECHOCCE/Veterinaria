@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedLayout from './components/Layout/ProtectedLayout';
 import ClientLayout from './components/Layout/ClientLayout';
 import RoleGuard from './components/Layout/RoleGuard';
+import { AuthLayout } from './components/Layout/AuthLayout';
 import { useAuth } from './context/AuthContext';
 
 // Views (Placeholder para probar la arquitectura)
@@ -34,8 +35,8 @@ function RootRedirect() {
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
+      <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
       <Route path="/" element={<RootRedirect />} />
 
       {/* Admin / Staff Routes */}

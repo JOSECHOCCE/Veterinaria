@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
+import Logo from './Logo';
 
 export default function Sidebar() {
   const location = useLocation();
@@ -8,60 +9,66 @@ export default function Sidebar() {
 
   let menuItems: { name: string; icon: string; path: string }[] = [];
 
+  // Mapeo dinámico de secciones según el rol del usuario (respetando la especificación funcional)
   if (user?.role === 'Admin') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
       { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
-      { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
-      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
-      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' },
-      { name: 'Punto de Venta / POS', icon: 'point_of_sale', path: '/admin/ventas' },
+      { name: 'Directorio Clientes', icon: 'person', path: '/admin/clientes' },
+      { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
       { name: 'Servicios', icon: 'medical_services', path: '/admin/servicios' },
-      { name: 'Pagos', icon: 'payments', path: '/admin/pagos' },
+      { name: 'Pagos y Cobros', icon: 'payments', path: '/admin/pagos' },
       { name: 'Reportes e Ingresos', icon: 'analytics', path: '/admin/reportes' },
-      { name: 'Veterinarios', icon: 'medical_information', path: '/admin/veterinarios' }
+      { name: 'Gestión Usuarios', icon: 'badge', path: '/admin/usuarios' }
     ];
   } else if (user?.role === 'Recepcionista') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
       { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
-      { name: 'Clientes', icon: 'person', path: '/admin/clientes' },
-      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
-      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' },
-      { name: 'Punto de Venta / POS', icon: 'point_of_sale', path: '/admin/ventas' },
-      { name: 'Pagos', icon: 'payments', path: '/admin/pagos' }
+      { name: 'Directorio Clientes', icon: 'person', path: '/admin/clientes' },
+      { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
+      { name: 'Pagos y Cobros', icon: 'payments', path: '/admin/pagos' }
     ];
   } else if (user?.role === 'Veterinario') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda', icon: 'calendar_today', path: '/admin/agenda' },
+      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
       { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
-      { name: 'Mascotas', icon: 'pets', path: '/admin/mascotas' },
-      { name: 'Inventario / Productos', icon: 'inventory', path: '/admin/inventario' }
+      { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' }
     ];
   }
 
+  // Mostrar acción de agendamiento rápido para Admin y Recepcionista
+  const showQuickAction = user?.role === 'Admin' || user?.role === 'Recepcionista';
+
   return (
-    <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-64 pt-20 pb-6 px-md bg-surface-container-low/70 backdrop-blur-lg border-r border-outline-variant/20 z-30 shadow-md">
-      {/* Branding */}
-      <div className="mb-xl px-sm flex flex-col gap-xs">
-        <div className="flex items-center gap-sm">
-          <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shadow-inner">
-            <span className="material-symbols-outlined font-semibold text-[22px]">pets</span>
-          </div>
-          <div>
-            <h1 className="text-headline-md font-headline-md font-bold tracking-tight text-on-surface">VetCare Pro</h1>
-            <p className="font-label-sm text-label-sm text-outline-variant tracking-wider uppercase font-semibold">Dashboard</p>
-          </div>
-        </div>
+    <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-72 pt-6 pb-6 px-4 bg-surface-card border-r border-hairline z-30 shadow-sm overflow-hidden select-none">
+      {/* Branding con Logotipo Unificado */}
+      <div className="mb-6 px-3">
+        <Logo />
       </div>
 
-      {/* Menu Navigation */}
-      <div className="flex-1 space-y-xs overflow-y-auto">
+      {/* Acción Rápida (Consistente arriba del menú) */}
+      {showQuickAction && (
+        <div className="px-3 mb-4">
+          <Link to="/admin/agenda?action=new">
+            <motion.button 
+              className="w-full bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Nueva Consulta
+            </motion.button>
+          </Link>
+        </div>
+      )}
+
+      {/* Menú de Navegación Dinámico */}
+      <div className="flex-1 space-y-2 overflow-y-auto pr-2">
         {menuItems.map((item) => {
-          // Si estamos en la raíz (index), marcar dashboard como activo
           const isActive = location.pathname === item.path || (item.path === '/admin/dashboard' && location.pathname === '/admin');
           return (
             <Link
@@ -79,14 +86,14 @@ export default function Sidebar() {
               )}
 
               <div
-                className={`relative z-10 flex items-center gap-sm px-md py-sm rounded-xl font-label-md text-label-md transition-all ${
+                className={`relative z-10 flex items-center gap-3 px-4 py-[10px] rounded-xl font-label-md text-label-md transition-all ${
                   isActive 
                     ? 'text-primary font-bold shadow-sm' 
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50'
+                    : 'text-body-muted hover:text-ink hover:bg-surface-variant/30'
                 }`}
               >
                 <span 
-                  className="material-symbols-outlined text-[22px]" 
+                  className="material-symbols-outlined text-[20px]" 
                   style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
                 >
                   {item.icon}
@@ -99,28 +106,28 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom Profile & Actions */}
-      <div className="mt-auto pt-md space-y-md border-t border-outline-variant/30">
+      <div className="mt-auto pt-4 space-y-4 border-t border-hairline">
         {/* User Card */}
         {user && (
-          <div className="bg-surface-container-high/40 backdrop-blur-sm border border-outline-variant/20 rounded-xl p-sm flex items-center gap-sm shadow-sm">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary-container flex items-center justify-center text-on-primary text-headline-md font-bold border border-primary/10 shadow">
-              {user.nombreCompleto ? user.nombreCompleto.charAt(0) : 'U'}
+          <div className="bg-surface-soft border border-hairline rounded-xl p-3 flex items-center gap-3 shadow-sm select-none">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary-active flex items-center justify-center text-on-primary text-headline-md font-bold border border-primary/10 shadow shrink-0">
+              {user.nombreCompleto ? user.nombreCompleto.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="flex-1 overflow-hidden">
-              <h4 className="font-label-md text-label-md text-on-surface font-semibold truncate leading-none mb-[2px]">
+              <h4 className="font-label-md text-label-md text-ink font-semibold truncate leading-none mb-[4px]">
                 {user.nombreCompleto}
               </h4>
-              <span className="inline-block font-label-sm text-[10px] bg-secondary-container text-on-secondary-container px-[6px] py-[1px] rounded-full uppercase font-bold leading-none">
+              <span className="inline-block font-label-sm text-[9px] bg-primary/10 text-primary px-[6px] py-[2px] rounded-full uppercase font-bold leading-none border border-primary/20">
                 {user.role}
               </span>
             </div>
           </div>
         )}
 
-        <div className="space-y-xs">
+        <div className="space-y-2">
           <Link 
             to="/admin/configuracion" 
-            className="flex items-center gap-sm px-md py-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/50 transition-all rounded-xl font-label-md text-label-md"
+            className="flex items-center gap-3 px-4 py-3 text-body-muted hover:text-ink hover:bg-surface-variant/30 transition-all rounded-xl font-label-md text-label-md"
           >
             <span className="material-symbols-outlined text-[20px]">settings</span>
             Configuración
@@ -128,7 +135,7 @@ export default function Sidebar() {
           
           <button 
             onClick={logout}
-            className="w-full flex items-center gap-sm px-md py-sm text-error hover:bg-error-container/30 transition-all rounded-xl font-label-md text-label-md cursor-pointer"
+            className="w-full flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/30 transition-all rounded-xl font-label-md text-label-md cursor-pointer text-left"
           >
             <span className="material-symbols-outlined text-[20px]">logout</span>
             Cerrar Sesión

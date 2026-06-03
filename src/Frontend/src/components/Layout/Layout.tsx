@@ -10,7 +10,7 @@ export default function Layout() {
       <TopAppBar />
       
       {/* El contenido principal se renderiza debajo del appbar y a la derecha del sidebar */}
-      <main className="flex-1 mt-16 md:ml-64 p-gutter lg:p-lg pb-24 md:pb-lg overflow-y-auto">
+      <main className="flex-1 mt-16 md:ml-72 p-gutter lg:p-6 pb-24 md:pb-6 overflow-y-auto">
         <Outlet />
       </main>
 

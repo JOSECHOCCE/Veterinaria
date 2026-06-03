@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../hooks/useNotifications';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Logo from './Logo';
 
 export default function TopAppBar() {
   const navigate = useNavigate();
@@ -26,15 +27,17 @@ export default function TopAppBar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter h-16 bg-surface border-b border-outline-variant shadow-sm md:pl-[calc(16rem+24px)]">
-      <div className="flex items-center gap-md">
-        <h1 className="text-headline-md font-headline-md font-semibold text-primary md:hidden">VetCare Pro</h1>
+    <header className="fixed top-0 left-0 w-full z-40 flex justify-between items-center px-gutter h-16 bg-surface border-b border-outline-variant shadow-sm md:pl-[calc(18rem+24px)] select-none">
+      <div className="flex items-center gap-4">
+        <div className="md:hidden">
+          <Logo showSubtitle={false} />
+        </div>
         <div className="hidden md:block">
           <h2 className="text-headline-md font-headline-md font-semibold text-on-surface">Panel de Control</h2>
         </div>
       </div>
 
-      <div className="flex items-center gap-sm text-primary">
+      <div className="flex items-center gap-3 text-primary">
         {/* Campana de Notificaciones en Tiempo Real */}
         <motion.button
           animate={shouldAnimate ? "wiggle" : "idle"}
@@ -43,7 +46,7 @@ export default function TopAppBar() {
             setUnreadCount(0);
             navigate('/admin/cola');
           }}
-          className="p-base rounded-full hover:bg-surface-container-high transition-colors relative cursor-pointer text-primary"
+          className="p-2 rounded-full hover:bg-surface-container-high transition-colors relative cursor-pointer text-primary"
           title={`${unreadCount} notificaciones no leídas - Haz clic para ver cola`}
         >
           <span className="material-symbols-outlined">notifications</span>
@@ -58,10 +61,10 @@ export default function TopAppBar() {
           )}
         </motion.button>
 
-        <button onClick={() => navigate('/admin/triage')} className="p-base rounded-full hover:bg-surface-container-high transition-colors text-error cursor-pointer" title="Nueva Emergencia">
+        <button onClick={() => navigate('/admin/triage')} className="p-2 rounded-full hover:bg-surface-container-high transition-colors text-error cursor-pointer" title="Nueva Emergencia">
           <span className="material-symbols-outlined">emergency</span>
         </button>
-        <button className="p-base rounded-full hover:bg-surface-container-high transition-colors cursor-pointer" title="Mi Cuenta">
+        <button className="p-2 rounded-full hover:bg-surface-container-high transition-colors cursor-pointer" title="Mi Cuenta">
           <span className="material-symbols-outlined">account_circle</span>
         </button>
       </div>
