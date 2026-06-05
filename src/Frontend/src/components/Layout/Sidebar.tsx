@@ -3,80 +3,149 @@ import { useAuth } from '../../context/AuthContext';
 import { motion } from 'framer-motion';
 import Logo from './Logo';
 
+// SVG íconos inline — sin dependencia de Material Symbols
+const Icons = {
+  dashboard: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 9.75L12 3l9 6.75V21a.75.75 0 0 1-.75.75H15a.75.75 0 0 1-.75-.75v-4.5h-4.5V21a.75.75 0 0 1-.75.75H3.75A.75.75 0 0 1 3 21V9.75z" />
+    </svg>
+  ),
+  calendar: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+    </svg>
+  ),
+  queue: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0z" />
+    </svg>
+  ),
+  person: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0zM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+    </svg>
+  ),
+  pets: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM6 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM8.5 13c-2 0-5.5 1.2-5.5 3.5V18h18v-1.5c0-2.3-3.5-3.5-5.5-3.5-.4 0-.8 0-1.2.1a5.5 5.5 0 0 0-4.6 0C9.3 13 8.9 13 8.5 13z" />
+    </svg>
+  ),
+  medical: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0z" />
+    </svg>
+  ),
+  payments: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5z" />
+    </svg>
+  ),
+  analytics: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125z" />
+    </svg>
+  ),
+  badge: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0z" />
+    </svg>
+  ),
+  settings: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+    </svg>
+  ),
+  logout: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+    </svg>
+  ),
+  add: (
+    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+    </svg>
+  ),
+};
+
+type IconKey = keyof typeof Icons;
+
+interface MenuItem {
+  name: string;
+  icon: IconKey;
+  path: string;
+}
+
 export default function Sidebar() {
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  let menuItems: { name: string; icon: string; path: string }[] = [];
+  let menuItems: MenuItem[] = [];
 
-  // Mapeo dinámico de secciones según el rol del usuario (respetando la especificación funcional)
   if (user?.role === 'Admin') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
-      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+      { name: 'Agenda Operativa', icon: 'calendar', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'queue', path: '/admin/cola' },
       { name: 'Directorio Clientes', icon: 'person', path: '/admin/clientes' },
       { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
-      { name: 'Servicios', icon: 'medical_services', path: '/admin/servicios' },
+      { name: 'Servicios', icon: 'medical', path: '/admin/servicios' },
       { name: 'Pagos y Cobros', icon: 'payments', path: '/admin/pagos' },
       { name: 'Reportes e Ingresos', icon: 'analytics', path: '/admin/reportes' },
-      { name: 'Gestión Usuarios', icon: 'badge', path: '/admin/usuarios' }
+      { name: 'Gestión Usuarios', icon: 'badge', path: '/admin/usuarios' },
     ];
   } else if (user?.role === 'Recepcionista') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
-      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
+      { name: 'Agenda Operativa', icon: 'calendar', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'queue', path: '/admin/cola' },
       { name: 'Directorio Clientes', icon: 'person', path: '/admin/clientes' },
       { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
-      { name: 'Pagos y Cobros', icon: 'payments', path: '/admin/pagos' }
+      { name: 'Pagos y Cobros', icon: 'payments', path: '/admin/pagos' },
     ];
   } else if (user?.role === 'Veterinario') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda Operativa', icon: 'calendar_today', path: '/admin/agenda' },
-      { name: 'Cola de Atención', icon: 'pending_actions', path: '/admin/cola' },
-      { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' }
+      { name: 'Agenda Operativa', icon: 'calendar', path: '/admin/agenda' },
+      { name: 'Cola de Atención', icon: 'queue', path: '/admin/cola' },
+      { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
     ];
   }
 
-  // Mostrar acción de agendamiento rápido para Admin y Recepcionista
   const showQuickAction = user?.role === 'Admin' || user?.role === 'Recepcionista';
 
   return (
     <nav className="hidden md:flex flex-col fixed left-0 top-0 h-full w-72 pt-6 pb-6 px-4 bg-surface-card border-r border-hairline z-30 shadow-sm overflow-hidden select-none">
-      {/* Branding con Logotipo Unificado */}
+
+      {/* Logo */}
       <div className="mb-6 px-3">
         <Logo />
       </div>
 
-      {/* Acción Rápida (Consistente arriba del menú) */}
+      {/* Botón Nueva Consulta */}
       {showQuickAction && (
         <div className="px-3 mb-4">
           <Link to="/admin/agenda?action=new">
-            <motion.button 
+            <motion.button
               className="w-full bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className="material-symbols-outlined text-[18px]">add</span>
+              {Icons.add}
               Nueva Consulta
             </motion.button>
           </Link>
         </div>
       )}
 
-      {/* Menú de Navegación Dinámico */}
-      <div className="flex-1 space-y-2 overflow-y-auto pr-2">
+      {/* Menú dinámico */}
+      <div className="flex-1 space-y-1 overflow-y-auto pr-1">
         {menuItems.map((item) => {
-          const isActive = location.pathname === item.path || (item.path === '/admin/dashboard' && location.pathname === '/admin');
+          const isActive =
+            location.pathname === item.path ||
+            (item.path === '/admin/dashboard' && location.pathname === '/admin');
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className="relative block"
-            >
-              {/* Burbuja activa usando Framer Motion para deslizar */}
+            <Link key={item.path} to={item.path} className="relative block">
               {isActive && (
                 <motion.div
                   layoutId="activeMenu"
@@ -84,61 +153,52 @@ export default function Sidebar() {
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
                 />
               )}
-
               <div
-                className={`relative z-10 flex items-center gap-3 px-4 py-[10px] rounded-xl font-label-md text-label-md transition-all ${
-                  isActive 
-                    ? 'text-primary font-bold shadow-sm' 
+                className={`relative z-10 flex items-center gap-3 px-4 py-[10px] rounded-xl transition-all ${isActive
+                    ? 'text-primary font-bold'
                     : 'text-body-muted hover:text-ink hover:bg-surface-variant/30'
-                }`}
+                  }`}
               >
-                <span 
-                  className="material-symbols-outlined text-[20px]" 
-                  style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
-                >
-                  {item.icon}
-                </span>
-                {item.name}
+                {Icons[item.icon]}
+                <span className="font-label-md text-label-md">{item.name}</span>
               </div>
             </Link>
           );
         })}
       </div>
 
-      {/* Bottom Profile & Actions */}
-      <div className="mt-auto pt-4 space-y-4 border-t border-hairline">
-        {/* User Card */}
+      {/* Footer — perfil + acciones */}
+      <div className="mt-auto pt-4 space-y-3 border-t border-hairline">
         {user && (
-          <div className="bg-surface-soft border border-hairline rounded-xl p-3 flex items-center gap-3 shadow-sm select-none">
+          <div className="bg-surface-soft border border-hairline rounded-xl p-3 flex items-center gap-3 shadow-sm">
             <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-primary to-primary-active flex items-center justify-center text-on-primary text-headline-md font-bold border border-primary/10 shadow shrink-0">
               {user.nombreCompleto ? user.nombreCompleto.charAt(0).toUpperCase() : 'U'}
             </div>
             <div className="flex-1 overflow-hidden">
-              <h4 className="font-label-md text-label-md text-ink font-semibold truncate leading-none mb-[4px]">
+              <h4 className="font-label-md text-label-md text-ink font-semibold truncate leading-none mb-1">
                 {user.nombreCompleto}
               </h4>
-              <span className="inline-block font-label-sm text-[9px] bg-primary/10 text-primary px-[6px] py-[2px] rounded-full uppercase font-bold leading-none border border-primary/20">
+              <span className="inline-block text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full uppercase font-bold border border-primary/20">
                 {user.role}
               </span>
             </div>
           </div>
         )}
 
-        <div className="space-y-2">
-          <Link 
-            to="/admin/configuracion" 
-            className="flex items-center gap-3 px-4 py-3 text-body-muted hover:text-ink hover:bg-surface-variant/30 transition-all rounded-xl font-label-md text-label-md"
+        <div className="space-y-1">
+          <Link
+            to="/admin/configuracion"
+            className="flex items-center gap-3 px-4 py-3 text-body-muted hover:text-ink hover:bg-surface-variant/30 transition-all rounded-xl"
           >
-            <span className="material-symbols-outlined text-[20px]">settings</span>
-            Configuración
+            {Icons.settings}
+            <span className="font-label-md text-label-md">Configuración</span>
           </Link>
-          
-          <button 
+          <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/30 transition-all rounded-xl font-label-md text-label-md cursor-pointer text-left"
+            className="w-full flex items-center gap-3 px-4 py-3 text-error hover:bg-error-container/30 transition-all rounded-xl cursor-pointer text-left"
           >
-            <span className="material-symbols-outlined text-[20px]">logout</span>
-            Cerrar Sesión
+            {Icons.logout}
+            <span className="font-label-md text-label-md">Cerrar Sesión</span>
           </button>
         </div>
       </div>

@@ -11,6 +11,8 @@ import Register from './views/Auth/Register';
 import UserManagement from './views/Admin/UserManagement';
 import ClientesDashboard from './views/Clientes/ClientesDashboard';
 import FichaClienteDetalle from './views/Clientes/FichaClienteDetalle';
+import RegistrarCliente from './views/Clientes/RegistrarCliente';
+import EditarCliente from './views/Clientes/EditarCliente';
 import FichaMascota from './views/Mascotas/FichaMascota';
 import DetalleMascota from './views/Mascotas/DetalleMascota';
 import PortalCliente from './views/PortalCliente/PortalCliente';
@@ -44,7 +46,9 @@ function App() {
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DummyView title="Dashboard" />} />
         <Route path="clientes" element={<ClientesDashboard />} />
+        <Route path="clientes/nuevo" element={<RegistrarCliente />} />
         <Route path="clientes/:id" element={<FichaClienteDetalle />} />
+        <Route path="clientes/:id/editar" element={<EditarCliente />} />
         <Route path="mascotas" element={<FichaMascota />} />
         <Route path="mascotas/:id" element={<DetalleMascota />} />
         
