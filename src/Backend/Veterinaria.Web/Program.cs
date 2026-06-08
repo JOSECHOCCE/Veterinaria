@@ -210,7 +210,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 // Servir el frontend compilado (Vite build) desde wwwroot
 app.UseDefaultFiles();

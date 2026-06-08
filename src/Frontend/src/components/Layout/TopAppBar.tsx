@@ -43,11 +43,10 @@ export default function TopAppBar() {
           animate={shouldAnimate ? "wiggle" : "idle"}
           variants={bellVariants}
           onClick={() => {
-            setUnreadCount(0);
-            navigate('/admin/cola');
+            navigate('/admin/notificaciones');
           }}
           className="p-2 rounded-full hover:bg-surface-container-high transition-colors relative cursor-pointer text-primary"
-          title={`${unreadCount} notificaciones no leídas - Haz clic para ver cola`}
+          title={`${unreadCount} notificaciones no leídas - Haz clic para ver notificaciones`}
         >
           <span className="material-symbols-outlined">notifications</span>
           {unreadCount > 0 && (

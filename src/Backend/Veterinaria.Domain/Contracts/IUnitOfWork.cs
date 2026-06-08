@@ -2,7 +2,7 @@ using Veterinaria.Domain.Entities;
 
 namespace Veterinaria.Domain.Contracts;
 
-public interface IUnitOfWork : IAsyncDisposable
+public interface IUnitOfWork : IAsyncDisposable, IDisposable
 {
     IGenericRepository<Usuario> Usuarios { get; }
     IGenericRepository<Mascota> Mascotas { get; }

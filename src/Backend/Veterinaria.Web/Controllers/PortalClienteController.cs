@@ -10,7 +10,7 @@ using Veterinaria.Domain.Entities;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Cliente")]
+[Authorize(Roles = "Cliente,Usuario")]
 [ApiController]
 [Route("api/[controller]")]
 public class PortalClienteController : ControllerBase

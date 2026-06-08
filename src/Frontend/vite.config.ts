@@ -16,6 +16,12 @@ export default defineConfig({
         target: 'http://localhost:5132', // ← Puerto HTTP del backend local
         changeOrigin: true,
         secure: false, // necesario si el backend usara HTTPS con certificado local
+      },
+      '/notificacionHub': {
+        target: 'http://localhost:5132',
+        ws: true,
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

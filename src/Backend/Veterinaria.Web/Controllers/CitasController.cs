@@ -78,8 +78,11 @@ public class CitasController : ControllerBase
             extendedProps = new
             {
                 mascota = c.Mascota?.Nombre,
+                mascotaId = c.MascotaId,
                 servicio = c.Servicio?.Nombre,
+                servicioId = c.ServicioId,
                 veterinario = c.Veterinario?.Nombre,
+                veterinarioId = c.VeterinarioId,
                 estado = c.Estado,
                 motivo = c.Motivo,
                 propietario = c.Mascota?.Usuario?.Nombre,

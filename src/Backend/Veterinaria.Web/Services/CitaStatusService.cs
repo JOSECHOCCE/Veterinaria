@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Veterinaria.Application.Interfaces;
 using Veterinaria.Infrastructure.Persistence;
 
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Veterinaria.Web.Services;
 
 /// <summary>
@@ -40,7 +42,7 @@ public class CitaStatusService : BackgroundService
 
     private async Task ActualizarEstadosCitas()
     {
-        using var scope = _serviceProvider.CreateScope();
+        await using var scope = _serviceProvider.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
         var notificacionService = scope.ServiceProvider.GetRequiredService<INotificacionService>();
 

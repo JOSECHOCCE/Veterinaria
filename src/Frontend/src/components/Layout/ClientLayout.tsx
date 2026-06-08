@@ -1,13 +1,33 @@
-import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Logo from './Logo';
+import { useNotifications } from '../../hooks/useNotifications';
 
 export default function ClientLayout() {
   const { isAuthenticated, loading, user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { unreadCount } = useNotifications();
+  const [shouldAnimate, setShouldAnimate] = useState(false);
+
+  useEffect(() => {
+    if (unreadCount > 0) {
+      setShouldAnimate(true);
+      const timer = setTimeout(() => setShouldAnimate(false), 600);
+      return () => clearTimeout(timer);
+    }
+  }, [unreadCount]);
+
+  const bellVariants = {
+    idle: { rotate: 0 },
+    wiggle: {
+      rotate: [0, -18, 15, -15, 12, -10, 8, -4, 4, 0],
+      transition: { duration: 0.6 }
+    }
+  };
 
   if (loading) {
     return (
@@ -80,6 +100,26 @@ export default function ClientLayout() {
 
           {/* Acciones del Usuario en Navbar */}
           <div className="flex items-center gap-3">
+            {/* Campana de Notificaciones en Tiempo Real */}
+            <motion.button
+              animate={shouldAnimate ? "wiggle" : "idle"}
+              variants={bellVariants}
+              onClick={() => navigate('/cliente/notificaciones')}
+              className="p-2 rounded-full hover:bg-surface-soft transition-colors relative cursor-pointer text-primary"
+              title={`${unreadCount} notificaciones no leídas`}
+            >
+              <span className="material-symbols-outlined">notifications</span>
+              {unreadCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute top-1 right-1 bg-error text-white text-[9px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border border-surface-card shadow-sm leading-none"
+                >
+                  {unreadCount}
+                </motion.span>
+              )}
+            </motion.button>
+
             {/* Perfil del Cliente */}
             <div className="hidden sm:flex items-center gap-3 bg-surface-soft border border-hairline rounded-full pl-3 pr-2 py-[3px] shadow-sm">
               <span className="font-label-sm text-ink font-semibold max-w-[120px] truncate">

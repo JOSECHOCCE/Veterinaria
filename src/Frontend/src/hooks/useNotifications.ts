@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
+import notificacionesService from '../services/notificaciones.service';
 
 interface ServerNotification {
   id: number;
@@ -19,6 +20,16 @@ export function useNotifications() {
   useEffect(() => {
     const token = window.localStorage.getItem('token');
     if (!token) return; // sin sesión no hay conexión
+
+    // Cargar conteo de no leídas inicial desde REST
+    notificacionesService.getNoLeidasCount()
+      .then((res) => {
+        if (res.success && res.data) {
+          setUnreadCount(res.data.count || 0);
+        }
+      })
+      .catch((err) => console.error('Error al cargar conteo inicial de notificaciones:', err));
+
 
     // Configurar la conexión con el Hub de SignalR.
     // accessTokenFactory: el JWT se envía como query string (?access_token=...)

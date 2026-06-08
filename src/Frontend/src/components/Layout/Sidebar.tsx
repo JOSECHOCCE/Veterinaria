@@ -106,7 +106,7 @@ export default function Sidebar() {
   } else if (user?.role === 'Veterinario') {
     menuItems = [
       { name: 'Dashboard', icon: 'dashboard', path: '/admin/dashboard' },
-      { name: 'Agenda Operativa', icon: 'calendar', path: '/admin/agenda' },
+      { name: 'Mi Agenda', icon: 'calendar', path: '/admin/mi-agenda' },
       { name: 'Cola de Atención', icon: 'queue', path: '/admin/cola' },
       { name: 'Expedientes Mascotas', icon: 'pets', path: '/admin/mascotas' },
     ];

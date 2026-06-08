@@ -6,7 +6,7 @@ interface AuthLayoutProps {
 
 export const AuthLayout = ({ children }: AuthLayoutProps) => {
   return (
-    <div className="h-screen w-screen overflow-hidden flex antialiased bg-canvas">
+    <div className="min-h-screen w-full antialiased bg-canvas">
       {children}
     </div>
   );

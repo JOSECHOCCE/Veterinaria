@@ -11,6 +11,9 @@ export interface MascotaPayload {
   usuarioId: number;
   fotoUrl?: string | null;
   activo?: boolean;
+  sexo?: string | null;
+  observacionesGenerales?: string | null;
+  alergiasConocidas?: string | null;
 }
 
 export const MascotasService = {
@@ -55,6 +58,14 @@ export const MascotasService = {
    */
   async updateMascota(id: number, payload: MascotaPayload) {
     const response = await api.put(`/api/Mascotas/${id}`, payload);
+    return response.data;
+  },
+
+  /**
+   * Inicializa la vista de edición retornando mascota y propietarios activos
+   */
+  async getMascotaEdit(id: number) {
+    const response = await api.get(`/api/Mascotas/Edit/${id}`);
     return response.data;
   },
 

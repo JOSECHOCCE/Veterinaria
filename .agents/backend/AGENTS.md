@@ -3,6 +3,7 @@
 > **Skills Reference**: Para patrones detallados usar estas skills:
 > <!-- SKILLS_REF_START -->
 > - [clean-architecture](../skills/clean-architecture/SKILL.md) - Onion Architecture para .NET Core. Vigila que las dependencias fluyan correctamente entre capas. Usar cuando crees, muevas o reorganices clases entre Domain, Application, Infrastructure y Web.
+> - [clean-architecture-review](../skills/clean-architecture-review/SKILL.md) - Review code and provide design guidance based on Clean Architecture principles. Checks dependency rule, layer separation, crossing boundaries, and SOLID principles. Use when asked to review architecture, check dependencies, or design with clean architecture principles.
 > - [commits](../skills/commits/SKILL.md) - Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit.
 > - [csharp-dotnet](../skills/csharp-dotnet/SKILL.md) - Patrones C# profesionales, naming conventions, estructura de código y buenas prácticas para proyectos .NET Core. Usar cuando escribas o refactorices cualquier archivo .cs.
 > - [jwt-auth](../skills/jwt-auth/SKILL.md) - Patrón completo de autenticación JWT para VetCare. Generación en backend .NET, interceptor Axios en frontend, guards de rutas por rol. Usar cuando implementes login, rutas protegidas, middleware de auth o manejo de tokens.

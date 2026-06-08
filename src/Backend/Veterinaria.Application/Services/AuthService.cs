@@ -69,7 +69,7 @@ public class AuthService : IAuthService
             return Response<LoginResponseDto>.Fail("Tu cuenta ha sido desactivada. Contacta al administrador.");
         }
 
-        // Obtener el rol del usuario
+        // Obtener todos los roles del usuario
         var roles = await _userManager.GetRolesAsync(user);
         var userRole = roles.FirstOrDefault() ?? "Cliente";
 
@@ -82,8 +82,21 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Email, user.Email ?? ""),
             new Claim(ClaimTypes.Name, user.NombreCompleto ?? ""),
-            new Claim(ClaimTypes.Role, userRole)
         };
+
+        // Agregar TODOS los roles como claims individuales para que
+        // [Authorize(Roles = "Cliente")] funcione cuando el usuario
+        // tiene múltiples roles (ej. Cliente + Usuario)
+        foreach (var role in roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        // Fallback si no tiene roles asignados
+        if (!roles.Any())
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "Cliente"));
+        }
 
         var expiryMinutes = double.Parse(_configuration["Jwt:ExpiryInMinutes"] ?? "1440");
         var tokenDescriptor = new SecurityTokenDescriptor

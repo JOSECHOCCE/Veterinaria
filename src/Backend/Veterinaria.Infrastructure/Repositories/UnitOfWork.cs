@@ -57,5 +57,10 @@ public class UnitOfWork : IUnitOfWork
     {
         await _context.DisposeAsync();
     }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+    }
 }
 

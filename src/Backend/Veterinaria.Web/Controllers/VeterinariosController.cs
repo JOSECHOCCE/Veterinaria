@@ -11,7 +11,7 @@ using Veterinaria.Application.DTOs;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario,Cliente,Usuario")]
 [ApiController]
 [Route("api/[controller]")]
 public class VeterinariosController : ControllerBase
@@ -94,6 +94,7 @@ public class VeterinariosController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Create([FromBody] VeterinarioDto veterinarioDto)
     {
         if (!ModelState.IsValid)
@@ -110,6 +111,7 @@ public class VeterinariosController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Edit(int id, [FromBody] VeterinarioDto veterinarioDto)
     {
         if (id != veterinarioDto.Id)
@@ -135,6 +137,7 @@ public class VeterinariosController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<Response<object>>> Delete(int id)
     {
         var veterinario = await _veterinarioService.GetVeterinarioWithCitasAsync(id);

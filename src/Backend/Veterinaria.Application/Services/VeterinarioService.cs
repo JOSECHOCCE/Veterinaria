@@ -54,6 +54,7 @@ public class VeterinarioService : IVeterinarioService
         return await _unitOfWork.Veterinarios.GetAll()
             .Include(v => v.Citas)
                 .ThenInclude(c => c.Mascota)
+                    .ThenInclude(m => m.Usuario)
             .Include(v => v.Citas)
                 .ThenInclude(c => c.Servicio)
             .FirstOrDefaultAsync(v => v.Id == id);

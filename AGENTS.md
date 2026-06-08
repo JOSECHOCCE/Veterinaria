@@ -38,12 +38,14 @@
 | Skill | Descripción | URL |
 |---|---|---|
 | `clean-architecture` | Onion Architecture para .NET Core. Vigila que las dependencias fluyan correctamente entre capas. Usar cuando crees, muevas o reorganices clases entre Domain, Application, Infrastructure y Web. | [SKILL.md](.agents/skills/clean-architecture/SKILL.md) |
+| `clean-architecture-review` | Review code and provide design guidance based on Clean Architecture principles. Checks dependency rule, layer separation, crossing boundaries, and SOLID principles. Use when asked to review architecture, check dependencies, or design with clean architecture principles. | [SKILL.md](.agents/skills/clean-architecture-review/SKILL.md) |
 | `commits` | Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit. | [SKILL.md](.agents/skills/commits/SKILL.md) |
 | `csharp-dotnet` | Patrones C# profesionales, naming conventions, estructura de código y buenas prácticas para proyectos .NET Core. Usar cuando escribas o refactorices cualquier archivo .cs. | [SKILL.md](.agents/skills/csharp-dotnet/SKILL.md) |
 | `entity-framework` | Patrones de EF Core Code-First para VetCare. Fluent API obligatorio, migraciones bien nombradas, sin Data Annotations en Domain. Usar cuando toques DbContext, entidades, migraciones o configuraciones de base de datos. | [SKILL.md](.agents/skills/entity-framework/SKILL.md) |
 | `jwt-auth` | Patrón completo de autenticación JWT para VetCare. Generación en backend .NET, interceptor Axios en frontend, guards de rutas por rol. Usar cuando implementes login, rutas protegidas, middleware de auth o manejo de tokens. | [SKILL.md](.agents/skills/jwt-auth/SKILL.md) |
 | `pull-request` | Convenciones de Pull Request para VetCare. Título, descripción, checklist y cómo revisar. Usar siempre antes de crear o revisar un PR. | [SKILL.md](.agents/skills/pull-request/SKILL.md) |
 | `react-typescript` | React + TypeScript sin código genérico. Componentes bien estructurados, tipos explícitos, sin any, servicios separados de la UI. Usar cuando toques cualquier archivo .tsx o .ts del frontend. | [SKILL.md](.agents/skills/react-typescript/SKILL.md) |
+| `ui-ux-pro-max` | UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks. | [SKILL.md](.agents/skills/ui-ux-pro-max/SKILL.md) |
 <!-- SKILLS_GENERIC_END -->
 
 ### Skills Específicas de VetCare
@@ -55,6 +57,7 @@
 | `vetcare-agenda` | Lógica completa de agenda y citas de VetCare. Estados, transiciones válidas, cálculo de disponibilidad, reglas de negocio. Usar cuando toques cualquier lógica relacionada con citas, horarios o disponibilidad. | [SKILL.md](.agents/skills/vetcare-agenda/SKILL.md) |
 | `vetcare-api` | Endpoints, DTOs, controllers y contratos de la API REST de VetCare. Usar cuando crees o modifiques controllers, DTOs, servicios de Application o rutas del backend. | [SKILL.md](.agents/skills/vetcare-api/SKILL.md) |
 | `vetcare-db` | Entidades, relaciones y configuraciones Fluent API específicas de VetCare. Usar cuando crees o modifiques entidades del Domain o configuraciones de Infrastructure. | [SKILL.md](.agents/skills/vetcare-db/SKILL.md) |
+| `vetcare-frontend-flow` | Flujo de desarrollo paso a paso para importar pantallas de StitchMCP, convertirlas a React + TypeScript y conectarlas a la API de .NET. | [SKILL.md](.agents/skills/vetcare-frontend-flow/SKILL.md) |
 | `vetcare-ui` | Componentes, vistas y estructura del frontend de VetCare. Diseño profesional no genérico, conexión con API, estructura por rol. Usar cuando crees o modifiques cualquier componente o vista del frontend. | [SKILL.md](.agents/skills/vetcare-ui/SKILL.md) |
 <!-- SKILLS_SPECIFIC_END -->
 
