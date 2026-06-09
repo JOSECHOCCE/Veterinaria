@@ -39,10 +39,13 @@ public class PortalClienteService : IPortalClienteService
             .Include(c => c.Mascota)
             .Include(c => c.Servicio)
             .Include(c => c.Veterinario)
-            .Where(c => c.Mascota.UsuarioId == usuarioId 
+            .Where(c => c.Mascota.UsuarioId == usuarioId
                         && c.FechaHora >= ahora.Date
-                        && c.Estado != "Cancelada" 
-                        && c.Estado != "Rechazada")
+                        && c.Estado != "Cancelada"
+                        && c.Estado != "Rechazada"
+                        && c.Estado != "Completada"
+                        && c.Estado != "NoAsistio"
+                        && c.Estado != "ReservaTemporal")
             .OrderBy(c => c.FechaHora)
             .Take(5)
             .Select(c => new
@@ -168,8 +171,8 @@ public class PortalClienteService : IPortalClienteService
 
         // Buscar si existe una reserva temporal previa para este veterinario, fechaHora y cliente
         var citaExistente = await _unitOfWork.Citas.GetAll()
-            .FirstOrDefaultAsync(c => c.VeterinarioId == dto.VeterinarioId 
-                                   && c.FechaHora == dto.FechaHora 
+            .FirstOrDefaultAsync(c => c.VeterinarioId == dto.VeterinarioId
+                                   && c.FechaHora == dto.FechaHora
                                    && c.Estado == "ReservaTemporal"
                                    && c.Mascota.UsuarioId == usuarioId);
 
@@ -228,10 +231,10 @@ public class PortalClienteService : IPortalClienteService
     {
         // Utilizamos el CitaService que ya implementa la lógica de las 2 horas de anticipación
         var result = await _citaService.CancelarCitaAsync(citaId, false, usuarioId);
-        
+
         if (result.Success)
             return Response<object>.Ok(new { citaId }, "La cita fue cancelada exitosamente.");
-            
+
         return Response<object>.Fail(result.Error ?? "Error al cancelar la cita.");
     }
 
@@ -266,9 +269,9 @@ public class PortalClienteService : IPortalClienteService
         return Response<IEnumerable<object>>.Ok(historiales);
     }
 
-    public async Task<Response<IEnumerable<object>>> GetMisPagosAsync(int usuarioId)
+    public async Task<Response<object>> GetMisPagosAsync(int usuarioId)
     {
-        var pagos = await _unitOfWork.Pagos.GetAll()
+        var pagosRealizados = await _unitOfWork.Pagos.GetAll()
             .Include(p => p.Cita)
                 .ThenInclude(c => c.Servicio)
             .Where(p => p.Cita.Mascota.UsuarioId == usuarioId)
@@ -286,7 +289,33 @@ public class PortalClienteService : IPortalClienteService
             })
             .ToListAsync();
 
-        return Response<IEnumerable<object>>.Ok(pagos);
+        var pagosPendientes = await _unitOfWork.Citas.GetAll()
+            .Include(c => c.Mascota)
+            .Include(c => c.Servicio)
+            .Include(c => c.Veterinario)
+            .Where(c => c.Mascota.UsuarioId == usuarioId && c.Estado == "Completada" && c.EstadoPago != "Pagado")
+            .OrderBy(c => c.FechaHora)
+            .Select(c => new
+            {
+                CitaId = c.Id,
+                c.FechaHora,
+                ServicioNombre = c.Servicio.Nombre,
+                MascotaNombre = c.Mascota.Nombre,
+                VeterinarioNombre = c.Veterinario != null ? c.Veterinario.Nombre : null,
+                c.EstadoPago,
+                c.MontoTotal,
+                c.MontoPagado,
+                SaldoPendiente = c.MontoTotal - c.MontoPagado
+            })
+            .ToListAsync();
+
+        var resumen = new
+        {
+            PagosRealizados = pagosRealizados,
+            PagosPendientes = pagosPendientes
+        };
+
+        return Response<object>.Ok(resumen);
     }
 
     public async Task<Response<object>> GetMiPerfilAsync(int usuarioId)
@@ -323,12 +352,12 @@ public class PortalClienteService : IPortalClienteService
 
         if (!string.IsNullOrEmpty(dto.Telefono))
             usuario.Telefono = dto.Telefono;
-            
+
         if (dto.Direccion != null) // Puede actualizarse a vacío, o simplemente si se provee
             usuario.Direccion = dto.Direccion;
 
         _unitOfWork.Usuarios.Update(usuario);
-        
+
         // Cambio de contraseña si se solicita
         if (!string.IsNullOrEmpty(dto.PasswordActual) && !string.IsNullOrEmpty(dto.PasswordNuevo))
         {

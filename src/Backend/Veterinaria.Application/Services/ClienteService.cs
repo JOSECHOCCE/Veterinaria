@@ -93,7 +93,7 @@ public class ClienteService : IClienteService
             .ToListAsync();
 
         var citasConPagoPendiente = todasLasCitas
-            .Where(c => c.EstadoPago == "Parcial" && c.Estado == "Completada")
+            .Where(c => c.EstadoPago != "Pagado" && c.Estado == "Completada")
             .Sum(c => c.MontoTotal - c.MontoPagado);
 
         return new ClienteDetalleDto

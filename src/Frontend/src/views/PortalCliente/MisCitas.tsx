@@ -156,7 +156,13 @@ export default function MisCitas() {
   // Validación de la regla de negocio (cancelable con >= 2 horas de anticipación)
   const isCancelable = (fechaHoraStr: string, estado: string) => {
     // Solo se cancelan citas activas
-    if (estado !== 'Confirmada' && estado !== 'PendienteConfirmacion' && estado !== 'PendienteAsignacion' && estado !== 'Reprogramada') {
+    if (
+      estado !== 'Confirmada' &&
+      estado !== 'PendienteConfirmacion' &&
+      estado !== 'PendienteAsignacion' &&
+      estado !== 'Reprogramada' &&
+      estado !== 'EnEspera'
+    ) {
       return false;
     }
 

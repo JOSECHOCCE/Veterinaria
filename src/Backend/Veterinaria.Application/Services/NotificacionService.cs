@@ -162,17 +162,28 @@ public class NotificacionService : INotificacionService
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
         if (mascota == null) return;
 
-        var mensajePago = cita.EstadoPago == "Parcial" 
-            ? $" Recuerda que tienes un saldo pendiente de S/. {(cita.MontoTotal - cita.MontoPagado):N2}."
-            : "";
+        string titulo = "✅ ¡Atención Finalizada!";
+        string mensaje = $"La consulta de tu mascota {mascota.Nombre} ha finalizado exitosamente.";
+        string urlAccion = "/cliente/mis-citas";
+
+        if (cita.EstadoPago != "Pagado")
+        {
+            titulo = "💳 ¡Consulta Finalizada! Pendiente de Pago";
+            mensaje = $"La consulta de tu mascota {mascota.Nombre} ha finalizado. Por favor, acércate a caja para proceder con el pago de S/. {(cita.MontoTotal - cita.MontoPagado):N2}.";
+            urlAccion = "/cliente/mis-pagos";
+        }
+        else
+        {
+            mensaje += " Puedes pasar a recogerlo/a.";
+        }
 
         await CrearNotificacionAsync(
             mascota.UsuarioId,
-            "✅ ¡Cita Completada! Pasa a recoger a tu mascota",
-            $"¡{mascota.Nombre} ya está listo/a! La atención ha finalizado exitosamente. Puedes pasar a recogerlo/a.{mensajePago}",
+            titulo,
+            mensaje,
             "Success",
             "bi-check-circle-fill",
-            "/cliente/mis-citas"
+            urlAccion
         );
     }
 

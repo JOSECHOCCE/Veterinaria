@@ -298,10 +298,14 @@ export default function ColaAtencion() {
                                 </button>
                               </>
                             ) : (
-                              <span className="font-caption text-caption text-accent-teal flex items-center gap-xs font-semibold mr-md">
+                              <button
+                                onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t } })}
+                                className="px-4 py-1.5 bg-surface-soft hover:bg-surface-soft-active border border-hairline text-accent-teal font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-semibold"
+                                title="Retomar evolución clínica"
+                              >
                                 <span className="material-symbols-outlined text-sm">lock_open</span>
                                 En evolución
-                              </span>
+                              </button>
                             )}
                           </div>
                         </td>

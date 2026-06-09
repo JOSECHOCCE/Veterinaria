@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import AtencionService from '../../services/atencion.service';
 import type { HistorialClinicoDto } from '../../services/atencion.service';
@@ -18,6 +19,13 @@ interface HistorialRecent {
   medicamentos?: string | null;
   recomendaciones?: string | null;
   proximoControl?: string | null;
+  pesoActual?: number | null;
+  temperatura?: number | null;
+  frecuenciaCardiaca?: number | null;
+  motivoConsulta?: string | null;
+  hallazgos?: string | null;
+  observaciones?: string | null;
+  citaId?: number;
 }
 
 interface Alertas {
@@ -77,6 +85,20 @@ export default function HistoriaClinicaSOAP() {
   const [recentHistoriales, setRecentHistoriales] = useState<HistorialRecent[]>([]);
   const [alertasMedicas, setAlertasMedicas] = useState<Alertas | null>(null);
 
+  // SOAP history detail modal state
+  const [selectedHistorial, setSelectedHistorial] = useState<HistorialRecent | null>(null);
+  const [showModal, setShowModal] = useState<boolean>(false);
+
+  const handleOpenSoapDetail = (historial: HistorialRecent) => {
+    setSelectedHistorial(historial);
+    setShowModal(true);
+  };
+
+  const handleCloseSoapDetail = () => {
+    setSelectedHistorial(null);
+    setShowModal(false);
+  };
+
   // Form State
   const [isExisting, setIsExisting] = useState<boolean>(false);
   const [historialId, setHistorialId] = useState<number | undefined>(undefined);
@@ -120,7 +142,12 @@ export default function HistoriaClinicaSOAP() {
       const res = await MascotasService.getMascotaDetails(mascotaId);
       if (res.success && res.data) {
         setMascota(res.data.mascota);
-        setRecentHistoriales(res.data.historiales || []);
+        
+        // Filter out the current appointment's clinical history / draft
+        const filteredHistoriales = (res.data.historiales || []).filter(
+          (h: any) => h.citaId !== targetCitaId
+        );
+        setRecentHistoriales(filteredHistoriales);
         setAlertasMedicas(res.data.alertas || null);
 
         // Find the matching appointment to display details
@@ -447,14 +474,18 @@ export default function HistoriaClinicaSOAP() {
                 Sin atenciones previas registradas.
               </p>
             ) : (
-              <div className="flex flex-col gap-md max-h-[300px] overflow-y-auto pr-xs">
+              <div className="flex flex-col gap-sm max-h-[300px] overflow-y-auto pr-xs">
                 {recentHistoriales.slice(0, 4).map((h) => (
-                  <div key={h.id} className="flex gap-md items-start border-b border-hairline/50 pb-sm last:border-0 last:pb-0">
-                    <div className="w-8 h-8 rounded-full bg-surface-soft flex items-center justify-center shrink-0 text-secondary">
+                  <div 
+                    key={h.id} 
+                    onClick={() => handleOpenSoapDetail(h)}
+                    className="flex gap-md items-start border-b border-hairline/50 pb-sm last:border-0 last:pb-0 cursor-pointer hover:bg-surface-soft/40 transition-colors p-sm rounded-lg -mx-sm group"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-surface-soft flex items-center justify-center shrink-0 text-secondary group-hover:bg-primary/10 group-hover:text-primary transition-colors">
                       <span className="material-symbols-outlined text-sm">stethoscope</span>
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-body-sm text-body-sm font-semibold text-ink truncate">
+                      <h4 className="font-body-sm text-body-sm font-semibold text-ink truncate group-hover:text-primary transition-colors">
                         {h.diagnostico || 'Consulta General'}
                       </h4>
                       <p className="font-caption text-caption text-body-muted mt-0.5">
@@ -467,6 +498,9 @@ export default function HistoriaClinicaSOAP() {
                         </p>
                       )}
                     </div>
+                    <span className="material-symbols-outlined text-secondary text-[16px] self-center shrink-0 group-hover:text-primary transition-colors">
+                      visibility
+                    </span>
                   </div>
                 ))}
               </div>
@@ -754,6 +788,163 @@ export default function HistoriaClinicaSOAP() {
         </div>
 
       </div>
+
+      {/* Read-only SOAP Detail Modal */}
+      <AnimatePresence>
+        {showModal && selectedHistorial && (
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-md overflow-y-auto">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-canvas border border-hairline rounded-xl max-w-3xl w-full shadow-lg overflow-hidden flex flex-col my-lg text-left"
+            >
+              {/* Modal Header */}
+              <div className="px-lg py-md border-b border-hairline bg-surface-soft/40 flex justify-between items-center">
+                <div>
+                  <h3 className="font-title-lg text-title-lg text-ink font-bold">
+                    Expediente SOAP — {selectedHistorial.servicioNombre || 'Consulta General'}
+                  </h3>
+                  <p className="font-body-sm text-body-sm text-secondary mt-0.5">
+                    {selectedHistorial.fechaRegistro ? new Date(selectedHistorial.fechaRegistro).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : ''} • Dr(a). {selectedHistorial.veterinarioNombre}
+                  </p>
+                </div>
+                <button
+                  onClick={handleCloseSoapDetail}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-soft text-secondary hover:text-ink transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[20px]">close</span>
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="p-lg flex flex-col gap-lg max-h-[60vh] overflow-y-auto pr-md">
+                
+                {/* S: Subjective */}
+                <div className="border-b border-hairline pb-md">
+                  <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">S</span>
+                    Subjetivo (Anamnesis / Motivo)
+                  </h4>
+                  <p className="font-body-sm text-body-sm text-body-strong leading-relaxed bg-surface-soft/30 p-md rounded-lg border border-hairline-soft whitespace-pre-line">
+                    {selectedHistorial.motivoConsulta || 'No se registraron observaciones subjetivas iniciales.'}
+                  </p>
+                </div>
+
+                {/* O: Objective */}
+                <div className="border-b border-hairline pb-md">
+                  <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">O</span>
+                    Objetivo (Constantes Vitales y Examen Físico)
+                  </h4>
+                  
+                  {/* Vital signs cards */}
+                  <div className="grid grid-cols-3 gap-sm mb-md">
+                    <div className="bg-surface-soft/40 border border-hairline-soft p-sm rounded-lg text-center">
+                      <span className="block font-caption text-[11px] text-secondary uppercase tracking-wider">Peso Actual</span>
+                      <span className="font-title-sm text-title-sm text-ink font-bold">
+                        {selectedHistorial.pesoActual ? `${selectedHistorial.pesoActual} kg` : '---'}
+                      </span>
+                    </div>
+                    <div className="bg-surface-soft/40 border border-hairline-soft p-sm rounded-lg text-center">
+                      <span className="block font-caption text-[11px] text-secondary uppercase tracking-wider">Temperatura</span>
+                      <span className="font-title-sm text-title-sm text-ink font-bold">
+                        {selectedHistorial.temperatura ? `${selectedHistorial.temperatura} °C` : '---'}
+                      </span>
+                    </div>
+                    <div className="bg-surface-soft/40 border border-hairline-soft p-sm rounded-lg text-center">
+                      <span className="block font-caption text-[11px] text-secondary uppercase tracking-wider">Freq. Cardíaca</span>
+                      <span className="font-title-sm text-title-sm text-ink font-bold">
+                        {selectedHistorial.frecuenciaCardiaca ? `${selectedHistorial.frecuenciaCardiaca} lpm` : '---'}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="font-body-sm text-body-sm text-body-strong leading-relaxed bg-surface-soft/30 p-md rounded-lg border border-hairline-soft whitespace-pre-line">
+                    {selectedHistorial.hallazgos || 'No se detallaron hallazgos clínicos específicos en el examen físico.'}
+                  </p>
+                </div>
+
+                {/* A: Analysis */}
+                <div className="border-b border-hairline pb-md">
+                  <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">A</span>
+                    Análisis (Diagnóstico Clínico)
+                  </h4>
+                  <p className="font-body-sm text-body-sm text-ink font-semibold bg-surface-soft/50 p-md rounded-lg border border-hairline-soft">
+                    {selectedHistorial.diagnostico || 'Borrador clínico.'}
+                  </p>
+                </div>
+
+                {/* P: Plan */}
+                <div className="flex flex-col gap-md">
+                  <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs">
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">P</span>
+                    Plan (Tratamiento, Receta y Recomendaciones)
+                  </h4>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-sm">
+                    <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Procedimientos en Consultorio</span>
+                      <p className="font-body-sm text-body-sm text-body-strong whitespace-pre-line">
+                        {selectedHistorial.tratamiento || 'Ninguno registrado.'}
+                      </p>
+                    </div>
+
+                    <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Medicamentos / Indicación de Cuidado</span>
+                      <p className="font-body-sm text-body-sm text-body-strong whitespace-pre-line">
+                        {selectedHistorial.medicamentos || 'Ninguno prescrito.'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {selectedHistorial.recomendaciones && (
+                    <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Indicaciones y Dieta</span>
+                      <p className="font-body-sm text-body-sm text-body-strong">
+                        {selectedHistorial.recomendaciones}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Internal Observations */}
+                {selectedHistorial.observaciones && (
+                  <div className="bg-error/5 border border-error/10 p-md rounded-lg flex items-start gap-xs mt-xs text-left">
+                    <span className="material-symbols-outlined text-error text-[20px] mt-0.5">lock_open</span>
+                    <div>
+                      <span className="font-caption text-[11px] text-error uppercase tracking-wider block font-bold">Observación Interna (Solo Personal Médico)</span>
+                      <p className="font-body-sm text-body-sm text-ink mt-1">
+                        {selectedHistorial.observaciones}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Modal Footer */}
+              <div className="px-lg py-md border-t border-hairline bg-surface-soft/20 flex justify-between items-center">
+                {selectedHistorial.proximoControl ? (
+                  <span className="font-body-sm text-body-sm text-primary font-medium flex items-center gap-xs">
+                    <span className="material-symbols-outlined text-[18px]">event_repeat</span>
+                    Control sugerido: {selectedHistorial.proximoControl ? new Date(selectedHistorial.proximoControl).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
+                  </span>
+                ) : (
+                  <span />
+                )}
+                <button
+                  onClick={handleCloseSoapDetail}
+                  className="bg-primary hover:bg-primary-active text-on-primary font-button text-button px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs font-bold"
+                >
+                  Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

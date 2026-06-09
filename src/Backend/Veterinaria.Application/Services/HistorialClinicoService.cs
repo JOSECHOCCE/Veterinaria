@@ -12,10 +12,12 @@ namespace Veterinaria.Application.Services;
 public class HistorialClinicoService : IHistorialClinicoService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificacionService _notificacionService;
 
-    public HistorialClinicoService(IUnitOfWork unitOfWork)
+    public HistorialClinicoService(IUnitOfWork unitOfWork, INotificacionService notificacionService)
     {
         _unitOfWork = unitOfWork;
+        _notificacionService = notificacionService;
     }
 
     public async Task<Mascota?> GetMascotaWithUsuarioAsync(int mascotaId)
@@ -56,6 +58,7 @@ public class HistorialClinicoService : IHistorialClinicoService
     public async Task<HistorialClinico?> GetHistorialByCitaIdAsync(int citaId)
     {
         return await _unitOfWork.HistorialesClinicos.GetAll()
+            .AsTracking()
             .Include(h => h.Cita)
                 .ThenInclude(c => c.Mascota)
                     .ThenInclude(m => m.Usuario)
@@ -69,6 +72,7 @@ public class HistorialClinicoService : IHistorialClinicoService
     public async Task<HistorialClinico?> GetHistorialByIdAsync(int id)
     {
         return await _unitOfWork.HistorialesClinicos.GetAll()
+            .AsTracking()
             .Include(h => h.Cita)
                 .ThenInclude(c => c.Mascota)
                     .ThenInclude(m => m.Usuario)
@@ -105,7 +109,6 @@ public class HistorialClinicoService : IHistorialClinicoService
             if (mascota != null)
             {
                 mascota.Peso = historial.PesoActual;
-                _unitOfWork.Mascotas.Update(mascota);
             }
         }
 
@@ -140,17 +143,11 @@ public class HistorialClinicoService : IHistorialClinicoService
         historial.Temperatura = historialDto.Temperatura;
         historial.FrecuenciaCardiaca = historialDto.FrecuenciaCardiaca;
 
-        if (historial.PesoActual.HasValue)
+        if (historial.PesoActual.HasValue && historial.Cita?.Mascota != null)
         {
-            var mascota = await _unitOfWork.Mascotas.GetByIdAsync(historial.Cita.MascotaId);
-            if (mascota != null)
-            {
-                mascota.Peso = historial.PesoActual;
-                _unitOfWork.Mascotas.Update(mascota);
-            }
+            historial.Cita.Mascota.Peso = historial.PesoActual;
         }
 
-        _unitOfWork.HistorialesClinicos.Update(historial);
         await _unitOfWork.CommitAsync();
         return (true, historial, null);
     }
@@ -162,21 +159,35 @@ public class HistorialClinicoService : IHistorialClinicoService
 
         if (historial.Cerrado) return (false, "La atención ya se encuentra cerrada.");
 
-        if (!isAdmin && historial.Cita.Veterinario != null && historial.Cita.Veterinario.Email != userEmail)
+        if (!isAdmin && historial.Cita?.Veterinario != null && historial.Cita.Veterinario.Email != userEmail)
             return (false, "Solo el veterinario asignado puede cerrar la atención.");
 
         historial.Cerrado = true;
-        _unitOfWork.HistorialesClinicos.Update(historial);
 
         // RF-41: Cerrar atención clínica cambia estado de cita a Completada
         var cita = historial.Cita;
-        if (cita.Estado == "EnAtencion" || cita.Estado == "EnProceso")
+        if (cita != null && (cita.Estado == "EnAtencion" || cita.Estado == "EnProceso"))
         {
             cita.Estado = "Completada";
-            _unitOfWork.Citas.Update(cita);
+        }
+
+        // Update associated Triage status to "Atendido" to remove it from the active queue
+        var triage = await _unitOfWork.Triages.GetAll()
+            .AsTracking()
+            .FirstOrDefaultAsync(t => t.CitaId == citaId && (t.Estado == "EnEspera" || t.Estado == "EnAtencion"));
+        if (triage != null)
+        {
+            triage.Estado = "Atendido";
         }
 
         await _unitOfWork.CommitAsync();
+
+        // Notificar en tiempo real al cliente
+        if (cita != null)
+        {
+            await _notificacionService.NotificarCitaCompletadaAsync(cita);
+        }
+
         return (true, null);
     }
 }

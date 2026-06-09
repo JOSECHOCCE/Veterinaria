@@ -147,9 +147,9 @@ public class DashboardService : IDashboardService
             Estado = c.Estado
         }).ToList();
 
-        // 8. Citas con pagos pendientes (parciales)
+        // 8. Citas con pagos pendientes (no pagados del todo)
         var citasPagosPendientes = await _unitOfWork.Citas.GetAll()
-            .Where(c => c.EstadoPago == "Parcial" && c.Estado == "Completada")
+            .Where(c => c.EstadoPago != "Pagado" && c.Estado == "Completada")
             .ToListAsync();
 
         dto.PagosPendientesCount = citasPagosPendientes.Count;

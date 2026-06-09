@@ -1,4 +1,38 @@
-import api from './api';
+import api from "./api";
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+export interface PortalPagoRealizadoDto {
+  id: number;
+  fechaPago: string;
+  montoCobrado: number;
+  metodoPago: string;
+  numeroOperacion?: string;
+  estado: string;
+  servicioNombre: string;
+  citaFecha: string;
+}
+
+export interface PortalPagoPendienteDto {
+  citaId: number;
+  fechaHora: string;
+  servicioNombre: string;
+  mascotaNombre: string;
+  veterinarioNombre?: string | null;
+  estadoPago: string;
+  montoTotal: number;
+  montoPagado: number;
+  saldoPendiente: number;
+}
+
+export interface PortalPagosDto {
+  pagosRealizados: PortalPagoRealizadoDto[];
+  pagosPendientes: PortalPagoPendienteDto[];
+}
 
 export interface RegistrarMascotaPortalDto {
   nombre: string;
@@ -25,7 +59,7 @@ export const PortalClienteService = {
    * Obtiene la información del Dashboard del cliente
    */
   async getDashboard() {
-    const response = await api.get('/api/PortalCliente/Dashboard');
+    const response = await api.get("/api/PortalCliente/Dashboard");
     return response.data;
   },
 
@@ -33,7 +67,7 @@ export const PortalClienteService = {
    * Obtiene la lista de mascotas del cliente autenticado
    */
   async getMisMascotas() {
-    const response = await api.get('/api/PortalCliente/Mascotas');
+    const response = await api.get("/api/PortalCliente/Mascotas");
     return response.data;
   },
 
@@ -41,7 +75,7 @@ export const PortalClienteService = {
    * Registra una nueva mascota desde el portal del cliente
    */
   async registrarMascota(payload: RegistrarMascotaPortalDto) {
-    const response = await api.post('/api/PortalCliente/Mascotas', payload);
+    const response = await api.post("/api/PortalCliente/Mascotas", payload);
     return response.data;
   },
 
@@ -49,7 +83,9 @@ export const PortalClienteService = {
    * Obtiene el historial clínico de una mascota del cliente
    */
   async getHistorialMascota(mascotaId: number) {
-    const response = await api.get(`/api/PortalCliente/Mascotas/${mascotaId}/Historial`);
+    const response = await api.get(
+      `/api/PortalCliente/Mascotas/${mascotaId}/Historial`,
+    );
     return response.data;
   },
 
@@ -57,7 +93,7 @@ export const PortalClienteService = {
    * Obtiene la lista de citas del cliente autenticado
    */
   async getMisCitas() {
-    const response = await api.get('/api/PortalCliente/Citas');
+    const response = await api.get("/api/PortalCliente/Citas");
     return response.data;
   },
 
@@ -65,7 +101,7 @@ export const PortalClienteService = {
    * Solicita una nueva cita desde el portal del cliente
    */
   async solicitarCita(payload: SolicitarCitaPortalDto) {
-    const response = await api.post('/api/PortalCliente/Citas', payload);
+    const response = await api.post("/api/PortalCliente/Citas", payload);
     return response.data;
   },
 
@@ -73,15 +109,19 @@ export const PortalClienteService = {
    * Cancela una cita desde el portal del cliente
    */
   async cancelarCita(citaId: number) {
-    const response = await api.put(`/api/PortalCliente/Citas/${citaId}/Cancelar`);
+    const response = await api.put(
+      `/api/PortalCliente/Citas/${citaId}/Cancelar`,
+    );
     return response.data;
   },
 
   /**
    * Obtiene el historial de pagos del cliente autenticado
    */
-  async getMisPagos() {
-    const response = await api.get('/api/PortalCliente/Pagos');
+  async getMisPagos(): Promise<ApiResponse<PortalPagosDto>> {
+    const response = await api.get<ApiResponse<PortalPagosDto>>(
+      "/api/PortalCliente/Pagos",
+    );
     return response.data;
   },
 
@@ -89,7 +129,7 @@ export const PortalClienteService = {
    * Obtiene el perfil del cliente autenticado
    */
   async getMiPerfil() {
-    const response = await api.get('/api/PortalCliente/Perfil');
+    const response = await api.get("/api/PortalCliente/Perfil");
     return response.data;
   },
 
@@ -97,7 +137,7 @@ export const PortalClienteService = {
    * Actualiza el perfil de contacto del cliente
    */
   async actualizarPerfil(payload: ActualizarPerfilPortalDto) {
-    const response = await api.put('/api/PortalCliente/Perfil', payload);
+    const response = await api.put("/api/PortalCliente/Perfil", payload);
     return response.data;
   },
 
@@ -105,8 +145,8 @@ export const PortalClienteService = {
    * Obtiene los horarios disponibles para un veterinario y una fecha específica
    */
   async getHorariosDisponibles(veterinarioId: number, fecha: string) {
-    const response = await api.get('/api/Citas/HorariosDisponibles', {
-      params: { veterinarioId, fecha }
+    const response = await api.get("/api/Citas/HorariosDisponibles", {
+      params: { veterinarioId, fecha },
     });
     return response.data;
   },
@@ -114,8 +154,13 @@ export const PortalClienteService = {
   /**
    * Bloquea temporalmente un bloque de agenda por 5 minutos
    */
-  async reservarTemporalmente(payload: { mascotaId: number; servicioId: number; fechaHora: string; veterinarioId: number }) {
-    const response = await api.post('/api/Citas/ReservaTemporal', payload);
+  async reservarTemporalmente(payload: {
+    mascotaId: number;
+    servicioId: number;
+    fechaHora: string;
+    veterinarioId: number;
+  }) {
+    const response = await api.post("/api/Citas/ReservaTemporal", payload);
     return response.data;
   },
 
@@ -123,7 +168,7 @@ export const PortalClienteService = {
    * Obtiene la lista de servicios activos para la reserva
    */
   async getServiciosActivos() {
-    const response = await api.get('/api/Servicios');
+    const response = await api.get("/api/Servicios");
     return response.data;
   },
 
@@ -131,9 +176,9 @@ export const PortalClienteService = {
    * Obtiene la lista de veterinarios activos
    */
   async getVeterinariosActivos() {
-    const response = await api.get('/api/Veterinarios');
+    const response = await api.get("/api/Veterinarios");
     return response.data;
-  }
+  },
 };
 
 export default PortalClienteService;

@@ -198,7 +198,7 @@ public class CitaService : ICitaService
             return false;
 
         return await _unitOfWork.Citas.GetAll()
-            .Where(c => citaIds.Contains(c.Id) && c.EstadoPago == "Parcial" && c.Estado == "Completada")
+            .Where(c => citaIds.Contains(c.Id) && c.EstadoPago != "Pagado" && c.Estado == "Completada")
             .AnyAsync();
     }
 

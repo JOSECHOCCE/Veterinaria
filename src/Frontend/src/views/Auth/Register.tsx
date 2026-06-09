@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth.service';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -66,13 +67,39 @@ export default function Register() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#faf9f5', fontFamily: 'Inter, sans-serif' }}>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#faf9f5', fontFamily: 'Inter, sans-serif', position: 'relative' }}
+    >
+      {/* Background animado */}
+      <motion.div
+        animate={{
+          background: [
+            'radial-gradient(circle at 80% 20%, rgba(143, 72, 47, 0.03) 0%, transparent 50%)',
+            'radial-gradient(circle at 20% 80%, rgba(143, 72, 47, 0.03) 0%, transparent 50%)',
+            'radial-gradient(circle at 80% 20%, rgba(143, 72, 47, 0.03) 0%, transparent 50%)',
+          ],
+        }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
+        style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+      />
 
       {/* Panel izquierdo — imagen */}
-      <div style={{ display: 'none', position: 'relative', flex: '0 0 50%', overflow: 'hidden' }} className="lg-image-panel">
+      <motion.div 
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        style={{ display: 'none', position: 'relative', flex: '0 0 50%', overflow: 'hidden' }} 
+        className="lg-image-panel"
+      >
         <div style={{ position: 'absolute', inset: 0, zIndex: 10, background: 'linear-gradient(to left, rgba(0,0,0,0.12), transparent)', pointerEvents: 'none' }} />
-        <img
+        <motion.img
           alt="Profesional veterinario con paciente"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 1.2, ease: 'easeOut' }}
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTCLSv-cpXo2R43qQ6AI9XXsXWH-RGzGv9B5MJvu305-mySiGG5dQnERZcCMgByeFSf6dG3T7U7OI0c4lu5SB9pRjEq2a2Ej89c-kE8C4oT-9PbYuJIA1XaCm2-Yp2ZyBldfyPb2R0PQB17SICLmBMw5SYs0NEYCVT9BT9SF0_0YwGL0ObANSVjC_MNg6Q-I6GD99ANXSBXG_XKKgoWlTNd7CPkAMapFssLoch8fZ1_1sMtipy9sR9ihNhvIg62sQulYCouxZcpJY"
         />
@@ -90,14 +117,23 @@ export default function Register() {
             Únete a la red de profesionales dedicados al cuidado animal con herramientas de precisión y empatía.
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Panel derecho — formulario */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px', overflow: 'hidden' }}>
-        <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '14px' }}
+        >
 
           {/* Volver al Login */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
             <Link
               to="/login"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 500, color: '#3d3d3a', textDecoration: 'none', transition: 'color 0.15s' }}
@@ -109,43 +145,80 @@ export default function Register() {
               </svg>
               Volver al Login
             </Link>
-          </div>
+          </motion.div>
 
           {/* Logo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            style={{ display: 'flex', alignItems: 'center', gap: '7px' }}
+          >
             <svg viewBox="0 0 24 24" style={{ width: '24px', height: '24px', fill: '#8f482f' }}>
               <path d="M4.5 11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm15 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7.5-1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-3.5 2c-2.5 0-7 1.5-7 4v1h14v-1c0-2.5-4.5-4-7-4zm7 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 2.9v1h6v-1c0-2.5-3.5-4-7-4z" />
             </svg>
             <span style={{ fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, color: '#141413' }}>
               VetCare <span style={{ color: '#8f482f', fontStyle: 'italic' }}>Pro</span>
             </span>
-          </div>
+          </motion.div>
 
           {/* Encabezado */}
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
             <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '26px', fontWeight: 400, color: '#141413', lineHeight: 1.1, margin: '0 0 4px' }}>
               Crea tu cuenta
             </h1>
             <p style={{ fontSize: '12px', color: '#3d3d3a', lineHeight: 1.5, margin: 0 }}>
               Ingresa tus datos para gestionar el bienestar de tus pacientes.
             </p>
-          </div>
+          </motion.div>
 
           {/* Error */}
-          {error && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 12px', borderRadius: '6px', backgroundColor: '#ffdad6', color: '#93000a', fontSize: '12px' }}>
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10, scale: 0.95 }}
+                animate={{ 
+                  opacity: 1, 
+                  x: 0, 
+                  scale: 1,
+                  transition: { duration: 0.3 }
+                }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '8px 12px', borderRadius: '6px', backgroundColor: '#ffdad6', color: '#93000a', fontSize: '12px' }}
+              >
               <svg style={{ width: '14px', height: '14px', flexShrink: 0, marginTop: '1px' }} fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clipRule="evenodd" />
               </svg>
-              <span>{error}</span>
-            </div>
-          )}
+                <motion.span
+                  animate={{ x: [0, -5, 5, -5, 5, 0] }}
+                  transition={{ duration: 0.4 }}
+                >
+                  {error}
+                </motion.span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <motion.form 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.7 }}
+            onSubmit={handleSubmit} 
+            style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
+          >
 
             {/* Nombre */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.8 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
+            >
               <label htmlFor="nombreCompleto" style={{ fontSize: '12px', fontWeight: 500, color: '#141413' }}>
                 Nombre completo
               </label>
@@ -154,10 +227,15 @@ export default function Register() {
                 value={form.nombreCompleto} onChange={handleChange}
                 style={inputStyle} onFocus={onFocus} onBlur={onBlur}
               />
-            </div>
+            </motion.div>
 
             {/* Email */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.85 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
+            >
               <label htmlFor="email" style={{ fontSize: '12px', fontWeight: 500, color: '#141413' }}>
                 Correo electrónico
               </label>
@@ -166,10 +244,15 @@ export default function Register() {
                 value={form.email} onChange={handleChange}
                 style={inputStyle} onFocus={onFocus} onBlur={onBlur}
               />
-            </div>
+            </motion.div>
 
             {/* Password */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.9 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
+            >
               <label htmlFor="password" style={{ fontSize: '12px', fontWeight: 500, color: '#141413' }}>
                 Contraseña
               </label>
@@ -196,10 +279,15 @@ export default function Register() {
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Teléfono */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4, delay: 0.95 }}
+              style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}
+            >
               <label htmlFor="telefono" style={{ fontSize: '12px', fontWeight: 500, color: '#141413' }}>
                 Teléfono
               </label>
@@ -208,10 +296,15 @@ export default function Register() {
                 value={form.telefono} onChange={handleChange}
                 style={inputStyle} onFocus={onFocus} onBlur={onBlur}
               />
-            </div>
+            </motion.div>
 
             {/* Documento + Dirección — misma fila */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1 }}
+              style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}
+            >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                 <label htmlFor="documento" style={{ fontSize: '12px', fontWeight: 500, color: '#141413' }}>
                   Documento <span style={{ fontSize: '10px', fontWeight: 400, color: '#87736d' }}>(Opc.)</span>
@@ -230,10 +323,15 @@ export default function Register() {
                   style={inputStyle} onFocus={onFocus} onBlur={onBlur}
                 />
               </div>
-            </div>
+            </motion.div>
 
             {/* Términos */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4, delay: 1.05 }}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}
+            >
               <input id="terms" type="checkbox"
                 checked={terms} onChange={(e) => setTerms(e.target.checked)}
                 style={{ width: '14px', height: '14px', accentColor: '#8f482f', cursor: 'pointer', marginTop: '1px', flexShrink: 0 }}
@@ -244,17 +342,43 @@ export default function Register() {
                 {' '}y los{' '}
                 <a href="#" style={{ color: '#141413', textDecoration: 'underline' }}>Términos de Servicio</a>.
               </label>
-            </div>
+            </motion.div>
 
             {/* Botón */}
-            <button
+            <motion.button
               type="submit"
               disabled={loading}
-              style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '11px 24px', backgroundColor: '#8f482f', color: '#ffffff', fontSize: '13px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, transition: 'background-color 0.15s' }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#ad5f45'; }}
-              onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#8f482f'; }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 1.1 }}
+              whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '11px 24px', backgroundColor: '#8f482f', color: '#ffffff', fontSize: '13px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, transition: 'background-color 0.15s, box-shadow 0.2s', boxShadow: '0 2px 8px rgba(143, 72, 47, 0.2)' }}
+              onMouseEnter={(e) => { 
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#ad5f45'; 
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(143, 72, 47, 0.4)';
+                }
+              }}
+              onMouseLeave={(e) => { 
+                if (!loading) {
+                  e.currentTarget.style.backgroundColor = '#8f482f'; 
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(143, 72, 47, 0.2)';
+                }
+              }}
             >
-              {loading ? 'Registrando...' : (
+              {loading ? (
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                >
+                  <svg style={{ width: '15px', height: '15px' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                  Registrando...
+                </motion.div>
+              ) : (
                 <>
                   Registrarse
                   <svg style={{ width: '15px', height: '15px' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -262,15 +386,20 @@ export default function Register() {
                   </svg>
                 </>
               )}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
           {/* Copyright */}
-          <p style={{ textAlign: 'center', fontSize: '11px', color: '#87736d', margin: 0 }}>
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 1.2 }}
+            style={{ textAlign: 'center', fontSize: '11px', color: '#87736d', margin: 0 }}
+          >
             © 2024 VetCare Pro. Dedicated to Clinical Excellence.
-          </p>
+          </motion.p>
 
-        </div>
+        </motion.div>
       </div>
 
       <style>{`
@@ -278,6 +407,6 @@ export default function Register() {
           .lg-image-panel { display: block !important; }
         }
       `}</style>
-    </div>
+    </motion.div>
   );
 }

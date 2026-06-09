@@ -36,7 +36,7 @@ public class PortalClienteController : ControllerBase
 
         var usuario = await _unitOfWork.Usuarios.GetAll()
             .FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
-            
+
         return usuario?.Id;
     }
 
@@ -81,7 +81,7 @@ public class PortalClienteController : ControllerBase
 
         var result = await _portalClienteService.GetHistorialMascotaAsync(usuarioId.Value, mascotaId);
         if (!result.Success) return BadRequest(result);
-        
+
         return Ok(result);
     }
 
@@ -106,7 +106,7 @@ public class PortalClienteController : ControllerBase
 
         var result = await _portalClienteService.SolicitarCitaAsync(usuarioId.Value, dto);
         if (!result.Success) return BadRequest(result);
-        
+
         return Ok(result);
     }
 
@@ -118,7 +118,7 @@ public class PortalClienteController : ControllerBase
 
         var result = await _portalClienteService.CancelarCitaAsync(usuarioId.Value, citaId);
         if (!result.Success) return BadRequest(result);
-        
+
         return Ok(result);
     }
 

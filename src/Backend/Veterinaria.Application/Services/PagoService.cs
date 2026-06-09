@@ -83,7 +83,7 @@ public class PagoService : IPagoService
         var query = _unitOfWork.Pagos.GetAll()
             .Include(p => p.Cita)
                 .ThenInclude(c => c.Servicio)
-            .Where(p => p.FechaPago.Date >= fechaDesde.Date && 
+            .Where(p => p.FechaPago.Date >= fechaDesde.Date &&
                        p.FechaPago.Date <= fechaHasta.Date);
 
         var pagos = await query.ToListAsync();
@@ -99,17 +99,17 @@ public class PagoService : IPagoService
             TotalRestantes = pagos.Where(p => p.TipoPago == "Restante").Sum(p => p.Monto),
             PagosPorDia = pagos.GroupBy(p => p.FechaPago.Date)
                 .Select(g => new PagoPorDiaDto
-                { 
-                    Fecha = g.Key.ToString("yyyy-MM-dd"), 
-                    Total = g.Sum(p => p.Monto) 
+                {
+                    Fecha = g.Key.ToString("yyyy-MM-dd"),
+                    Total = g.Sum(p => p.Monto)
                 })
                 .OrderBy(x => x.Fecha)
                 .ToList(),
             PagosPorServicio = pagos.Where(p => p.Cita?.Servicio != null)
                 .GroupBy(p => p.Cita!.Servicio!.Nombre)
                 .Select(g => new PagoPorServicioDto
-                { 
-                    Servicio = g.Key, 
+                {
+                    Servicio = g.Key,
                     Total = g.Sum(p => p.Monto),
                     Cantidad = g.Count()
                 })
@@ -127,7 +127,7 @@ public class PagoService : IPagoService
                 .ThenInclude(m => m.Usuario)
             .Include(c => c.Servicio)
             .Include(c => c.Veterinario)
-            .Where(c => c.EstadoPago == "Parcial" && c.Estado == "Completada")
+            .Where(c => c.EstadoPago != "Pagado" && c.Estado == "Completada")
             .OrderBy(c => c.FechaHora)
             .ToListAsync();
     }
@@ -167,12 +167,16 @@ public class PagoService : IPagoService
         await _unitOfWork.Pagos.AddAsync(pago);
 
         var cita = await _unitOfWork.Citas.GetByIdAsync(citaId);
-        if(cita != null) {
+        if (cita != null)
+        {
             cita.MontoTotal = montoTotal;
             cita.MontoPagado += montoPagar; // Acumular en vez de sobreescribir
             cita.TipoPago = tipoPago;
             cita.EstadoPago = cita.MontoPagado >= cita.MontoTotal ? "Pagado" : "Parcial";
-            cita.Estado = "Confirmada";
+            if (cita.Estado != "Completada")
+            {
+                cita.Estado = "Confirmada";
+            }
             _unitOfWork.Citas.Update(cita);
         }
 
@@ -329,14 +333,14 @@ public class PagoService : IPagoService
 
         // Calcular nuevo monto total
         cita.MontoTotal = montoTotalAjustado;
-        
+
         var tipoPago = "Completo";
         if (cita.MontoPagado + montoAbonado < cita.MontoTotal)
             tipoPago = "Parcial";
         else if (cita.MontoPagado > 0)
             tipoPago = "Restante";
 
-        var refGenerada = string.IsNullOrWhiteSpace(referencia) 
+        var refGenerada = string.IsNullOrWhiteSpace(referencia)
             ? $"COB-{DateTime.Now:yyyyMMdd}-{citaId:D4}-{new Random().Next(1000, 9999)}"
             : referencia;
 

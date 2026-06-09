@@ -13,7 +13,7 @@ public interface IPortalClienteService
     Task<Response<object>> SolicitarCitaAsync(int usuarioId, SolicitarCitaPortalDto dto);
     Task<Response<object>> CancelarCitaAsync(int usuarioId, int citaId);
     Task<Response<IEnumerable<object>>> GetHistorialMascotaAsync(int usuarioId, int mascotaId);
-    Task<Response<IEnumerable<object>>> GetMisPagosAsync(int usuarioId);
+    Task<Response<object>> GetMisPagosAsync(int usuarioId);
     Task<Response<object>> GetMiPerfilAsync(int usuarioId);
     Task<Response<object>> ActualizarPerfilAsync(int usuarioId, ActualizarPerfilPortalDto dto);
 }

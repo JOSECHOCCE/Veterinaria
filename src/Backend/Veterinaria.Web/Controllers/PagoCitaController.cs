@@ -38,6 +38,15 @@ public class PagoCitaController : ControllerBase
             .FirstOrDefaultAsync(u => u.ApplicationUserId == userId);
     }
 
+    private async Task<bool> UsuarioPuedeGestionarPagoAsync(Cita cita)
+    {
+        if (User.IsInRole("Admin") || User.IsInRole("Administrador") || User.IsInRole("Recepcionista"))
+            return true;
+
+        var currentUsuario = await GetCurrentUsuarioAsync();
+        return currentUsuario != null && cita.Mascota?.UsuarioId == currentUsuario.Id;
+    }
+
     [HttpGet("Pagar/{citaId}")]
     public async Task<ActionResult<Response<object>>> Pagar(int citaId)
     {
@@ -48,19 +57,12 @@ public class PagoCitaController : ControllerBase
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
-        Usuario? currentUsuario = null;
-        if (!User.IsInRole("Admin"))
+        if (!await UsuarioPuedeGestionarPagoAsync(cita))
         {
-            currentUsuario = await GetCurrentUsuarioAsync();
-            if (currentUsuario == null || cita.Mascota?.UsuarioId != currentUsuario.Id)
-            {
-                return Forbid();
-            }
+            return Forbid();
         }
-        else
-        {
-            currentUsuario = cita.Mascota?.Usuario;
-        }
+
+        var currentUsuario = await GetCurrentUsuarioAsync() ?? cita.Mascota?.Usuario;
 
         if (cita.EstadoPago == "Pagado")
         {
@@ -105,13 +107,34 @@ public class PagoCitaController : ControllerBase
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
+        if (!await UsuarioPuedeGestionarPagoAsync(cita))
+        {
+            return Forbid();
+        }
+
+        if (cita.Estado != "Completada")
+        {
+            return BadRequest(Response<object>.Fail("El pago se habilita cuando la cita está completada."));
+        }
+
+        if (cita.EstadoPago == "Pagado")
+        {
+            return BadRequest(Response<object>.Fail("Esta cita ya está pagada completamente."));
+        }
+
         if (!ModelState.IsValid || !model.EsFechaVencimientoValida())
         {
             return BadRequest(Response<object>.Fail("Datos de pago inválidos o tarjeta vencida."));
         }
 
-        var montoTotal = cita.Servicio?.Precio ?? 0;
-        var montoPagar = model.TipoPago == "Parcial" ? montoTotal * 0.5m : montoTotal;
+        var montoTotal = cita.MontoTotal > 0 ? cita.MontoTotal : cita.Servicio?.Precio ?? 0;
+        var saldoPendiente = montoTotal - cita.MontoPagado;
+        var montoPagar = model.TipoPago == "Parcial" ? montoTotal * 0.5m : saldoPendiente;
+
+        if (montoPagar <= 0)
+        {
+            return BadRequest(Response<object>.Fail("No existe saldo pendiente para esta cita."));
+        }
 
         var pago = await _pagoService.ProcesarPagoTarjetaAsync(
             cita.Id,
@@ -126,10 +149,11 @@ public class PagoCitaController : ControllerBase
             cita.Mascota?.UsuarioId
         );
 
-        return Ok(Response<object>.Ok(new { 
-            Message = $"¡Pago exitoso! Referencia: {pago.Referencia}", 
-            PagoId = pago.Id, 
-            CitaId = cita.Id 
+        return Ok(Response<object>.Ok(new
+        {
+            Message = $"¡Pago exitoso! Referencia: {pago.Referencia}",
+            PagoId = pago.Id,
+            CitaId = cita.Id
         }));
     }
 
@@ -157,8 +181,7 @@ public class PagoCitaController : ControllerBase
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
-        var currentUsuario = await GetCurrentUsuarioAsync();
-        if (currentUsuario == null || cita.Mascota?.UsuarioId != currentUsuario.Id)
+        if (!await UsuarioPuedeGestionarPagoAsync(cita))
         {
             return Forbid();
         }
@@ -211,6 +234,22 @@ public class PagoCitaController : ControllerBase
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
+        if (!await UsuarioPuedeGestionarPagoAsync(cita))
+        {
+            return Forbid();
+        }
+
+        if (cita.Estado != "Completada")
+        {
+            return BadRequest(Response<object>.Fail("El pago restante se habilitará cuando la cita sea atendida."));
+        }
+
+        if (cita.EstadoPago != "Parcial")
+        {
+            var msg = cita.EstadoPago == "Pagado" ? "Esta cita ya está pagada completamente." : "Esta cita no tiene pagos previos.";
+            return BadRequest(Response<object>.Fail(msg));
+        }
+
         var montoRestante = cita.MontoTotal - cita.MontoPagado;
 
         if (model.MetodoPago == "Tarjeta")
@@ -223,16 +262,18 @@ public class PagoCitaController : ControllerBase
             }
 
             var pago = await _pagoService.ProcesarPagoRestanteTarjetaAsync(cita.Id, model.NumeroTarjeta);
-            return Ok(Response<object>.Ok(new { 
-                Message = $"¡Pago completado exitosamente! Referencia: {pago.Referencia}", 
-                PagoId = pago.Id, 
-                CitaId = cita.Id 
+            return Ok(Response<object>.Ok(new
+            {
+                Message = $"¡Pago completado exitosamente! Referencia: {pago.Referencia}",
+                PagoId = pago.Id,
+                CitaId = cita.Id
             }));
         }
         else
         {
             var voucherReferencia = $"VOU-{DateTime.Now:yyyyMMdd}-{cita.Id:D4}-{new Random().Next(1000, 9999)}";
-            return Ok(Response<object>.Ok(new { 
+            return Ok(Response<object>.Ok(new
+            {
                 Message = "Se ha generado su voucher de pago. Acérquese a caja para completar su pago.",
                 VoucherReferencia = voucherReferencia,
                 CitaId = cita.Id,
@@ -251,12 +292,13 @@ public class PagoCitaController : ControllerBase
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
 
-        return Ok(Response<object>.Ok(new { 
-            Cita = cita, 
-            MontoRestante = montoRestante, 
-            MontoPagado = cita.MontoPagado, 
-            MontoTotal = cita.MontoTotal, 
-            Referencia = referencia 
+        return Ok(Response<object>.Ok(new
+        {
+            Cita = cita,
+            MontoRestante = montoRestante,
+            MontoPagado = cita.MontoPagado,
+            MontoTotal = cita.MontoTotal,
+            Referencia = referencia
         }));
     }
 
@@ -284,13 +326,19 @@ public class PagoCitaController : ControllerBase
         {
             return NotFound(Response<object>.Fail("Pago no encontrado."));
         }
-        
+
         var cita = await _pagoService.GetCitaForPagoAsync(pago.CitaId);
-        if (cita == null) {
+        if (cita == null)
+        {
             return NotFound(Response<object>.Fail("Cita no encontrada."));
         }
-        
-        pago.Cita = cita; 
+
+        if (!await UsuarioPuedeGestionarPagoAsync(cita))
+        {
+            return Forbid();
+        }
+
+        pago.Cita = cita;
 
         var pdfBytes = _pdfService.GenerarComprobantePago(pago.Cita, pago);
         var base64 = Convert.ToBase64String(pdfBytes);
