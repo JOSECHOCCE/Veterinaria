@@ -573,7 +573,7 @@ public class CitaService : ICitaService
         ["PendienteConfirmacion"]   = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
         ["PendienteAsignacion"]     = new[] { "Confirmada", "Cancelada", "Rechazada" },
         ["Confirmada"]              = new[] { "EnEspera", "EnAtencion", "Cancelada", "NoAsistio", "Reprogramada" },
-        ["Reprogramada"]            = new[] { "Confirmada", "Cancelada" },
+        ["Reprogramada"]            = new[] { "Confirmada", "EnEspera", "EnAtencion", "Cancelada" },
         ["EnEspera"]                = new[] { "EnAtencion", "Cancelada", "NoAsistio" },
         ["EnAtencion"]              = new[] { "Completada", "Cancelada" },
         ["Completada"]              = Array.Empty<string>(),
