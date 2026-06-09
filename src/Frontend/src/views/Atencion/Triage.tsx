@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import AtencionService from '../../services/atencion.service';
 import type { TriageMascotaDropdown, TriageDto } from '../../services/atencion.service';
 import CitasService from '../../services/citas.service';
 import type { CalendarioEventDto } from '../../services/citas.service';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function Triage() {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ export default function Triage() {
     }
   }, [mascotaId, todayCitas, motivoConsulta]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!mascotaId) {
       toast.error('Debe seleccionar una mascota.');
@@ -111,25 +112,11 @@ export default function Triage() {
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
       {/* Header */}
-      <header className="flex justify-between items-center pb-md border-b border-hairline mb-xl">
-        <button
-          onClick={() => navigate('/admin/cola')}
-          className="flex items-center gap-xs text-secondary hover:text-ink transition-colors font-button text-button group cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
-          Volver a la Cola
-        </button>
-        <div className="font-title-sm text-title-sm text-ink font-semibold">Triage Operativo</div>
-      </header>
-
-      <div className="mb-lg">
-        <h1 className="font-display-md text-display-md text-ink">Registro de Triage</h1>
-        <p className="font-body-md text-body-md text-secondary max-w-2xl mt-1">
-          Ingrese los datos preliminares del paciente para clasificar su urgencia e ingresarlo a la sala de espera.
-        </p>
-      </div>
+      <PageHeader
+        title="Registro de Triage"
+        description="Ingrese los datos preliminares del paciente para clasificar su urgencia e ingresarlo a la sala de espera."
+        backLink={{ to: '/admin/cola', label: 'Volver a la Cola' }}
+      />
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
         {/* Left Column: Patient & Urgency (7 cols) */}

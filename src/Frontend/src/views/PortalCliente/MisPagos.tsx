@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import PortalClienteService from '../../services/portalCliente.service';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Pago {
   id: number;
@@ -82,21 +83,20 @@ export default function MisPagos() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-ink">Mis Pagos</h2>
-          <p className="font-body-md text-body-md text-body-muted mt-1 max-w-2xl">
-            Historial de cobros y facturación. Consulta tus pagos realizados, descarga comprobantes y revisa tus saldos.
-          </p>
-        </div>
-        <div className="bg-surface-soft border border-hairline px-6 py-3.5 rounded-xl flex items-center gap-4 shadow-inner">
-          <span className="material-symbols-outlined text-primary text-[28px]">payments</span>
-          <div>
-            <p className="font-caption text-caption text-body-muted uppercase tracking-wider leading-none">Total Invertido</p>
-            <p className="font-display-sm text-display-sm font-bold text-ink mt-1">S/. {totalPagado.toFixed(2)}</p>
+      <PageHeader
+        title="Mis Pagos"
+        description="Historial de cobros y facturación. Consulta tus pagos realizados, descarga comprobantes y revisa tus saldos."
+        actions={
+          <div className="bg-surface-soft border border-hairline px-5 py-3 rounded-xl flex items-center gap-4 shadow-inner">
+            <span className="material-symbols-outlined text-primary text-[24px]">payments</span>
+            <div>
+              <p className="font-caption text-[11px] text-body-muted uppercase tracking-wider leading-none font-semibold">Total Invertido</p>
+              <p className="font-display-sm text-title-sm font-bold text-ink mt-1">S/. {totalPagado.toFixed(2)}</p>
+            </div>
           </div>
-        </div>
-      </header>
+        }
+        hasDivider={true}
+      />
 
       {/* Tabla / Lista de Pagos */}
       {pagos.length === 0 ? (

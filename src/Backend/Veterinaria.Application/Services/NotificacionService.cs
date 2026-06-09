@@ -200,6 +200,30 @@ public class NotificacionService : INotificacionService
         }
     }
 
+    public async Task NotificarCitaRechazadaAsync(Cita cita)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);
+        if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+
+        var titulo = "⚠️ Solicitud de Cita Rechazada";
+        var mensaje = $"Lo sentimos, la solicitud de cita para {mascota.Nombre} el {cita.FechaHora:dd/MM/yyyy HH:mm} no pudo ser agendada y fue rechazada por la clínica. Puedes intentar en otro horario.";
+
+        await CrearNotificacionAsync(
+            mascota.UsuarioId,
+            titulo,
+            mensaje,
+            "Error",
+            "bi-calendar-x",
+            "/cliente/mis-citas"
+        );
+
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
+    }
+
     public async Task NotificarCitaReprogramadaAsync(Cita cita)
     {
         var mascota = await _unitOfWork.Mascotas.GetByIdAsync(cita.MascotaId);

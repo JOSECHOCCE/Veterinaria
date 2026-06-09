@@ -7,6 +7,7 @@ import type { Cliente } from '../../services/clientes.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function ClientesDashboard() {
   const navigate = useNavigate();
@@ -93,31 +94,24 @@ export default function ClientesDashboard() {
   return (
     <div className="flex-1 flex flex-col min-w-0">
       {/* Section Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl">
-        <div className="max-w-2xl">
-          <p className="font-caption-uppercase text-caption-uppercase text-primary tracking-widest mb-xs">
-            Módulo 2 · Directorio
-          </p>
-          <h1 className="font-display-lg text-display-lg text-ink tracking-tight">
-            Gestión de Clientes
-          </h1>
-          <p className="font-body-md text-body-md text-body-muted mt-sm leading-relaxed">
-            Directorio administrativo para la búsqueda, filtrado y gestión de perfiles de propietarios y sus mascotas asociadas.
-          </p>
-        </div>
-        <Link to="/admin/clientes/nuevo">
-          <motion.button
-            className="bg-primary text-on-primary font-button text-button px-lg py-[12px] rounded-full hover:bg-primary-active transition-all shadow-sm flex items-center justify-center gap-xs shrink-0 cursor-pointer hover:shadow-md"
-            whileHover={{ scale: 1.02, y: -1 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-              person_add
-            </span>
-            Registrar Cliente
-          </motion.button>
-        </Link>
-      </div>
+      <PageHeader
+        title="Gestión de Clientes"
+        description="Directorio administrativo para la búsqueda, filtrado y gestión de perfiles de propietarios y sus mascotas asociadas."
+        actions={
+          <Link to="/admin/clientes/nuevo">
+            <motion.button
+              className="bg-primary text-on-primary font-button text-button px-lg py-[12px] rounded-full hover:bg-primary-active transition-all shadow-sm flex items-center justify-center gap-xs shrink-0 cursor-pointer hover:shadow-md"
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                person_add
+              </span>
+              Registrar Cliente
+            </motion.button>
+          </Link>
+        }
+      />
 
       {/* Toolbar (Search & Filters) */}
       <div className="flex flex-col xl:flex-row gap-md mb-lg justify-between items-start xl:items-center bg-surface-card p-sm rounded-xl border border-hairline shadow-sm">
@@ -127,7 +121,7 @@ export default function ClientesDashboard() {
             search
           </span>
           <input
-            className="w-full bg-canvas border border-hairline rounded-lg pl-xl pr-md py-[10px] font-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-body-muted shadow-inner"
+            className="w-full bg-canvas border border-hairline rounded-lg pl-xl pr-md py-2 font-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-body-muted shadow-inner"
             placeholder="Buscar por nombre, correo o documento..."
             type="text"
             value={buscar}
@@ -222,7 +216,7 @@ export default function ClientesDashboard() {
                         exit={{ opacity: 0, y: -4 }}
                         transition={{ duration: 0.15 }}
                       >
-                        <td className="py-md px-lg align-middle">
+                        <td className="py-sm px-md align-middle">
                           <div className="flex items-center gap-md">
                             <div className="w-10 h-10 rounded-full overflow-hidden border border-hairline shrink-0 bg-surface-card flex items-center justify-center">
                               {cliente.rol ? ( // Si tiene avatar o similar lo cargamos, si no usamos iniciales
@@ -248,34 +242,28 @@ export default function ClientesDashboard() {
                             </div>
                           </div>
                         </td>
-                        <td className="py-md px-lg align-middle font-body-sm text-body-sm text-ink whitespace-nowrap">
+                        <td className="py-sm px-md align-middle font-body-sm text-body-sm text-ink whitespace-nowrap">
                           {cliente.telefono}
                         </td>
-                        <td className="py-md px-lg align-middle font-code text-code text-body-muted whitespace-nowrap">
+                        <td className="py-sm px-md align-middle font-code text-code text-body-muted whitespace-nowrap">
                           {cliente.dni || 'Sin DNI'}
                         </td>
-                        <td className="py-md px-lg align-middle">
-                          <div className="flex gap-xs flex-wrap">
+                        <td className="py-sm px-md align-middle">
                             {cliente.mascotas && cliente.mascotas.length > 0 ? (
-                              cliente.mascotas.map((pet) => (
-                                <span
-                                  key={pet.id}
-                                  className="bg-surface-card border border-hairline text-ink font-caption text-caption px-xs py-[2px] rounded-md flex items-center gap-xxs shadow-sm"
-                                >
-                                  <span className="material-symbols-outlined text-[14px] text-body-muted">
-                                    pets
-                                  </span>
-                                  {pet.nombre}
-                                </span>
-                              ))
+                              <span 
+                                className="inline-flex items-center gap-xs px-sm py-[4px] bg-primary/10 border border-primary/20 text-primary font-caption text-caption rounded-full shadow-xs cursor-help select-none font-semibold"
+                                title={cliente.mascotas.map((p) => p.nombre).join(', ')}
+                              >
+                                <span className="material-symbols-outlined text-[14px]">pets</span>
+                                {cliente.mascotas.length} {cliente.mascotas.length === 1 ? 'mascota' : 'mascotas'}
+                              </span>
                             ) : (
-                              <span className="text-body-muted font-caption text-caption italic">
+                              <span className="text-body-muted font-caption text-caption italic select-none">
                                 Sin mascotas
                               </span>
                             )}
-                          </div>
                         </td>
-                        <td className="py-md px-lg align-middle whitespace-nowrap">
+                        <td className="py-sm px-md align-middle whitespace-nowrap">
                           <span
                             className={`flex items-center gap-xs font-caption text-caption px-sm py-[4px] rounded-full inline-flex border ${
                               cliente.activo
@@ -293,8 +281,8 @@ export default function ClientesDashboard() {
                             {cliente.activo ? 'Activo' : 'Inactivo'}
                           </span>
                         </td>
-                        <td className="py-md px-lg align-middle text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <td className="py-sm px-md align-middle text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-xs opacity-60 hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => navigate(`/admin/clientes/${cliente.id}`)}
                               className="p-xs text-body-muted hover:text-primary hover:bg-surface-variant/50 rounded-md transition-all cursor-pointer"

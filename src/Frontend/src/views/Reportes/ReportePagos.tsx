@@ -92,7 +92,7 @@ export default function ReportePagos() {
     <div className="flex flex-col gap-6">
       
       {/* Filters Form */}
-      <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm">
+      <div className="bg-surface-card rounded-xl p-4 border border-hairline shadow-sm">
         <h3 className="font-title-sm text-title-sm text-ink font-bold mb-4">Filtros Financieros</h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -139,7 +139,7 @@ export default function ReportePagos() {
       {reporteData && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           {/* Total Revenues */}
-          <div className="bg-ink text-surface rounded-xl p-6 border border-hairline shadow-md relative overflow-hidden">
+          <div className="bg-ink text-surface rounded-xl p-4 border border-hairline shadow-md relative overflow-hidden">
             <div className="absolute -right-10 -top-10 w-28 h-28 bg-surface-variant opacity-10 rounded-full blur-2xl"></div>
             <p className="text-[11px] font-bold text-surface-soft uppercase tracking-wider">Monto Total Recaudado</p>
             <p className="font-display-xl text-[36px] font-bold mt-2 text-surface">
@@ -147,14 +147,14 @@ export default function ReportePagos() {
             </p>
           </div>
           {/* Total Cash */}
-          <div className="bg-surface-soft p-6 rounded-xl border border-hairline shadow-sm border-l-4 border-l-emerald-500">
+          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-emerald-500">
             <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Total Efectivo</p>
             <p className="font-title-lg text-[26px] text-ink font-bold mt-2">
               ${reporteData.totalEfectivo.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
           {/* Total Card */}
-          <div className="bg-surface-soft p-6 rounded-xl border border-hairline shadow-sm border-l-4 border-l-blue-500">
+          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-blue-500">
             <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Total Tarjeta</p>
             <p className="font-title-lg text-[26px] text-ink font-bold mt-2">
               ${reporteData.totalTarjeta.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -209,11 +209,11 @@ export default function ReportePagos() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-surface-soft/40 border-b border-hairline text-ink font-bold text-[12px] uppercase tracking-wider">
-                  <th className="p-4 pl-6">ID Transacción</th>
-                  <th className="p-4">Fecha Pago</th>
-                  <th className="p-4">Concepto / Servicio</th>
-                  <th className="p-4 text-center">Método de Pago</th>
-                  <th className="p-4 pr-6 text-right">Monto</th>
+                  <th className="py-2.5 pl-6 pr-4">ID Transacción</th>
+                  <th className="py-2.5 px-4">Fecha Pago</th>
+                  <th className="py-2.5 px-4">Concepto / Servicio</th>
+                  <th className="py-2.5 px-4 text-center">Método de Pago</th>
+                  <th className="py-2.5 pl-4 pr-6 text-right">Monto</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline">
@@ -231,18 +231,18 @@ export default function ReportePagos() {
 
                   return (
                     <tr key={item.pagoId} className="hover:bg-surface-soft/30 transition-all font-body-sm text-[13px] text-body-strong">
-                      <td className="p-4 pl-6 font-semibold select-all text-body-muted">TX-#{item.pagoId}</td>
-                      <td className="p-4">
+                      <td className="py-2.5 pl-6 pr-4 font-semibold select-all text-body-muted">TX-#{item.pagoId}</td>
+                      <td className="py-2.5 px-4">
                         <span className="font-semibold">{dateStr}</span>
                         <span className="text-body-muted ml-1.5">{timeStr}</span>
                       </td>
-                      <td className="p-4 font-medium text-ink">{item.concepto}</td>
-                      <td className="p-4 text-center">
+                      <td className="py-2.5 px-4 font-medium text-ink">{item.concepto}</td>
+                      <td className="py-2.5 px-4 text-center">
                         <span className={`inline-block px-3 py-0.5 rounded-full text-[11px] font-bold border shadow-xs ${getMethodBadgeClass(item.metodoPago)}`}>
                           {item.metodoPago}
                         </span>
                       </td>
-                      <td className="p-4 pr-6 text-right font-bold text-ink">${item.monto.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="py-2.5 pl-4 pr-6 text-right font-bold text-ink">${item.monto.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   );
                 })}

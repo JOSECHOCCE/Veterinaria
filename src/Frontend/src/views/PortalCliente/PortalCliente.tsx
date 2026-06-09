@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PortalClienteService from '../../services/portalCliente.service';
+import PageHeader from '../../components/common/PageHeader';
 
 interface MascotaInfo {
   id: number;
@@ -144,37 +145,34 @@ export default function PortalCliente() {
       )}
 
       {/* Bloque de Bienvenida y Acciones Rápidas */}
-      <div className="flex flex-col xl:flex-row gap-6 justify-between items-start mt-2">
-        <div className="max-w-2xl">
-          <h1 className="font-display-md text-display-md text-ink">
-            Hola, {user?.nombreCompleto?.split(' ')[0] || 'Cliente'}
-          </h1>
-          <p className="font-body-md text-body-md text-body-muted mt-2">
-            Bienvenido de nuevo a tu portal. Aquí tienes el resumen y estado de salud de tus mascotas.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-3 mt-4 xl:mt-0 w-full xl:w-auto">
-          <button
-            onClick={() => navigate('/cliente/nueva-cita')}
-            className="bg-primary hover:bg-primary-active text-on-primary px-6 py-3 rounded-full font-button text-button transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer w-full sm:w-auto"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            Solicitar Nueva Cita
-          </button>
-          <button
-            onClick={() => navigate('/cliente/mis-pagos')}
-            className="bg-surface-card border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft transition-colors cursor-pointer w-full sm:w-auto"
-          >
-            Mis Pagos
-          </button>
-          <button
-            onClick={() => navigate('/cliente/mis-mascotas')}
-            className="bg-surface-card border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft transition-colors cursor-pointer w-full sm:w-auto"
-          >
-            Historial Clínico
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title={`Hola, ${user?.nombreCompleto?.split(' ')[0] || 'Cliente'}`}
+        description="Bienvenido de nuevo a tu portal. Aquí tienes el resumen y estado de salud de tus mascotas."
+        actions={
+          <>
+            <button
+              onClick={() => navigate('/cliente/nueva-cita')}
+              className="bg-primary hover:bg-primary-active text-on-primary px-6 py-3 rounded-full font-button text-button transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer w-full sm:w-auto"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Solicitar Nueva Cita
+            </button>
+            <button
+              onClick={() => navigate('/cliente/mis-pagos')}
+              className="bg-surface-card border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft transition-colors cursor-pointer w-full sm:w-auto"
+            >
+              Mis Pagos
+            </button>
+            <button
+              onClick={() => navigate('/cliente/mis-mascotas')}
+              className="bg-surface-card border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft transition-colors cursor-pointer w-full sm:w-auto"
+            >
+              Historial Clínico
+            </button>
+          </>
+        }
+        hasDivider={true}
+      />
 
       {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-4">

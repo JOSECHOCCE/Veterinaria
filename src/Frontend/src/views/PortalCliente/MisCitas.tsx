@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import PortalClienteService from '../../services/portalCliente.service';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Cita {
   id: number;
@@ -25,6 +27,7 @@ export default function MisCitas() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [submittingCancel, setSubmittingCancel] = useState(false);
+  const [showSuccessCancelModal, setShowSuccessCancelModal] = useState(false);
 
   const fetchCitas = async () => {
     try {
@@ -66,6 +69,7 @@ export default function MisCitas() {
       const res = await PortalClienteService.cancelarCita(cancellingId);
       if (res.success) {
         handleCloseCancelModal();
+        setShowSuccessCancelModal(true);
         fetchCitas();
       } else {
         setCancelError(res.message || 'No se pudo cancelar la cita.');
@@ -200,21 +204,20 @@ export default function MisCitas() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-ink">Mis Citas</h2>
-          <p className="font-body-md text-body-md text-body-muted mt-1 max-w-2xl">
-            Lleva el control de tus citas programadas, revisa el estado de tus solicitudes y cancela reservas si lo necesitas.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate('/cliente/nueva-cita')}
-          className="bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-sm cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-          Reservar Nueva Cita
-        </button>
-      </header>
+      <PageHeader
+        title="Mis Citas"
+        description="Lleva el control de tus citas programadas, revisa el estado de tus solicitudes y cancela reservas si lo necesitas."
+        actions={
+          <button
+            onClick={() => navigate('/cliente/nueva-cita')}
+            className="bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-sm cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+            Reservar Nueva Cita
+          </button>
+        }
+        hasDivider={true}
+      />
 
       {/* Listado de Citas */}
       {citas.length === 0 ? (
@@ -314,63 +317,82 @@ export default function MisCitas() {
         </div>
       )}
 
-      {/* Modal de Confirmación de Cancelación */}
-      <AnimatePresence>
-        {isCancelModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleCloseCancelModal}
-              className="absolute inset-0 bg-[#141413]/40 backdrop-blur-sm"
-            ></motion.div>
+      {/* Modal de Confirmación de Cancelación (Premium) */}
+      {isCancelModalOpen && createPortal(
+        <div className="premium-modal-overlay animate-modal-fade-in" onClick={handleCloseCancelModal}>
+          <div className="premium-modal-card animate-modal-scale-in" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute top-0 left-0 w-full h-1 bg-error"></div>
 
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-canvas border border-hairline w-full max-w-md rounded-2xl shadow-xl overflow-hidden relative z-10"
-            >
-              <div className="p-6 border-b border-hairline flex justify-between items-center">
-                <h3 className="font-title-lg text-title-lg text-error font-bold flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[24px]">warning</span>
-                  ¿Cancelar esta cita?
-                </h3>
-              </div>
+            <div className="p-6">
+              <h3 className="font-title-lg text-title-lg text-error font-bold flex items-center gap-2 justify-center mb-4">
+                <span className="material-symbols-outlined text-[28px]">warning</span>
+                ¿Cancelar cita?
+              </h3>
 
-              <div className="p-6 flex flex-col gap-4">
-                {cancelError && (
-                  <div className="bg-error-container text-on-error-container p-3 rounded-lg text-body-sm border border-error/15">
-                    {cancelError}
-                  </div>
-                )}
-
-                <p className="font-body-md text-body-md text-body-muted leading-relaxed">
-                  ¿Estás seguro de que deseas cancelar esta cita? Esta acción liberará el espacio horario inmediatamente y notificará a la clínica.
-                </p>
-
-                <div className="mt-4 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={handleCloseCancelModal}
-                    className="flex-1 bg-surface-card border border-hairline hover:bg-surface-soft text-ink py-2.5 rounded-full font-button text-button cursor-pointer"
-                  >
-                    Mantener Cita
-                  </button>
-                  <button
-                    onClick={handleConfirmCancel}
-                    disabled={submittingCancel}
-                    className="flex-1 bg-error hover:bg-opacity-90 disabled:bg-primary-disabled text-on-error py-2.5 rounded-full font-button text-button flex items-center justify-center gap-2 cursor-pointer shadow-sm"
-                  >
-                    {submittingCancel ? 'Cancelando...' : 'Confirmar Cancelación'}
-                  </button>
+              {cancelError && (
+                <div className="bg-error-container text-on-error-container p-3 rounded-lg text-body-sm border border-error/15 mb-4">
+                  {cancelError}
                 </div>
+              )}
+
+              <p className="font-body-md text-body-md text-body-muted leading-relaxed text-center mb-6">
+                ¿Estás seguro de que deseas cancelar esta cita? Esta acción liberará el espacio horario inmediatamente y notificará a la clínica.
+              </p>
+
+              <div className="flex gap-3 mt-2">
+                <button
+                  type="button"
+                  onClick={handleCloseCancelModal}
+                  className="flex-1 bg-surface-card border border-hairline hover:bg-surface-soft text-ink py-3 rounded-full font-button text-button cursor-pointer"
+                >
+                  Mantener
+                </button>
+                <button
+                  onClick={handleConfirmCancel}
+                  disabled={submittingCancel}
+                  className="flex-1 bg-error hover:bg-opacity-90 disabled:bg-primary-disabled text-on-error py-3 rounded-full font-button text-button flex items-center justify-center gap-2 cursor-pointer shadow-sm font-bold"
+                >
+                  {submittingCancel ? 'Cancelando...' : 'Sí, Cancelar'}
+                </button>
               </div>
-            </motion.div>
+            </div>
           </div>
-        )}
-      </AnimatePresence>
+        </div>,
+        document.body
+      )}
+
+      {/* Modal de Éxito al Cancelar */}
+      {showSuccessCancelModal && createPortal(
+        <div className="premium-modal-overlay animate-modal-fade-in">
+          <div className="premium-modal-card animate-modal-scale-in">
+            <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+
+            {/* Checkmark SVG Animado */}
+            <div className="mb-5 mt-2">
+              <svg className="success-checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle className="circle" cx="26" cy="26" r="25" fill="none" />
+                <path className="check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+              </svg>
+            </div>
+
+            <h3 className="font-title-lg text-title-lg text-ink font-bold mb-1">
+              Cita Cancelada
+            </h3>
+            <p className="font-body-sm text-body-sm text-body-muted mb-6 px-1">
+              Tu cita ha sido cancelada exitosamente. Hemos notificado al especialista.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setShowSuccessCancelModal(false)}
+              className="w-full bg-primary hover:bg-primary-active text-on-primary font-bold py-3 rounded-full font-button text-button transition-all cursor-pointer shadow-md"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
 
     </div>
   );

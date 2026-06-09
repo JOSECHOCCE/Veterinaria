@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import PageHeader from '../../components/common/PageHeader';
 import CitasService from '../../services/citas.service';
 import type { CitaDto } from '../../services/citas.service';
 import ClientesService from '../../services/clientes.service';
@@ -289,19 +290,13 @@ export default function NuevaCita() {
 
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
-      {/* Header */}
-      <header className="flex justify-between items-center pb-md border-b border-hairline mb-xl">
-        <button
-          onClick={handleCancel}
-          className="flex items-center gap-xs text-secondary hover:text-ink transition-colors font-button text-button group cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
-          Volver a Agenda
-        </button>
-        <div className="font-title-sm text-title-sm text-ink font-semibold">Modo Operativo Recepción</div>
-      </header>
+      {/* Page Header */}
+      <PageHeader
+        title="Programar Cita"
+        description="Complete los detalles para agendar una nueva consulta o procedimiento médico a un paciente."
+        onBack={handleCancel}
+        actions={<div className="font-title-sm text-title-sm text-ink font-semibold">Modo Operativo Recepción</div>}
+      />
 
       {/* Timer Banner */}
       <AnimatePresence>
@@ -322,13 +317,6 @@ export default function NuevaCita() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      <div className="mb-lg">
-        <h1 className="font-display-md text-display-md text-ink">Programar Cita</h1>
-        <p className="font-body-md text-body-md text-secondary max-w-2xl mt-1">
-          Complete los detalles para agendar una nueva consulta o procedimiento médico a un paciente.
-        </p>
-      </div>
 
       {/* Form Grid */}
       <form onSubmit={(e) => handleConfirmCita(e, true)} className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">

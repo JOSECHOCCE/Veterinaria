@@ -7,6 +7,7 @@ import type { TriageDto } from '../../services/atencion.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 const NIVEL_COLORS: Record<string, { bg: string; border: string; text: string; label: string; dot: string }> = {
   N1: { bg: 'bg-error/10', border: 'border-error/20', text: 'text-error', label: 'N1 - Emergencia', dot: 'bg-error animate-ping' },
@@ -122,14 +123,10 @@ export default function ColaAtencion() {
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl pb-sm border-b border-hairline">
-        <div>
-          <h1 className="font-display-md text-display-md text-ink">Cola de Atención</h1>
-          <p className="font-body-md text-body-md text-secondary mt-1">
-            Gestión y priorización de pacientes en sala de espera antes del ingreso a consulta.
-          </p>
-        </div>
-        <div>
+      <PageHeader
+        title="Cola de Atención"
+        description="Gestión y priorización de pacientes en sala de espera antes del ingreso a consulta."
+        actions={
           <button
             onClick={() => navigate('/admin/triage')}
             className="bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
@@ -137,8 +134,9 @@ export default function ColaAtencion() {
             <span className="material-symbols-outlined text-[18px]">emergency_home</span>
             Registrar Triage
           </button>
-        </div>
-      </div>
+        }
+        hasDivider={true}
+      />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
@@ -249,23 +247,23 @@ export default function ColaAtencion() {
                         exit={{ opacity: 0 }}
                         className={`hover:bg-surface-soft/30 transition-colors group ${t.estado === 'EnAtencion' ? 'bg-accent-teal/5 opacity-80' : ''}`}
                       >
-                        <td className="py-md px-lg">
+                        <td className="py-sm px-md">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-caption font-caption font-semibold ${colors.bg} ${colors.text} ${colors.border}`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}></span>
                             {colors.label}
                           </span>
                         </td>
-                        <td className="py-md px-lg">
+                        <td className="py-sm px-md">
                           <div className="font-body-md text-ink font-bold">{t.mascotaNombre}</div>
                           <div className="font-caption text-caption text-secondary mt-0.5">ID Mascota: {t.mascotaId}</div>
                         </td>
-                        <td className="py-md px-lg font-body-sm text-body-strong font-medium">
+                        <td className="py-sm px-md font-body-sm text-body-strong font-medium">
                           {t.propietarioNombre}
                         </td>
-                        <td className="py-md px-lg font-body-sm text-secondary max-w-xs truncate">
+                        <td className="py-sm px-md font-body-sm text-secondary max-w-xs truncate">
                           {t.sintomas || t.motivoConsulta || 'Sin observaciones'}
                         </td>
-                        <td className="py-md px-lg">
+                        <td className="py-sm px-md">
                           {t.estado === 'EnAtencion' ? (
                             <span className="font-body-sm text-accent-teal font-semibold">Atendiendo</span>
                           ) : (
@@ -275,10 +273,10 @@ export default function ColaAtencion() {
                             </div>
                           )}
                         </td>
-                        <td className="py-md px-lg font-body-sm text-body-strong font-semibold">
+                        <td className="py-sm px-md font-body-sm text-body-strong font-semibold">
                           {t.consultorio || 'Sin asignar'}
                         </td>
-                        <td className="py-md px-lg text-right">
+                        <td className="py-sm px-md text-right">
                           <div className="flex justify-end gap-sm">
                             {t.estado === 'EnEspera' ? (
                               <>

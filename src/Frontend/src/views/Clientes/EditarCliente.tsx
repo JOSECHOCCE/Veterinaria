@@ -6,6 +6,7 @@ import ClientesService from '../../services/clientes.service';
 import type { Duplicado } from '../../services/clientes.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function EditarCliente() {
   const { id } = useParams<{ id: string }>();
@@ -124,19 +125,11 @@ export default function EditarCliente() {
   return (
     <div className="max-w-4xl w-full mx-auto py-md flex-1">
       {/* Page Header */}
-      <div className="mb-xl">
-        <Link
-          to={`/admin/clientes/${clientId}`}
-          className="inline-flex items-center gap-xs text-body-muted hover:text-primary font-caption text-caption mb-md transition-colors"
-        >
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
-          Volver a la Ficha
-        </Link>
-        <h2 className="font-display-lg text-display-lg text-ink">Editar Cliente</h2>
-        <p className="font-body-md text-body-md text-body-muted mt-2 max-w-2xl">
-          Modifique los campos correspondientes para actualizar la ficha de {nombre}.
-        </p>
-      </div>
+      <PageHeader
+        title="Editar Cliente"
+        description={`Modifique los campos correspondientes para actualizar la ficha de ${nombre}.`}
+        backLink={{ to: `/admin/clientes/${clientId}`, label: 'Volver a la Ficha' }}
+      />
 
       {/* Warning Box for Duplicates */}
       {duplicados.length > 0 && (

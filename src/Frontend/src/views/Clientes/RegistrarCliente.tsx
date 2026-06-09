@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import ClientesService from '../../services/clientes.service';
 import type { Duplicado } from '../../services/clientes.service';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function RegistrarCliente() {
   const navigate = useNavigate();
@@ -81,19 +82,11 @@ export default function RegistrarCliente() {
   return (
     <div className="max-w-4xl w-full mx-auto py-md flex-1">
       {/* Page Header */}
-      <div className="mb-xl">
-        <Link
-          to="/admin/clientes"
-          className="inline-flex items-center gap-xs text-body-muted hover:text-primary font-caption text-caption mb-md transition-colors"
-        >
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
-          Volver a Directorio
-        </Link>
-        <h2 className="font-display-lg text-display-lg text-ink">Registrar Cliente</h2>
-        <p className="font-body-md text-body-md text-body-muted mt-2 max-w-2xl">
-          Complete la información requerida para dar de alta a un nuevo propietario de mascota en el sistema clínico.
-        </p>
-      </div>
+      <PageHeader
+        title="Registrar Cliente"
+        description="Complete la información requerida para dar de alta a un nuevo propietario de mascota en el sistema clínico."
+        backLink={{ to: '/admin/clientes', label: 'Volver a Directorio' }}
+      />
 
       {/* Warning Box for Duplicates */}
       {duplicados.length > 0 && (
@@ -201,6 +194,9 @@ export default function RegistrarCliente() {
                   setIgnorarDuplicados(false);
                 }}
               />
+              <span className="block font-caption text-caption text-body-muted mt-xs">
+                Si se ingresa un correo, se creará una cuenta de portal para el cliente con la contraseña temporal por defecto: <strong className="text-primary font-semibold">Client123!</strong>
+              </span>
             </div>
           </div>
         </div>

@@ -219,9 +219,8 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
             entity.Property(e => e.MotivoReprogramacion)
                 .HasMaxLength(300);
 
-            // Index compuesto para evitar citas duplicadas del mismo veterinario a la misma hora
-            entity.HasIndex(e => new { e.VeterinarioId, e.FechaHora })
-                .IsUnique();
+            // Index compuesto para optimizar búsquedas por veterinario y fecha
+            entity.HasIndex(e => new { e.VeterinarioId, e.FechaHora });
 
             entity.HasOne(e => e.Historial)
                 .WithOne(h => h.Cita)

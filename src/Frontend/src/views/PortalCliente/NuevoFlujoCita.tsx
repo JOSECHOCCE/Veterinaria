@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import PortalClienteService from '../../services/portalCliente.service';
 import type { SolicitarCitaPortalDto } from '../../services/portalCliente.service';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -54,6 +56,7 @@ export default function NuevoFlujoCita() {
   const [timerActive, setTimerActive] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Cargar catálogos básicos en el inicio
   useEffect(() => {
@@ -69,14 +72,20 @@ export default function NuevoFlujoCita() {
         // Cargar veterinarios activos
         const resVeterinarios = await PortalClienteService.getVeterinariosActivos();
 
+        const serviciosList = resServicios.data?.servicios || resServicios.data?.Servicios || resServicios.data || [];
+        const rawVeterinariosList = resVeterinarios.data?.veterinarios || resVeterinarios.data?.Veterinarios || resVeterinarios.data || [];
+        const veterinariosList = Array.isArray(rawVeterinariosList)
+          ? rawVeterinariosList.map((v: any) => v.veterinario || v.Veterinario || v)
+          : [];
+
         if (resMascotas.success) setMascotas(resMascotas.data || []);
-        if (resServicios.success) setServicios(resServicios.data?.data || resServicios.data || []);
-        if (resVeterinarios.success) setVeterinarios(resVeterinarios.data?.data || resVeterinarios.data || []);
+        if (resServicios.success) setServicios(serviciosList);
+        if (resVeterinarios.success) setVeterinarios(veterinariosList);
         
-        // Autoseleccionar primera mascota y servicio si existen
-        if (resMascotas.data?.length > 0) setSelectedMascotaId(resMascotas.data[0].id);
-        if (resServicios.data?.length > 0) setSelectedServicioId(resServicios.data[0].id);
-        if (resVeterinarios.data?.length > 0) setSelectedVeterinarioId(resVeterinarios.data[0].id);
+        // Autoseleccionar primera mascota, servicio y veterinario si existen
+        if (resMascotas.success && resMascotas.data?.length > 0) setSelectedMascotaId(resMascotas.data[0].id);
+        if (resServicios.success && serviciosList.length > 0) setSelectedServicioId(serviciosList[0].id);
+        if (resVeterinarios.success && veterinariosList.length > 0) setSelectedVeterinarioId(veterinariosList[0].id);
 
         // Poner fecha de mañana por defecto
         const tom = new Date();
@@ -175,8 +184,7 @@ export default function NuevoFlujoCita() {
       const res = await PortalClienteService.solicitarCita(payload);
       if (res.success) {
         setTimerActive(false);
-        alert('Cita solicitada exitosamente. El personal se comunicará contigo.');
-        navigate('/cliente/mis-citas');
+        setShowSuccessModal(true);
       } else {
         setBookingError(res.message || 'No se pudo confirmar tu cita.');
       }
@@ -230,12 +238,12 @@ export default function NuevoFlujoCita() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Header */}
-      <header className="mb-2">
-        <h2 className="font-display-lg text-display-lg text-ink">Solicitar Nueva Cita</h2>
-        <p className="font-body-md text-body-md text-body-muted mt-1">
-          Completa los pasos para reservar un bloque de atención médica para tu mascota.
-        </p>
-      </header>
+      <PageHeader
+        title="Solicitar Nueva Cita"
+        description="Completa los pasos para reservar un bloque de atención médica para tu mascota."
+        backLink={{ to: '/cliente/mis-citas', label: 'Volver a Mis Citas' }}
+        hasDivider={true}
+      />
 
       {/* Wizard Container */}
       <div className="bg-surface-card border border-hairline rounded-xl p-6 shadow-sm max-w-3xl w-full mx-auto">
@@ -578,6 +586,61 @@ export default function NuevoFlujoCita() {
         )}
 
       </div>
+
+      {/* Modal de Éxito Superpuesto Animado */}
+      {showSuccessModal && createPortal(
+        <div className="premium-modal-overlay animate-modal-fade-in">
+          <div className="premium-modal-card animate-modal-scale-in">
+            <div className="absolute top-0 left-0 w-full h-1 bg-emerald-500"></div>
+
+            {/* Checkmark SVG Animado */}
+            <div className="mb-5 mt-2">
+              <svg className="success-checkmark-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                <circle className="circle" cx="26" cy="26" r="25" fill="none" />
+                <path className="check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+              </svg>
+            </div>
+
+            <h3 className="font-title-lg text-title-lg text-ink font-bold mb-1">
+              ¡Solicitud Enviada!
+            </h3>
+            <p className="font-body-sm text-body-sm text-body-muted mb-5 px-1">
+              Tu cita para <strong className="font-semibold text-ink">{mascotas.find(m => m.id === selectedMascotaId)?.nombre}</strong> ha sido solicitada. El personal revisará los detalles y confirmará el bloque.
+            </p>
+
+            {/* Resumen Compacto */}
+            <div className="bg-surface-soft border border-hairline/60 rounded-xl p-4 mb-6 text-left text-body-sm space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-body-muted font-medium">Servicio:</span>
+                <span className="font-semibold text-ink">{servicios.find(s => s.id === selectedServicioId)?.nombre}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-body-muted font-medium">Médico:</span>
+                <span className="font-semibold text-ink">{veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-body-muted font-medium">Fecha y Hora:</span>
+                <span className="font-semibold text-primary">
+                  {selectedFecha ? new Date(selectedFecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }) : ''} - {selectedHoraBlock ? selectedHoraBlock.split('T')[1] : ''}
+                </span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate('/cliente/mis-citas');
+              }}
+              className="w-full bg-primary hover:bg-primary-active text-on-primary font-bold py-3 rounded-full font-button text-button transition-all cursor-pointer shadow-md"
+            >
+              Entendido
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
+
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import ServiciosService from '../../services/servicios.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function ConfigurarServicio() {
   const { id } = useParams<{ id: string }>();
@@ -123,23 +124,15 @@ export default function ConfigurarServicio() {
   return (
     <div className="flex-grow p-gutter md:p-xl max-w-[800px] w-full mx-auto">
       {/* Return link & Header */}
-      <div className="mb-xl select-none">
-        <Link
-          to="/admin/servicios"
-          className="inline-flex items-center gap-xs text-secondary hover:text-primary font-body-sm text-body-sm mb-md transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-sm">arrow_back</span>
-          Volver al Catálogo
-        </Link>
-        <h2 className="font-display-md text-display-md text-ink">
-          {isEdit ? 'Editar Servicio' : 'Configurar Servicio'}
-        </h2>
-        <p className="font-body-md text-body-md text-body-muted mt-2">
-          {isEdit
+      <PageHeader
+        title={isEdit ? 'Editar Servicio' : 'Configurar Servicio'}
+        description={
+          isEdit
             ? 'Actualiza los detalles comerciales, tarifas o especialidades del servicio.'
-            : 'Define los detalles del nuevo servicio para incorporarlo al catálogo general.'}
-        </p>
-      </div>
+            : 'Define los detalles del nuevo servicio para incorporarlo al catálogo general.'
+        }
+        backLink={{ to: '/admin/servicios', label: 'Volver al Catálogo' }}
+      />
 
       {/* Form Card */}
       <form

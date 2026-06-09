@@ -8,6 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function GestionServicios() {
   const navigate = useNavigate();
@@ -113,15 +114,11 @@ export default function GestionServicios() {
   return (
     <div className="flex-grow flex flex-col min-w-0">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between mb-xl pb-md border-b border-hairline select-none">
-        <div>
-          <h1 className="font-display-md text-display-md text-ink tracking-tight">Catálogo de Servicios</h1>
-          <p className="font-body-md text-body-md text-secondary mt-xs max-w-2xl">
-            Gestiona las ofertas comerciales de la clínica, ajusta tarifas y define los requerimientos de personal para cada intervención.
-          </p>
-        </div>
-        {isAdmin && (
-          <div className="mt-md md:mt-0 flex items-center gap-sm">
+      <PageHeader
+        title="Catálogo de Servicios"
+        description="Gestiona las ofertas comerciales de la clínica, ajusta tarifas y define los requerimientos de personal para cada intervención."
+        actions={
+          isAdmin ? (
             <button
               onClick={() => navigate('/admin/servicios/nuevo')}
               className="bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs shadow-sm cursor-pointer"
@@ -129,9 +126,10 @@ export default function GestionServicios() {
               <span className="material-symbols-outlined text-sm">add</span>
               Crear nuevo servicio
             </button>
-          </div>
-        )}
-      </div>
+          ) : undefined
+        }
+        hasDivider={true}
+      />
 
       {/* Main Content: Table inside Card */}
       <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden">
@@ -197,13 +195,13 @@ export default function GestionServicios() {
                       exit={{ opacity: 0 }}
                       className={`hover:bg-surface-soft/50 transition-colors group ${!s.activo ? 'opacity-65 bg-surface/30' : ''}`}
                     >
-                      <td className="py-md px-lg">
+                      <td className="py-sm px-md">
                         <div className="font-body-md text-body-strong text-ink font-semibold">{s.nombre}</div>
                         <div className="font-caption text-caption text-body-muted mt-0.5 max-w-md line-clamp-1">{s.descripcion || 'Sin descripción'}</div>
                       </td>
-                      <td className="py-md px-lg font-body-sm text-body-muted font-medium">{s.duracionMinutos} min</td>
-                      <td className="py-md px-lg font-code text-code text-ink font-semibold">${s.precio.toFixed(2)}</td>
-                      <td className="py-md px-lg">
+                      <td className="py-sm px-md font-body-sm text-body-muted font-medium">{s.duracionMinutos} min</td>
+                      <td className="py-sm px-md font-code text-code text-ink font-semibold">${s.precio.toFixed(2)}</td>
+                      <td className="py-sm px-md">
                         {s.requiereVeterinario ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-container/10 border border-primary-container/30 font-caption text-caption text-primary">
                             <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
@@ -215,7 +213,7 @@ export default function GestionServicios() {
                           </span>
                         )}
                       </td>
-                      <td className="py-md px-lg text-right">
+                      <td className="py-sm px-md text-right">
                         {s.activo ? (
                           <span className="inline-flex items-center font-caption text-caption text-success font-medium">
                             <span className="material-symbols-outlined text-sm mr-1">check_circle</span>
@@ -228,7 +226,7 @@ export default function GestionServicios() {
                           </span>
                         )}
                       </td>
-                      <td className="py-md px-lg text-right relative">
+                      <td className="py-sm px-md text-right relative">
                         {isAdmin && (
                           <div className="inline-block text-left">
                             <button

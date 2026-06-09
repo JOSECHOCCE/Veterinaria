@@ -33,8 +33,29 @@ public class NotificacionesController : ControllerBase
         var appUser = await _userManager.GetUserAsync(User);
         if (appUser == null) return null;
 
-        return await _unitOfWork.Usuarios.GetAll()
+        var usuario = await _unitOfWork.Usuarios.GetAll()
             .FirstOrDefaultAsync(u => u.ApplicationUserId == appUser.Id);
+
+        if (usuario == null)
+        {
+            var roles = await _userManager.GetRolesAsync(appUser);
+            var userRole = roles.FirstOrDefault() ?? "Usuario";
+
+            usuario = new Usuario
+            {
+                ApplicationUserId = appUser.Id,
+                Nombre = appUser.NombreCompleto ?? appUser.UserName ?? "Usuario Interno",
+                Email = appUser.Email ?? appUser.UserName ?? "",
+                Rol = userRole,
+                Activo = true,
+                FechaRegistro = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Usuarios.AddAsync(usuario);
+            await _unitOfWork.CommitAsync();
+        }
+
+        return usuario;
     }
 
     [HttpGet]

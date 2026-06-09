@@ -102,10 +102,24 @@ public class CitaStatusService : BackgroundService
             _logger.LogInformation($"Cita {cita.Id} completada automáticamente");
         }
 
-        if (citasNoAsistidas.Any() || citasEnProcesoLargo.Any())
+        // 3. Reservas temporales expiradas -> Eliminar para liberar el índice único y el bloque horario
+        var ahoraUtc = DateTime.UtcNow;
+        var reservasExpiradas = await context.Citas
+            .Where(c => c.Estado == "ReservaTemporal" 
+                     && c.FechaExpiracionReserva.HasValue 
+                     && c.FechaExpiracionReserva.Value < ahoraUtc)
+            .ToListAsync();
+
+        if (reservasExpiradas.Any())
+        {
+            context.Citas.RemoveRange(reservasExpiradas);
+            _logger.LogInformation($"Eliminadas {reservasExpiradas.Count} reservas temporales expiradas.");
+        }
+
+        if (citasNoAsistidas.Any() || citasEnProcesoLargo.Any() || reservasExpiradas.Any())
         {
             await context.SaveChangesAsync();
-            _logger.LogInformation($"Estados actualizados: {citasNoAsistidas.Count} no asistidas, {citasEnProcesoLargo.Count} completadas");
+            _logger.LogInformation($"Estados actualizados: {citasNoAsistidas.Count} no asistidas, {citasEnProcesoLargo.Count} completadas, {reservasExpiradas.Count} reservas temporales eliminadas.");
         }
     }
 }

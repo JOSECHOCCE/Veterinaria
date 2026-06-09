@@ -115,7 +115,9 @@ public static class DbSeeder
         var staff = new[]
         {
             new { Email = "admin@veterinaria.com", Nombre = "Administrador del Sistema", Rol = "Admin" },
-            new { Email = "recepcionista@veterinaria.com", Nombre = "Recepcionista Principal", Rol = "Recepcionista" }
+            new { Email = "recepcionista@veterinaria.com", Nombre = "Recepcionista Principal", Rol = "Recepcionista" },
+            new { Email = "carlos.mendoza@veterinaria.com", Nombre = "Dr. Carlos Mendoza Ruiz", Rol = "Veterinario" },
+            new { Email = "maria.fernandez@veterinaria.com", Nombre = "Dra. María Fernández López", Rol = "Veterinario" }
         };
 
         foreach (var s in staff)

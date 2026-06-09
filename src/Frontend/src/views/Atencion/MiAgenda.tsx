@@ -9,6 +9,7 @@ import CitasService from '../../services/citas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Cita {
   id: number;
@@ -239,40 +240,39 @@ export default function MiAgenda() {
     <div className="flex-grow flex flex-col min-w-0 select-none pb-section" style={{ fontFamily: 'Inter, sans-serif' }}>
       
       {/* Header and Doctor Switcher */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl pb-sm border-b border-hairline">
-        <div>
-          <h1 className="font-display-md text-display-md text-ink" style={{ fontFamily: 'Georgia, serif' }}>
-            Mi Agenda de Hoy
-          </h1>
-          <p className="font-body-md text-body-md text-secondary mt-1">
+      <PageHeader
+        title="Mi Agenda de Hoy"
+        description={
+          <>
             {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             {selectedVet && ` • Dr(a). ${selectedVet.nombre}`}
-          </p>
-        </div>
-
-        {/* Doctor Dropdown Selector for Admin/Recepcionista simulation */}
-        {!isVetUser && vetsList.length > 1 && (
-          <div className="flex items-center gap-2">
-            <label className="font-caption text-caption text-secondary">Médico:</label>
-            <div className="relative">
-              <select
-                value={selectedVetId || ''}
-                onChange={(e) => setSelectedVetId(Number(e.target.value))}
-                className="bg-canvas border border-hairline rounded-lg pl-3 pr-8 py-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer appearance-none min-w-[200px]"
-              >
-                {vetsList.map((v) => (
-                  <option key={v.veterinario.id} value={v.veterinario.id}>
-                    {v.veterinario.nombre}
-                  </option>
-                ))}
-              </select>
-              <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[18px]">
-                expand_more
-              </span>
+          </>
+        }
+        actions={
+          !isVetUser && vetsList.length > 1 ? (
+            <div className="flex items-center gap-2">
+              <label className="font-caption text-caption text-secondary font-medium">Médico:</label>
+              <div className="relative">
+                <select
+                  value={selectedVetId || ''}
+                  onChange={(e) => setSelectedVetId(Number(e.target.value))}
+                  className="bg-canvas border border-hairline rounded-lg pl-3 pr-8 py-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer appearance-none min-w-[200px]"
+                >
+                  {vetsList.map((v) => (
+                    <option key={v.veterinario.id} value={v.veterinario.id}>
+                      {v.veterinario.nombre}
+                    </option>
+                  ))}
+                </select>
+                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-secondary pointer-events-none text-[18px]">
+                  expand_more
+                </span>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          ) : undefined
+        }
+        hasDivider={true}
+      />
 
       {/* Metrics Card Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">

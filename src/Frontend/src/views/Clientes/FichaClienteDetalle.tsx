@@ -6,6 +6,7 @@ import ClientesService from '../../services/clientes.service';
 import type { ClienteDetalle } from '../../services/clientes.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function FichaClienteDetalle() {
   const { id } = useParams<{ id: string }>();
@@ -121,16 +122,10 @@ export default function FichaClienteDetalle() {
   return (
     <div className="flex-1 flex flex-col gap-lg pb-xxl">
       {/* Context & Header */}
-      <div className="flex flex-col gap-lg md:flex-row md:items-start md:justify-between w-full">
-        <div className="flex flex-col gap-sm max-w-2xl">
-          <div className="flex items-center gap-md mb-xs">
-            <Link
-              to="/admin/clientes"
-              className="text-body-muted hover:text-ink flex items-center gap-xxs font-caption text-caption uppercase tracking-wider"
-            >
-              <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-              Directorio
-            </Link>
+      <PageHeader
+        title={
+          <div className="flex flex-col sm:flex-row sm:items-center gap-md select-text">
+            <span>{usuario?.nombre}</span>
             <span
               className={`inline-flex items-center gap-xxs px-3 py-1 rounded-full border font-caption text-caption ${
                 usuario?.activo
@@ -142,9 +137,9 @@ export default function FichaClienteDetalle() {
               {usuario?.activo ? 'Activo' : 'Inactivo'}
             </span>
           </div>
-          <h2 className="font-display-lg text-display-lg text-ink m-0 p-0 leading-none">
-            {usuario?.nombre}
-          </h2>
+        }
+        backLink={{ to: '/admin/clientes', label: 'Directorio' }}
+        description={
           <div className="flex flex-wrap gap-x-xl gap-y-sm mt-md select-text">
             <div className="flex items-center gap-sm text-body-muted">
               <span className="material-symbols-outlined text-[18px]">phone_iphone</span>
@@ -167,37 +162,37 @@ export default function FichaClienteDetalle() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Primary Actions */}
-        <div className="flex items-center gap-sm mt-md md:mt-0">
-          <Link to={`/admin/clientes/${clientId}/editar`}>
+        }
+        actions={
+          <div className="flex items-center gap-sm">
+            <Link to={`/admin/clientes/${clientId}/editar`}>
+              <motion.button
+                className="px-4 py-2 border border-ink text-ink font-button text-button rounded-lg hover:bg-surface-soft transition-colors flex items-center gap-sm cursor-pointer shadow-sm"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                Editar Ficha
+              </motion.button>
+            </Link>
             <motion.button
-              className="px-4 py-2 border border-ink text-ink font-button text-button rounded-lg hover:bg-surface-soft transition-colors flex items-center gap-sm cursor-pointer shadow-sm"
+              onClick={handleToggleActivo}
+              className={`px-4 py-2 border border-transparent font-button text-button rounded-lg transition-colors flex items-center gap-sm cursor-pointer ${
+                usuario?.activo
+                  ? 'text-error hover:bg-error-container/30'
+                  : 'text-success hover:bg-success/10'
+              }`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <span className="material-symbols-outlined text-[18px]">edit</span>
-              Editar Ficha
+              <span className="material-symbols-outlined text-[18px]">
+                {usuario?.activo ? 'block' : 'check_circle'}
+              </span>
+              {usuario?.activo ? 'Inactivar' : 'Activar Cuenta'}
             </motion.button>
-          </Link>
-          <motion.button
-            onClick={handleToggleActivo}
-            className={`px-4 py-2 border border-transparent font-button text-button rounded-lg transition-colors flex items-center gap-sm cursor-pointer ${
-              usuario?.activo
-                ? 'text-error hover:bg-error-container/30'
-                : 'text-success hover:bg-success/10'
-            }`}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
-            <span className="material-symbols-outlined text-[18px]">
-              {usuario?.activo ? 'block' : 'check_circle'}
-            </span>
-            {usuario?.activo ? 'Inactivar' : 'Activar Cuenta'}
-          </motion.button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {/* Bento Layout Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl">

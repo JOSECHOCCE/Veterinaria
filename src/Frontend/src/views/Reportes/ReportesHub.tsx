@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import ReporteCitas from './ReporteCitas';
 import ReportePagos from './ReportePagos';
 import EstadisticasOperativas from './EstadisticasOperativas';
+import PageHeader from '../../components/common/PageHeader';
 
 type TabKey = 'citas' | 'pagos' | 'estadisticas';
 
@@ -23,60 +24,54 @@ export default function ReportesHub() {
     <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-8 pb-12 select-none">
       
       {/* Page Header */}
-      <header className="flex flex-col justify-between gap-4 border-b border-hairline pb-6">
-        <div>
-          <h1 className="font-display-lg text-display-lg text-ink">Reportes e Inteligencia</h1>
-          <p className="font-body-md text-body-md text-body-muted mt-1">
-            Auditoría de citas, flujos de ingresos financieros y análisis analítico de la operación de VetCare Pro.
-          </p>
-        </div>
-      </header>
-
-      {/* Tabs Menu */}
-      <div className="flex gap-8 border-b border-hairline -mt-4">
-        <button
-          onClick={() => setActiveTab('citas')}
-          className={`relative pb-3 font-nav-link text-nav-link transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'citas' ? 'text-primary font-bold' : 'text-body-muted hover:text-ink'
-          }`}
-        >
-          <span className="material-symbols-outlined text-[18px]">calendar_month</span>
-          Reporte de Citas
-          {activeTab === 'citas' && (
-            <div className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-primary rounded-t-full"></div>
-          )}
-        </button>
-
-        {isAdmin && (
-          <>
+      <PageHeader
+        title="Reportes e Inteligencia"
+        description="Auditoría de citas, flujos de ingresos financieros y análisis analítico de la operación de VetCare Pro."
+        actions={
+          <div className="flex gap-xs bg-surface-soft p-1 rounded-lg border border-hairline">
             <button
-              onClick={() => setActiveTab('pagos')}
-              className={`relative pb-3 font-nav-link text-nav-link transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'pagos' ? 'text-primary font-bold' : 'text-body-muted hover:text-ink'
+              onClick={() => setActiveTab('citas')}
+              className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'citas'
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'text-secondary hover:text-ink'
               }`}
             >
-              <span className="material-symbols-outlined text-[18px]">payments</span>
-              Reporte de Pagos / Ingresos
-              {activeTab === 'pagos' && (
-                <div className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-primary rounded-t-full"></div>
-              )}
+              <span className="material-symbols-outlined text-[16px]">calendar_month</span>
+              Citas
             </button>
 
-            <button
-              onClick={() => setActiveTab('estadisticas')}
-              className={`relative pb-3 font-nav-link text-nav-link transition-all flex items-center gap-2 cursor-pointer ${
-                activeTab === 'estadisticas' ? 'text-primary font-bold' : 'text-body-muted hover:text-ink'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[18px]">analytics</span>
-              Estadísticas Operativas
-              {activeTab === 'estadisticas' && (
-                <div className="absolute bottom-[-1px] left-0 w-full h-[2px] bg-primary rounded-t-full"></div>
-              )}
-            </button>
-          </>
-        )}
-      </div>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => setActiveTab('pagos')}
+                  className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'pagos'
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-secondary hover:text-ink'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">payments</span>
+                  Pagos / Ingresos
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('estadisticas')}
+                  className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer flex items-center gap-1.5 ${
+                    activeTab === 'estadisticas'
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-secondary hover:text-ink'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[16px]">analytics</span>
+                  Estadísticas
+                </button>
+              </>
+            )}
+          </div>
+        }
+        hasDivider={true}
+      />
 
       {/* Render Active Component */}
       <div className="mt-2">

@@ -34,6 +34,7 @@
   --font-button: StyreneB, Inter, sans-serif;
   --font-nav-link: StyreneB, Inter, sans-serif;
   --font-caption: StyreneB, Inter, sans-serif;
+  --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   /* Spacing Scale (Matching Stitch Design system) */
   --spacing-xxs: 4px;
@@ -47,6 +48,20 @@
   --spacing-gutter: 1.5rem;
   --spacing-margin: 2rem;
 
+  /* Font Sizes Scale (Resolves typography sizes issue) */
+  --text-display-xl: 3rem;
+  --text-display-lg: 2rem;
+  --text-display-md: 1.5rem;
+  --text-display-sm: 1.25rem;
+  --text-title-lg: 1.25rem;
+  --text-title-md: 1.125rem;
+  --text-title-sm: 1rem;
+  --text-body-md: 0.95rem;
+  --text-body-sm: 0.85rem;
+  --text-caption: 0.75rem;
+  --text-caption-uppercase: 0.75rem;
+  --text-code: 0.85rem;
+
   /* Border Radius Scale (Matching Stitch Design system) */
   --radius-xs: 4px;
   --radius-sm: 6px;
@@ -55,6 +70,19 @@
   --radius-xl: 16px;
   --radius-pill: 9999px;
   --radius-full: 9999px;
+
+  /* Restablecer max-width predeterminados de Tailwind para evitar conflicto con la escala de espaciado (spacing scale) */
+  --max-width-xs: 20rem; /* 320px */
+  --max-width-sm: 24rem; /* 384px */
+  --max-width-md: 28rem; /* 448px */
+  --max-width-lg: 32rem; /* 512px */
+  --max-width-xl: 36rem; /* 576px */
+  --max-width-2xl: 42rem; /* 672px */
+  --max-width-3xl: 48rem; /* 768px */
+  --max-width-4xl: 56rem; /* 896px */
+  --max-width-5xl: 64rem; /* 1024px */
+  --max-width-6xl: 72rem; /* 1152px */
+  --max-width-7xl: 80rem; /* 1280px */
 }
 
 /* Clases de utilidad personalizadas adicionales si son requeridas */
@@ -95,4 +123,126 @@
   .font-caption {
     font-family: var(--font-caption);
   }
+  .font-code {
+    font-family: var(--font-code);
+  }
+}
+
+/* Success Checkmark & Modal Animations */
+@keyframes checkmark-circle {
+  0% {
+    stroke-dashoffset: 166;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes checkmark-check {
+  0% {
+    stroke-dashoffset: 48;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes modal-scale-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes modal-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.animate-modal-scale-in {
+  animation: modal-scale-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-modal-fade-in {
+  animation: modal-fade-in 0.25s ease-out forwards;
+}
+
+.success-checkmark-svg {
+  width: 72px;
+  height: 72px;
+  display: block;
+  margin: 0 auto;
+}
+
+.success-checkmark-svg .circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 4;
+  stroke-miterlimit: 10;
+  stroke: #10b981; /* Emerald-500 */
+  fill: none;
+  animation: checkmark-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.success-checkmark-svg .check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke-width: 4;
+  stroke: #10b981; /* Emerald-500 */
+  fill: none;
+  stroke-linecap: round;
+  animation: checkmark-check 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.45s forwards;
+}
+
+/* Custom premium modal styles */
+.premium-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+}
+
+.premium-modal-card {
+  background-color: var(--color-canvas, #faf9f5) !important;
+  border: 1px solid var(--color-hairline, #e6dfd8) !important;
+  border-radius: 16px !important;
+  padding: 24px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  max-width: 384px !important; /* max-w-sm */
+  width: 100% !important;
+  text-align: center !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+.premium-modal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background-color: #10b981; /* Emerald-500 */
 }

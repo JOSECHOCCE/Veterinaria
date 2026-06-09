@@ -10,6 +10,7 @@ import ClientesService from '../../services/clientes.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 // Horarios de la clínica operativos (08:00 AM a 08:00 PM)
 const HOURS = Array.from({ length: 13 }, (_, i) => i + 8); // 8, 9, ..., 20
@@ -357,30 +358,29 @@ export default function Agenda() {
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg pb-sm border-b border-hairline">
-        <div>
-          <h1 className="font-display-md text-display-md text-ink">Agenda de la Clínica</h1>
-          <p className="font-body-md text-body-md text-secondary mt-1">
-            {getFormattedSelectedDate()}
-          </p>
-        </div>
-        <div className="flex items-center gap-sm">
-          <button 
-            onClick={() => window.print()}
-            className="flex items-center justify-center gap-xs px-md py-2.5 bg-surface-card text-ink border border-hairline rounded-lg font-button text-button hover:bg-surface-soft transition-colors cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">print</span>
-            Imprimir
-          </button>
-          <button 
-            onClick={() => navigate('/admin/agenda/nueva')}
-            className="flex items-center justify-center gap-xs px-lg py-2.5 bg-primary text-on-primary rounded-lg font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            Nueva Cita
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Agenda de la Clínica"
+        description={getFormattedSelectedDate()}
+        actions={
+          <>
+            <button 
+              onClick={() => window.print()}
+              className="flex items-center justify-center gap-xs px-md py-2.5 bg-surface-card text-ink border border-hairline rounded-lg font-button text-button hover:bg-surface-soft transition-colors cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[18px]">print</span>
+              Imprimir
+            </button>
+            <button 
+              onClick={() => navigate('/admin/agenda/nueva')}
+              className="flex items-center justify-center gap-xs px-lg py-2.5 bg-primary text-on-primary rounded-lg font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">add</span>
+              Nueva Cita
+            </button>
+          </>
+        }
+        hasDivider={true}
+      />
 
       {/* Tabs */}
       <div className="flex border-b border-hairline mb-lg overflow-x-auto no-scrollbar">

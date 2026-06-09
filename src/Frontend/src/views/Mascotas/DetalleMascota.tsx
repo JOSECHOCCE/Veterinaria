@@ -6,6 +6,7 @@ import MascotasService from '../../services/mascotas.service';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -199,50 +200,48 @@ export default function DetalleMascota() {
 
   return (
     <div className="flex-grow flex flex-col min-h-screen">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-xs text-body-sm text-body-muted mb-lg select-none">
-        <Link
-          to={isStaff ? '/admin/mascotas' : '/cliente/mis-mascotas'}
-          className="hover:text-primary transition-colors cursor-pointer"
-        >
-          {isStaff ? 'Expedientes' : 'Mis Mascotas'}
-        </Link>
-        <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-        <span className="text-ink font-semibold">{mascota.nombre}</span>
-      </div>
-
       {/* Header Section: 360 View */}
-      <section className="flex flex-col md:flex-row items-start md:items-center justify-between gap-xl mb-xl border-b border-hairline pb-xl">
-        <div className="flex items-center gap-lg">
-          <div className="relative">
-            <img
-              src={mascota.fotoUrl || getPetImageFallback(mascota.especie)}
-              alt={mascota.nombre}
-              className="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-2 border-surface-card shadow-sm"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = getPetImageFallback(mascota.especie);
-              }}
-            />
-            <div
-              className={`absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-canvas ${
-                mascota.activo ? 'bg-success' : 'bg-secondary'
-              }`}
-              title={mascota.activo ? 'Activa' : 'Inactiva'}
-            />
-          </div>
-          <div>
-            <div className="flex items-center gap-sm mb-xs">
-              <h1 className="font-display-lg text-display-lg text-ink font-normal tracking-tight">{mascota.nombre}</h1>
-              {mascota.sexo && (
-                <span
-                  className="material-symbols-outlined text-secondary"
-                  style={{ fontVariationSettings: "'FILL' 1" }}
-                >
-                  {mascota.sexo.toLowerCase() === 'macho' ? 'male' : 'female'}
-                </span>
-              )}
+      <PageHeader
+        title={
+          <div className="flex items-center gap-lg">
+            <div className="relative">
+              <img
+                src={mascota.fotoUrl || getPetImageFallback(mascota.especie)}
+                alt={mascota.nombre}
+                className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-surface-card shadow-sm"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = getPetImageFallback(mascota.especie);
+                }}
+              />
+              <div
+                className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-canvas ${
+                  mascota.activo ? 'bg-success' : 'bg-secondary'
+                }`}
+                title={mascota.activo ? 'Activa' : 'Inactiva'}
+              />
             </div>
-            <p className="font-body-md text-body-md text-secondary mb-sm">
+            <div>
+              <div className="flex items-center gap-sm">
+                <span>{mascota.nombre}</span>
+                {mascota.sexo && (
+                  <span
+                    className="material-symbols-outlined text-secondary"
+                    style={{ fontVariationSettings: "'FILL' 1" }}
+                  >
+                    {mascota.sexo.toLowerCase() === 'macho' ? 'male' : 'female'}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        }
+        backLink={{
+          to: isStaff ? '/admin/mascotas' : '/cliente/mis-mascotas',
+          label: isStaff ? 'Volver a Pacientes' : 'Volver a Mis Mascotas'
+        }}
+        description={
+          <div className="flex flex-col gap-xs mt-xs">
+            <p className="font-body-md text-body-md text-secondary">
               {mascota.especie} • {mascota.raza || 'Sin raza'} • {getPetAge(mascota.fechaNacimiento)}
             </p>
             <div className="flex items-center gap-xs text-body-sm">
@@ -260,47 +259,48 @@ export default function DetalleMascota() {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Actions based on role */}
-        <div className="flex flex-wrap items-center gap-sm">
-          {isStaff ? (
-            <>
-              <button
-                onClick={() => navigate(`/admin/mascotas/${mascota.id}/editar`)}
-                className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
-                Editar
-              </button>
-              <button
-                onClick={() => navigate(`/admin/mascotas/${mascota.id}/cambiar-responsable`)}
-                className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">swap_horiz</span>
-                Cambio Resp.
-              </button>
-              {mascota.activo && (
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-sm">
+            {isStaff ? (
+              <>
                 <button
-                  onClick={() => setShowInactivarModal(true)}
-                  className="bg-canvas border border-error text-error font-button text-button py-2.5 px-5 rounded hover:bg-error-container/10 transition-colors flex items-center gap-xs cursor-pointer"
+                  onClick={() => navigate(`/admin/mascotas/${mascota.id}/editar`)}
+                  className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
                 >
-                  <span className="material-symbols-outlined text-[18px]">block</span>
-                  Inactivar
+                  <span className="material-symbols-outlined text-[18px]">edit</span>
+                  Editar
                 </button>
-              )}
-            </>
-          ) : (
-            <button
-              onClick={() => navigate('/cliente/nueva-cita')}
-              className="bg-primary text-on-primary font-button text-button py-2.5 px-5 rounded hover:bg-primary-container transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
-            >
-              <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-              Agendar Control
-            </button>
-          )}
-        </div>
-      </section>
+                <button
+                  onClick={() => navigate(`/admin/mascotas/${mascota.id}/cambiar-responsable`)}
+                  className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">swap_horiz</span>
+                  Cambio Resp.
+                </button>
+                {mascota.activo && (
+                  <button
+                    onClick={() => setShowInactivarModal(true)}
+                    className="bg-canvas border border-error text-error font-button text-button py-2.5 px-5 rounded hover:bg-error-container/10 transition-colors flex items-center gap-xs cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">block</span>
+                    Inactivar
+                  </button>
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => navigate('/cliente/nueva-cita')}
+                className="bg-primary text-on-primary font-button text-button py-2.5 px-5 rounded hover:bg-primary-container transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
+              >
+                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+                Agendar Control
+              </button>
+            )}
+          </div>
+        }
+        hasDivider={true}
+      />
 
       {/* Critical Medical Alerts */}
       {hasCriticalAlerts && (

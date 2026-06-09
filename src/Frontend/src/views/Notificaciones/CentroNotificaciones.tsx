@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import notificacionesService, { type NotificacionDto } from '../../services/notificaciones.service';
+import notificacionesService, { type NotificacionDto, mapBootstrapIconToMaterial } from '../../services/notificaciones.service';
 import { useNotifications } from '../../hooks/useNotifications';
 import { toast } from 'sonner';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function CentroNotificaciones() {
   const navigate = useNavigate();
@@ -107,10 +108,12 @@ export default function CentroNotificaciones() {
 
   // Helper para estilos e iconos
   const getIconDetails = (tipo: string, customIcon?: string | null) => {
-    let iconName = customIcon || 'info';
+    let iconName = 'notifications';
     let containerClass = 'bg-surface-dim text-ink border border-hairline';
 
-    if (!customIcon) {
+    if (customIcon) {
+      iconName = mapBootstrapIconToMaterial(customIcon);
+    } else {
       switch (tipo) {
         case 'Success':
           iconName = 'check_circle';
@@ -178,23 +181,22 @@ export default function CentroNotificaciones() {
   return (
     <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col gap-8 pb-12 select-none">
       {/* Header */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-hairline pb-6">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-ink tracking-tight">Centro de Notificaciones</h2>
-          <p className="font-body-md text-body-md text-body-muted mt-2 max-w-2xl">
-            Mantente al día con las alertas clínicas, actualizaciones de agenda y mensajes del equipo.
-          </p>
-        </div>
-        {unreadTabCount > 0 && (
-          <button
-            onClick={handleMarkAllRead}
-            className="inline-flex items-center justify-center gap-2 border border-outline text-ink bg-transparent hover:bg-surface-card rounded-full px-5 py-2.5 font-button text-button transition-colors whitespace-nowrap cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-[18px]">done_all</span>
-            Marcar todas como leídas
-          </button>
-        )}
-      </header>
+      <PageHeader
+        title="Centro de Notificaciones"
+        description="Mantente al día con las alertas clínicas, actualizaciones de agenda y mensajes del equipo."
+        actions={
+          unreadTabCount > 0 ? (
+            <button
+              onClick={handleMarkAllRead}
+              className="inline-flex items-center justify-center gap-2 border border-outline text-ink bg-transparent hover:bg-surface-card rounded-full px-5 py-2.5 font-button text-button transition-colors whitespace-nowrap cursor-pointer animate-fadeIn"
+            >
+              <span className="material-symbols-outlined text-[18px]">done_all</span>
+              Marcar todas como leídas
+            </button>
+          ) : undefined
+        }
+        hasDivider={false}
+      />
 
       {/* Tabs */}
       <div className="flex gap-8 border-b border-hairline -mt-4">

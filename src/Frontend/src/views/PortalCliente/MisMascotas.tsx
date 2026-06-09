@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import PortalClienteService from '../../services/portalCliente.service';
 import type { RegistrarMascotaPortalDto } from '../../services/portalCliente.service';
 import { motion, AnimatePresence } from 'framer-motion';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -158,21 +159,20 @@ export default function MisMascotas() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Header de la Página */}
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
-        <div>
-          <h2 className="font-display-lg text-display-lg text-ink">Mis Mascotas</h2>
-          <p className="font-body-md text-body-md text-body-muted mt-1 max-w-2xl">
-            Gestiona el perfil de tus compañeros de vida, revisa su historial médico y asegúrate de que estén al día con sus vacunas.
-          </p>
-        </div>
-        <button
-          onClick={handleOpenModal}
-          className="bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-sm cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          Registrar Nueva Mascota
-        </button>
-      </header>
+      <PageHeader
+        title="Mis Mascotas"
+        description="Gestiona el perfil de tus compañeros de vida, revisa su historial médico y asegúrate de que estén al día con sus vacunas."
+        actions={
+          <button
+            onClick={handleOpenModal}
+            className="bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-sm cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Registrar Nueva Mascota
+          </button>
+        }
+        hasDivider={true}
+      />
 
       {/* Grid de Mascotas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

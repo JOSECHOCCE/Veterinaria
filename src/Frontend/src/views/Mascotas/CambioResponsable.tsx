@@ -5,6 +5,7 @@ import MascotasService from '../../services/mascotas.service';
 import ClientesService from '../../services/clientes.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -167,19 +168,15 @@ export default function CambioResponsable() {
   return (
     <div className="p-section max-w-4xl mx-auto flex flex-col gap-lg w-full">
       {/* Breadcrumb & Header */}
-      <div className="flex flex-col gap-xs mb-lg select-none">
-        <div className="flex items-center gap-xs text-body-muted font-caption text-caption">
-          <Link to="/admin/mascotas" className="hover:text-primary transition-colors">Expedientes</Link>
-          <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-          <Link to={`/admin/mascotas/${petId}`} className="hover:text-primary transition-colors">{mascota.nombre}</Link>
-          <span className="material-symbols-outlined text-[16px]">chevron_right</span>
-          <span className="text-primary font-medium">Cambio de Titularidad</span>
-        </div>
-        <h2 className="font-display-sm text-display-sm text-ink mt-sm">Cambio de Titularidad</h2>
-        <p className="font-body-md text-body-md text-body-muted">
-          Gestiona el traspaso de responsabilidad para <strong className="text-ink">"{mascota.nombre}"</strong>.
-        </p>
-      </div>
+      <PageHeader
+        title="Cambio de Titularidad"
+        description={
+          <span>
+            Gestiona el traspaso de responsabilidad para <strong className="text-ink">"{mascota.nombre}"</strong>.
+          </span>
+        }
+        backLink={{ to: `/admin/mascotas/${petId}`, label: `Volver a ${mascota.nombre}` }}
+      />
 
       {/* Main Bento Form Card */}
       <div className="bg-surface-card rounded-xl p-xl border border-hairline shadow-sm relative overflow-hidden">

@@ -8,6 +8,7 @@ import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
 import AnularPagoModal from '../../components/Pagos/AnularPagoModal';
 import { useAuth } from '../../context/AuthContext';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function GestionPagos() {
   const navigate = useNavigate();
@@ -202,45 +203,42 @@ export default function GestionPagos() {
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-md mb-xl pb-sm border-b border-hairline">
-        <div>
-          <h1 className="font-display-md text-display-md text-ink">Pagos y Cobros</h1>
-          <p className="font-body-md text-body-md text-secondary mt-1">
-            Gestión de facturación, caja diaria y registro de auditoría de transacciones.
-          </p>
-        </div>
-        
-        {/* Navigation Tabs inside the View */}
-        <div className="flex gap-xs bg-surface-soft p-1 rounded-lg border border-hairline">
-          <button
-            onClick={() => setActiveTab('pendientes')}
-            className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
-              activeTab === 'pendientes'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-secondary hover:text-ink'
-            }`}
-          >
-            Cobros Pendientes
-          </button>
-          <button
-            onClick={() => setActiveTab('historial')}
-            className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
-              activeTab === 'historial'
-                ? 'bg-primary text-on-primary shadow-sm'
-                : 'text-secondary hover:text-ink'
-            }`}
-          >
-            Historial de Pagos
-          </button>
-        </div>
-      </div>
+      <PageHeader
+        title="Pagos y Cobros"
+        description="Gestión de facturación, caja diaria y registro de auditoría de transacciones."
+        actions={
+          <div className="flex gap-xs bg-surface-soft p-1 rounded-lg border border-hairline">
+            <button
+              onClick={() => setActiveTab('pendientes')}
+              className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
+                activeTab === 'pendientes'
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'text-secondary hover:text-ink'
+              }`}
+            >
+              Cobros Pendientes
+            </button>
+            <button
+              onClick={() => setActiveTab('historial')}
+              className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
+                activeTab === 'historial'
+                  ? 'bg-primary text-on-primary shadow-sm'
+                  : 'text-secondary hover:text-ink'
+              }`}
+            >
+              Historial de Pagos
+            </button>
+          </div>
+        }
+        hasDivider={true}
+      />
 
       {/* RENDER TAB 1: PENDING COLLECTIONS */}
       {activeTab === 'pendientes' && (
         <div className="flex flex-col gap-lg animate-fadeIn">
           {/* Bento Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-            <div className="bg-surface-card rounded-xl p-lg border border-hairline flex justify-between items-center shadow-xs">
+            <div className="bg-surface-card rounded-xl p-md border border-hairline flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Total Pendiente</span>
                 <span className="font-display-sm text-display-sm text-ink font-bold mt-1">
@@ -255,7 +253,7 @@ export default function GestionPagos() {
               </div>
             </div>
 
-            <div className="bg-error/5 rounded-xl p-lg border border-error/15 flex justify-between items-center shadow-xs">
+            <div className="bg-error/5 rounded-xl p-md border border-error/15 flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-error uppercase tracking-wider">Cobros Vencidos</span>
                 <span className="font-display-sm text-display-sm text-error font-bold mt-1">
@@ -270,7 +268,7 @@ export default function GestionPagos() {
               </div>
             </div>
 
-            <div className="bg-accent-amber/5 rounded-xl p-lg border border-accent-amber/20 flex justify-between items-center shadow-xs">
+            <div className="bg-accent-amber/5 rounded-xl p-md border border-accent-amber/20 flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-accent-amber uppercase tracking-wider">Vence Hoy</span>
                 <span className="font-display-sm text-display-sm text-accent-amber font-bold mt-1">
@@ -287,7 +285,7 @@ export default function GestionPagos() {
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-surface-card rounded-xl border border-hairline p-md shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-md">
+          <div className="bg-surface-card rounded-xl border border-hairline p-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-md">
             <div className="relative flex-1 max-w-md">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">search</span>
               <input
@@ -353,7 +351,7 @@ export default function GestionPagos() {
 
                       return (
                         <tr key={c.id} className="hover:bg-surface-soft/30 transition-colors group">
-                          <td className="py-md px-lg">
+                          <td className="py-sm px-md">
                             <div className="flex items-center gap-md">
                               <div className="w-9 h-9 rounded-full bg-surface-soft flex items-center justify-center text-secondary font-bold">
                                 {c.mascota?.usuario?.nombre ? c.mascota.usuario.nombre.charAt(0).toUpperCase() : 'C'}
@@ -367,7 +365,7 @@ export default function GestionPagos() {
                               </div>
                             </div>
                           </td>
-                          <td className="py-md px-lg">
+                          <td className="py-sm px-md">
                             <p className="font-body-sm text-body-sm text-ink">{c.servicio?.nombre || 'Consulta General'}</p>
                             <span className={`inline-block mt-xs px-2 py-0.5 rounded-full font-caption text-[10px] font-bold border ${
                               isPast 
@@ -379,19 +377,19 @@ export default function GestionPagos() {
                               {isPast ? 'Vencido' : isToday ? 'Vence Hoy' : 'Pendiente'}
                             </span>
                           </td>
-                          <td className="py-md px-lg font-body-sm text-body-sm text-secondary">
-                            Dr(a). {c.veterinario?.nombre || 'No asignado'}
+                          <td className="py-sm px-md font-body-sm text-body-sm text-secondary">
+                            {c.veterinario?.nombre || 'No asignado'}
                           </td>
-                          <td className="py-md px-lg font-body-sm text-body-sm text-secondary">
+                          <td className="py-sm px-md font-body-sm text-body-sm text-secondary">
                             {new Date(c.fechaHora).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </td>
-                          <td className="py-md px-lg font-body-sm text-body-sm text-ink font-semibold text-right">
+                          <td className="py-sm px-md font-body-sm text-body-sm text-ink font-semibold text-right">
                             S/. {c.montoTotal.toFixed(2)}
                           </td>
-                          <td className="py-md px-lg font-title-sm text-title-sm text-error font-bold text-right">
+                          <td className="py-sm px-md font-body-sm text-body-sm text-error font-bold text-right">
                             S/. {pendienteMonto.toFixed(2)}
                           </td>
-                          <td className="py-md px-lg text-center">
+                          <td className="py-sm px-md text-center">
                             <button
                               onClick={() => navigate(`/admin/pagos/registrar/${c.id}`)}
                               className="bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-xs"
@@ -533,7 +531,7 @@ export default function GestionPagos() {
                               isAnulado ? 'bg-error-container/10 opacity-70' : ''
                             }`}
                           >
-                            <td className="py-md px-lg text-secondary whitespace-nowrap">
+                            <td className="py-sm px-md text-secondary whitespace-nowrap">
                               {new Date(p.fechaPago).toLocaleString('es-ES', {
                                 day: '2-digit',
                                 month: 'short',
@@ -542,16 +540,16 @@ export default function GestionPagos() {
                                 minute: '2-digit'
                               })}
                             </td>
-                            <td className={`py-md px-lg text-ink font-semibold ${isAnulado ? 'line-through' : ''}`}>
+                            <td className={`py-sm px-md text-ink font-semibold ${isAnulado ? 'line-through' : ''}`}>
                               {p.propietarioNombre || 'Dueño'}
                             </td>
-                            <td className="py-md px-lg text-secondary">
+                            <td className="py-sm px-md text-secondary">
                               {p.mascotaNombre || 'Mascota'}
                             </td>
-                            <td className="py-md px-lg text-secondary">
+                            <td className="py-sm px-md text-secondary">
                               {p.servicioNombre || 'Servicio'}
                             </td>
-                            <td className="py-md px-lg">
+                            <td className="py-sm px-md">
                               <div className="flex flex-col gap-xxs font-body-sm">
                                 <span className="flex items-center gap-1 font-medium text-ink">
                                   <span className="material-symbols-outlined text-[16px] text-secondary">
@@ -566,10 +564,10 @@ export default function GestionPagos() {
                                 )}
                               </div>
                             </td>
-                            <td className={`py-md px-lg text-ink font-semibold text-right whitespace-nowrap ${isAnulado ? 'line-through' : ''}`}>
+                            <td className={`py-sm px-md text-ink font-semibold text-right whitespace-nowrap ${isAnulado ? 'line-through' : ''}`}>
                               S/. {p.monto.toFixed(2)}
                             </td>
-                            <td className="py-md px-lg text-center">
+                            <td className="py-sm px-md text-center">
                               <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
                                 isAnulado
                                   ? 'bg-error-container text-on-error-container border-error/20'
@@ -578,7 +576,7 @@ export default function GestionPagos() {
                                 {isAnulado ? 'Anulado' : 'Válido'}
                               </span>
                             </td>
-                            <td className="py-md px-lg text-right">
+                            <td className="py-sm px-md text-right">
                               <div className="flex items-center justify-end gap-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
                                 {!isAnulado && (
                                   <>

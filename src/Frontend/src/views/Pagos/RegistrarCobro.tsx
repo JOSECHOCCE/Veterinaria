@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import PagosService from '../../services/pagos.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 interface UsuarioInfo {
   id: number;
@@ -349,25 +350,12 @@ export default function RegistrarCobro() {
   return (
     <div className="flex-grow flex flex-col min-w-0 select-none">
       {/* Header */}
-      <header className="flex justify-between items-center pb-md border-b border-hairline mb-xl">
-        <button
-          onClick={() => navigate('/admin/pagos')}
-          className="flex items-center gap-xs text-secondary hover:text-ink transition-colors font-button text-button group cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
-          Volver a Caja
-        </button>
-        <div className="font-title-sm text-title-sm text-ink font-semibold">Registro de Cobro Manual</div>
-      </header>
-
-      <div className="mb-lg">
-        <h1 className="font-display-md text-display-md text-ink">Registrar Cobro</h1>
-        <p className="font-body-md text-body-md text-secondary max-w-2xl mt-1">
-          Ingrese los detalles del cobro presencial recibido. Verifique las deudas previas y emita el comprobante correspondiente.
-        </p>
-      </div>
+      <PageHeader
+        title="Registrar Cobro"
+        description="Ingrese los detalles del cobro presencial recibido. Verifique las deudas previas y emita el comprobante correspondiente."
+        backLink={{ to: '/admin/pagos', label: 'Volver a Caja' }}
+        hasDivider={true}
+      />
 
       {cita && (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">

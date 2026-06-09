@@ -354,6 +354,23 @@ public class CitaService : ICitaService
 
     public async Task<Cita> ReservaTemporalCitaAsync(Cita cita, decimal precioServicio)
     {
+        // Buscar si existe alguna ReservaTemporal ya expirada para el mismo veterinario y fechaHora
+        var reservaExpirada = await _unitOfWork.Citas.GetAll()
+            .FirstOrDefaultAsync(c => c.VeterinarioId == cita.VeterinarioId 
+                                   && c.FechaHora == cita.FechaHora 
+                                   && c.Estado == "ReservaTemporal");
+
+        if (reservaExpirada != null)
+        {
+            var ahoraUtc = DateTime.UtcNow;
+            if (reservaExpirada.FechaExpiracionReserva.HasValue && reservaExpirada.FechaExpiracionReserva.Value < ahoraUtc)
+            {
+                // Eliminar la reserva expirada físicamente para liberar el índice único
+                _unitOfWork.Citas.Remove(reservaExpirada);
+                await _unitOfWork.CommitAsync();
+            }
+        }
+
         var esValida = await ValidarYConfigurarCitaAsync(cita, "ReservaTemporal", precioServicio);
         cita.FechaExpiracionReserva = DateTime.UtcNow.AddMinutes(5);
 
@@ -462,8 +479,7 @@ public class CitaService : ICitaService
         if (esReprogramacion)
         {
             // Regla 14: Validar disponibilidad en reprogramación
-            var servicio = await _unitOfWork.Servicios.GetByIdAsync(cita.ServicioId);
-            var duracion = servicio?.DuracionMinutos ?? 30;
+            var duracion = cita.Servicio?.DuracionMinutos ?? 30;
             var disponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion, cita.Id);
             if (!disponible)
             {

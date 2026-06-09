@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import MascotasService from '../../services/mascotas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function EditarMascota() {
   const { id } = useParams<{ id: string }>();
@@ -127,12 +128,11 @@ export default function EditarMascota() {
 
   return (
     <div className="p-xl max-w-4xl mx-auto w-full">
-      <div className="mb-lg select-none">
-        <h2 className="font-display-sm text-display-sm text-ink mb-xs">Editar Mascota</h2>
-        <p className="font-body-sm text-body-sm text-body-muted font-medium">
-          Modifica los detalles físicos, biométricos o notas médicas del paciente.
-        </p>
-      </div>
+      <PageHeader
+        title="Editar Mascota"
+        description="Modifica los detalles físicos, biométricos o notas médicas del paciente."
+        backLink={{ to: `/admin/mascotas/${petId}`, label: 'Volver a la Ficha' }}
+      />
 
       <form onSubmit={handleSubmit} className="space-y-xl bg-surface-card p-xl rounded-xl border border-hairline shadow-sm">
         {/* Section 1: Basic Info */}

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PortalClienteService from '../../services/portalCliente.service';
 import type { ActualizarPerfilPortalDto } from '../../services/portalCliente.service';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function MiPerfil() {
   const navigate = useNavigate();
@@ -136,12 +137,11 @@ export default function MiPerfil() {
     <div className="flex flex-col gap-6 w-full pb-10">
       
       {/* Header */}
-      <header className="mb-2">
-        <h2 className="font-display-lg text-display-lg text-ink">Mi Perfil</h2>
-        <p className="font-body-md text-body-md text-body-muted mt-1 max-w-2xl">
-          Administra tus datos de contacto y actualiza tu contraseña de acceso de forma segura.
-        </p>
-      </header>
+      <PageHeader
+        title="Mi Perfil"
+        description="Administra tus datos de contacto y actualiza tu contraseña de acceso de forma segura."
+        hasDivider={true}
+      />
 
       {/* Formulario de Perfil */}
       <div className="bg-surface-card border border-hairline rounded-xl p-6 shadow-sm max-w-3xl">

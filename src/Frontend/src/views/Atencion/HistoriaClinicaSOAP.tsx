@@ -6,6 +6,7 @@ import type { HistorialClinicoDto } from '../../services/atencion.service';
 import MascotasService from '../../services/mascotas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
+import PageHeader from '../../components/common/PageHeader';
 
 interface HistorialRecent {
   id: number;
@@ -344,30 +345,27 @@ export default function HistoriaClinicaSOAP() {
   return (
     <div className="flex flex-col min-w-0 select-none">
       {/* Header */}
-      <header className="flex justify-between items-center pb-md border-b border-hairline mb-xl">
-        <button
-          onClick={() => navigate('/admin/cola')}
-          className="flex items-center gap-xs text-secondary hover:text-ink transition-colors font-button text-button group cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
-          Volver a la Cola
-        </button>
-        <div className="flex items-center gap-2">
-          {cerrado ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/15 text-secondary border border-secondary/20 text-caption font-caption font-semibold">
-              <span className="material-symbols-outlined text-sm">lock</span>
-              Expediente Cerrado
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-caption font-caption font-semibold">
-              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-              Atención Activa
-            </span>
-          )}
-        </div>
-      </header>
+      <PageHeader
+        title={
+          <div className="flex items-center gap-sm flex-wrap">
+            <span>Evolución Clínica (SOAP)</span>
+            {cerrado ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/15 text-secondary border border-secondary/20 text-caption font-caption font-semibold">
+                <span className="material-symbols-outlined text-sm">lock</span>
+                Expediente Cerrado
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-caption font-caption font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                Atención Activa
+              </span>
+            )}
+          </div>
+        }
+        description={`Registro médico y diagnóstico en tiempo real para la cita de ${mascota?.nombre || 'la mascota'}.`}
+        backLink={{ to: '/admin/cola', label: 'Volver a la Cola' }}
+        hasDivider={true}
+      />
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">

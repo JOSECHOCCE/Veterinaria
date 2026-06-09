@@ -27,47 +27,59 @@ export default function Login() {
     }
   };
 
+  const inputBase: React.CSSProperties = {
+    width: '100%',
+    padding: '9px 12px 9px 40px',
+    border: '1px solid #e6dfd8',
+    backgroundColor: '#faf9f5',
+    fontSize: '14px',
+    color: '#141413',
+    borderRadius: '4px',
+    outline: 'none',
+    boxSizing: 'border-box',
+  };
+
   return (
-    <main className="min-h-screen flex w-full bg-[#faf9f5]" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#faf9f5', fontFamily: 'Inter, sans-serif' }}>
 
       {/* Panel izquierdo — imagen */}
-      <div className="hidden lg:block lg:w-1/2 relative h-screen">
+      <div style={{ display: 'none', position: 'relative', flex: '0 0 50%' }} className="lg-image-panel">
         <img
           alt="Clínica veterinaria VetCare Pro"
-          className="absolute inset-0 w-full h-full object-cover"
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLn0Pn2ZOZ-n7ij-V9klJiWe-AnBBH7uLJDbnVa5MNOfQI-swW-C1AzB1jIMHTXUFNJApUlJjcnpEQMv7jDs6BLXVv-CuIyR3vvk1mzULo_cS_lbCcP8ODnnXVRvLIJpsQJy0L0SODMldQvDqAIYeDpnHIBZr5xhfKYHkf72T643eClVj_0rRom34LIi-qJpa6_JzNOzpy8nWBt_nqN9V82MbLG3FsIlXLG4_U9FO6AfYexUoc3ixYS4CaFvhfK2L-XYsM39MAqY0"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.2), transparent)' }} />
       </div>
 
       {/* Panel derecho — formulario */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center items-center px-8 py-16 lg:px-16 min-h-screen">
-        <div className="w-full max-w-sm flex flex-col gap-7">
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Logo */}
-          <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="w-8 h-8 fill-[#cc785c]" xmlns="http://www.w3.org/2000/svg">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <svg viewBox="0 0 24 24" style={{ width: '28px', height: '28px', fill: '#cc785c' }}>
               <path d="M4.5 11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm15 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7.5-1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-3.5 2c-2.5 0-7 1.5-7 4v1h14v-1c0-2.5-4.5-4-7-4zm7 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 2.9v1h6v-1c0-2.5-3.5-4-7-4z" />
             </svg>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '26px', color: '#141413', letterSpacing: '-0.3px' }}>
+            <span style={{ fontFamily: 'Georgia, serif', fontSize: '24px', color: '#141413', letterSpacing: '-0.3px' }}>
               VetCare <span style={{ color: '#cc785c', fontWeight: 700, fontStyle: 'italic' }}>Pro</span>
             </span>
           </div>
 
           {/* Encabezado */}
-          <div className="flex flex-col gap-2">
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '34px', fontWeight: 400, lineHeight: 1.15, color: '#141413', margin: 0 }}>
+          <div>
+            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '30px', fontWeight: 400, lineHeight: 1.1, color: '#141413', margin: '0 0 6px' }}>
               Iniciar sesión
             </h1>
-            <p style={{ fontSize: '15px', color: '#3d3d3a', lineHeight: 1.6, margin: 0 }}>
-              Bienvenido de nuevo a VetCare Pro. Por favor, introduzca sus credenciales para acceder al sistema.
+            <p style={{ fontSize: '13px', color: '#3d3d3a', lineHeight: 1.5, margin: 0 }}>
+              Bienvenido de nuevo a VetCare Pro. Introduce tus credenciales para acceder.
             </p>
           </div>
 
           {/* Error */}
           {error && (
-            <div className="flex items-start gap-2 px-4 py-3 rounded-lg text-sm" style={{ backgroundColor: '#ffdad6', color: '#93000a' }}>
-              <svg className="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '10px 12px', borderRadius: '6px', backgroundColor: '#ffdad6', color: '#93000a', fontSize: '13px' }}>
+              <svg style={{ width: '16px', height: '16px', flexShrink: 0, marginTop: '1px' }} fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clipRule="evenodd" />
               </svg>
               <span>{error}</span>
@@ -75,15 +87,15 @@ export default function Login() {
           )}
 
           {/* Formulario */}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
             {/* Email */}
-            <div className="flex flex-col gap-1.5">
-              <label htmlFor="email" style={{ fontSize: '14px', fontWeight: 500, color: '#141413' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <label htmlFor="email" style={{ fontSize: '13px', fontWeight: 500, color: '#141413' }}>
                 Correo electrónico
               </label>
-              <div className="relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" style={{ color: '#87736d' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div style={{ position: 'relative' }}>
+                <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#87736d', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
                 <input
@@ -91,8 +103,7 @@ export default function Login() {
                   placeholder="doctor@vetcarepro.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full outline-none transition-all rounded"
-                  style={{ paddingLeft: '40px', paddingRight: '12px', paddingTop: '11px', paddingBottom: '11px', border: '1px solid #e6dfd8', backgroundColor: '#faf9f5', fontSize: '15px', color: '#141413' }}
+                  style={inputBase}
                   onFocus={(e) => { e.target.style.borderColor = '#cc785c'; e.target.style.boxShadow = '0 0 0 1px #cc785c'; }}
                   onBlur={(e) => { e.target.style.borderColor = '#e6dfd8'; e.target.style.boxShadow = 'none'; }}
                 />
@@ -100,17 +111,17 @@ export default function Login() {
             </div>
 
             {/* Password */}
-            <div className="flex flex-col gap-1.5">
-              <div className="flex justify-between items-center">
-                <label htmlFor="password" style={{ fontSize: '14px', fontWeight: 500, color: '#141413' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <label htmlFor="password" style={{ fontSize: '13px', fontWeight: 500, color: '#141413' }}>
                   Contraseña
                 </label>
-                <a href="#" style={{ fontSize: '13px', color: '#cc785c', textDecoration: 'none' }}>
+                <a href="#" style={{ fontSize: '12px', color: '#cc785c', textDecoration: 'none' }}>
                   ¿Olvidó su contraseña?
                 </a>
               </div>
-              <div className="relative">
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none" style={{ color: '#87736d' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div style={{ position: 'relative' }}>
+                <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#87736d', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
                 </svg>
                 <input
@@ -118,8 +129,7 @@ export default function Login() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full outline-none transition-all rounded"
-                  style={{ paddingLeft: '40px', paddingRight: '12px', paddingTop: '11px', paddingBottom: '11px', border: '1px solid #e6dfd8', backgroundColor: '#faf9f5', fontSize: '15px', color: '#141413' }}
+                  style={inputBase}
                   onFocus={(e) => { e.target.style.borderColor = '#cc785c'; e.target.style.boxShadow = '0 0 0 1px #cc785c'; }}
                   onBlur={(e) => { e.target.style.borderColor = '#e6dfd8'; e.target.style.boxShadow = 'none'; }}
                 />
@@ -127,15 +137,14 @@ export default function Login() {
             </div>
 
             {/* Checkbox */}
-            <div className="flex items-center gap-2.5">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <input
                 id="remember" type="checkbox" name="remember"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
-                className="w-4 h-4 rounded cursor-pointer"
-                style={{ accentColor: '#cc785c' }}
+                style={{ width: '15px', height: '15px', accentColor: '#cc785c', cursor: 'pointer' }}
               />
-              <label htmlFor="remember" className="cursor-pointer select-none" style={{ fontSize: '14px', color: '#3d3d3a' }}>
+              <label htmlFor="remember" style={{ fontSize: '13px', color: '#3d3d3a', cursor: 'pointer', userSelect: 'none' }}>
                 Mantener sesión iniciada
               </label>
             </div>
@@ -144,17 +153,14 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 rounded transition-colors"
-              style={{ padding: '13px 24px', backgroundColor: '#cc785c', color: '#ffffff', fontSize: '14px', fontWeight: 500, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
+              style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '11px 24px', backgroundColor: '#cc785c', color: '#ffffff', fontSize: '14px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px', transition: 'background-color 0.15s' }}
               onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#924a31'; }}
               onMouseLeave={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#cc785c'; }}
             >
-              {loading ? (
-                <span style={{ fontSize: '14px' }}>Iniciando sesión...</span>
-              ) : (
+              {loading ? 'Iniciando sesión...' : (
                 <>
                   Iniciar sesión
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
                 </>
@@ -163,14 +169,13 @@ export default function Login() {
           </form>
 
           {/* Registro */}
-          <div className="flex flex-col items-center gap-3 pt-6" style={{ borderTop: '1px solid #e6dfd8' }}>
-            <p style={{ fontSize: '14px', color: '#3d3d3a', margin: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', paddingTop: '16px', borderTop: '1px solid #e6dfd8' }}>
+            <p style={{ fontSize: '13px', color: '#3d3d3a', margin: 0 }}>
               ¿No tiene una cuenta para su clínica?
             </p>
             <Link
               to="/register"
-              className="text-center w-full rounded transition-colors"
-              style={{ fontSize: '14px', fontWeight: 500, color: '#141413', border: '1px solid #c0b8b0', padding: '11px 24px', textDecoration: 'none', display: 'block' }}
+              style={{ textAlign: 'center', width: '100%', borderRadius: '4px', fontSize: '13px', fontWeight: 500, color: '#141413', border: '1px solid #c0b8b0', padding: '10px 24px', textDecoration: 'none', display: 'block', boxSizing: 'border-box', transition: 'background-color 0.15s' }}
               onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f0e8'; }}
               onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
             >
@@ -179,12 +184,19 @@ export default function Login() {
           </div>
 
           {/* Copyright */}
-          <p className="text-center" style={{ fontSize: '12px', color: '#87736d', margin: 0 }}>
+          <p style={{ textAlign: 'center', fontSize: '11px', color: '#87736d', margin: 0 }}>
             © 2024 VetCare Pro. Dedicated to Clinical Excellence.
           </p>
 
         </div>
       </div>
-    </main>
+
+      {/* CSS para el panel imagen en lg */}
+      <style>{`
+        @media (min-width: 1024px) {
+          .lg-image-panel { display: block !important; }
+        }
+      `}</style>
+    </div>
   );
 }

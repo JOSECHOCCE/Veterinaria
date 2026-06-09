@@ -5,6 +5,7 @@ import MascotasService from '../../services/mascotas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -109,12 +110,9 @@ export default function FichaMascota() {
   return (
     <div className="flex-1 flex flex-col min-w-0">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-md mb-xl">
-        <div>
-          <p className="font-caption-uppercase text-caption-uppercase text-outline mb-2">Directorio</p>
-          <h2 className="font-display-lg text-display-lg text-ink font-normal">Gestión de Pacientes</h2>
-        </div>
-        <div className="flex items-center gap-sm">
+      <PageHeader
+        title="Gestión de Pacientes"
+        actions={
           <button
             onClick={() => navigate('/admin/mascotas/nuevo')}
             className="bg-primary text-on-primary font-button text-button py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-primary-container transition-colors shadow-sm cursor-pointer"
@@ -122,8 +120,8 @@ export default function FichaMascota() {
             <span className="material-symbols-outlined text-[18px]">pets</span>
             Registrar Mascota
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Main Table Card */}
       <div className="bg-surface-card rounded-xl p-md md:p-lg border border-hairline shadow-sm">
@@ -135,7 +133,7 @@ export default function FichaMascota() {
             <input
               value={buscar}
               onChange={(e) => setBuscar(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-outline focus:ring-1 focus:ring-outline transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-outline focus:ring-1 focus:ring-outline transition-all"
               placeholder="Buscar por nombre o especie..."
               type="text"
             />
@@ -195,7 +193,7 @@ export default function FichaMascota() {
                         !m.activo ? 'opacity-60' : ''
                       }`}
                     >
-                      <td className="py-md px-sm">
+                      <td className="py-sm px-sm">
                         <div className="flex items-center gap-3">
                           <img
                             src={m.fotoUrl || getPetImageFallback(m.especie)}
@@ -211,28 +209,28 @@ export default function FichaMascota() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-md px-sm">
+                      <td className="py-sm px-sm">
                         <p className="font-medium">{m.especie}</p>
                         <p className="text-body-muted text-caption">{m.raza || 'Sin raza definida'}</p>
                       </td>
-                      <td className="py-md px-sm">
+                      <td className="py-sm px-sm">
                         <p className="font-medium">{m.usuarioNombre || 'No asignado'}</p>
                         <p className="text-body-muted text-caption">Propietario</p>
                       </td>
-                      <td className="py-md px-sm">
+                      <td className="py-sm px-sm">
                         {m.activo ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-success/10 text-success font-caption text-caption border border-success/20">
                             <span className="w-1.5 h-1.5 rounded-full bg-success"></span>
                             Activa
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary-container text-body-muted font-caption text-caption border border-secondary-fixed-dim">
-                            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-soft text-body-muted font-caption text-caption">
+                            <span className="w-1.5 h-1.5 rounded-full bg-secondary/50"></span>
                             Inactiva
                           </span>
                         )}
                       </td>
-                      <td className="py-md px-sm text-right">
+                      <td className="py-sm px-sm text-right">
                         <span className="material-symbols-outlined text-body-muted group-hover:text-primary transition-colors pr-sm">
                           arrow_forward
                         </span>

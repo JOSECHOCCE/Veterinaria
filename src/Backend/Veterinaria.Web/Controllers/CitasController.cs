@@ -208,6 +208,25 @@ public class CitasController : ControllerBase
         var result = await _citaService.CambiarEstadoAsync(id, nuevoEstado);
         if (!result.Success) return BadRequest(Response<object>.Fail(result.Error ?? "Error"));
         
+        if (result.Cita != null)
+        {
+            switch (nuevoEstado)
+            {
+                case "Confirmada":
+                    await _notificacionService.NotificarCitaConfirmadaAsync(result.Cita);
+                    break;
+                case "Rechazada":
+                    await _notificacionService.NotificarCitaRechazadaAsync(result.Cita);
+                    break;
+                case "EnProceso":
+                    await _notificacionService.NotificarCitaEnProcesoAsync(result.Cita);
+                    break;
+                case "Completada":
+                    await _notificacionService.NotificarCitaCompletadaAsync(result.Cita);
+                    break;
+            }
+        }
+
         return Ok(Response<object>.Ok($"Estado cambiado a {nuevoEstado}"));
     }
 
@@ -217,6 +236,11 @@ public class CitasController : ControllerBase
         var result = await _citaService.CancelarCitaAsync(id, IsStaff(), null);
         if (!result.Success) return BadRequest(Response<object>.Fail(result.Error ?? "Error"));
         
+        if (result.Cita != null)
+        {
+            await _notificacionService.NotificarCitaCanceladaAsync(result.Cita);
+        }
+
         return Ok(Response<object>.Ok("Cita cancelada."));
     }
 }

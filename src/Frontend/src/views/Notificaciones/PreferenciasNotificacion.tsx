@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import PortalClienteService from '../../services/portalCliente.service';
 import notificacionesService from '../../services/notificaciones.service';
 import { toast } from 'sonner';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function PreferenciasNotificacion() {
   const navigate = useNavigate();
@@ -92,24 +93,13 @@ export default function PreferenciasNotificacion() {
   return (
     <div className="max-w-3xl mx-auto flex flex-col gap-8 pb-10 select-none">
       
-      {/* Botón de retroceso / Breadcrumb */}
-      <div>
-        <button
-          onClick={() => navigate('/cliente/mi-perfil')}
-          className="inline-flex items-center gap-2 text-body-muted hover:text-primary font-semibold text-body-sm transition-colors cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
-          Volver a Mi Perfil
-        </button>
-      </div>
-
       {/* Page Header */}
-      <header className="mb-2">
-        <h1 className="font-display-md text-display-md text-ink">Preferencias de Notificación</h1>
-        <p className="font-body-md text-body-md text-body-muted mt-2 max-w-2xl leading-relaxed">
-          Gestiona cómo y cuándo VetCare Pro se comunica contigo. Ajusta tus alertas para mantenerte informado sobre la salud de tus mascotas sin saturar tu bandeja de entrada.
-        </p>
-      </header>
+      <PageHeader
+        title="Preferencias de Notificación"
+        description="Gestiona cómo y cuándo VetCare Pro se comunica contigo. Ajusta tus alertas para mantenerte informado sobre la salud de tus mascotas sin saturar tu bandeja de entrada."
+        backLink={{ to: '/cliente/mi-perfil', label: 'Volver a Mi Perfil' }}
+        hasDivider={true}
+      />
 
       {/* Settings Form */}
       <form onSubmit={handleSave} className="flex flex-col gap-6">

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import dashboardService, { type DashboardViewModelDto } from '../../services/dashboard.service';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -119,20 +120,19 @@ export default function Dashboard() {
     <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-8 pb-12 select-none">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-hairline pb-6">
-        <div>
-          <h1 className="font-display-lg text-display-lg text-ink">Resumen Operativo</h1>
-          <p className="font-body-md text-body-md text-body-muted mt-1">
-            Métricas clave y estado de la clínica veterinaria para hoy.
-          </p>
-        </div>
-        <div className="text-left md:text-right shrink-0">
-          <p className="font-caption-caps text-caption-caps text-primary tracking-widest uppercase text-[11px] font-bold">
-            Fecha de Hoy
-          </p>
-          <p className="font-title-md text-title-md text-ink mt-0.5">{formattedDate}</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Resumen Operativo"
+        description="Métricas clave y estado de la clínica veterinaria para hoy."
+        actions={
+          <div className="text-left md:text-right shrink-0">
+            <p className="font-caption-caps text-caption-caps text-primary tracking-widest uppercase text-[11px] font-semibold">
+              Fecha de Hoy
+            </p>
+            <p className="font-title-md text-title-md text-ink mt-0.5">{formattedDate}</p>
+          </div>
+        }
+        hasDivider={true}
+      />
 
       {/* Bento Grid: Métricas Clave */}
       <div className={`grid grid-cols-1 ${showFinancials ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
@@ -140,7 +140,7 @@ export default function Dashboard() {
         {/* Citas Programadas */}
         <div
           onClick={() => navigate('/admin/agenda')}
-          className="bg-surface-card rounded-xl p-6 flex flex-col justify-between h-44 border border-surface-soft hover:border-outline-variant hover:shadow-md transition-all duration-200 cursor-pointer shadow-sm"
+          className="bg-surface-card rounded-xl p-md flex flex-col justify-between h-40 border border-surface-soft hover:border-outline-variant hover:shadow-md transition-all duration-200 cursor-pointer shadow-sm"
         >
           <div className="flex justify-between items-start">
             <h3 className="font-title-sm text-title-sm text-body-muted font-bold">Citas Programadas</h3>
@@ -162,7 +162,7 @@ export default function Dashboard() {
         {showFinancials && (
           <div
             onClick={() => navigate('/admin/reportes')}
-            className="bg-ink rounded-xl p-6 flex flex-col justify-between h-44 shadow-md relative overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+            className="bg-ink rounded-xl p-md flex flex-col justify-between h-40 shadow-md relative overflow-hidden cursor-pointer hover:shadow-lg transition-all"
           >
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-surface-variant opacity-10 rounded-full blur-2xl"></div>
             <div className="flex justify-between items-start relative z-10">
@@ -185,7 +185,7 @@ export default function Dashboard() {
         {/* Cobros Pendientes */}
         <div
           onClick={() => (isAdmin || isRecepcionista) ? navigate('/admin/pagos') : undefined}
-          className={`bg-surface-card rounded-xl p-6 flex flex-col justify-between h-44 border border-surface-soft shadow-sm ${
+          className={`bg-surface-card rounded-xl p-md flex flex-col justify-between h-40 border border-surface-soft shadow-sm ${
             (isAdmin || isRecepcionista) ? 'hover:border-outline-variant hover:shadow-md cursor-pointer transition-all duration-200' : 'cursor-default'
           }`}
         >

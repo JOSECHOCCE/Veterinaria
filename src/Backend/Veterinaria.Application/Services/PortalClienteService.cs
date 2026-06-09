@@ -16,15 +16,18 @@ public class PortalClienteService : IPortalClienteService
     private readonly IUnitOfWork _unitOfWork;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICitaService _citaService;
+    private readonly INotificacionService _notificacionService;
 
     public PortalClienteService(
         IUnitOfWork unitOfWork,
         UserManager<ApplicationUser> userManager,
-        ICitaService citaService)
+        ICitaService citaService,
+        INotificacionService notificacionService)
     {
         _unitOfWork = unitOfWork;
         _userManager = userManager;
         _citaService = citaService;
+        _notificacionService = notificacionService;
     }
 
     public async Task<Response<PortalDashboardDto>> GetDashboardAsync(int usuarioId)
@@ -163,6 +166,31 @@ public class PortalClienteService : IPortalClienteService
         if (servicio == null || !servicio.Activo)
             return Response<object>.Fail("Servicio no válido o inactivo.");
 
+        // Buscar si existe una reserva temporal previa para este veterinario, fechaHora y cliente
+        var citaExistente = await _unitOfWork.Citas.GetAll()
+            .FirstOrDefaultAsync(c => c.VeterinarioId == dto.VeterinarioId 
+                                   && c.FechaHora == dto.FechaHora 
+                                   && c.Estado == "ReservaTemporal"
+                                   && c.Mascota.UsuarioId == usuarioId);
+
+        if (citaExistente != null)
+        {
+            citaExistente.MascotaId = dto.MascotaId;
+            citaExistente.ServicioId = dto.ServicioId;
+            citaExistente.Motivo = dto.Motivo;
+            citaExistente.Estado = dto.VeterinarioId == null ? "PendienteAsignacion" : "PendienteConfirmacion";
+            citaExistente.MontoTotal = servicio.Precio;
+            citaExistente.MontoPagado = 0;
+            citaExistente.FechaExpiracionReserva = null; // Liberar expiración
+
+            _unitOfWork.Citas.Update(citaExistente);
+            await _unitOfWork.CommitAsync();
+
+            await _notificacionService.NotificarNuevaCitaSolicitadaAsync(citaExistente);
+
+            return Response<object>.Ok(new { citaExistente.Id }, "Solicitud de cita enviada. Pendiente de confirmación por la clínica.");
+        }
+
         // RF-55 y RF-26: La cita queda en estado PendienteConfirmacion
         var cita = new Cita
         {
@@ -185,6 +213,9 @@ public class PortalClienteService : IPortalClienteService
             // Valida disponibilidad en _citaService.CreateCitaAsync
             var precioServicio = servicio.Precio;
             await _citaService.CreateCitaAsync(cita, precioServicio);
+
+            await _notificacionService.NotificarNuevaCitaSolicitadaAsync(cita);
+
             return Response<object>.Ok(new { cita.Id }, "Solicitud de cita enviada. Pendiente de confirmación por la clínica.");
         }
         catch (InvalidOperationException ex)

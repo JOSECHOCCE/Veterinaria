@@ -7,6 +7,7 @@ import MascotasService from '../../services/mascotas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
+import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -162,18 +163,15 @@ export default function HistorialClinicoMascota() {
     <div className="flex-grow flex flex-col min-w-0 pb-section" style={{ fontFamily: 'Inter, sans-serif' }}>
       
       {/* Breadcrumb Header */}
-      <header className="flex justify-between items-center pb-md border-b border-hairline mb-xl select-none">
-        <button
-          onClick={() => navigate(isStaff ? `/admin/mascotas/${mascota.id}` : `/cliente/mascotas/${mascota.id}`)}
-          className="flex items-center gap-xs text-secondary hover:text-ink transition-colors font-button text-button group cursor-pointer"
-        >
-          <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-0.5 transition-transform">
-            arrow_back
-          </span>
-          Volver a la Ficha
-        </button>
-        <div className="font-title-sm text-title-sm text-ink font-semibold">Historial Clínico</div>
-      </header>
+      <PageHeader
+        title="Historial Clínico"
+        description={`Antecedentes clínicos y consultas médicas previas de ${mascota.nombre}.`}
+        backLink={{
+          to: isStaff ? `/admin/mascotas/${mascota.id}` : `/cliente/mascotas/${mascota.id}`,
+          label: 'Volver a la Ficha',
+        }}
+        hasDivider={true}
+      />
 
       {/* Patient Header Card */}
       <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col md:flex-row items-center md:items-start gap-lg mb-xl select-none">

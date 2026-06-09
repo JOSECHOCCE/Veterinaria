@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import Logo from './Logo';
 import { useNotifications } from '../../hooks/useNotifications';
+import GreetingModal from '../Notifications/GreetingModal';
 
 export default function ClientLayout() {
   const { isAuthenticated, loading, user, logout } = useAuth();
@@ -12,6 +13,7 @@ export default function ClientLayout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { unreadCount } = useNotifications();
   const [shouldAnimate, setShouldAnimate] = useState(false);
+  const [showGreeting, setShowGreeting] = useState(true);
 
   useEffect(() => {
     if (unreadCount > 0) {
@@ -189,6 +191,9 @@ export default function ClientLayout() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-gutter lg:p-6">
         <Outlet />
       </main>
+
+      {/* Greeting Modal (Aparece una vez por sesión si hay notificaciones) */}
+      {showGreeting && <GreetingModal onClose={() => setShowGreeting(false)} />}
     </div>
   );
 }

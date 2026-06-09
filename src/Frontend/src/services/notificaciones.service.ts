@@ -74,4 +74,30 @@ export const notificacionesService = {
   }
 };
 
+export const mapBootstrapIconToMaterial = (icon?: string | null): string => {
+  if (!icon) return 'notifications';
+  
+  if (!icon.startsWith('bi-')) return icon;
+
+  const mapping: Record<string, string> = {
+    'bi-calendar-check': 'event_available',
+    'bi-calendar-x': 'event_busy',
+    'bi-calendar-event': 'event',
+    'bi-calendar-plus': 'calendar_add_on',
+    'bi-check-circle-fill': 'check_circle',
+    'bi-check-circle': 'check_circle',
+    'bi-x-circle': 'cancel',
+    'bi-heart-pulse': 'medical_services',
+    'bi-alarm': 'alarm',
+    'bi-credit-card': 'credit_card',
+    'bi-info-circle-fill': 'info',
+    'bi-info-circle': 'info',
+    'bi-exclamation-triangle-fill': 'warning',
+    'bi-exclamation-triangle': 'warning',
+    'bi-x-circle-fill': 'error',
+  };
+
+  return mapping[icon] || 'notifications';
+};
+
 export default notificacionesService;

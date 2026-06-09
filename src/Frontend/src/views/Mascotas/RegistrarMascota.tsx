@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import MascotasService from '../../services/mascotas.service';
 import ClientesService from '../../services/clientes.service';
+import PageHeader from '../../components/common/PageHeader';
 
 export default function RegistrarMascota() {
   const navigate = useNavigate();
@@ -118,12 +119,15 @@ export default function RegistrarMascota() {
 
   return (
     <div className="p-xl max-w-4xl mx-auto w-full">
-      <div className="mb-lg select-none">
-        <h2 className="font-display-sm text-display-sm text-ink mb-xs">Registrar Mascota</h2>
-        <p className="font-body-sm text-body-sm text-body-muted">
-          Ingresa los datos del nuevo paciente para vincularlo a un cliente responsable.
-        </p>
-      </div>
+      <PageHeader
+        title="Registrar Mascota"
+        description="Ingresa los datos del nuevo paciente para vincularlo a un cliente responsable."
+        backLink={
+          defaultOwnerIdStr
+            ? { to: `/admin/clientes/${defaultOwnerIdStr}`, label: 'Volver a la Ficha' }
+            : { to: '/admin/mascotas', label: 'Volver a Pacientes' }
+        }
+      />
 
       <form onSubmit={handleSubmit} className="space-y-xl bg-surface-card p-xl rounded-xl border border-hairline shadow-sm">
         {/* Section 1: Basic Info */}
