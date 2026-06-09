@@ -85,7 +85,7 @@ public class HistorialClinicoService : IHistorialClinicoService
         if (cita == null) return (false, null, "Cita no encontrada.");
         
         // RF-41 / Regla 2: La cita debe estar En Atención para empezar el registro (o Completada si el admin lo fuerza)
-        if (cita.Estado != "EnAtencion" && cita.Estado != "Completada")
+        if (cita.Estado != "EnAtencion" && cita.Estado != "EnProceso" && cita.Estado != "Completada")
             return (false, null, "La cita debe estar 'En Atención' para registrar la historia clínica.");
 
         // Regla 3: Solo veterinario asignado puede registrar
