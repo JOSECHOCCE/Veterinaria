@@ -46,5 +46,5 @@ public class Triage
 
     // Navegación
     public virtual Cita? Cita { get; set; }
-    public virtual Mascota Mascota { get; set; } = default!;
+    public virtual Mascota? Mascota { get; set; }
 }
