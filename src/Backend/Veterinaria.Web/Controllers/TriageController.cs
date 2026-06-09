@@ -110,7 +110,7 @@ public class TriageController : ControllerBase
         // Si el estado es EnAtencion y existe cita asociada, pasar la cita a EnProceso y notificar al cliente.
         if (nuevoEstado == "EnAtencion" && triage.CitaId.HasValue)
         {
-            var result = await _citaService.CambiarEstadoAsync(triage.CitaId.Value, "EnProceso");
+            var result = await _citaService.CambiarEstadoAsync(triage.CitaId.Value, "EnAtencion");
             if (result.Success && result.Cita != null)
             {
                 await _notificacionService.NotificarCitaEnProcesoAsync(result.Cita);

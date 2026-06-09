@@ -35,7 +35,7 @@ public class DashboardService : IDashboardService
         dto.CitasHoyTotal = citasHoy.Count;
         dto.CitasHoyPendientes = citasHoy.Count(c => c.Estado == "Pendiente");
         dto.CitasHoyConfirmadas = citasHoy.Count(c => c.Estado == "Confirmada");
-        dto.CitasHoyEnProceso = citasHoy.Count(c => c.Estado == "EnProceso");
+        dto.CitasHoyEnProceso = citasHoy.Count(c => c.Estado == "EnProceso" || c.Estado == "EnAtencion");
         dto.CitasHoyCompletadas = citasHoy.Count(c => c.Estado == "Completada");
         dto.CitasHoyCanceladas = citasHoy.Count(c => c.Estado == "Cancelada");
 

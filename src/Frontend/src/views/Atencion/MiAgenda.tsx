@@ -157,8 +157,8 @@ export default function MiAgenda() {
         return;
       }
 
-      // 2. If it is already EnAtencion, just continue, otherwise transition
-      if (triage.estado !== 'EnAtencion') {
+      // 2. If it is already EnAtencion and the appointment is in process, just continue, otherwise transition
+      if (triage.estado !== 'EnAtencion' || (cita.estado !== 'EnAtencion' && cita.estado !== 'EnProceso')) {
         await AtencionService.cambiarEstadoTriage(triage.id!, 'EnAtencion');
       }
 

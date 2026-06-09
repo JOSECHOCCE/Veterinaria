@@ -92,7 +92,7 @@ public class CitaStatusService : BackgroundService
 
         // 2. Citas "EnProceso" que llevan más de 4 horas -> Completar automáticamente
         var citasEnProcesoLargo = await context.Citas
-            .Where(c => c.Estado == "EnProceso")
+            .Where(c => c.Estado == "EnProceso" || c.Estado == "EnAtencion")
             .Where(c => c.FechaHora < ahora.AddHours(-4))
             .ToListAsync();
 
