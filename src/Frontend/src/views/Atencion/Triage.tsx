@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import AtencionService from '../../services/atencion.service';
 import type { TriageMascotaDropdown, TriageDto } from '../../services/atencion.service';
@@ -9,12 +9,14 @@ import PageHeader from '../../components/common/PageHeader';
 
 export default function Triage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const state = location.state as { citaId?: number; mascotaId?: number; motivo?: string; mascotaNombre?: string } | null;
 
   // Form Fields State
-  const [mascotaId, setMascotaId] = useState<number>(0);
+  const [mascotaId, setMascotaId] = useState<number>(state?.mascotaId || 0);
   const [nivel, setNivel] = useState<string>('N3'); // default N3
   const [sintomas, setSintomas] = useState<string>('');
-  const [motivoConsulta, setMotivoConsulta] = useState<string>('');
+  const [motivoConsulta, setMotivoConsulta] = useState<string>(state?.motivo || '');
   
   // Vital Signs
   const [temperatura, setTemperatura] = useState<string>('');
@@ -24,7 +26,7 @@ export default function Triage() {
   // Dropdowns data
   const [mascotas, setMascotas] = useState<TriageMascotaDropdown[]>([]);
   const [todayCitas, setTodayCitas] = useState<CalendarioEventDto[]>([]);
-  const [selectedCitaId, setSelectedCitaId] = useState<number | null>(null);
+  const [selectedCitaId, setSelectedCitaId] = useState<number | null>(state?.citaId || null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -33,7 +35,14 @@ export default function Triage() {
         setLoading(true);
         // Load active pets
         const petsData = await AtencionService.getTriageMascotas();
-        setMascotas(petsData || []);
+        let finalPets = petsData || [];
+        if (state?.mascotaId && !finalPets.some((p) => p.id === state.mascotaId)) {
+          finalPets = [
+            { id: state.mascotaId, display: state.mascotaNombre || `Mascota #${state.mascotaId}` },
+            ...finalPets
+          ];
+        }
+        setMascotas(finalPets);
 
         // Load today's appointments to link if possible
         const today = new Date().toISOString().split('T')[0];
@@ -58,6 +67,10 @@ export default function Triage() {
 
   // Auto-detect appointment for selected pet
   useEffect(() => {
+    if (state?.citaId) {
+      setSelectedCitaId(state.citaId);
+      return;
+    }
     if (!mascotaId) {
       setSelectedCitaId(null);
       return;
@@ -71,7 +84,7 @@ export default function Triage() {
     } else {
       setSelectedCitaId(null);
     }
-  }, [mascotaId, todayCitas, motivoConsulta]);
+  }, [mascotaId, todayCitas, motivoConsulta, state]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -134,7 +147,10 @@ export default function Triage() {
                 <select
                   value={mascotaId}
                   onChange={(e) => setMascotaId(Number(e.target.value))}
-                  className="w-full bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                  disabled={!!state?.mascotaId}
+                  className={`w-full bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer ${
+                    state?.mascotaId ? 'bg-surface-soft text-ink-muted cursor-not-allowed opacity-80' : ''
+                  }`}
                 >
                   <option value={0}>Seleccione una mascota...</option>
                   {mascotas.map((m) => (
@@ -148,7 +164,9 @@ export default function Triage() {
               {selectedCitaId && (
                 <div className="bg-success/5 border border-success/20 text-success p-3 rounded-lg flex items-center gap-sm font-semibold">
                   <span className="material-symbols-outlined text-[20px]">check_circle</span>
-                  Cita médica de hoy detectada y vinculada automáticamente.
+                  {state?.citaId 
+                    ? 'Cita médica seleccionada vinculada correctamente.'
+                    : 'Cita médica de hoy detectada y vinculada automáticamente.'}
                 </div>
               )}
             </div>

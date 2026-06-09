@@ -146,7 +146,14 @@ export default function MiAgenda() {
           `Esta cita no cuenta con un triage registrado. Por favor, registre el triage antes de iniciar la consulta.`
         );
         // Navigate to Triage form with state to auto-fill
-        navigate('/admin/triage', { state: { citaId: cita.id, mascotaId: cita.mascotaId } });
+        navigate('/admin/triage', { 
+          state: { 
+            citaId: cita.id, 
+            mascotaId: cita.mascotaId,
+            mascotaNombre: cita.mascotaNombre,
+            motivo: cita.motivo 
+          } 
+        });
         return;
       }
 
