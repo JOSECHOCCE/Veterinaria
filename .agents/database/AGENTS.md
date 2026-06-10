@@ -1,9 +1,18 @@
+---
+name: database
+display: Base de datos / migraciones / EF
+description: Cuando trabajes en base de datos (EF, migraciones, seeds)
+---
+
 # VetCare Database — AI Agent Ruleset
 
 > **Skills Reference**:
 > <!-- SKILLS_REF_START -->
+> - [agent-creator](../skills/agent-creator/SKILL.md) - Crea nuevos sub-agentes para el orquestador principal de VetCare. Usar cuando necesites configurar una nueva especialidad para los agentes de IA.
+> - [agent-sync](../skills/agent-sync/SKILL.md) - Sincroniza la tabla de sub-agentes y reglas de enrutamiento en AGENTS.md raíz. Usar siempre que agregues, elimines o cambies el nombre de un sub-agente.
 > - [commits](../skills/commits/SKILL.md) - Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit.
 > - [entity-framework](../skills/entity-framework/SKILL.md) - Patrones de EF Core Code-First para VetCare. Fluent API obligatorio, migraciones bien nombradas, sin Data Annotations en Domain. Usar cuando toques DbContext, entidades, migraciones o configuraciones de base de datos.
+> - [pull-request](../skills/pull-request/SKILL.md) - Convenciones de Pull Request para VetCare. Título, descripción, checklist y cómo revisar. Usar siempre antes de crear o revisar un PR.
 > - [vetcare-db](../skills/vetcare-db/SKILL.md) - Entidades, relaciones y configuraciones Fluent API específicas de VetCare. Usar cuando crees o modifiques entidades del Domain o configuraciones de Infrastructure.
 <!-- SKILLS_REF_END -->
 
@@ -16,7 +25,10 @@
 | Crear configuración Fluent API (IEntityTypeConfiguration) | `entity-framework` |
 | Crear o modificar una entidad del Domain | `vetcare-db` |
 | Crear o revisar una migración | `entity-framework` |
+| Crear un nuevo sub-agente | `agent-creator` |
+| Crear un Pull Request | `pull-request` |
 | Hacer un commit | `commits` |
+| Modificar o agregar un sub-agente | `agent-sync` |
 | Trabajar con relaciones entre entidades | `vetcare-db` |
 <!-- AUTO_INVOKE_END -->
 

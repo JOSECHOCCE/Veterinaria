@@ -22,11 +22,14 @@
 
 ## Sub-agentes (leer según contexto)
 
+<!-- SUBAGENTS_START -->
 | Cuando trabajes en... | Leer |
 |---|---|
 | Backend / API / dominio / lógica | `.agents/backend/AGENTS.md` |
-| Frontend / UI / componentes/vistas | `.agents/frontend/AGENTS.md` |
 | Base de datos / migraciones / EF | `.agents/database/AGENTS.md` |
+| Frontend / UI / componentes/vistas | `.agents/frontend/AGENTS.md` |
+| Testing / xUnit / pruebas unitarias | `.agents/testing/AGENTS.md` |
+<!-- SUBAGENTS_END -->
 
 ---
 
@@ -66,6 +69,8 @@
 <!-- SKILLS_INFRA_START -->
 | Skill | Descripción | URL |
 |---|---|---|
+| `agent-creator` | Crea nuevos sub-agentes para el orquestador principal de VetCare. Usar cuando necesites configurar una nueva especialidad para los agentes de IA. | [SKILL.md](.agents/skills/agent-creator/SKILL.md) |
+| `agent-sync` | Sincroniza la tabla de sub-agentes y reglas de enrutamiento en AGENTS.md raíz. Usar siempre que agregues, elimines o cambies el nombre de un sub-agente. | [SKILL.md](.agents/skills/agent-sync/SKILL.md) |
 | `skill-creator` | Crea nuevas skills para el sistema de agentes de VetCare siguiendo el estándar de Antigravity. Usar cuando pidas crear una nueva skill, agregar instrucciones al agente o documentar patrones para IA. | [SKILL.md](.agents/skills/skill-creator/SKILL.md) |
 | `skill-sync` | Sincroniza las skills en AGENTS.md cuando agregas, modificas o eliminas una skill. Usar siempre que hagas cualquier cambio en la carpeta .agents/skills/. | [SKILL.md](.agents/skills/skill-sync/SKILL.md) |
 <!-- SKILLS_INFRA_END -->
@@ -83,9 +88,12 @@
 | Crear o revisar un Pull Request | `pull-request` |
 | Crear una nueva skill | `skill-creator` |
 | Modificar o agregar una skill | `skill-sync` |
-| Trabajar en backend (.NET, controllers, services) | → ver `.agents/backend/AGENTS.md` |
-| Trabajar en frontend (React, componentes, vistas) | → ver `.agents/frontend/AGENTS.md` |
-| Trabajar en base de datos (EF, migraciones, seeds) | → ver `.agents/database/AGENTS.md` |
+<!-- SUBAGENT_DISPATCH_START -->
+| Cuando trabajes en backend (.NET, controllers, services) | → ver `.agents/backend/AGENTS.md` |
+| Cuando trabajes en base de datos (EF, migraciones, seeds) | → ver `.agents/database/AGENTS.md` |
+| Cuando trabajes en frontend (React, componentes, vistas) | → ver `.agents/frontend/AGENTS.md` |
+| Cuando trabajes en pruebas unitarias, tests de integración o xUnit | → ver `.agents/testing/AGENTS.md` |
+<!-- SUBAGENT_DISPATCH_END -->
 
 ---
 

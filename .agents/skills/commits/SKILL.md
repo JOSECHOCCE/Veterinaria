@@ -2,11 +2,12 @@
 name: commits
 description: Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit.
 category: generic
-agents: [backend, frontend, database]
+agents: [backend, frontend, database, testing]
 triggers:
   backend: "Hacer un commit"
   frontend: "Hacer un commit"
   database: "Hacer un commit"
+  testing: "Hacer un commit"
 ---
 
 ## Cuándo usar esta skill

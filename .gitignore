@@ -238,3 +238,9 @@ temp/
 appsettings.Development.json
 secrets.json
 *.secrets.json
+
+# Test results and temporary files
+test_results.txt
+src/Backend/TestResults/
+src/Backend/TestRunner/
+

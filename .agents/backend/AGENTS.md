@@ -1,7 +1,15 @@
+---
+name: backend
+display: Backend / API / dominio / lógica
+description: Cuando trabajes en backend (.NET, controllers, services)
+---
+
 # VetCare Backend — AI Agent Ruleset
 
 > **Skills Reference**: Para patrones detallados usar estas skills:
 > <!-- SKILLS_REF_START -->
+> - [agent-creator](../skills/agent-creator/SKILL.md) - Crea nuevos sub-agentes para el orquestador principal de VetCare. Usar cuando necesites configurar una nueva especialidad para los agentes de IA.
+> - [agent-sync](../skills/agent-sync/SKILL.md) - Sincroniza la tabla de sub-agentes y reglas de enrutamiento en AGENTS.md raíz. Usar siempre que agregues, elimines o cambies el nombre de un sub-agente.
 > - [clean-architecture](../skills/clean-architecture/SKILL.md) - Onion Architecture para .NET Core. Vigila que las dependencias fluyan correctamente entre capas. Usar cuando crees, muevas o reorganices clases entre Domain, Application, Infrastructure y Web.
 > - [clean-architecture-review](../skills/clean-architecture-review/SKILL.md) - Review code and provide design guidance based on Clean Architecture principles. Checks dependency rule, layer separation, crossing boundaries, and SOLID principles. Use when asked to review architecture, check dependencies, or design with clean architecture principles.
 > - [commits](../skills/commits/SKILL.md) - Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit.
@@ -21,9 +29,11 @@
 | Crear o modificar un Controller | `vetcare-api` |
 | Crear o modificar un Service (Application layer) | `clean-architecture` |
 | Crear o modificar una Interface | `clean-architecture` |
+| Crear un nuevo sub-agente | `agent-creator` |
 | Crear un Pull Request | `pull-request` |
 | Hacer un commit | `commits` |
 | Implementar autenticación, roles, JWT | `jwt-auth` |
+| Modificar o agregar un sub-agente | `agent-sync` |
 | Trabajar con lógica de citas, estados, disponibilidad | `vetcare-agenda` |
 <!-- AUTO_INVOKE_END -->
 

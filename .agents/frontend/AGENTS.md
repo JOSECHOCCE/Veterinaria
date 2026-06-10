@@ -1,7 +1,15 @@
+---
+name: frontend
+display: Frontend / UI / componentes/vistas
+description: Cuando trabajes en frontend (React, componentes, vistas)
+---
+
 # VetCare Frontend — AI Agent Ruleset
 
 > **Skills Reference**:
 > <!-- SKILLS_REF_START -->
+> - [agent-creator](../skills/agent-creator/SKILL.md) - Crea nuevos sub-agentes para el orquestador principal de VetCare. Usar cuando necesites configurar una nueva especialidad para los agentes de IA.
+> - [agent-sync](../skills/agent-sync/SKILL.md) - Sincroniza la tabla de sub-agentes y reglas de enrutamiento en AGENTS.md raíz. Usar siempre que agregues, elimines o cambies el nombre de un sub-agente.
 > - [commits](../skills/commits/SKILL.md) - Conventional commits para VetCare. Formato correcto de mensajes de commit. Usar siempre antes de hacer un git commit.
 > - [jwt-auth](../skills/jwt-auth/SKILL.md) - Patrón completo de autenticación JWT para VetCare. Generación en backend .NET, interceptor Axios en frontend, guards de rutas por rol. Usar cuando implementes login, rutas protegidas, middleware de auth o manejo de tokens.
 > - [pull-request](../skills/pull-request/SKILL.md) - Convenciones de Pull Request para VetCare. Título, descripción, checklist y cómo revisar. Usar siempre antes de crear o revisar un PR.
@@ -19,8 +27,10 @@
 | Crear o modificar un componente React | `react-typescript` |
 | Crear o modificar una vista (página completa) | `vetcare-ui` |
 | Crear types o interfaces TypeScript | `react-typescript` |
+| Crear un nuevo sub-agente | `agent-creator` |
 | Crear un Pull Request | `pull-request` |
 | Hacer un commit | `commits` |
+| Modificar o agregar un sub-agente | `agent-sync` |
 | Trabajar con Axios, interceptores, token JWT | `jwt-auth` |
 | Trabajar en el portal del cliente | `vetcare-ui` |
 <!-- AUTO_INVOKE_END -->

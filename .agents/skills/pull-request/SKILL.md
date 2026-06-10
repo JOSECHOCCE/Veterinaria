@@ -2,10 +2,12 @@
 name: pull-request
 description: Convenciones de Pull Request para VetCare. Título, descripción, checklist y cómo revisar. Usar siempre antes de crear o revisar un PR.
 category: generic
-agents: [backend, frontend]
+agents: [backend, frontend, database, testing]
 triggers:
   backend: "Crear un Pull Request"
   frontend: "Crear un Pull Request"
+  database: "Crear un Pull Request"
+  testing: "Crear un Pull Request"
 ---
 
 ## Cuándo usar esta skill
