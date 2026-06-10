@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <!-- Microsoft Code Coverage (para Visual Studio) -->
+      <DataCollector friendlyName="Code Coverage" uri="datacollector://Microsoft.CodeCoverage.Default/1.0" assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+        <Configuration>
+          <CodeCoverage>
+            <!-- Exclude modules (assemblies) from coverage analysis -->
+            <ModulePaths>
+              <Exclude>
+                <ModulePath>.*[Tt]ests.*</ModulePath>
+                <ModulePath>.*[Ww]eb.*</ModulePath>
+              </Exclude>
+            </ModulePaths>
+
+            <!-- Exclude auto-generated attributes -->
+            <Attributes>
+              <Exclude>
+                <Attribute>^System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute$</Attribute>
+                <Attribute>^System.CodeDom.Compiler.GeneratedCodeAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
+
+            <!-- Exclude specific file paths and directories -->
+            <Sources>
+              <Exclude>
+                <Source>.*\\Migrations\\.*</Source>
+                <Source>.*DbSeeder\.cs$</Source>
+                <Source>.*\\DTOs\\.*</Source>
+                <Source>.*\\Models\\.*</Source>
+                <Source>.*AssemblyAttributes\.cs$</Source>
+                <Source>.*AssemblyInfo\.cs$</Source>
+                <Source>.*GlobalUsings\.g\.cs$</Source>
+              </Exclude>
+            </Sources>
+          </CodeCoverage>
+        </Configuration>
+      </DataCollector>
+
+      <!-- Coverlet / XPlat Code Coverage (para dotnet test en consola) -->
+      <DataCollector friendlyName="XPlat Code Coverage" uri="datacollector://coverlet.collector/1.0" assemblyQualifiedName="Coverlet.Collector.DataCollection.CoverletCoverageDataCollector, Coverlet.Collector.DataCollection, Version=1.5.0.0, Culture=neutral, PublicKeyToken=null">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Exclude>[Veterinaria.Web]*,[*Tests*]*,[Veterinaria.Application]Veterinaria.Application.DTOs.*</Exclude>
+          <ExcludeByFile>**/Migrations/*.cs,**/DbSeeder.cs,**/DTOs/*.cs</ExcludeByFile>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
