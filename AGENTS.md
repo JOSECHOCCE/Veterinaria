@@ -48,7 +48,6 @@
 | `jwt-auth` | Patrón completo de autenticación JWT para VetCare. Generación en backend .NET, interceptor Axios en frontend, guards de rutas por rol. Usar cuando implementes login, rutas protegidas, middleware de auth o manejo de tokens. | [SKILL.md](.agents/skills/jwt-auth/SKILL.md) |
 | `pull-request` | Convenciones de Pull Request para VetCare. Título, descripción, checklist y cómo revisar. Usar siempre antes de crear o revisar un PR. | [SKILL.md](.agents/skills/pull-request/SKILL.md) |
 | `react-typescript` | React + TypeScript sin código genérico. Componentes bien estructurados, tipos explícitos, sin any, servicios separados de la UI. Usar cuando toques cualquier archivo .tsx o .ts del frontend. | [SKILL.md](.agents/skills/react-typescript/SKILL.md) |
-| `ui-ux-pro-max` | UI/UX design intelligence. 50 styles, 21 palettes, 50 font pairings, 20 charts, 9 stacks. | [SKILL.md](.agents/skills/ui-ux-pro-max/SKILL.md) |
 <!-- SKILLS_GENERIC_END -->
 
 ### Skills Específicas de VetCare
