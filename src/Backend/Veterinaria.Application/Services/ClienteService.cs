@@ -464,4 +464,42 @@ public class ClienteService : IClienteService
 
         return (true, "Cliente actualizado exitosamente.", duplicados);
     }
+
+    public async Task<Usuario?> GetClienteByIdAsync(int id)
+    {
+        return await _unitOfWork.Usuarios.GetAll()
+            .Include(u => u.Mascotas)
+            .FirstOrDefaultAsync(u => u.Id == id);
+    }
+
+    public async Task<(IEnumerable<Usuario> Usuarios, int TotalItems)> GetClientesPaginadosAsync(string buscar, bool mostrarInactivos, int pagina, int tamanoPagina)
+    {
+        var query = _unitOfWork.Usuarios.GetAll()
+            .Include(u => u.Mascotas)
+            .Where(u => u.Rol == "Cliente" || u.Rol == "Usuario")
+            .AsQueryable();
+
+        if (!mostrarInactivos)
+        {
+            query = query.Where(u => u.Activo);
+        }
+
+        if (!string.IsNullOrEmpty(buscar))
+        {
+            buscar = buscar.ToLower();
+            query = query.Where(u =>
+                u.Nombre.ToLower().Contains(buscar) ||
+                u.Email.ToLower().Contains(buscar) ||
+                (u.DNI != null && u.DNI.Contains(buscar)) ||
+                (u.Telefono != null && u.Telefono.Contains(buscar)));
+        }
+
+        query = query.OrderByDescending(u => u.FechaRegistro);
+
+        var totalItems = await query.CountAsync();
+        var usuarios = await query.Skip((pagina - 1) * tamanoPagina).Take(tamanoPagina).ToListAsync();
+
+        return (usuarios, totalItems);
+    }
 }
+

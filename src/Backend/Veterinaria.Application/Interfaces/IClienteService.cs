@@ -26,4 +26,7 @@ public interface IClienteService
     Task<(bool Success, string Message, Usuario? Cliente, List<DuplicadoDto> Duplicados)> RegistrarClienteAsync(CrearClienteDto dto);
     Task<(bool Success, string Message, List<DuplicadoDto> Duplicados)> EditarClienteAsync(int id, EditarClienteDto dto);
     Task<List<DuplicadoDto>> DetectarDuplicadosAsync(string? dni, string? email, string? telefono, int? excluirId = null);
+    Task<Usuario?> GetClienteByIdAsync(int id);
+    Task<(IEnumerable<Usuario> Usuarios, int TotalItems)> GetClientesPaginadosAsync(string buscar, bool mostrarInactivos, int pagina, int tamanoPagina);
 }
+

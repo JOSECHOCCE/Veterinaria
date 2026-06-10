@@ -153,6 +153,12 @@ public class MascotaService : IMascotaService
 
         var oldUsuarioId = mascota.UsuarioId;
 
+        if (dto.UsuarioId != oldUsuarioId)
+        {
+            var newOwner = await _unitOfWork.Usuarios.GetByIdAsync(dto.UsuarioId);
+            if (newOwner == null) return Response<Mascota>.Fail("El nuevo propietario seleccionado no existe.");
+        }
+
         mascota.Nombre = dto.Nombre;
         mascota.Especie = dto.Especie;
         mascota.Raza = dto.Raza;
