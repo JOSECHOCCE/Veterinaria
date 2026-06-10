@@ -80,7 +80,12 @@ export default function RegistrarCliente() {
   };
 
   return (
-    <div className="max-w-4xl w-full mx-auto py-md flex-1">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-4xl w-full mx-auto py-md flex-1"
+    >
       {/* Page Header */}
       <PageHeader
         title="Registrar Cliente"
@@ -131,9 +136,19 @@ export default function RegistrarCliente() {
       )}
 
       {/* Registration Form */}
-      <form className="space-y-lg">
+      <motion.form 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="space-y-lg"
+      >
         {/* Section 1: Datos Personales (Bento Card Style) */}
-        <div className="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+          className="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group"
+        >
           <div className="absolute top-0 left-0 w-1 h-full bg-surface-variant transition-colors group-hover:bg-primary/20" />
           <h3 className="font-title-lg text-title-lg text-ink mb-md flex items-center gap-sm">
             <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -199,10 +214,15 @@ export default function RegistrarCliente() {
               </span>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Section 2: Datos de Contacto (Bento Card Style) */}
-        <div className="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group">
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+          className="bg-surface-card rounded-xl p-xl shadow-sm border border-hairline relative overflow-hidden group"
+        >
           <div className="absolute top-0 left-0 w-1 h-full bg-surface-variant transition-colors group-hover:bg-accent-amber/20" />
           <h3 className="font-title-lg text-title-lg text-ink mb-md flex items-center gap-sm">
             <span className="material-symbols-outlined text-accent-amber" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -272,10 +292,15 @@ export default function RegistrarCliente() {
               />
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end items-center gap-md pt-md border-t border-hairline">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+          className="flex flex-col-reverse sm:flex-row justify-end items-center gap-md pt-md border-t border-hairline"
+        >
           <button
             onClick={(e) => handleSubmit(e, false)}
             disabled={saving}
@@ -293,8 +318,8 @@ export default function RegistrarCliente() {
             <span className="material-symbols-outlined text-sm">save</span>
             {saving ? 'Guardando...' : 'Guardar y abrir ficha'}
           </button>
-        </div>
-      </form>
-    </div>
+        </motion.div>
+      </motion.form>
+    </motion.div>
   );
 }

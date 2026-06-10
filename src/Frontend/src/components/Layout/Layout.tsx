@@ -13,8 +13,8 @@ export default function Layout() {
       <Sidebar />
       <TopAppBar />
       
-      {/* El contenido principal se renderiza a la derecha del sidebar y se alinea al tope con la píldora flotante */}
-      <main className="flex-1 md:ml-72 p-gutter lg:p-6 pb-24 md:pb-6 overflow-y-auto">
+      {/* El contenido principal con padding-top adecuado para no ser tapado por la barra fija */}
+      <main className="flex-1 md:ml-72 pt-[4.5rem] px-6 pb-6 overflow-y-auto bg-canvas">
         <Outlet />
       </main>
 

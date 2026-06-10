@@ -100,13 +100,13 @@ export default function UserManagement() {
   const getRoleBadgeClass = (rol: string) => {
     switch (rol) {
       case 'Admin':
-        return 'bg-surface-variant text-on-surface-variant';
+        return 'bg-primary-container text-on-primary-container border border-primary/20';
       case 'Veterinario':
-        return 'bg-tertiary-container text-on-tertiary-container';
+        return 'bg-tertiary-container text-on-tertiary-container border border-tertiary/20';
       case 'Recepcionista':
-        return 'bg-primary-container text-on-primary-container';
+        return 'bg-secondary-container text-on-secondary-container border border-secondary/20';
       default:
-        return 'bg-secondary-container text-on-secondary-container';
+        return 'bg-surface-variant text-on-surface-variant border border-hairline';
     }
   };
 
@@ -327,13 +327,13 @@ export default function UserManagement() {
       {/* Toolbar Section */}
       <div className="bg-surface-soft border border-hairline rounded-xl p-md mb-lg flex flex-col md:flex-row gap-md items-center justify-between shadow-sm">
         {/* Search */}
-        <div className="relative w-full md:max-w-md">
+        <div className="relative w-full md:max-w-xs">
           <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-body-muted">
             search
           </span>
           <input
             className="w-full bg-canvas border border-hairline rounded-lg pl-11 pr-4 py-2.5 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-            placeholder="Buscar por nombre, email o rol..."
+            placeholder="Buscar usuario..."
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -342,7 +342,7 @@ export default function UserManagement() {
 
         {/* Filters */}
         <div className="flex items-center gap-sm w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
-          <span className="font-caption text-caption text-body-muted hidden sm:inline">Filtrar por:</span>
+          <span className="font-caption text-caption text-body-muted hidden sm:inline">Filtrar:</span>
           {['Todos', 'Admin', 'Recepcionista', 'Veterinario', 'Usuario'].map((rol) => (
             <button
               key={rol}
@@ -385,8 +385,8 @@ export default function UserManagement() {
                   {paginatedUsuarios.map((usuario) => (
                     <tr
                       key={usuario.id}
-                      className={`hover:bg-surface-soft/50 transition-colors group ${
-                        !usuario.activo ? 'bg-canvas/30 opacity-75' : ''
+                      className={`hover:bg-surface-soft/50 transition-colors ${
+                        !usuario.activo ? 'bg-surface-variant/20' : ''
                       }`}
                     >
                       <td className="py-4 px-6">
@@ -415,7 +415,7 @@ export default function UserManagement() {
                       </td>
                       <td className="py-4 px-6">
                         <span
-                          className={`inline-flex items-center px-3 py-1 rounded-full font-caption text-caption shadow-sm ${getRoleBadgeClass(
+                          className={`inline-flex items-center px-3 py-1.5 rounded-full font-caption text-caption font-medium shadow-sm ${getRoleBadgeClass(
                             usuario.rol
                           )}`}
                         >
@@ -439,11 +439,11 @@ export default function UserManagement() {
                         </div>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <div className="flex items-center justify-end gap-sm opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-xs">
                           {/* Edit Button */}
                           <button
                             onClick={() => handleOpenEdit(usuario)}
-                            className="p-1.5 text-body-muted hover:text-primary transition-colors rounded-lg hover:bg-surface-variant/30 cursor-pointer"
+                            className="p-2 text-body-muted hover:text-primary transition-colors rounded-lg hover:bg-surface-variant/40 cursor-pointer"
                             title="Editar"
                           >
                             <span className="material-symbols-outlined text-[20px]">edit</span>
@@ -452,7 +452,7 @@ export default function UserManagement() {
                           {/* Toggle Status Button */}
                           <button
                             onClick={() => handleOpenStatusConfirm(usuario)}
-                            className={`p-1.5 transition-colors rounded-lg hover:bg-surface-variant/30 cursor-pointer ${
+                            className={`p-2 transition-colors rounded-lg hover:bg-surface-variant/40 cursor-pointer ${
                               usuario.activo ? 'text-body-muted hover:text-error' : 'text-body-muted hover:text-success'
                             }`}
                             title={usuario.activo ? 'Desactivar' : 'Activar'}
@@ -465,7 +465,7 @@ export default function UserManagement() {
                           {/* Delete Button */}
                           <button
                             onClick={() => handleOpenDeleteConfirm(usuario)}
-                            className="p-1.5 text-body-muted hover:text-error transition-colors rounded-lg hover:bg-surface-variant/30 cursor-pointer"
+                            className="p-2 text-body-muted hover:text-error transition-colors rounded-lg hover:bg-surface-variant/40 cursor-pointer"
                             title="Eliminar físicamente"
                           >
                             <span className="material-symbols-outlined text-[20px]">delete</span>

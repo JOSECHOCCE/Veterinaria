@@ -99,30 +99,26 @@ export default function ClientesDashboard() {
         description="Directorio administrativo para la búsqueda, filtrado y gestión de perfiles de propietarios y sus mascotas asociadas."
         actions={
           <Link to="/admin/clientes/nuevo">
-            <motion.button
-              className="bg-primary text-on-primary font-button text-button px-lg py-[12px] rounded-full hover:bg-primary-active transition-all shadow-sm flex items-center justify-center gap-xs shrink-0 cursor-pointer hover:shadow-md"
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <button className="bg-primary text-on-primary font-button text-button px-lg py-[12px] rounded-full hover:bg-primary-active transition-all shadow-sm flex items-center justify-center gap-xs shrink-0 cursor-pointer hover:shadow-md">
               <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 person_add
               </span>
               Registrar Cliente
-            </motion.button>
+            </button>
           </Link>
         }
       />
 
       {/* Toolbar (Search & Filters) */}
-      <div className="flex flex-col xl:flex-row gap-md mb-lg justify-between items-start xl:items-center bg-surface-card p-sm rounded-xl border border-hairline shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-sm mb-lg justify-between items-start sm:items-center bg-surface-card p-sm rounded-xl border border-hairline shadow-sm">
         {/* Search Input */}
-        <div className="relative w-full xl:w-96 shrink-0 group">
+        <div className="relative w-full sm:max-w-sm shrink-0 group">
           <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-body-muted group-focus-within:text-primary transition-colors">
             search
           </span>
           <input
             className="w-full bg-canvas border border-hairline rounded-lg pl-xl pr-md py-2 font-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-body-muted shadow-inner"
-            placeholder="Buscar por nombre, correo o documento..."
+            placeholder="Buscar cliente..."
             type="text"
             value={buscar}
             onChange={(e) => setBuscar(e.target.value)}
@@ -138,8 +134,8 @@ export default function ClientesDashboard() {
         </div>
 
         {/* Quick Filters */}
-        <div className="flex flex-wrap gap-xs items-center w-full xl:w-auto xl:justify-end">
-          <span className="font-caption text-caption text-body-muted mr-xs hidden sm:block">Filtros:</span>
+        <div className="flex flex-wrap gap-xs items-center w-full sm:w-auto sm:justify-end">
+          <span className="font-caption text-caption text-body-muted mr-xs">Filtros:</span>
           {(['Todos', 'Activos', 'Inactivos'] as const).map((t) => (
             <button
               key={t}
@@ -160,7 +156,12 @@ export default function ClientesDashboard() {
       </div>
 
       {/* Data Card (Table or Loading/Empty/Error states) */}
-      <div className="bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col min-h-[400px]">
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col min-h-[400px]"
+      >
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
             <Spinner message="Obteniendo directorio de propietarios..." />
@@ -210,11 +211,11 @@ export default function ClientesDashboard() {
                     {clientes.map((cliente) => (
                       <motion.tr
                         key={cliente.id}
-                        className="hover:bg-surface-soft/50 transition-colors group"
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -4 }}
-                        transition={{ duration: 0.15 }}
+                        className="hover:bg-surface-soft/50 transition-colors"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
                       >
                         <td className="py-sm px-md align-middle">
                           <div className="flex items-center gap-md">
@@ -282,7 +283,7 @@ export default function ClientesDashboard() {
                           </span>
                         </td>
                         <td className="py-sm px-md align-middle text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-xs opacity-60 hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-xs">
                             <button
                               onClick={() => navigate(`/admin/clientes/${cliente.id}`)}
                               className="p-xs text-body-muted hover:text-primary hover:bg-surface-variant/50 rounded-md transition-all cursor-pointer"
@@ -359,7 +360,7 @@ export default function ClientesDashboard() {
             </div>
           </>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }

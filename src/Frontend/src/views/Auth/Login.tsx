@@ -235,8 +235,6 @@ export default function Login() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 1 }}
-              whileHover={{ scale: loading ? 1 : 1.02, y: loading ? 0 : -2 }}
-              whileTap={{ scale: loading ? 1 : 0.98 }}
               style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '11px 24px', backgroundColor: '#cc785c', color: '#ffffff', fontSize: '14px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px', transition: 'background-color 0.15s, box-shadow 0.2s', boxShadow: '0 2px 8px rgba(204, 120, 92, 0.2)' }}
               onMouseEnter={(e) => { 
                 if (!loading) {
@@ -252,16 +250,20 @@ export default function Login() {
               }}
             >
               {loading ? (
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <motion.svg
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                    style={{ width: '16px', height: '16px' }} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth={2} 
+                    viewBox="0 0 24 24"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
+                  </motion.svg>
                   Iniciando sesión...
-                </motion.div>
+                </div>
               ) : (
                 <>
                   Iniciar sesión
