@@ -136,7 +136,7 @@ public class CitaServiceTests
         // Arrange
         var servicio = new Servicio { Id = 1, Nombre = "Consulta", Activo = true, DuracionMinutos = 30 };
         var mascota = new Mascota { Id = 1, Nombre = "Firulais", Activo = true };
-        var veterinario = new Veterinario { Id = 1, Nombre = "Vet 1", Activo = true }; // Sin horario (retornará false en disponible)
+        var veterinario = new Veterinario { Id = 1, Nombre = "Vet 1", Activo = true, HorarioInicio = TimeSpan.Zero, HorarioFin = TimeSpan.Zero }; // Sin horario (retornará false en disponible)
         
         await _context.Servicios.AddAsync(servicio);
         await _context.Mascotas.AddAsync(mascota);
