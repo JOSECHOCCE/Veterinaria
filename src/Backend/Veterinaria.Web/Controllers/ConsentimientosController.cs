@@ -62,6 +62,7 @@ public class ConsentimientosController : ControllerBase
             }
 
             consentimiento.UsuarioId = usuario.Id;
+            consentimiento.Usuario = null!; // Evitar conflictos de tracking en EF Core con el objeto deserializado
             consentimiento.IpOrigen = HttpContext.Connection.RemoteIpAddress?.ToString();
             consentimiento.FechaCreacion = DateTime.Now;
 

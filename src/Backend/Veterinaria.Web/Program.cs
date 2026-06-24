@@ -235,3 +235,4 @@ app.MapHub<NotificacionHub>("/notificacionHub");
 app.MapFallbackToFile("index.html");
 
 app.Run();
+public partial class Program { }
