@@ -10,17 +10,62 @@ namespace Veterinaria.Tests.Integration.Fixtures;
 /// <summary>
 /// Clase base para todas las pruebas de integración.
 /// Proporciona HttpClient, acceso al DbContext y helpers de autenticación JWT.
+/// Implementa IAsyncLifetime para limpiar la BD con Respawn antes de cada test.
 /// </summary>
-public abstract class IntegrationTestBase : IClassFixture<VeterinariaWebApplicationFactory>
+public abstract class IntegrationTestBase : IClassFixture<VeterinariaWebApplicationFactory>, IAsyncLifetime
 {
     protected readonly HttpClient Client;
     protected readonly VeterinariaWebApplicationFactory Factory;
+
+    /// <summary>
+    /// Flag estático para asegurar que el Respawner se inicializa una sola vez
+    /// (la primera vez que un test se ejecuta), ya que la BD se crea en ConfigureWebHost.
+    /// </summary>
+    private static bool _respawnerInitialized;
+    private static readonly SemaphoreSlim _initLock = new(1, 1);
 
     protected IntegrationTestBase(VeterinariaWebApplicationFactory factory)
     {
         Factory = factory;
         Client = factory.CreateClient();
     }
+
+    /// <summary>
+    /// Se ejecuta ANTES de cada test.
+    /// Limpia todos los datos de la BD para garantizar aislamiento entre tests.
+    /// </summary>
+    public async Task InitializeAsync()
+    {
+        // Inicializar el Respawner la primera vez (después de que la BD exista)
+        if (!_respawnerInitialized)
+        {
+            await _initLock.WaitAsync();
+            try
+            {
+                if (!_respawnerInitialized)
+                {
+                    await Factory.InitializeRespawnerAsync();
+                    _respawnerInitialized = true;
+                }
+            }
+            finally
+            {
+                _initLock.Release();
+            }
+        }
+
+        // Limpiar todos los datos antes de cada test
+        await Factory.ResetDatabaseAsync();
+
+        // Limpiar headers de autorización del test anterior
+        Client.DefaultRequestHeaders.Authorization = null;
+    }
+
+    /// <summary>
+    /// Se ejecuta DESPUÉS de cada test. No necesitamos hacer nada aquí
+    /// porque la limpieza ocurre al inicio del siguiente test.
+    /// </summary>
+    public Task DisposeAsync() => Task.CompletedTask;
 
     /// <summary>
     /// Obtiene un VeterinariaDbContext fresco para insertar datos de test
