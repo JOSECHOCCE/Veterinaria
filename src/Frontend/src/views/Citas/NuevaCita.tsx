@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import PageHeader from '../../components/common/PageHeader';
@@ -378,30 +378,53 @@ export default function NuevaCita() {
                   </div>
                 )}
 
-                {/* Suggestions List */}
-                {suggestions.length > 0 && (
-                  <ul className="absolute w-full mt-2 bg-surface-container-lowest border border-hairline rounded-lg shadow-lg overflow-hidden z-30 max-h-56 overflow-y-auto divide-y divide-hairline">
-                    {suggestions.map((p) => (
-                      <li
-                        key={`${p.id}-${p.propietarioId}`}
-                        onClick={() => {
-                          setSelectedPet(p);
-                          setSearchTerm('');
-                          setSuggestions([]);
-                        }}
-                        className="p-3 hover:bg-surface-soft transition-colors cursor-pointer flex justify-between items-center"
-                      >
-                        <div>
-                          <span className="font-body-sm text-ink font-semibold">{p.nombre}</span>
-                          <span className="text-secondary text-[12px] ml-2">({p.especie} {p.raza ? `• ${p.raza}` : ''})</span>
-                          <div className="text-[12px] text-body-muted font-medium mt-0.5">
-                            Dueño: {p.propietarioNombre}
-                          </div>
+                {/* Suggestions List or Empty State */}
+                {searchTerm.trim() !== '' && !isSearching && (
+                  <div className="absolute w-full mt-2 bg-surface-container-lowest border border-hairline rounded-lg shadow-lg overflow-hidden z-30 max-h-56 overflow-y-auto">
+                    {suggestions.length > 0 ? (
+                      <ul className="divide-y divide-hairline">
+                        {suggestions.map((p) => (
+                          <li
+                            key={`${p.id}-${p.propietarioId}`}
+                            onClick={() => {
+                              setSelectedPet(p);
+                              setSearchTerm('');
+                              setSuggestions([]);
+                            }}
+                            className="p-3 hover:bg-surface-soft transition-colors cursor-pointer flex justify-between items-center"
+                          >
+                            <div>
+                              <span className="font-body-sm text-ink font-semibold">{p.nombre}</span>
+                              <span className="text-secondary text-[12px] ml-2">({p.especie} {p.raza ? `• ${p.raza}` : ''})</span>
+                              <div className="text-[12px] text-body-muted font-medium mt-0.5">
+                                Dueño: {p.propietarioNombre}
+                              </div>
+                            </div>
+                            <span className="material-symbols-outlined text-secondary text-[18px]">add</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <div className="p-5 text-center flex flex-col items-center justify-center gap-2 bg-canvas/50">
+                        <div className="w-10 h-10 rounded-full bg-surface-soft flex items-center justify-center text-secondary border border-hairline mb-1">
+                          <span className="material-symbols-outlined text-[20px]">pets</span>
                         </div>
-                        <span className="material-symbols-outlined text-secondary text-[18px]">add</span>
-                      </li>
-                    ))}
-                  </ul>
+                        <p className="font-body-sm text-ink font-medium">
+                          No se encontró ningún paciente con <span className="font-bold text-primary">"{searchTerm}"</span>
+                        </p>
+                        <p className="font-caption text-caption text-body-muted max-w-[240px]">
+                          Verifica el nombre o teléfono, o registra una nueva ficha clínica en el sistema.
+                        </p>
+                        <Link
+                          to="/admin/mascotas?new=true"
+                          className="mt-2 inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-button text-button py-1.5 px-4 rounded-full transition-all border border-primary/20 shadow-xs cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                          Registrar nuevo paciente
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
