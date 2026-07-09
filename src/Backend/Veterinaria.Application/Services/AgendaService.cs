@@ -78,7 +78,7 @@ public class AgendaService : IAgendaService
 
         await _auditoriaService.RegistrarAccionAsync("Actualizar", "HorarioClinica", horario.Id.ToString(), $"Día {dto.DiaSemana} actualizado. Laborable: {dto.EsLaborable}");
 
-        return Response<HorarioClinica>.Ok(horario, "Horario actualizado exitosamente.");
+        return Response<HorarioClinica>.Ok(horarioActual, "Horario actualizado exitosamente.");
     }
 
     // Horario Veterinario
