@@ -10,7 +10,7 @@ COPY ["Veterinaria.Infrastructure/Veterinaria.Infrastructure.csproj", "Veterinar
 COPY ["Veterinaria.Web/Veterinaria.Web.csproj", "Veterinaria.Web/"]
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore "Veterinaria.Web/Veterinaria.Web.csproj"
 
 # Copy all source files
 COPY . .
