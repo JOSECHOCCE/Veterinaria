@@ -60,13 +60,20 @@ public class AgendaService : IAgendaService
             .FirstOrDefaultAsync(h => h.DiaSemana == dto.DiaSemana);
 
         if (horario == null)
+        {
+            await InicializarHorariosClinicaDefectoAsync();
+            horario = await _unitOfWork.HorariosClinica.GetAll()
+                .FirstOrDefaultAsync(h => h.DiaSemana == dto.DiaSemana);
+        }
+
+        if (horario == null)
             return Response<HorarioClinica>.Fail("Horario de clínica no encontrado.");
 
-        horario.HoraApertura = dto.HoraApertura;
-        horario.HoraCierre = dto.HoraCierre;
-        horario.EsLaborable = dto.EsLaborable;
+        var horarioActual = await _unitOfWork.HorariosClinica.GetByIdAsync(horario.Id) ?? horario;
+        horarioActual.HoraApertura = dto.HoraApertura;
+        horarioActual.HoraCierre = dto.HoraCierre;
+        horarioActual.EsLaborable = dto.EsLaborable;
 
-        _unitOfWork.HorariosClinica.Update(horario);
         await _unitOfWork.CommitAsync();
 
         await _auditoriaService.RegistrarAccionAsync("Actualizar", "HorarioClinica", horario.Id.ToString(), $"Día {dto.DiaSemana} actualizado. Laborable: {dto.EsLaborable}");

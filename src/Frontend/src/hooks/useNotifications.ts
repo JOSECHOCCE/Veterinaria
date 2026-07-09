@@ -35,7 +35,7 @@ export function useNotifications() {
     // accessTokenFactory: el JWT se envía como query string (?access_token=...)
     // ya que los WebSockets no permiten cabeceras Authorization personalizadas.
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl(import.meta.env.VITE_SIGNALR_URL || 'http://localhost:5132/notificacionHub', {
+      .withUrl(import.meta.env.VITE_SIGNALR_URL || '/notificacionHub', {
         accessTokenFactory: () => window.localStorage.getItem('token') || ''
       })
       .withAutomaticReconnect()

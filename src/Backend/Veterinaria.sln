@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Web", "Veterina
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Application", "Veterinaria.Application\Veterinaria.Application.csproj", "{0335FE89-414C-4630-A01D-FCE3A5F99723}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Tests", "Veterinaria.Tests\Veterinaria.Tests.csproj", "{CE3FF9CD-B67D-460B-883F-31C7AE55CD40}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Tests.Unitarias", "Veterinaria.Tests\Veterinaria.Tests.Unitarias.csproj", "{CE3FF9CD-B67D-460B-883F-31C7AE55CD40}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Veterinaria.Tests.Integration", "Veterinaria.Tests.Integration\Veterinaria.Tests.Integration.csproj", "{D3D38728-70CE-4A26-BEDE-9ABBF4578AA5}"
 EndProject

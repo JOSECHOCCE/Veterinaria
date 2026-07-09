@@ -18,11 +18,10 @@ public abstract class IntegrationTestBase : IClassFixture<VeterinariaWebApplicat
     protected readonly VeterinariaWebApplicationFactory Factory;
 
     /// <summary>
-    /// Flag estático para asegurar que el Respawner se inicializa una sola vez
-    /// (la primera vez que un test se ejecuta), ya que la BD se crea en ConfigureWebHost.
+    /// Flag para asegurar que el Respawner se inicializa una sola vez por clase de test.
     /// </summary>
-    private static bool _respawnerInitialized;
-    private static readonly SemaphoreSlim _initLock = new(1, 1);
+    private bool _respawnerInitialized;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
 
     protected IntegrationTestBase(VeterinariaWebApplicationFactory factory)
     {

@@ -30,6 +30,8 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
     /// del sistema de ASP.NET Identity que contienen roles base.
     /// </summary>
     private Respawner _respawner = default!;
+    private bool _respawnerInitialized;
+    private readonly SemaphoreSlim _initLock = new(1, 1);
 
     /// <summary>
     /// Connection string del contenedor Docker, expuesto para que
