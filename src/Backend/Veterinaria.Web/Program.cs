@@ -189,6 +189,12 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
+        
+        // Aplicar migraciones automáticamente en producción al iniciar
+        Console.WriteLine("Aplicando migraciones de base de datos...");
+        await context.Database.MigrateAsync();
+        Console.WriteLine("Migraciones aplicadas con éxito.");
+
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
@@ -198,7 +204,7 @@ try
 catch (Exception ex)
 {
     Console.WriteLine("==========================================================================");
-    Console.WriteLine($"⚠️ ADVERTENCIA: No se pudo conectar a la Base de Datos (SQL Server).");
+    Console.WriteLine($"⚠️ ADVERTENCIA: No se pudo conectar o migrar la Base de Datos (SQL Server).");
     Console.WriteLine($"Detalle: {ex.Message}");
     Console.WriteLine("El servidor web seguirá funcionando, pero las funciones que dependan de la");
     Console.WriteLine("base de datos requerirán que inicies tu instancia local de SQL Server.");
