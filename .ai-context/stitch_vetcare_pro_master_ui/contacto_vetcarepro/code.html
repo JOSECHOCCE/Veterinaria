@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Contacto - VetCarePro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "on-background": "#181c1e",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "on-primary": "#ffffff",
+                        "background": "#f7fafc",
+                        "on-tertiary-container": "#773d00",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f1f4f6",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-container": "#005750",
+                        "on-surface-variant": "#3c4947",
+                        "on-surface": "#181c1e",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "secondary-fixed": "#d9e3f9",
+                        "secondary-container": "#d6e0f6",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d7dadc",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary": "#555f71",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-on-surface": "#eef1f3",
+                        "on-primary-fixed": "#00201d",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-tint": "#006a63",
+                        "surface-container-high": "#e5e9eb",
+                        "primary": "#006a63",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-secondary-fixed": "#121c2c",
+                        "on-primary-fixed-variant": "#00504a",
+                        "tertiary-container": "#ffab67",
+                        "primary-container": "#4fd1c5",
+                        "primary-fixed-dim": "#5adace",
+                        "surface": "#f7fafc",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "tertiary-fixed": "#ffdcc4",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#ebeef0",
+                        "tertiary": "#8e4e11",
+                        "on-secondary-container": "#596376",
+                        "inverse-primary": "#5adace",
+                        "primary-fixed": "#79f7ea",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "outline": "#6c7a77",
+                        "outline-variant": "#bbc9c7",
+                        "surface-bright": "#f7fafc",
+                        "on-error-container": "#93000a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "base-unit": "8px",
+                        "margin-mobile": "16px",
+                        "container-max-width": "1200px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shadow-soft {
+            box-shadow: 0 15px 30px -5px rgba(45, 55, 72, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-highest font-body-md text-body-md docked full-width top-0 shadow-soft transition-all duration-500 ease-in-out sticky z-50">
+<div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-base-unit w-full max-w-container-max-width mx-auto">
+<div class="flex items-center gap-2">
+<img alt="VetCarePro Logo" class="h-10 w-10 object-contain rounded-md" src="https://lh3.googleusercontent.com/aida/AP1WRLuEkDJmYqkTRvXmBC-ni9vRXRWD9bFo1TWsjvSM6UzE9xPEVRAzf3JCpFbXzCal2TPAv2Z6U6cGW9HheD1QlwDnt1TUIvGhRwM28bOPKlH2jpvKqsr8nscxW99aFprvQOoBPoRuwott7KumVdqgpFapKKEJuZEEqq72_dCr53QpzpX-03hSHyGfKczt9-oDR8hF7dgleTAnDj6sJ-WNra_sb_-F0huOsg2F2cIVqfFVXCyqapTyiYUJ6uY5"/>
+<span class="font-headline-md text-headline-md text-primary dark:text-primary-fixed-dim">VetCare</span>
+</div>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary hover:text-primary transition-colors duration-500" href="#">Inicio</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary hover:text-primary transition-colors duration-500" href="#">Servicios</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary hover:text-primary transition-colors duration-500" href="#">Equipo</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-primary hover:text-primary transition-colors duration-500" href="#">Blog</a>
+<a aria-current="page" class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-500" href="#">Contacto</a>
+</nav>
+<button class="hidden md:flex bg-primary text-on-primary px-6 py-2 rounded-lg font-label-md text-label-md items-center justify-center h-12 shadow-soft hover:bg-on-primary-fixed-variant transition-colors">
+                Reserva una Cita
+            </button>
+<!-- Mobile Menu Button -->
+<button class="md:hidden text-primary p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</header>
+<main class="flex-grow w-full max-w-container-max-width mx-auto px-margin-mobile md:px-margin-desktop py-12 flex flex-col gap-12">
+<!-- Hero Section -->
+<section class="text-center space-y-4">
+<h1 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary">Estamos aquí para ti y tu mascota</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Contáctanos para resolver cualquier duda, programar una cita o en caso de emergencia. Nuestro equipo está listo para ayudar.</p>
+</section>
+<!-- Bento Grid Contact Info & Form -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Contact Info Cards -->
+<div class="lg:col-span-5 flex flex-col gap-gutter">
+<!-- Urgencias 24h -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-soft border border-surface-container-low flex items-start gap-4 hover:shadow-lg transition-shadow duration-300">
+<div class="bg-error-container text-error p-3 rounded-full flex-shrink-0">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">emergency</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Urgencias 24h</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mb-2">Atención veterinaria inmediata para casos críticos.</p>
+<a class="text-error font-label-md text-label-md hover:underline" href="tel:+34900112233">+34 900 11 22 33</a>
+</div>
+</div>
+<!-- Direct Info -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-soft border border-surface-container-low flex-grow flex flex-col justify-between">
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="bg-primary-container text-on-primary-container p-2 rounded-lg flex-shrink-0">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Dirección</h4>
+<p class="text-on-surface-variant font-body-md text-body-md">Av. de los Animales Felices 123,<br/>28001 Madrid, España</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-primary-container text-on-primary-container p-2 rounded-lg flex-shrink-0">
+<span class="material-symbols-outlined">schedule</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Horario de Consultas</h4>
+<p class="text-on-surface-variant font-body-md text-body-md">Lunes a Viernes: 09:00 - 20:00<br/>Sábados: 10:00 - 14:00</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="bg-primary-container text-on-primary-container p-2 rounded-lg flex-shrink-0">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Email General</h4>
+<a class="text-primary font-body-md text-body-md hover:underline" href="mailto:hola@vetcarepro.es">hola@vetcarepro.es</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Contact Form -->
+<div class="lg:col-span-7 bg-surface-container-lowest p-8 rounded-xl shadow-soft border border-surface-container-low">
+<div class="mb-6">
+<h2 class="font-headline-md text-headline-md text-primary mb-2">Envíanos un Mensaje</h2>
+<p class="text-on-surface-variant font-body-md text-body-md">Completa el formulario y te responderemos lo antes posible.</p>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface" for="name">Nombre y Apellidos</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface placeholder-on-surface-variant" id="name" placeholder="Ej. Ana García" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface" for="email">Correo Electrónico</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface placeholder-on-surface-variant" id="email" placeholder="ana@ejemplo.com" type="email"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface" for="petName">Nombre de la Mascota (Opcional)</label>
+<input class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface placeholder-on-surface-variant" id="petName" placeholder="Ej. Luna" type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface" for="subject">Asunto</label>
+<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface" id="subject">
+<option>Información general</option>
+<option>Programar cita no urgente</option>
+<option>Dudas sobre presupuestos</option>
+<option>Otros</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-md text-label-md text-on-surface" for="message">Mensaje</label>
+<textarea class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-3 focus:ring-2 focus:ring-primary focus:border-primary transition-colors text-on-surface resize-none" id="message" placeholder="¿En qué podemos ayudarte?" rows="4"></textarea>
+</div>
+<button class="w-full bg-primary text-on-primary h-12 rounded-lg font-label-md text-label-md shadow-soft hover:bg-on-primary-fixed-variant transition-colors flex items-center justify-center gap-2" type="submit">
+<span>Enviar Mensaje</span>
+<span class="material-symbols-outlined text-sm">send</span>
+</button>
+</form>
+</div>
+</section>
+<!-- Location Map & FAQ Bento -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Map -->
+<div class="lg:col-span-6 bg-surface-container-lowest rounded-xl shadow-soft border border-surface-container-low overflow-hidden flex flex-col h-96 relative">
+<div class="absolute inset-0 z-0 bg-surface-variant flex items-center justify-center">
+<!-- Placeholder for Map image -->
+<img class="w-full h-full object-cover opacity-80 mix-blend-multiply" data-alt="A clean, minimalist UI map view of a city layout indicating a location. The map uses a soft color palette of light grey for streets and very pale mint teal for parks, creating a gentle, modern, light-mode aesthetic. A distinct primary teal map pin marks a central location. The design is sleek, uncluttered, and highly professional." data-location="Madrid" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSvjk72uwDNFrDgJlqFu_HKx8lahDjijROdl5zL1K5-igbTh00YwUIyags6s2g0GBf03LZq1Ncilhnffooh5pgbcURdT4biyU4K9n2EvR-dC4ZzTT88sbWrmuccAJFiPW6-jpK8VxE0MVSBU99riOvJYhpRMCYSM34zFlS-qJPPaU26A31D0C7ALfwVncK7iDGxC7OP4Ls0fz0bTIs0UiXhfx9FL1h0GMHnpxGwK6a_rDlnZyfJBZHrw"/>
+</div>
+<div class="relative z-10 p-6 bg-gradient-to-b from-surface-container-lowest/90 to-transparent flex-shrink-0">
+<h3 class="font-headline-md text-headline-md text-primary">Nuestra Ubicación</h3>
+<p class="text-on-surface-variant font-body-md text-body-md mt-1">Fácil acceso y parking disponible para clientes.</p>
+</div>
+</div>
+<!-- FAQ -->
+<div class="lg:col-span-6 bg-surface-container-lowest p-8 rounded-xl shadow-soft border border-surface-container-low">
+<div class="mb-6 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">forum</span>
+<h2 class="font-headline-md text-headline-md text-primary">Preguntas Frecuentes</h2>
+</div>
+<div class="space-y-4">
+<details class="group bg-surface rounded-lg border border-outline-variant">
+<summary class="flex justify-between items-center font-label-md text-label-md text-on-surface p-4 cursor-pointer select-none">
+                            ¿Necesito cita previa para urgencias?
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant font-body-md text-body-md">
+                            No. Para urgencias puedes acudir directamente a la clínica en cualquier momento (24h). Sin embargo, te recomendamos llamar en el camino al +34 900 11 22 33 para que el equipo esté preparado para recibir a tu mascota.
+                        </div>
+</details>
+<details class="group bg-surface rounded-lg border border-outline-variant">
+<summary class="flex justify-between items-center font-label-md text-label-md text-on-surface p-4 cursor-pointer select-none">
+                            ¿Atienden animales exóticos?
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant font-body-md text-body-md">
+                            Sí, contamos con un especialista en pequeños mamíferos, aves y reptiles. Por favor, especifica el tipo de animal al solicitar la cita para derivarte al profesional adecuado.
+                        </div>
+</details>
+<details class="group bg-surface rounded-lg border border-outline-variant">
+<summary class="flex justify-between items-center font-label-md text-label-md text-on-surface p-4 cursor-pointer select-none">
+                            ¿Cuánto tardan en responder los mensajes?
+                            <span class="material-symbols-outlined transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="p-4 pt-0 text-on-surface-variant font-body-md text-body-md">
+                            Respondemos a todas las consultas a través del formulario en un plazo máximo de 24 horas hábiles. Si tu consulta es urgente, por favor llámanos por teléfono.
+                        </div>
+</details>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-low dark:bg-surface-dim text-secondary dark:text-secondary-fixed font-caption text-caption full-width mt-auto">
+<div class="w-full max-w-container-max-width mx-auto px-margin-mobile md:px-margin-desktop py-8 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2 font-headline-md text-headline-md text-secondary dark:text-secondary-fixed">
+<span class="material-symbols-outlined">pets</span>
+<span>VetCare</span>
+</div>
+<p class="text-center md:text-left">© 2024 VetCare Clínica Veterinaria. Todos los derechos reservados.</p>
+<nav class="flex gap-4 flex-wrap justify-center">
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary transition-colors duration-300 opacity-90 hover:opacity-100 transition-opacity" href="#">Privacidad</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary transition-colors duration-300 opacity-90 hover:opacity-100 transition-opacity" href="#">Términos de Servicio</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:text-secondary transition-colors duration-300 opacity-90 hover:opacity-100 transition-opacity" href="#">Urgencias 24h</a>
+</nav>
+</div>
+</footer>
+</body></html>

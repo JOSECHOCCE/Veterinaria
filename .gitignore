@@ -244,3 +244,7 @@ test_results.txt
 src/Backend/TestResults/
 src/Backend/TestRunner/
 
+# Agent Tooling
+.atl/
+
+

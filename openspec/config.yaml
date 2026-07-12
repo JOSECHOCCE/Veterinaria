@@ -1,0 +1,61 @@
+schema: spec-driven
+
+context: |
+  Tech stack: React + TypeScript (Frontend), .NET Core 10.0 (Backend)
+  Architecture: Onion Architecture (Domain, Application, Infrastructure, Web)
+  Testing: MSTest/Moq/EF InMemory (Unit), xUnit/Testcontainers/MsSql (Integration)
+  Style: Tailwind CSS 4.0, Phosphor Icons, Framer Motion (Frontend)
+
+testing:
+  strict_tdd: true
+  detected: "2026-07-12"
+  runner:
+    command: "dotnet test src/Backend/Veterinaria.Tests/Veterinaria.Tests.Unitarias.csproj"
+    framework: "MSTest (Unit), xUnit (Integration)"
+  layers:
+    unit:
+      available: true
+      tool: "MSTest"
+    integration:
+      available: true
+      tool: "xUnit (requires Docker)"
+    e2e:
+      available: false
+      tool: null
+  coverage:
+    available: true
+    command: "dotnet test src/Backend/Veterinaria.Tests/Veterinaria.Tests.Unitarias.csproj /p:CollectCoverage=true"
+  quality:
+    linter:
+      available: true
+      command: "npm run lint (Frontend)"
+    type_checker:
+      available: true
+      command: "npm run build (Frontend) / dotnet build (Backend)"
+    formatter:
+      available: true
+      command: "dotnet format (Backend)"
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+  specs:
+    - Use Given/When/Then for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group by phase, use hierarchical numbering
+    - Keep tasks completable in one session
+  apply:
+    guidelines:
+      - Follow existing code patterns
+    tdd: true
+    test_command: "dotnet test src/Backend/Veterinaria.Tests/Veterinaria.Tests.Unitarias.csproj"
+  verify:
+    test_command: "dotnet test src/Backend/Veterinaria.Tests/Veterinaria.Tests.Unitarias.csproj"
+    build_command: "dotnet build src/Backend/Veterinaria.sln"
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas

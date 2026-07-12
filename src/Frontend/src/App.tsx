@@ -39,6 +39,10 @@ import CentroNotificaciones from './views/Notificaciones/CentroNotificaciones';
 import PreferenciasNotificacion from './views/Notificaciones/PreferenciasNotificacion';
 import Dashboard from './views/Dashboard/Dashboard';
 import ReportesHub from './views/Reportes/ReportesHub';
+import LandingPage from './views/PortalPublico/LandingPage';
+import ServiciosPublic from './views/PortalPublico/ServiciosPublic';
+import EquipoPublic from './views/PortalPublico/EquipoPublic';
+import ContactoPublic from './views/PortalPublico/ContactoPublic';
 
 function DummyView({ title }: { title: string }) {
   return (
@@ -64,7 +68,10 @@ function App() {
     <Routes>
       <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
       <Route path="/register" element={<AuthLayout><Register /></AuthLayout>} />
-      <Route path="/" element={<RootRedirect />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/servicios" element={<ServiciosPublic />} />
+      <Route path="/equipo" element={<EquipoPublic />} />
+      <Route path="/contacto" element={<ContactoPublic />} />
 
       {/* Admin / Staff Routes */}
       <Route path="/admin" element={<ProtectedLayout />}>

@@ -107,9 +107,9 @@ export default function MisMascotas() {
   const getPetImage = (esp: string) => {
     const species = esp.toLowerCase();
     if (species.includes('perro') || species.includes('dog')) {
-      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuDM8pZR065mBN_zRsT0K-9h3W-ByY0dCkx1tJr6a_KXTKD63fcCW5FzMmFTzmcaQigIIqG5xFDGqXOQq0JWvRnTCq13J_DBfqi4QunaYKGRE_MqRX0DivSZ-mN9D_htDVybloxprk1_R1fFGlPD17YrWlt0_hwENNtVIaygWOCZ94AMIJnF7ZlEGmciyOTyS5OrBnA9vRzUw-nHhbN3CafZ-NxbGJNMglUBngYtJ7mo1oskzaYx3B6aoBIErCd0BxF692CDhzyjxZ8';
+      return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600';
     }
-    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuADiZUuDOMsyo4M1wr15dg3fsL80rExV4tuKhka1NyJjHWVWLimgnT9wQsjQr8_z23jhtb7SlqFPuCp44eCRnKKZQ06tqmkTYPWibResnGBfH25z7mbfCkavRFdwIZBit8JTNFZcCBpO5k-6zKZHsK3WQP1gLKHSuIWd0CnTSc3wHEu4qXuEj0S3VP0RG_a0KFGMwEZw77fbutpjCXcTFhJs8POZ_CGRMzwVeiFkdXY9Top7gLGWkK9vmUQRl9Kbxy8J9jI4X9UToA';
+    return 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=600';
   };
 
   const getPetAge = (fechaNac: string | undefined) => {
@@ -156,83 +156,130 @@ export default function MisMascotas() {
   }
 
   return (
-    <div className="flex flex-col gap-6 w-full pb-10">
+    <div className="flex flex-col gap-8 w-full pb-12 relative">
       
+      {/* Fondo con Orbes Difuminados Tridimensionales */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[40%] rounded-full bg-primary/4 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[45%] -right-[10%] w-[50%] h-[50%] rounded-full bg-accent-teal/3 blur-[120px]" />
+      </div>
+
       {/* Header de la Página */}
       <PageHeader
-        title="Mis Mascotas"
+        title={
+          <span className="bg-gradient-to-r from-primary to-[#b86d5c] bg-clip-text text-transparent">
+            Mis Mascotas
+          </span>
+        }
         description="Gestiona el perfil de tus compañeros de vida, revisa su historial médico y asegúrate de que estén al día con sus vacunas."
         actions={
           <button
             onClick={handleOpenModal}
-            className="bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-sm cursor-pointer"
+            className="bg-gradient-to-r from-primary to-primary-active hover:shadow-lg hover:shadow-primary/20 text-on-primary font-button text-button py-3 px-6 rounded-full transition-all flex items-center justify-center gap-2 whitespace-nowrap self-start md:self-auto shadow-md cursor-pointer active:scale-95"
           >
             <span className="material-symbols-outlined text-[18px]">add</span>
-            Registrar Nueva Mascota
+            Registrar Mascota
           </button>
         }
         hasDivider={true}
       />
 
       {/* Grid de Mascotas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
         
         {mascotas.map((mascota) => (
-          <article
+          <motion.article
             key={mascota.id}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
             onClick={() => navigate(`/cliente/mascotas/${mascota.id}`)}
-            className="bg-surface-card rounded-xl overflow-hidden group cursor-pointer border border-transparent hover:border-hairline hover:shadow-md transition-all duration-300"
+            className="bg-canvas/60 backdrop-blur-sm rounded-2xl overflow-hidden group cursor-pointer border border-hairline/40 hover:border-primary/20 hover:shadow-xl transition-all duration-300 shadow-sm relative flex flex-col"
           >
-            <div className="h-56 overflow-hidden relative">
+            {/* Foto de mascota */}
+            <div className="h-56 overflow-hidden relative shadow-inner">
               <img
                 src={getPetImage(mascota.especie)}
                 alt={mascota.nombre}
-                className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
               />
-              <div className="absolute top-4 right-4 bg-canvas/90 backdrop-blur-sm px-3 py-1 rounded-full border border-hairline flex items-center gap-1.5 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-success"></span>
-                <span className="font-caption-caps text-[10px] text-ink font-bold uppercase">Al día</span>
+              <div className="absolute top-4 right-4 bg-canvas/90 backdrop-blur-sm px-3 py-1 rounded-full border border-hairline/70 flex items-center gap-1.5 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                <span className="font-caption-caps text-[9px] text-ink font-bold uppercase tracking-wider">Al día</span>
               </div>
             </div>
-            <div className="p-5">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="font-title-lg text-title-lg text-ink font-bold leading-tight">{mascota.nombre}</h3>
-                  <p className="font-body-sm text-body-sm text-body-muted mt-1">
-                    {mascota.especie} {mascota.raza ? `/ ${mascota.raza}` : ''}
-                  </p>
+
+            {/* Contenido en cuadrantes */}
+            <div className="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <h3 className="font-title-lg text-[20px] text-ink font-bold leading-tight group-hover:text-primary transition-colors">
+                      {mascota.nombre}
+                    </h3>
+                    <div className="flex gap-1.5 mt-1.5">
+                      <span className="font-semibold text-secondary-container px-2 py-0.5 rounded bg-surface-soft text-[10px] font-sans">
+                        {mascota.especie}
+                      </span>
+                      {mascota.raza && (
+                        <span className="text-[11px] text-body-muted font-medium truncate max-w-[120px]">
+                          {mascota.raza}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Anillo de salud (Activity/Health Ring) */}
+                  <div className="relative flex items-center justify-center shrink-0" title="Cuidado Clínico: 90%">
+                    <svg className="w-10 h-10 transform -rotate-90">
+                      <circle cx="20" cy="20" r="15" className="stroke-surface-soft" strokeWidth="2.5" fill="transparent" />
+                      <circle cx="20" cy="20" r="15" className="stroke-primary" strokeWidth="2.5" fill="transparent"
+                        strokeDasharray={94}
+                        strokeDashoffset={9.4} // Representa el 90%
+                      />
+                    </svg>
+                    <span className="absolute text-[8px] font-bold text-primary">90%</span>
+                  </div>
                 </div>
-                <span className="font-title-md text-title-md text-primary font-bold">{getPetAge(mascota.fechaNacimiento)}</span>
               </div>
-              <div className="pt-3.5 border-t border-hairline flex items-center justify-between">
-                <span className="font-caption text-caption text-body-muted flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[16px]">monitor_weight</span>
-                  {mascota.peso ? `${mascota.peso} kg` : 'S/P'}
-                </span>
-                <button className="text-primary hover:text-primary-active font-button text-button font-bold transition-colors">
-                  Ver Perfil
+
+              {/* Ficha Inferior */}
+              <div className="pt-4 mt-4 border-t border-hairline/60 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-body-muted text-[12px] font-medium">
+                  <span className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[16px] text-primary">monitor_weight</span>
+                    {mascota.peso ? `${mascota.peso} kg` : 'S/P'}
+                  </span>
+                  <span className="flex items-center gap-1 border-l border-hairline/60 pl-3">
+                    <span className="material-symbols-outlined text-[16px] text-accent-teal">schedule</span>
+                    {getPetAge(mascota.fechaNacimiento)}
+                  </span>
+                </div>
+                <button className="bg-primary/5 group-hover:bg-primary group-hover:text-on-primary text-primary px-4 py-1.5 rounded-full font-button text-[12px] font-bold transition-all shadow-sm">
+                  Ver Ficha
                 </button>
               </div>
             </div>
-          </article>
+          </motion.article>
         ))}
 
-        {/* Tarjeta de añadir (Estilo Empty State) */}
-        <div
+        {/* Tarjeta de añadir (Bento Empty State) */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
           onClick={handleOpenModal}
-          className="border-2 border-dashed border-hairline hover:border-primary/40 rounded-xl flex flex-col items-center justify-center p-6 min-h-[320px] bg-canvas/30 hover:bg-surface-soft/40 transition-colors cursor-pointer group shadow-inner"
+          className="border-2 border-dashed border-hairline/60 hover:border-primary/45 rounded-2xl flex flex-col items-center justify-center p-6 min-h-[320px] bg-canvas/30 hover:bg-surface-soft/40 transition-all cursor-pointer group shadow-sm"
         >
-          <div className="w-14 h-14 rounded-full bg-surface-card flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors border border-hairline">
-            <span className="material-symbols-outlined text-[28px] text-primary">pets</span>
+          <div className="w-14 h-14 rounded-full bg-canvas flex items-center justify-center mb-4 group-hover:bg-primary/10 transition-colors border border-hairline shadow-sm text-primary">
+            <span className="material-symbols-outlined text-[28px]">pets</span>
           </div>
-          <h3 className="font-title-md text-title-md text-ink text-center font-bold">¿Tienes un nuevo integrante?</h3>
-          <p className="font-body-sm text-body-sm text-body-muted text-center max-w-[220px] mt-1 mb-6">
-            Añade su información para mantener su historial médico al día.
+          <h3 className="font-title-md text-title-md text-ink text-center font-bold">¿Nuevo integrante en la familia?</h3>
+          <p className="font-body-sm text-body-sm text-body-muted text-center max-w-[210px] mt-1.5 mb-6 leading-relaxed">
+            Registra a tu mascota para llevar su control clínico e historial médico.
           </p>
-          <button className="bg-surface text-ink border border-hairline hover:border-primary hover:text-primary font-button text-button py-2 px-6 rounded-full transition-colors cursor-pointer">
-            Registrar Mascota
+          <button className="bg-canvas border border-hairline group-hover:border-primary group-hover:text-primary font-button text-button py-2 px-6 rounded-full transition-all cursor-pointer shadow-sm font-bold">
+            Registrar Ahora
           </button>
-        </div>
+        </motion.div>
 
       </div>
 
@@ -246,35 +293,38 @@ export default function MisMascotas() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleCloseModal}
-              className="absolute inset-0 bg-[#141413]/40 backdrop-blur-sm"
+              className="absolute inset-0 bg-[#141413]/50 backdrop-blur-md"
             ></motion.div>
 
-            {/* Contenido del Modal */}
+            {/* Contenido del Modal Glassmorphic */}
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-canvas border border-hairline w-full max-w-md rounded-2xl shadow-xl overflow-hidden relative z-10"
+              initial={{ scale: 0.94, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.94, opacity: 0, y: 20 }}
+              className="bg-canvas/90 backdrop-blur-lg border border-hairline/60 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden relative z-10"
             >
-              <div className="p-6 border-b border-hairline flex justify-between items-center">
-                <h3 className="font-title-lg text-title-lg text-ink font-bold">Registrar Nueva Mascota</h3>
+              <div className="p-6 border-b border-hairline/60 flex justify-between items-center bg-canvas/40">
+                <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
+                  <span className="material-symbols-outlined text-primary">pets</span>
+                  Registrar Mascota
+                </h3>
                 <button
                   onClick={handleCloseModal}
-                  className="p-1 rounded-full text-body-muted hover:bg-surface-soft hover:text-ink transition-colors cursor-pointer"
+                  className="p-1.5 rounded-full text-body-muted hover:bg-surface-soft hover:text-ink transition-colors cursor-pointer"
                 >
-                  <span className="material-symbols-outlined">close</span>
+                  <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
+              <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-5">
                 {formError && (
-                  <div className="bg-error-container text-on-error-container p-3 rounded-lg text-body-sm border border-error/15">
+                  <div className="bg-error-container/80 backdrop-blur-sm text-on-error-container p-3.5 rounded-xl text-body-sm border border-error/15 font-medium shadow-sm">
                     {formError}
                   </div>
                 )}
 
-                <div className="flex flex-col gap-2">
-                  <label htmlFor="pet-name" className="font-label-sm text-ink font-semibold">
+                <div className="flex flex-col gap-2 relative">
+                  <label htmlFor="pet-name" className="font-label-sm text-ink font-bold text-[12px]">
                     Nombre de la Mascota *
                   </label>
                   <input
@@ -284,25 +334,25 @@ export default function MisMascotas() {
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     placeholder="Ej. Bobby, Luna"
-                    className="w-full bg-surface border border-hairline rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                    className="w-full bg-surface-card border border-hairline rounded-xl px-4 py-3 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label htmlFor="pet-species" className="font-label-sm text-ink font-semibold">
+                  <label htmlFor="pet-species" className="font-label-sm text-ink font-bold text-[12px]">
                     Especie *
                   </label>
                   <select
                     id="pet-species"
                     value={especie}
                     onChange={(e) => setEspecie(e.target.value)}
-                    className="w-full bg-surface border border-hairline rounded-lg px-4 py-2.5 text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all cursor-pointer"
+                    className="w-full bg-surface-card border border-hairline rounded-xl px-4 py-3 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer font-medium"
                   >
-                    <option value="Perro">Perro</option>
-                    <option value="Gato">Gato</option>
-                    <option value="Ave">Ave</option>
-                    <option value="Conejo">Conejo</option>
-                    <option value="Otro">Otro</option>
+                    <option value="Perro">Perro 🐶</option>
+                    <option value="Gato">Gato 🐱</option>
+                    <option value="Ave">Ave 🦜</option>
+                    <option value="Conejo">Conejo 🐰</option>
+                    <option value="Otro">Otro 🐾</option>
                   </select>
                 </div>
 
@@ -310,14 +360,14 @@ export default function MisMascotas() {
                   <button
                     type="button"
                     onClick={handleCloseModal}
-                    className="flex-1 bg-surface-card border border-hairline hover:bg-surface-soft text-ink py-2.5 rounded-full font-button text-button cursor-pointer"
+                    className="flex-1 bg-surface-card border border-hairline hover:bg-surface-soft text-ink py-3 rounded-full font-button text-button font-bold cursor-pointer transition-colors shadow-sm"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="flex-1 bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-on-primary py-2.5 rounded-full font-button text-button flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                    className="flex-1 bg-gradient-to-r from-primary to-primary-active hover:shadow-lg hover:shadow-primary/15 disabled:bg-primary-disabled text-on-primary py-3 rounded-full font-button text-button font-bold flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95"
                   >
                     {submitting ? 'Guardando...' : 'Registrar'}
                   </button>
