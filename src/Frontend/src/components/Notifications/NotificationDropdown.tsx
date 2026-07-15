@@ -12,6 +12,21 @@ interface NotificationDropdownProps {
   onMarkAsRead: (id: number) => void;
 }
 
+const getNotificationStyles = (n: NotificacionDto) => {
+  if (n.leida) return { container: 'border-l-4 border-l-transparent bg-canvas', dot: false };
+
+  switch (n.tipo) {
+    case 'Success':
+      return { container: 'border-l-4 border-l-emerald-500 bg-emerald-50/20', dot: true };
+    case 'Warning':
+      return { container: 'border-l-4 border-l-amber-500 bg-amber-50/25', dot: true };
+    case 'Error':
+      return { container: 'border-l-4 border-l-red-500 bg-red-50/20', dot: true };
+    default:
+      return { container: 'border-l-4 border-l-primary bg-primary/5', dot: true };
+  }
+};
+
 export default function NotificationDropdown({
   isOpen,
   onClose,
@@ -84,38 +99,49 @@ export default function NotificationDropdown({
               </div>
             ) : (
               <ul className="divide-y divide-hairline">
-                {notificaciones.map((n) => (
-                  <li 
-                    key={n.id} 
-                    onClick={() => handleNotificationClick(n)}
-                    className={`p-4 hover:bg-surface-soft transition-colors cursor-pointer flex gap-3 ${!n.leida ? 'bg-primary/5' : ''}`}
-                  >
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
-                      ${n.tipo === 'Success' ? 'bg-emerald-100 text-emerald-600' : 
-                        n.tipo === 'Warning' ? 'bg-amber-100 text-amber-600' : 
-                        n.tipo === 'Error' ? 'bg-red-100 text-red-600' : 
-                        'bg-blue-100 text-blue-600'}`}
+                {notificaciones.map((n) => {
+                  const style = getNotificationStyles(n);
+                  return (
+                    <li 
+                      key={n.id} 
+                      onClick={() => handleNotificationClick(n)}
+                      className={`p-4 hover:bg-surface-soft transition-all cursor-pointer flex gap-3 border-b border-hairline/45 ${style.container}`}
                     >
-                      <span className="material-symbols-outlined text-[20px]">
-                        {mapBootstrapIconToMaterial(n.icono)}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start gap-2">
-                        <p className={`text-body-sm leading-tight ${!n.leida ? 'font-bold text-ink' : 'font-medium text-ink/80'}`}>
-                          {n.titulo}
-                        </p>
-                        {!n.leida && <span className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-1"></span>}
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                        ${n.tipo === 'Success' ? 'bg-emerald-100 text-emerald-600' : 
+                          n.tipo === 'Warning' ? 'bg-amber-100 text-amber-600' : 
+                          n.tipo === 'Error' ? 'bg-red-100 text-red-600' : 
+                          'bg-blue-100 text-blue-600'}`}
+                      >
+                        <span className="material-symbols-outlined text-[20px]">
+                          {mapBootstrapIconToMaterial(n.icono)}
+                        </span>
                       </div>
-                      <p className={`text-[12px] mt-1 line-clamp-2 ${!n.leida ? 'text-body-muted' : 'text-body-muted/70'}`}>
-                        {n.mensaje}
-                      </p>
-                      <p className="text-[11px] text-body-muted/60 mt-2 font-medium">
-                        {n.tiempoRelativo || n.fechaCreacion.split('T')[0]}
-                      </p>
-                    </div>
-                  </li>
-                ))}
+                      <div className="flex-1">
+                        <div className="flex justify-between items-start gap-2">
+                          <p className={`text-body-sm leading-tight ${!n.leida ? 'font-bold text-ink' : 'font-medium text-ink/80'}`}>
+                            {n.titulo}
+                          </p>
+                          {!n.leida && <span className="w-2.5 h-2.5 rounded-full bg-primary flex-shrink-0 mt-1 animate-pulse"></span>}
+                        </div>
+                        <p className={`text-[12px] mt-1 line-clamp-2 ${!n.leida ? 'text-body-muted font-medium' : 'text-body-muted/70'}`}>
+                          {n.mensaje}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <p className="text-[11px] text-body-muted/60 font-medium">
+                            {n.tiempoRelativo || n.fechaCreacion.split('T')[0]}
+                          </p>
+                          {n.urlAccion && !n.leida && (
+                            <span className="inline-flex items-center gap-0.5 text-[10px] font-bold text-primary bg-primary/10 hover:bg-primary hover:text-white px-2 py-0.5 rounded-full transition-all">
+                              Atender
+                              <span className="material-symbols-outlined text-[12px]">chevron_right</span>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </div>

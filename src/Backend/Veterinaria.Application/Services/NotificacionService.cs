@@ -351,7 +351,7 @@ public class NotificacionService : INotificacionService
                 $"El cliente {nombreCliente} ha solicitado una cita para {mascota.Nombre} el {cita.FechaHora:dd/MM/yyyy HH:mm}.",
                 "Info",
                 "bi-calendar-plus",
-                $"/admin/agenda" // URL de la Agenda
+                "/admin/agenda?tab=solicitudes" // URL de la Agenda - Solicitudes Pendientes
             );
         }
     }

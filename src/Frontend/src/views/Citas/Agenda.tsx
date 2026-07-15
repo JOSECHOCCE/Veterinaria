@@ -111,6 +111,10 @@ export default function Agenda() {
     if (action === 'new') {
       navigate('/admin/agenda/nueva');
     }
+    const tab = searchParams.get('tab');
+    if (tab === 'solicitudes') {
+      setActiveTab('solicitudes');
+    }
   }, [searchParams, navigate]);
 
   // Load client details
