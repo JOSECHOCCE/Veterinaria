@@ -190,7 +190,7 @@ export default function ColaAtencion() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#b06000]/10 text-[#b06000] font-caption-uppercase text-caption-uppercase">
-                  <th className="py-2 px-md font-semibold">Hora Programada</th>
+                  <th className="py-2 px-md font-semibold">Hora Cita</th>
                   <th className="py-2 px-md font-semibold">Mascota</th>
                   <th className="py-2 px-md font-semibold">Responsable</th>
                   <th className="py-2 px-md font-semibold">Motivo Consulta</th>
@@ -201,8 +201,8 @@ export default function ColaAtencion() {
               <tbody className="divide-y divide-[#b06000]/10 text-ink">
                 {pendientesTriage.map((p) => (
                   <tr key={p.citaId} className="hover:bg-[#fef7e0]/30 transition-colors">
-                    <td className="py-3 px-md font-bold text-primary">
-                      {p.fechaCita ? p.fechaCita.split('T')[1]?.substring(0, 5) : '--:--'}
+                    <td className="py-3 px-md font-bold text-[#b06000]">
+                      {new Date(p.fechaCita).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                     </td>
                     <td className="py-3 px-md font-bold">{p.mascotaNombre}</td>
                     <td className="py-3 px-md font-medium text-body-sm">{p.propietarioNombre}</td>
