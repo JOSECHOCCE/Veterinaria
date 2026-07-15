@@ -88,6 +88,7 @@ export default function HistoriaClinicaSOAP() {
   // SOAP history detail modal state
   const [selectedHistorial, setSelectedHistorial] = useState<HistorialRecent | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
   const handleOpenSoapDetail = (historial: HistorialRecent) => {
     setSelectedHistorial(historial);
@@ -321,11 +322,11 @@ export default function HistoriaClinicaSOAP() {
       toast.error('Debe completar el diagnóstico obligatorio antes de finalizar.');
       return;
     }
+    setShowConfirmModal(true);
+  };
 
-    if (!window.confirm('¿Está seguro de que desea finalizar la evolución clínica? Esto cerrará el expediente de forma irreversible y pasará la cita a Completada.')) {
-      return;
-    }
-
+  const handleFinalizarAtencionConfirm = async () => {
+    setShowConfirmModal(false);
     setSaving(true);
     try {
       // 1. Update/Create draft with the final form entries first (so they are saved)
@@ -343,8 +344,9 @@ export default function HistoriaClinicaSOAP() {
       await AtencionService.cerrarAtencion(citaIdNum);
       toast.success('Consulta clínica finalizada y guardada exitosamente.');
       
-      // 3. Navigate back to queue
-      navigate('/admin/cola');
+      // 3. Navigate back to where the vet came from (Mi Agenda or Cola)
+      const returnTo = location.state?.from || '/admin/cola';
+      navigate(returnTo);
     } catch (err: any) {
       console.error('Error closing history:', err);
       toast.error(err.response?.data?.message || 'Error al finalizar la atención clínica.');
@@ -390,7 +392,10 @@ export default function HistoriaClinicaSOAP() {
           </div>
         }
         description={`Registro médico y diagnóstico en tiempo real para la cita de ${mascota?.nombre || 'la mascota'}.`}
-        backLink={{ to: '/admin/cola', label: 'Volver a la Cola' }}
+        backLink={{
+          to: location.state?.from || '/admin/cola',
+          label: location.state?.from === '/admin/mi-agenda' ? 'Volver a Mi Agenda' : 'Volver a la Cola',
+        }}
         hasDivider={true}
       />
 
@@ -939,6 +944,43 @@ export default function HistoriaClinicaSOAP() {
                   className="bg-primary hover:bg-primary-active text-on-primary font-button text-button px-6 py-2.5 rounded-lg transition-colors cursor-pointer shadow-xs font-bold"
                 >
                   Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Custom Confirmation Modal for Finalizar Consulta */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white border border-outline-variant/20 rounded-2xl max-w-md w-full shadow-2xl overflow-hidden p-6 text-center select-none"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-teal-500/10 text-teal-600 flex items-center justify-center mx-auto mb-4 border border-teal-500/20 shadow-xs">
+                <span className="material-symbols-outlined text-[36px]">assignment_turned_in</span>
+              </div>
+              <h3 className="font-headline-lg text-xl text-ink font-bold mb-2">
+                ¿Finalizar Evolución Clínica?
+              </h3>
+              <p className="text-sm text-body-muted leading-relaxed font-medium mb-6">
+                Al confirmar, el expediente clínico SOAP se guardará en el historial definitivo de <strong>{mascota?.nombre || 'la mascota'}</strong>, la cita pasará a estado <strong>Completada</strong> y el paciente se retirará de la cola activa de atención.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="flex-1 px-5 py-2.5 rounded-xl border border-outline-variant text-ink hover:bg-surface-soft font-bold text-xs transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleFinalizarAtencionConfirm}
+                  className="flex-1 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-container text-white font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">check_circle</span>
+                  Sí, Finalizar Consulta
                 </button>
               </div>
             </motion.div>

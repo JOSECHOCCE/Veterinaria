@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 import PageHeader from '../../components/common/PageHeader';
 import CitasService from '../../services/citas.service';
 import type { CitaDto } from '../../services/citas.service';
@@ -26,6 +27,28 @@ interface SuggestedPet {
 export default function NuevaCita() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+
+  if (user?.role === 'Veterinario') {
+    return (
+      <div className="flex-grow p-6 max-w-3xl mx-auto animate-fadeIn select-none">
+        <PageHeader
+          title="Acceso Restringido para Veterinarios"
+          description="La programación y agendamiento de nuevas citas clínicas es un flujo gestionado por el equipo de Recepción y Administración."
+          backLink={{ to: '/admin/mi-agenda', label: 'Volver a Mi Agenda' }}
+        />
+        <div className="bg-amber-50/80 border border-amber-200/80 p-6 rounded-2xl mt-6 shadow-xs">
+          <div className="flex items-center gap-3 text-amber-900 font-bold text-base mb-2">
+            <span className="material-symbols-outlined text-[24px] text-amber-600">admin_panel_settings</span>
+            Rol de Atención Exclusiva
+          </div>
+          <p className="text-sm text-amber-900/90 leading-relaxed font-medium">
+            Como Médico Veterinario, su rol está diseñado para enfocarse en la atención directa en consultorio, realización de evoluciones SOAP y gestión de expedientes clínicos desde <strong>Mi Agenda</strong> o <strong>Cola de Atención</strong>. Si requiere programar un control médico posterior, indique el próximo control en el SOAP o solicite el agendamiento a Recepción.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Route pre-populates
   const initialDate = searchParams.get('date') || new Date().toISOString().split('T')[0];

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import PagosService from '../../services/pagos.service';
 import Spinner from '../../components/common/Spinner';
@@ -60,6 +60,8 @@ export default function RegistrarCobro() {
   const { citaId } = useParams<{ citaId: string }>();
   const citaIdNum = Number(citaId);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAutofill = searchParams.get('autofill') === 'true';
 
   // Loaders
   const [loading, setLoading] = useState<boolean>(true);
@@ -116,8 +118,19 @@ export default function RegistrarCobro() {
         setMontoTotalAjustado(baseMonto.toString());
 
         // Default abonado to remaining balance
-        const remaining = baseMonto - c.montoPagado;
+        const remaining = Math.max(0, baseMonto - c.montoPagado);
         setMontoAbonado(remaining.toString());
+
+        if (isAutofill) {
+          setTipoPagoSelection('Completo');
+          setMetodoPago('Efectivo');
+          setReferenciaOpcional(`Atención finalizada #${c.id}`);
+          if (baseMonto !== (c.servicio?.precio ?? 0)) {
+            setObservacion('Monto calculado automáticamente tras finalizar atención clínica/procedimiento.');
+          } else {
+            setObservacion('Atención clínica completada. Cobro estándar de servicio.');
+          }
+        }
       } else {
         setError('No se pudieron obtener los detalles de cobro de esta cita.');
       }
@@ -368,6 +381,26 @@ export default function RegistrarCobro() {
 
       {cita && (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+          {isAutofill && (
+            <div className="col-span-1 lg:col-span-12 p-md bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-md shadow-xs animate-in fade-in slide-in-from-top-2 mb-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                  <span className="material-symbols-outlined text-[22px]">auto_awesome</span>
+                </div>
+                <div>
+                  <h4 className="font-title-sm font-bold text-emerald-800 dark:text-emerald-300">
+                    ⚡ Llenado Automático Habilitado (Consulta Médica Finalizada)
+                  </h4>
+                  <p className="font-body-sm text-xs text-emerald-700 dark:text-emerald-400 mt-0.5">
+                    Se pre-cargaron el saldo pendiente (S/. {montoAbonado || '0.00'}), método de pago y la observación justificativa obligatoria. Revise y haga clic en <strong>Registrar e Imprimir Comprobante</strong>.
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-emerald-500 text-white text-[11px] font-bold tracking-wide uppercase shrink-0">
+                Auto-completado
+              </span>
+            </div>
+          )}
           
           {/* Left Column: Cita Details Card (4 cols) */}
           <div className="lg:col-span-4 flex flex-col gap-6">

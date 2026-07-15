@@ -177,6 +177,7 @@ public class NotificacionService : INotificacionService
             mensaje += " Puedes pasar a recogerlo/a.";
         }
 
+        // 1. Notificar al cliente/tutor
         await CrearNotificacionAsync(
             mascota.UsuarioId,
             titulo,
@@ -185,6 +186,38 @@ public class NotificacionService : INotificacionService
             "bi-check-circle-fill",
             urlAccion
         );
+
+        // 2. Notificar en tiempo real al personal (Recepcionistas y Admins) para cobro con llenado automático
+        var personal = await _unitOfWork.Usuarios.GetAll()
+            .Where(u => u.Activo && (u.Rol == "Recepcionista" || u.Rol == "Admin"))
+            .ToListAsync();
+
+        var tutor = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+        var nombreTutor = tutor?.Nombre ?? "Propietario";
+        var vet = await _unitOfWork.Veterinarios.GetByIdAsync(cita.VeterinarioId);
+        var nombreVet = vet?.Nombre ?? "Veterinario";
+
+        string tituloPersonal = cita.EstadoPago != "Pagado"
+            ? "💳 ¡Atención Médica Finalizada - Cobro Pendiente!"
+            : "✅ ¡Atención Médica Finalizada (Ya Pagada)!";
+        string mensajePersonal = cita.EstadoPago != "Pagado"
+            ? $"El Dr(a). {nombreVet} finalizó la consulta de {mascota.Nombre} ({nombreTutor}). Monto a cobrar: S/. {(cita.MontoTotal - cita.MontoPagado):N2}."
+            : $"El Dr(a). {nombreVet} finalizó la consulta de {mascota.Nombre} ({nombreTutor}).";
+        string urlAccionPersonal = cita.EstadoPago != "Pagado"
+            ? $"/admin/pagos/registrar/{cita.Id}?autofill=true"
+            : $"/admin/atencion/{cita.Id}";
+
+        foreach (var p in personal)
+        {
+            await CrearNotificacionAsync(
+                p.Id,
+                tituloPersonal,
+                mensajePersonal,
+                cita.EstadoPago != "Pagado" ? "Warning" : "Success",
+                cita.EstadoPago != "Pagado" ? "bi-cash-coin" : "bi-check-circle-fill",
+                urlAccionPersonal
+            );
+        }
     }
 
     public async Task NotificarCitaCanceladaAsync(Cita cita)

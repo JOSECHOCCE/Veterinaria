@@ -35,6 +35,8 @@ export interface CalendarioEventDto {
     propietario?: string;
     duracion: number;
     precio: number;
+    hasTriage?: boolean;
+    triageId?: number;
   };
 }
 

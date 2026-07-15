@@ -69,10 +69,16 @@ export default function ColaAtencion() {
     }
 
     try {
-      // Transition triage status to EnAtencion
-      await AtencionService.cambiarEstadoTriage(triage.id, 'EnAtencion');
+      // Transition triage status to EnAtencion si no está en atención
+      if (triage.estado !== 'EnAtencion') {
+        try {
+          await AtencionService.cambiarEstadoTriage(triage.id, 'EnAtencion');
+        } catch (transitionErr) {
+          console.warn('Advertencia de transición al cambiar estado de triage:', transitionErr);
+        }
+      }
       toast.success('Atención iniciada. Redirigiendo a expediente SOAP...');
-      navigate(`/admin/atencion/${triage.citaId}`, { state: { triage } });
+      navigate(`/admin/atencion/${triage.citaId}`, { state: { triage, from: '/admin/cola' } });
     } catch (err: any) {
       console.error('Error starting consult:', err);
       toast.error(err.response?.data?.message || 'Error al iniciar la atención.');
@@ -95,8 +101,8 @@ export default function ColaAtencion() {
 
   const getFilteredTriages = () => {
     return triages.filter((t) => {
-      // Filter out attended ones from queue display
-      if (t.estado === 'Atendido') return false;
+      // Filter out attended or completed ones from queue display
+      if (t.estado === 'Atendido' || t.estado === 'Completada' || t.estado === 'Cancelada') return false;
 
       // Urgency filter
       if (selectedNivel !== 'all' && t.nivel !== selectedNivel) return false;
@@ -129,6 +135,7 @@ export default function ColaAtencion() {
 
     const pendingItems = pendientesTriage
       .filter(p => {
+        if ((p as any).estado === 'Completada' || (p as any).estado === 'Atendido' || (p as any).estado === 'Cancelada') return false;
         if (buscar) {
           const query = buscar.toLowerCase();
           return p.mascotaNombre.toLowerCase().includes(query) || 
@@ -394,7 +401,7 @@ export default function ColaAtencion() {
                               </>
                             ) : (
                               <button
-                                onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t } })}
+                                onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t, from: '/admin/cola' } })}
                                 className="px-4 py-1.5 bg-surface-soft hover:bg-surface-soft-active border border-hairline text-accent-teal font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-semibold"
                                 title="Retomar evolución clínica"
                               >

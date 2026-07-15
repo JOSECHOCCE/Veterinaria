@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
 import notificacionesService from '../services/notificaciones.service';
+import RealtimeToastCard from '../components/Notifications/RealtimeToastCard';
 
 interface ServerNotification {
   id: number;
@@ -54,31 +55,10 @@ export function useNotifications() {
         connection.on('RecibirNotificacion', (n: ServerNotification) => {
           setUnreadCount((prev) => prev + 1);
 
-          const titulo = n?.titulo || 'Notificación';
-          const mensaje = n?.mensaje || '';
-          const url = n?.urlAccion;
-
-          const baseOpts = {
-            description: mensaje,
-            duration: 7000,
-            action: url
-              ? { label: 'Ver', onClick: () => { window.location.href = url; } }
-              : undefined
-          };
-
-          switch (n?.tipo) {
-            case 'Success':
-              toast.success(titulo, baseOpts);
-              break;
-            case 'Warning':
-              toast.warning(titulo, baseOpts);
-              break;
-            case 'Error':
-              toast.error(titulo, baseOpts);
-              break;
-            default:
-              toast.info(titulo, baseOpts);
-          }
+          toast.custom(
+            (toastId) => React.createElement(RealtimeToastCard, { toastId, notification: n }),
+            { duration: 12000 }
+          );
         });
       })
       .catch((error) => console.error('Error al conectar con SignalR Hub:', error));

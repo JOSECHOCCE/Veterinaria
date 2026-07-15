@@ -64,6 +64,7 @@ export default function DetalleMascota() {
   const { user } = useAuth();
 
   const isStaff = user?.role === 'Admin' || user?.role === 'Recepcionista' || user?.role === 'Veterinario';
+  const canSchedule = user?.role === 'Admin' || user?.role === 'Recepcionista';
 
   const [mascota, setMascota] = useState<Mascota | null>(null);
   const [citas, setCitas] = useState<Cita[]>([]);
@@ -264,13 +265,15 @@ export default function DetalleMascota() {
             <div className="w-full mt-6 space-y-3">
               {isStaff ? (
                 <>
-                  <button
-                    onClick={() => navigate(isStaff ? '/admin/agenda/nueva' : '/cliente/nueva-cita')}
-                    className="w-full bg-primary hover:bg-primary-container text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs flex justify-center items-center gap-1.5 cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">calendar_month</span>
-                    Agendar Cita
-                  </button>
+                  {canSchedule && (
+                    <button
+                      onClick={() => navigate('/admin/agenda/nueva', { state: { mascotaId: mascota.id, clienteId: mascota.usuarioId } })}
+                      className="w-full bg-primary hover:bg-primary-container text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs flex justify-center items-center gap-1.5 cursor-pointer"
+                    >
+                      <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                      Agendar Cita
+                    </button>
+                  )}
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => navigate(`/admin/mascotas/${mascota.id}/editar`)}

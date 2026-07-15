@@ -55,6 +55,7 @@ export default function MiAgenda() {
   // Appointments state
   const [citasHoy, setCitasHoy] = useState<Cita[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filterMode, setFilterMode] = useState<'pendientes' | 'completadas' | 'todas'>('pendientes');
 
   // Find the veterinarian ID corresponding to the logged-in email
   const loadInitialData = useCallback(async () => {
@@ -139,6 +140,13 @@ export default function MiAgenda() {
       const queueRes = await AtencionService.getColaTriage();
       const triage = (queueRes.triages || []).find((t) => t.citaId === cita.id);
 
+      // Si la cita ya está en consulta o en proceso, permitir ingresar directo sin bloquear al veterinario
+      if (cita.estado === 'EnAtencion' || cita.estado === 'EnProceso') {
+        toast.success('Retomando expediente clínico...');
+        navigate(`/admin/atencion/${cita.id}`, { state: { triage, from: '/admin/mi-agenda' } });
+        return;
+      }
+
       if (!triage) {
         toast.error(
           `Esta cita no cuenta con un triage registrado. Por favor, registre el triage antes de iniciar la consulta.`
@@ -148,18 +156,22 @@ export default function MiAgenda() {
             citaId: cita.id, 
             mascotaId: cita.mascotaId,
             mascotaNombre: cita.mascotaNombre,
-            motivo: cita.motivo 
+            motivo: cita.motivo,
+            from: '/admin/mi-agenda'
           } 
         });
         return;
       }
 
-      if (triage.estado !== 'EnAtencion' || (cita.estado !== 'EnAtencion' && cita.estado !== 'EnProceso')) {
+      try {
         await AtencionService.cambiarEstadoTriage(triage.id!, 'EnAtencion');
+      } catch (transitionErr: any) {
+        console.warn('Advertencia de transición al cambiar estado de triage:', transitionErr);
+        // Si falló por regla de transición pero el triage ya existe, procedemos al expediente
       }
 
       toast.success('Abriendo expediente clínico...');
-      navigate(`/admin/atencion/${cita.id}`, { state: { triage } });
+      navigate(`/admin/atencion/${cita.id}`, { state: { triage, from: '/admin/mi-agenda' } });
     } catch (err: any) {
       console.error('Error starting consult from agenda:', err);
       toast.error('Error al iniciar la consulta médica.');
@@ -194,9 +206,16 @@ export default function MiAgenda() {
   const nextPatient = getNextPatient();
   const waitingRoomList = citasHoy.filter(c => c.estado === 'EnEspera');
 
-  // Search filtering
+  // Search and status filtering
   const getFilteredCitas = () => {
     let result = citasHoy;
+    if (filterMode === 'pendientes') {
+      result = result.filter(
+        c => c.estado !== 'Completada' && c.estado !== 'Cancelada' && c.estado !== 'Rechazada' && c.estado !== 'NoAsistio'
+      );
+    } else if (filterMode === 'completadas') {
+      result = result.filter(c => c.estado === 'Completada');
+    }
     if (searchTerm.trim()) {
       const query = searchTerm.toLowerCase();
       result = result.filter(
@@ -398,14 +417,52 @@ export default function MiAgenda() {
 
         {/* Right Column: Confirmed Appointments Table (8 cols) */}
         <div className="xl:col-span-8 bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
-          <div className="p-lg border-b border-hairline bg-surface-soft/20 flex flex-col sm:flex-row sm:items-center justify-between gap-md">
-            <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary">event_available</span>
-              Citas del Día
-            </h3>
+          <div className="p-lg border-b border-hairline bg-surface-soft/20 flex flex-col xl:flex-row xl:items-center justify-between gap-md">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-md flex-wrap">
+              <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">event_available</span>
+                Citas del Día
+              </h3>
+
+              {/* Status Tabs Pill */}
+              <div className="flex bg-canvas border border-hairline p-1 rounded-lg text-xs font-bold flex-wrap gap-1">
+                <button
+                  onClick={() => setFilterMode('pendientes')}
+                  className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                    filterMode === 'pendientes'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-secondary hover:text-ink'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">pending_actions</span>
+                  Pendientes ({citasHoy.filter(c => c.estado !== 'Completada' && c.estado !== 'Cancelada' && c.estado !== 'Rechazada' && c.estado !== 'NoAsistio').length})
+                </button>
+                <button
+                  onClick={() => setFilterMode('completadas')}
+                  className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1 cursor-pointer ${
+                    filterMode === 'completadas'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-secondary hover:text-ink'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[15px]">check_circle</span>
+                  Completadas ({citasHoy.filter(c => c.estado === 'Completada').length})
+                </button>
+                <button
+                  onClick={() => setFilterMode('todas')}
+                  className={`px-3 py-1.5 rounded-md transition-all cursor-pointer ${
+                    filterMode === 'todas'
+                      ? 'bg-primary text-white shadow-xs'
+                      : 'text-secondary hover:text-ink'
+                  }`}
+                >
+                  Todas ({citasHoy.length})
+                </button>
+              </div>
+            </div>
 
             {/* Search Input */}
-            <div className="relative w-full sm:w-80">
+            <div className="relative w-full xl:w-72 shrink-0">
               <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">search</span>
               <input
                 type="text"
@@ -495,7 +552,7 @@ export default function MiAgenda() {
                           <td className="py-md px-lg whitespace-nowrap text-right">
                             <div className="flex justify-end gap-xs">
                               <button
-                                onClick={() => navigate(`/admin/mascotas/${c.mascotaId}/historial`)}
+                                onClick={() => navigate(`/admin/mascotas/${c.mascotaId}/historial`, { state: { from: '/admin/mi-agenda' } })}
                                 title="Ver Expediente Médico"
                                 className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-soft text-secondary hover:text-ink transition-colors cursor-pointer"
                               >
