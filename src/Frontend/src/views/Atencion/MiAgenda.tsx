@@ -109,7 +109,8 @@ export default function MiAgenda() {
       const todayStr = new Date().toDateString();
       const filteredToday = uniqueCitas.filter(c => {
         const citaDate = new Date(c.fechaHora).toDateString();
-        return citaDate === todayStr && c.estado !== 'Cancelada' && c.estado !== 'Rechazada';
+        const validStates = ['Confirmada', 'EnEspera', 'EnAtencion', 'Completada', 'Reprogramada'];
+        return citaDate === todayStr && validStates.includes(c.estado);
       });
 
       filteredToday.sort((a, b) => new Date(a.fechaHora).getTime() - new Date(b.fechaHora).getTime());

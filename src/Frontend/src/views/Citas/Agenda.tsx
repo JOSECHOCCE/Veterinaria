@@ -41,7 +41,7 @@ export default function Agenda() {
   // Filters
   const [selectedVet, setSelectedVet] = useState<string>('all');
   const [activeStatusFilters, setActiveStatusFilters] = useState<string[]>([
-    'Confirmada', 'EnEspera', 'EnAtencion', 'PendienteConfirmacion', 'Reprogramada'
+    'Confirmada', 'EnEspera', 'EnAtencion', 'Reprogramada'
   ]);
   
   // Data
