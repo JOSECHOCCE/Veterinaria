@@ -1,0 +1,78 @@
+schemaName: gentle-ai.sdd-status
+schemaVersion: 1
+changeName: redisenio-portal-cliente-resto
+artifactStore: hybrid
+planningHome:
+  mode: repo-local
+  path: C:\Users\yaran\Documents\antigravity\Veterinaria\openspec
+changeRoot: C:\Users\yaran\Documents\antigravity\Veterinaria\openspec\changes\redisenio-portal-cliente-resto
+artifactPaths:
+  proposal: [C:\Users\yaran\Documents\antigravity\Veterinaria\openspec\changes\redisenio-portal-cliente-resto\proposal.md]
+  specs: [C:\Users\yaran\Documents\antigravity\Veterinaria\openspec\changes\redisenio-portal-cliente-resto\specs\portal-cliente\spec.md]
+  design: [C:\Users\yaran\Documents\antigravity\Veterinaria\openspec\changes\redisenio-portal-cliente-resto\design.md]
+  tasks: [C:\Users\yaran\Documents\antigravity\Veterinaria\openspec\changes\redisenio-portal-cliente-resto\tasks.md]
+  applyProgress: []
+  verifyReport: []
+  reviewLedger: []
+  reviewReceipt: []
+  reviewBundle: []
+  reviewContext: []
+  reviewState: []
+contextFiles:
+  proposal: []
+  specs: []
+  design: []
+  tasks: []
+  applyProgress: []
+  verifyReport: []
+  reviewLedger: []
+  reviewReceipt: []
+  reviewBundle: []
+  reviewContext: []
+  reviewState: []
+artifacts:
+  proposal: missing
+  specs: missing
+  design: missing
+  tasks: missing
+  applyProgress: missing
+  verifyReport: missing
+  reviewLedger: missing
+  reviewReceipt: missing
+  reviewBundle: missing
+  reviewContext: missing
+  reviewState: missing
+taskProgress:
+  total: 0
+  completed: 0
+  pending: 0
+  allComplete: false
+dependencies:
+  proposal: ready
+  specs: blocked
+  design: blocked
+  tasks: blocked
+  apply: blocked
+  verify: blocked
+  archive: blocked
+applyState: blocked
+actionContext:
+  mode: repo-local
+  workspaceRoot: C:\Users\yaran\Documents\antigravity\Veterinaria
+  allowedEditRoots: [C:\Users\yaran\Documents\antigravity\Veterinaria]
+relationships:
+  dependsOn: []
+  supersedes: []
+  amends: []
+  conflictsWith: []
+  sameDomainActiveChanges: []
+remediationState:
+  required: false
+  complete: false
+  failedEvidenceRevision: ""
+  lineageId: ""
+  generation: 0
+  fixBatch: 0
+  reason: ""
+nextRecommended: propose
+blockedReasons: []

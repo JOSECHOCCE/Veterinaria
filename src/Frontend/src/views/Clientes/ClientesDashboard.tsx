@@ -89,53 +89,40 @@ export default function ClientesDashboard() {
       .join('');
   };
 
+  const getInitialsBg = (nombre: string) => {
+    if (!nombre) return 'bg-secondary-container text-on-secondary-container';
+    const char = nombre.trim().charAt(0).toUpperCase();
+    if (char >= 'A' && char <= 'H') {
+      return 'bg-secondary-container text-on-secondary-container';
+    } else if (char >= 'I' && char <= 'P') {
+      return 'bg-tertiary-container text-on-tertiary-container';
+    } else {
+      return 'bg-primary-container/20 text-on-primary-container';
+    }
+  };
+
   const totalPages = Math.ceil(totalItems / limit) || 1;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0">
+    <div className="flex-1 flex flex-col min-w-0 p-6 md:pt-4 md:px-10 md:pb-10">
       {/* Section Header */}
       <PageHeader
-        title="Gestión de Clientes"
-        description="Directorio administrativo para la búsqueda, filtrado y gestión de perfiles de propietarios y sus mascotas asociadas."
+        title="Directorio de Clientes"
+        description="Gestión y búsqueda de propietarios de pacientes"
         actions={
           <Link to="/admin/clientes/nuevo">
-            <button className="bg-primary text-on-primary font-button text-button px-lg py-[12px] rounded-full hover:bg-primary-active transition-all shadow-sm flex items-center justify-center gap-xs shrink-0 cursor-pointer hover:shadow-md">
-              <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                person_add
-              </span>
+            <button className="bg-primary hover:bg-primary-active text-white px-6 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-2 transition-colors shadow-md active:scale-95 duration-200 cursor-pointer">
+              <span className="material-symbols-outlined text-[18px]">person_add</span>
               Registrar Cliente
             </button>
           </Link>
         }
       />
 
-      {/* Toolbar (Search & Filters) */}
-      <div className="flex flex-col sm:flex-row gap-sm mb-lg justify-between items-start sm:items-center bg-surface-card p-sm rounded-xl border border-hairline shadow-sm">
-        {/* Search Input */}
-        <div className="relative w-full sm:max-w-sm shrink-0 group">
-          <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-body-muted group-focus-within:text-primary transition-colors">
-            search
-          </span>
-          <input
-            className="w-full bg-canvas border border-hairline rounded-lg pl-xl pr-md py-2 font-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-body-muted shadow-inner"
-            placeholder="Buscar cliente..."
-            type="text"
-            value={buscar}
-            onChange={(e) => setBuscar(e.target.value)}
-          />
-          {buscar && (
-            <button
-              onClick={() => setBuscar('')}
-              className="absolute right-sm top-1/2 -translate-y-1/2 text-body-muted hover:text-ink transition-colors"
-            >
-              <span className="material-symbols-outlined text-[18px]">close</span>
-            </button>
-          )}
-        </div>
-
+      {/* Toolbar (Search & Filters) - Estilo Bento del mockup */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface-container-lowest p-4 rounded-xl border border-hairline shadow-sm mb-6">
         {/* Quick Filters */}
-        <div className="flex flex-wrap gap-xs items-center w-full sm:w-auto sm:justify-end">
-          <span className="font-caption text-caption text-body-muted mr-xs">Filtros:</span>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {(['Todos', 'Activos', 'Inactivos'] as const).map((t) => (
             <button
               key={t}
@@ -143,15 +130,37 @@ export default function ClientesDashboard() {
                 setFiltro(t);
                 setPage(1);
               }}
-              className={`font-caption px-md py-[8px] rounded-full border transition-all cursor-pointer shadow-sm ${
+              className={`px-4 py-2 rounded-full font-medium text-sm transition-colors cursor-pointer ${
                 filtro === t
-                  ? 'bg-ink text-canvas border-ink font-semibold'
-                  : 'bg-canvas text-ink border-hairline hover:border-outline hover:bg-surface-soft'
+                  ? 'bg-primary-container/20 text-on-primary-container'
+                  : 'border border-outline-variant text-on-surface-variant hover:bg-surface-container-low'
               }`}
             >
-              {t}
+              {t === 'Todos' ? 'Todos los Clientes' : t === 'Activos' ? 'Activos' : 'Inactivos'}
             </button>
           ))}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full sm:max-w-xs shrink-0 group">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
+            search
+          </span>
+          <input
+            className="w-full h-10 pl-10 pr-10 rounded-full bg-surface-container-low border border-outline-variant font-body-sm text-ink focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant transition-colors"
+            placeholder="Buscar por nombre, teléfono o DNI..."
+            type="text"
+            value={buscar}
+            onChange={(e) => setBuscar(e.target.value)}
+          />
+          {buscar && (
+            <button
+              onClick={() => setBuscar('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-ink transition-colors"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -160,7 +169,7 @@ export default function ClientesDashboard() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden flex-1 flex flex-col min-h-[400px]"
+        className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-surface-variant flex-1 flex flex-col min-h-[400px]"
       >
         {loading ? (
           <div className="flex-1 flex items-center justify-center">
@@ -182,128 +191,137 @@ export default function ClientesDashboard() {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto flex-1">
+            <div className="overflow-x-auto flex-1 no-scrollbar">
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
-                  <tr className="bg-surface-card border-b border-hairline">
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest w-[30%]">
-                      Cliente
-                    </th>
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest">
-                      Contacto
-                    </th>
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest">
-                      Documento
-                    </th>
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest w-[20%]">
-                      Mascotas Asociadas
-                    </th>
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest">
-                      Estado
-                    </th>
-                    <th className="font-caption-uppercase text-caption-uppercase text-body-muted py-sm px-lg font-medium tracking-widest text-right">
-                      Acciones
-                    </th>
+                  <tr className="bg-surface-container-low text-on-surface-variant font-semibold text-xs uppercase tracking-wider border-b border-surface-variant">
+                    <th className="px-6 py-4 font-semibold w-[30%]">Cliente</th>
+                    <th className="px-6 py-4 font-semibold">Contacto</th>
+                    <th className="px-6 py-4 font-semibold">Documento</th>
+                    <th className="px-6 py-4 font-semibold w-[25%]">Mascotas Asociadas</th>
+                    <th className="px-6 py-4 font-semibold">Estado</th>
+                    <th className="px-6 py-4 font-semibold text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-hairline">
+                <tbody className="divide-y divide-surface-variant text-sm text-on-surface">
                   <AnimatePresence mode="popLayout">
                     {clientes.map((cliente) => (
                       <motion.tr
                         key={cliente.id}
-                        className="hover:bg-surface-soft/50 transition-colors"
+                        className="hover:bg-surface-bright transition-colors group border-b border-surface-variant"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <td className="py-sm px-md align-middle">
-                          <div className="flex items-center gap-md">
-                            <div className="w-10 h-10 rounded-full overflow-hidden border border-hairline shrink-0 bg-surface-card flex items-center justify-center">
-                              {cliente.rol ? ( // Si tiene avatar o similar lo cargamos, si no usamos iniciales
-                                <div className="w-full h-full bg-surface-soft text-primary font-title-sm flex items-center justify-center font-bold">
-                                  {getInitials(cliente.nombre)}
-                                </div>
-                              ) : (
-                                <div className="w-full h-full bg-surface-soft text-primary font-title-sm flex items-center justify-center font-bold">
-                                  {getInitials(cliente.nombre)}
-                                </div>
-                              )}
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0 ${getInitialsBg(cliente.nombre)}`}>
+                              {getInitials(cliente.nombre)}
                             </div>
                             <div className="min-w-0">
                               <Link
                                 to={`/admin/clientes/${cliente.id}`}
-                                className="font-title-sm text-title-sm text-ink truncate block hover:text-primary transition-colors cursor-pointer"
+                                className="font-semibold text-on-surface hover:text-primary transition-colors truncate block"
                               >
                                 {cliente.nombre}
                               </Link>
-                              <div className="font-body-sm text-body-sm text-body-muted truncate mt-xxs">
-                                {cliente.email || 'Sin correo registrado'}
+                              <div className="text-xs text-on-surface-variant truncate">
+                                ID: {cliente.id}
                               </div>
                             </div>
                           </div>
                         </td>
-                        <td className="py-sm px-md align-middle font-body-sm text-body-sm text-ink whitespace-nowrap">
-                          {cliente.telefono}
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex flex-col text-sm">
+                            <span className="flex items-center gap-1 text-on-surface font-medium">
+                              <span className="material-symbols-outlined text-[16px] text-primary">call</span>
+                              {cliente.telefono}
+                            </span>
+                            <span className="text-on-surface-variant mt-0.5 text-xs">
+                              {cliente.email || 'Sin correo registrado'}
+                            </span>
+                          </div>
                         </td>
-                        <td className="py-sm px-md align-middle font-code text-code text-body-muted whitespace-nowrap">
+                        <td className="px-6 py-4 align-middle font-code text-xs text-on-surface-variant">
                           {cliente.dni || 'Sin DNI'}
                         </td>
-                        <td className="py-sm px-md align-middle">
+                        <td className="px-6 py-4 align-middle">
+                          <div className="flex flex-wrap gap-1 items-center max-w-[220px]">
                             {cliente.mascotas && cliente.mascotas.length > 0 ? (
-                              <span 
-                                className="inline-flex items-center gap-xs px-sm py-[4px] bg-primary/10 border border-primary/20 text-primary font-caption text-caption rounded-full shadow-xs cursor-help select-none font-semibold"
-                                title={cliente.mascotas.map((p) => p.nombre).join(', ')}
-                              >
-                                <span className="material-symbols-outlined text-[14px]">pets</span>
-                                {cliente.mascotas.length} {cliente.mascotas.length === 1 ? 'mascota' : 'mascotas'}
-                              </span>
+                              <>
+                                {cliente.mascotas.slice(0, 2).map((mascota) => (
+                                  <span
+                                    key={mascota.id}
+                                    className="px-2.5 py-1 bg-primary-container/20 text-on-primary-container rounded-full text-xs font-semibold flex items-center gap-1 hover:bg-primary-container/30 transition-colors"
+                                    title={`${mascota.nombre} (${mascota.especie})`}
+                                  >
+                                    <span className="material-symbols-outlined text-[14px]">pets</span>
+                                    {mascota.nombre}
+                                  </span>
+                                ))}
+                                {cliente.mascotas.length > 2 && (
+                                  <div className="relative group/tooltip inline-block">
+                                    <span className="px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-semibold cursor-help select-none">
+                                      +{cliente.mascotas.length - 2}
+                                    </span>
+                                    {/* Tooltip content popup */}
+                                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 hidden group-hover/tooltip:block bg-inverse-surface text-inverse-on-surface text-xs font-medium p-2.5 rounded-lg shadow-lg z-30 whitespace-nowrap border border-outline-variant">
+                                      <div className="flex flex-col gap-1.5">
+                                        {cliente.mascotas.slice(2).map((m) => (
+                                          <div key={m.id} className="flex items-center gap-1.5">
+                                            <span className="material-symbols-outlined text-[12px] text-primary-fixed">pets</span>
+                                            <span className="font-semibold text-white">{m.nombre}</span>
+                                            <span className="text-[10px] text-outline-variant">({m.especie === 'Perro' ? 'Dog' : m.especie === 'Gato' ? 'Cat' : m.especie})</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                      {/* Tooltip arrow */}
+                                      <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-inverse-surface" />
+                                    </div>
+                                  </div>
+                                )}
+                              </>
                             ) : (
-                              <span className="text-body-muted font-caption text-caption italic select-none">
+                              <span className="text-on-surface-variant text-xs italic">
                                 Sin mascotas
                               </span>
                             )}
+                          </div>
                         </td>
-                        <td className="py-sm px-md align-middle whitespace-nowrap">
+                        <td className="px-6 py-4 align-middle">
                           <span
-                            className={`flex items-center gap-xs font-caption text-caption px-sm py-[4px] rounded-full inline-flex border ${
+                            className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${
                               cliente.activo
-                                ? 'text-ink bg-surface-card border-hairline'
-                                : 'text-body-muted bg-surface-soft border-hairline'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
                             }`}
                           >
-                            <span
-                              className={`w-2 h-2 rounded-full ${
-                                cliente.activo
-                                  ? 'bg-success shadow-[0_0_4px_rgba(93,184,114,0.5)]'
-                                  : 'bg-secondary'
-                              }`}
-                            />
-                            {cliente.activo ? 'Activo' : 'Inactivo'}
+                            {cliente.activo ? 'Active' : 'Inactive'}
                           </span>
                         </td>
-                        <td className="py-sm px-md align-middle text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-xs">
+                        <td className="px-6 py-4 align-middle text-right">
+                          <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
                             <button
                               onClick={() => navigate(`/admin/clientes/${cliente.id}`)}
-                              className="p-xs text-body-muted hover:text-primary hover:bg-surface-variant/50 rounded-md transition-all cursor-pointer"
+                              className="p-1.5 text-outline hover:text-primary hover:bg-primary-container/20 rounded-full transition-colors cursor-pointer"
                               title="Ver ficha"
                             >
                               <span className="material-symbols-outlined text-[20px]">visibility</span>
                             </button>
                             <button
                               onClick={() => navigate(`/admin/clientes/${cliente.id}/editar`)}
-                              className="p-xs text-body-muted hover:text-primary hover:bg-surface-variant/50 rounded-md transition-all cursor-pointer"
+                              className="p-1.5 text-outline hover:text-primary hover:bg-primary-container/20 rounded-full transition-colors cursor-pointer"
                               title="Editar"
                             >
                               <span className="material-symbols-outlined text-[20px]">edit</span>
                             </button>
                             <button
                               onClick={() => handleToggleActivo(cliente.id, cliente.activo)}
-                              className={`p-xs rounded-md transition-all cursor-pointer ${
+                              className={`p-1.5 rounded-full transition-colors cursor-pointer ${
                                 cliente.activo
-                                  ? 'text-body-muted hover:text-error hover:bg-error-container/30'
-                                  : 'text-body-muted hover:text-success hover:bg-success/10'
+                                  ? 'text-outline hover:text-error hover:bg-error-container/30'
+                                  : 'text-outline hover:text-success hover:bg-green-100'
                               }`}
                               title={cliente.activo ? 'Inactivar cliente' : 'Activar cliente'}
                             >
@@ -321,15 +339,15 @@ export default function ClientesDashboard() {
             </div>
 
             {/* Table Footer / Pagination */}
-            <div className="bg-surface-card border-t border-hairline py-sm px-lg flex items-center justify-between mt-auto select-none">
-              <span className="font-caption text-caption text-body-muted">
-                Mostrando {(page - 1) * limit + 1}-{Math.min(page * limit, totalItems)} de {totalItems} clientes
+            <div className="bg-surface-container-lowest border-t border-surface-variant py-4 px-6 flex items-center justify-between mt-auto select-none">
+              <span className="text-sm text-on-surface-variant">
+                Showing {(page - 1) * limit + 1}-{Math.min(page * limit, totalItems)} of {totalItems} entries
               </span>
-              <div className="flex gap-xs">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(p - 1, 1))}
                   disabled={page === 1}
-                  className="w-8 h-8 flex items-center justify-center rounded-md border border-hairline text-body-muted hover:text-ink hover:border-outline-variant transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  className="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant disabled:opacity-50 transition-colors disabled:cursor-not-allowed cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">chevron_left</span>
                 </button>
@@ -339,10 +357,10 @@ export default function ClientesDashboard() {
                     <button
                       key={pNum}
                       onClick={() => setPage(pNum)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-md font-caption-caps transition-colors cursor-pointer ${
+                      className={`w-8 h-8 rounded-lg font-bold text-sm flex items-center justify-center transition-colors cursor-pointer ${
                         page === pNum
-                          ? 'bg-ink text-canvas border border-ink'
-                          : 'border border-hairline text-ink hover:bg-surface-variant/30'
+                          ? 'bg-primary text-on-primary'
+                          : 'hover:bg-surface-container-low text-on-surface-variant'
                       }`}
                     >
                       {pNum}
@@ -352,7 +370,7 @@ export default function ClientesDashboard() {
                 <button
                   onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
                   disabled={page === totalPages}
-                  className="w-8 h-8 flex items-center justify-center rounded-md border border-hairline text-body-muted hover:text-ink hover:border-outline-variant transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                  className="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant disabled:opacity-50 transition-colors disabled:cursor-not-allowed cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">chevron_right</span>
                 </button>

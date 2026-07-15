@@ -45,7 +45,6 @@ export default function GestionPagos() {
       toast.loading('Generando comprobante PDF...');
       const res = await PagosService.descargarComprobante(pagoId);
       if (res && res.fileBase64) {
-        // Convert base64 to blob and trigger download
         const byteCharacters = atob(res.fileBase64);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -96,14 +95,13 @@ export default function GestionPagos() {
       setLoadingHistorial(true);
       setErrorHistorial(null);
 
-      // Build params
       const params: any = {
         page
       };
 
       if (metodoFiltro !== 'Todos') params.metodoPago = metodoFiltro;
       if (estadoFiltro !== 'Todos') {
-        params.tipoPago = estadoFiltro === 'Anulado' ? 'Anulado' : ''; // Filter voided ones specifically
+        params.tipoPago = estadoFiltro === 'Anulado' ? 'Anulado' : '';
       }
       if (fechaDesde) params.fechaDesde = `${fechaDesde}T00:00:00`;
       if (fechaHasta) params.fechaHasta = `${fechaHasta}T23:59:59`;
@@ -111,8 +109,6 @@ export default function GestionPagos() {
       const res = await PagosService.getPagos(params);
       if (res) {
         let list: PagoDto[] = res.pagos || [];
-        
-        // Local filtering for "Válido" if estadoFiltro is Válido (since API filters by tipoPago)
         if (estadoFiltro === 'Válido') {
           list = list.filter((p) => p.tipoPago !== 'Anulado');
         }
@@ -140,7 +136,6 @@ export default function GestionPagos() {
   // Filter Pending Collections locally
   const getFilteredPendientes = () => {
     return citasPendientes.filter((c) => {
-      // Text search
       if (buscarPendiente.trim()) {
         const query = buscarPendiente.toLowerCase();
         const clientMatch = c.mascota?.usuario?.nombre.toLowerCase().includes(query);
@@ -149,7 +144,6 @@ export default function GestionPagos() {
         if (!clientMatch && !petMatch && !serviceMatch) return false;
       }
 
-      // Expiration date filter
       const now = new Date();
       const citaDate = new Date(c.fechaHora);
       const isToday = citaDate.toDateString() === now.toDateString();
@@ -183,6 +177,22 @@ export default function GestionPagos() {
     fetchHistorial();
   };
 
+  const getPetIcon = (especie: string) => {
+    const esp = especie.toLowerCase();
+    if (esp.includes('perro') || esp.includes('canin') || esp.includes('dog')) {
+      return 'pets';
+    }
+    return 'cruelty_free';
+  };
+
+  const getPetIconColor = (especie: string) => {
+    const esp = especie.toLowerCase();
+    if (esp.includes('perro') || esp.includes('canin') || esp.includes('dog')) {
+      return 'bg-tertiary-container/30 text-on-tertiary-container';
+    }
+    return 'bg-secondary-container/50 text-on-secondary-container';
+  };
+
   // Stats calculation for Bento Cards (Pending Tab)
   const totalPendingMonto = citasPendientes.reduce((acc, c) => acc + (c.montoTotal - c.montoPagado), 0);
   const now = new Date();
@@ -201,18 +211,22 @@ export default function GestionPagos() {
   const isUserAdmin = user?.role === 'Admin';
 
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none">
+    <div className="flex-grow flex flex-col min-w-0 select-none p-gutter">
       {/* Header */}
       <PageHeader
-        title="Pagos y Cobros"
-        description="Gestión de facturación, caja diaria y registro de auditoría de transacciones."
+        title={activeTab === 'pendientes' ? 'Cobros Pendientes' : 'Historial de Pagos'}
+        description={
+          activeTab === 'pendientes'
+            ? 'Gestión de cuentas por cobrar y facturación pendiente de consultas finalizadas.'
+            : 'Gestión y auditoría de transacciones financieras registradas en caja.'
+        }
         actions={
-          <div className="flex gap-xs bg-surface-soft p-1 rounded-lg border border-hairline">
+          <div className="flex gap-xs bg-surface-container-high p-1 rounded-lg border border-outline-variant/30">
             <button
               onClick={() => setActiveTab('pendientes')}
               className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
                 activeTab === 'pendientes'
-                  ? 'bg-primary text-on-primary shadow-sm'
+                  ? 'bg-primary text-on-primary shadow-sm font-semibold'
                   : 'text-secondary hover:text-ink'
               }`}
             >
@@ -222,7 +236,7 @@ export default function GestionPagos() {
               onClick={() => setActiveTab('historial')}
               className={`px-4 py-2 font-button text-button rounded-md transition-all cursor-pointer ${
                 activeTab === 'historial'
-                  ? 'bg-primary text-on-primary shadow-sm'
+                  ? 'bg-primary text-on-primary shadow-sm font-semibold'
                   : 'text-secondary hover:text-ink'
               }`}
             >
@@ -238,7 +252,7 @@ export default function GestionPagos() {
         <div className="flex flex-col gap-lg animate-fadeIn">
           {/* Bento Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-            <div className="bg-surface-card rounded-xl p-md border border-hairline flex justify-between items-center shadow-xs">
+            <div className="bg-surface-container-lowest rounded-xl p-6 border border-hairline flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Total Pendiente</span>
                 <span className="font-display-sm text-display-sm text-ink font-bold mt-1">
@@ -253,7 +267,7 @@ export default function GestionPagos() {
               </div>
             </div>
 
-            <div className="bg-error/5 rounded-xl p-md border border-error/15 flex justify-between items-center shadow-xs">
+            <div className="bg-error/5 rounded-xl p-6 border border-error/15 flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-error uppercase tracking-wider">Cobros Vencidos</span>
                 <span className="font-display-sm text-display-sm text-error font-bold mt-1">
@@ -263,12 +277,12 @@ export default function GestionPagos() {
                   {vencidosCount.length} citas atrasadas
                 </p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-error/10 text-error flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-error-container/30 text-error flex items-center justify-center">
                 <span className="material-symbols-outlined text-[24px]">warning</span>
               </div>
             </div>
 
-            <div className="bg-accent-amber/5 rounded-xl p-md border border-accent-amber/20 flex justify-between items-center shadow-xs">
+            <div className="bg-accent-amber/5 rounded-xl p-6 border border-accent-amber/20 flex justify-between items-center shadow-xs">
               <div>
                 <span className="block font-caption text-caption text-accent-amber uppercase tracking-wider">Vence Hoy</span>
                 <span className="font-display-sm text-display-sm text-accent-amber font-bold mt-1">
@@ -278,44 +292,52 @@ export default function GestionPagos() {
                   {hoyCount.length} citas de la fecha
                 </p>
               </div>
-              <div className="w-12 h-12 rounded-full bg-accent-amber/10 text-accent-amber flex items-center justify-center">
+              <div className="w-12 h-12 rounded-full bg-accent-amber/15 text-accent-amber flex items-center justify-center">
                 <span className="material-symbols-outlined text-[24px]">today</span>
               </div>
             </div>
           </div>
 
           {/* Search & Filters */}
-          <div className="bg-surface-card rounded-xl border border-hairline p-sm shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-md">
-            <div className="relative flex-1 max-w-md">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[18px]">search</span>
-              <input
-                type="text"
-                value={buscarPendiente}
-                onChange={(e) => setBuscarPendiente(e.target.value)}
-                placeholder="Buscar por cliente, mascota o servicio..."
-                className="w-full pl-9 pr-4 py-2 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-all shadow-inner"
-              />
+          <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/20 p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-md">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block font-label-sm text-label-sm text-outline mb-2">Buscar Cliente o Mascota</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+                <input
+                  type="text"
+                  value={buscarPendiente}
+                  onChange={(e) => setBuscarPendiente(e.target.value)}
+                  placeholder="Ej. Juan Pérez, Toby..."
+                  className="w-full h-12 pl-10 pr-4 bg-surface border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                />
+              </div>
             </div>
 
-            <div className="flex gap-sm">
-              <select
-                value={filtroVencimiento}
-                onChange={(e: any) => setFiltroVencimiento(e.target.value)}
-                className="bg-canvas border border-hairline rounded-lg pl-3 pr-8 py-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer appearance-none min-w-[150px]"
-              >
-                <option value="all">Plazo: Todos</option>
-                <option value="vencido">Vencido</option>
-                <option value="hoy">Vence Hoy</option>
-                <option value="proximo">Próximo</option>
-              </select>
+            <div className="w-full sm:w-auto min-w-[180px]">
+              <label className="block font-label-sm text-label-sm text-outline mb-2">Fecha / Plazo</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">calendar_today</span>
+                <select
+                  value={filtroVencimiento}
+                  onChange={(e: any) => setFiltroVencimiento(e.target.value)}
+                  className="w-full h-12 pl-10 pr-8 bg-surface border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer appearance-none animate-none"
+                >
+                  <option value="all">Todos los plazos</option>
+                  <option value="vencido">Vencido</option>
+                  <option value="hoy">Vence Hoy</option>
+                  <option value="proximo">Próximo</option>
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary pointer-events-none">expand_more</span>
+              </div>
             </div>
           </div>
 
           {/* Pending Table */}
-          <div className="bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[300px]">
+          <div className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-xs overflow-hidden flex flex-col min-h-[300px]">
             {loadingPendientes ? (
               <div className="flex-grow flex items-center justify-center my-xl">
-                <Spinner message="Cargando cola de cobros pendientes..." />
+                <Spinner message="Cargando cobros pendientes..." />
               </div>
             ) : errorPendientes ? (
               <div className="flex-grow p-xl">
@@ -325,23 +347,23 @@ export default function GestionPagos() {
               <EmptyState
                 icon="receipt_long"
                 title="Sin cobros pendientes"
-                description={buscarPendiente ? 'No se encontraron registros que coincidan con la búsqueda.' : 'No hay deudas ni consultas pendientes de pago en este momento.'}
+                description={buscarPendiente ? 'No se encontraron registros que coincidan con la búsqueda.' : 'No hay deudas ni consultas pendientes de liquidar.'}
               />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse min-w-[800px]">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-surface-soft border-b border-hairline">
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-[35%]">Cliente / Mascota</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Servicio</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Veterinario</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-36">Fecha Cita</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-right w-36">Monto Total</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-right w-36">Pendiente</th>
-                      <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-center w-36">Acción</th>
+                    <tr className="bg-surface-container-low border-b border-outline-variant/30 text-label-sm font-label-sm text-outline uppercase tracking-wider">
+                      <th className="py-4 px-6 font-semibold">Cliente</th>
+                      <th className="py-4 px-6 font-semibold">Mascota</th>
+                      <th className="py-4 px-6 font-semibold">Servicio / Veterinario</th>
+                      <th className="py-4 px-6 font-semibold w-40">Fecha</th>
+                      <th className="py-4 px-6 font-semibold text-right w-36">Monto</th>
+                      <th className="py-4 px-6 font-semibold text-center w-36">Estado</th>
+                      <th className="py-4 px-6 font-semibold text-right w-44">Acción</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-hairline">
+                  <tbody className="divide-y divide-outline-variant/20 font-body-sm text-body-sm text-on-background">
                     {filteredPendientes.map((c) => {
                       const now = new Date();
                       const citaDate = new Date(c.fechaHora);
@@ -350,51 +372,47 @@ export default function GestionPagos() {
                       const pendienteMonto = c.montoTotal - c.montoPagado;
 
                       return (
-                        <tr key={c.id} className="hover:bg-surface-soft/30 transition-colors group">
-                          <td className="py-sm px-md">
-                            <div className="flex items-center gap-md">
-                              <div className="w-9 h-9 rounded-full bg-surface-soft flex items-center justify-center text-secondary font-bold">
-                                {c.mascota?.usuario?.nombre ? c.mascota.usuario.nombre.charAt(0).toUpperCase() : 'C'}
+                        <tr key={c.id} className="hover:bg-surface transition-colors group">
+                          <td className="py-4 px-6">
+                            <div className="font-label-md text-label-md text-on-surface">{c.mascota?.usuario?.nombre || 'Sin cliente'}</div>
+                            <div className="text-[12px] text-on-surface-variant font-medium mt-xxs">PAC-ID: {c.mascota?.id || '---'}</div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${getPetIconColor(c.mascota?.especie || '')}`}>
+                                <span className="material-symbols-outlined text-[16px]">{getPetIcon(c.mascota?.especie || '')}</span>
                               </div>
                               <div>
-                                <p className="font-title-sm text-title-sm text-ink font-semibold">{c.mascota?.usuario?.nombre || 'Sin cliente'}</p>
-                                <p className="font-caption text-caption text-secondary mt-xxs flex items-center gap-xxs">
-                                  <span className="material-symbols-outlined text-[13px]">pets</span>
-                                  {c.mascota?.nombre} ({c.mascota?.especie})
-                                </p>
+                                <div className="font-label-md text-label-md text-on-surface">{c.mascota?.nombre}</div>
+                                <div className="text-[12px] text-on-surface-variant font-medium mt-xxs">{c.mascota?.especie}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="py-sm px-md">
-                            <p className="font-body-sm text-body-sm text-ink">{c.servicio?.nombre || 'Consulta General'}</p>
-                            <span className={`inline-block mt-xs px-2 py-0.5 rounded-full font-caption text-[10px] font-bold border ${
-                              isPast 
-                                ? 'bg-error-container text-on-error-container border-error/20' 
-                                : isToday 
-                                ? 'bg-amber-100 text-amber-800 border-amber-200' 
-                                : 'bg-surface-soft text-secondary border-hairline'
-                            }`}>
-                              {isPast ? 'Vencido' : isToday ? 'Vence Hoy' : 'Pendiente'}
-                            </span>
+                          <td className="py-4 px-6">
+                            <div className="font-label-md text-label-md text-on-surface">{c.servicio?.nombre || 'Consulta General'}</div>
+                            <div className="text-[12px] text-on-surface-variant font-medium mt-xxs font-medium">Dr(a). {c.veterinario?.nombre || 'No asignado'}</div>
                           </td>
-                          <td className="py-sm px-md font-body-sm text-body-sm text-secondary">
-                            {c.veterinario?.nombre || 'No asignado'}
-                          </td>
-                          <td className="py-sm px-md font-body-sm text-body-sm text-secondary">
+                          <td className="py-4 px-6 text-on-surface-variant whitespace-nowrap">
                             {new Date(c.fechaHora).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
                           </td>
-                          <td className="py-sm px-md font-body-sm text-body-sm text-ink font-semibold text-right">
-                            S/. {c.montoTotal.toFixed(2)}
-                          </td>
-                          <td className="py-sm px-md font-body-sm text-body-sm text-error font-bold text-right">
+                          <td className="py-4 px-6 font-label-md text-label-md text-right text-ink font-semibold">
                             S/. {pendienteMonto.toFixed(2)}
                           </td>
-                          <td className="py-sm px-md text-center">
+                          <td className="py-4 px-6 text-center">
+                            <span className={`inline-flex items-center px-2.5 py-1 rounded-full font-label-sm text-label-sm font-semibold border ${
+                              isPast 
+                                ? 'bg-error-container text-on-error-container border-error/20' 
+                                : 'bg-[#fff5f5] text-red-600 border-red-200'
+                            }`}>
+                              Pendiente
+                            </span>
+                          </td>
+                          <td className="py-4 px-6 text-right">
                             <button
                               onClick={() => navigate(`/admin/pagos/registrar/${c.id}`)}
-                              className="bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2 rounded-lg transition-colors whitespace-nowrap cursor-pointer shadow-xs"
+                              className="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm cursor-pointer font-bold"
                             >
-                              Registrar Pago
+                              Registrar Cobro
                             </button>
                           </td>
                         </tr>
@@ -412,87 +430,93 @@ export default function GestionPagos() {
       {activeTab === 'historial' && (
         <div className="flex flex-col gap-lg animate-fadeIn">
           {/* Filters Area */}
-          <section className="bg-surface-card rounded-xl p-lg border border-hairline flex flex-wrap gap-md items-end shadow-xs">
-            <div className="flex flex-col gap-xxs flex-1 min-w-[200px]">
-              <label className="font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Rango de Fechas</label>
+          <section className="bg-surface-container-lowest rounded-xl p-6 border border-outline-variant/20 flex flex-wrap gap-4 items-end shadow-xs">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-label-sm font-label-sm text-outline mb-2">Rango de Fechas</label>
               <div className="flex items-center gap-sm">
                 <input
                   type="date"
                   value={fechaDesde}
                   onChange={(e) => {
-                    setFechaDesde(e.target.value);
                     setPage(1);
+                    setFechaDesde(e.target.value);
                   }}
-                  className="bg-canvas border border-hairline rounded-lg px-sm py-2 font-body-sm text-body-sm w-full focus:outline-none focus:border-primary shadow-inner text-ink"
+                  className="w-full h-12 px-4 rounded-lg border border-outline-variant/50 bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-sm text-on-surface"
                 />
-                <span className="text-secondary">-</span>
+                <span className="text-outline">-</span>
                 <input
                   type="date"
                   value={fechaHasta}
                   onChange={(e) => {
-                    setFechaHasta(e.target.value);
                     setPage(1);
+                    setFechaHasta(e.target.value);
                   }}
-                  className="bg-canvas border border-hairline rounded-lg px-sm py-2 font-body-sm text-body-sm w-full focus:outline-none focus:border-primary shadow-inner text-ink"
+                  className="w-full h-12 px-4 rounded-lg border border-outline-variant/50 bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-sm text-on-surface"
                 />
               </div>
             </div>
 
-            <div className="flex flex-col gap-xxs min-w-[150px]">
-              <label className="font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Método</label>
-              <select
-                value={metodoFiltro}
-                onChange={(e) => {
-                  setMetodoFiltro(e.target.value);
-                  setPage(1);
-                }}
-                className="bg-canvas border border-hairline rounded-lg px-sm py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary cursor-pointer text-ink"
-              >
-                <option value="Todos">Todos</option>
-                <option value="Efectivo">Efectivo</option>
-                <option value="Tarjeta">Tarjeta</option>
-                <option value="Transferencia">Transferencia</option>
-                <option value="Yape">Yape</option>
-                <option value="Plin">Plin</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-xxs min-w-[150px]">
-              <label className="font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Estado</label>
-              <select
-                value={estadoFiltro}
-                onChange={(e) => {
-                  setEstadoFiltro(e.target.value);
-                  setPage(1);
-                }}
-                className="bg-canvas border border-hairline rounded-lg px-sm py-2 font-body-sm text-body-sm focus:outline-none focus:border-primary cursor-pointer text-ink"
-              >
-                <option value="Todos">Todos</option>
-                <option value="Válido">Válido</option>
-                <option value="Anulado">Anulado</option>
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-xxs flex-1 min-w-[200px]">
-              <label className="font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Buscar por Filtro</label>
+            <div className="flex-1 min-w-[150px]">
+              <label className="block text-label-sm font-label-sm text-outline mb-2">Método de Pago</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-secondary text-sm">search</span>
+                <select
+                  value={metodoFiltro}
+                  onChange={(e) => {
+                    setPage(1);
+                    setMetodoFiltro(e.target.value);
+                  }}
+                  className="w-full h-12 pl-4 pr-10 rounded-lg border border-outline-variant/50 bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none cursor-pointer"
+                >
+                  <option value="Todos">Todos los métodos</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Tarjeta">Tarjeta de Crédito</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Yape">Yape</option>
+                  <option value="Plin">Plin</option>
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary pointer-events-none">expand_more</span>
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              <label className="block text-label-sm font-label-sm text-outline mb-2">Estado</label>
+              <div className="relative">
+                <select
+                  value={estadoFiltro}
+                  onChange={(e) => {
+                    setPage(1);
+                    setEstadoFiltro(e.target.value);
+                  }}
+                  className="w-full h-12 pl-4 pr-10 rounded-lg border border-outline-variant/50 bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors appearance-none cursor-pointer"
+                >
+                  <option value="Todos">Todos</option>
+                  <option value="Válido">Válido</option>
+                  <option value="Anulado">Anulado</option>
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-secondary pointer-events-none">expand_more</span>
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-label-sm font-label-sm text-outline mb-2">Buscar Transacción</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
                 <input
                   type="text"
                   value={buscarHistorial}
                   onChange={(e) => setBuscarHistorial(e.target.value)}
-                  placeholder="Cliente, Mascota, Ref..."
-                  className="bg-canvas border border-hairline rounded-lg pl-xl pr-sm py-2 font-body-sm text-body-sm w-full focus:outline-none focus:border-primary shadow-inner text-ink"
+                  placeholder="Cliente, mascota, ref..."
+                  className="w-full h-12 pl-10 pr-4 bg-surface border border-outline-variant/50 rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                 />
               </div>
             </div>
           </section>
 
           {/* Table Area */}
-          <section className="bg-canvas border border-hairline rounded-xl shadow-sm overflow-hidden flex flex-col min-h-[300px]">
+          <section className="bg-surface-container-lowest border border-outline-variant/20 rounded-xl shadow-xs overflow-hidden flex flex-col min-h-[300px]">
             {loadingHistorial ? (
               <div className="flex-grow flex items-center justify-center my-xl">
-                <Spinner message="Obteniendo historial de caja y transacciones..." />
+                <Spinner message="Obteniendo historial de pagos..." />
               </div>
             ) : errorHistorial ? (
               <div className="flex-grow p-xl">
@@ -507,85 +531,91 @@ export default function GestionPagos() {
             ) : (
               <>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse min-w-[900px]">
+                  <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="border-b border-hairline bg-surface-soft">
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium w-40">Fecha/Hora</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium">Cliente</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium">Mascota</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium">Servicio</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium w-40">Método / Ref</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium text-right w-36">Monto</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium text-center w-32">Estado</th>
-                        <th className="font-caption-uppercase text-caption-uppercase text-secondary py-3 px-lg font-medium text-right w-32">Acciones</th>
+                      <tr className="bg-surface-container-low border-b border-outline-variant/30 text-label-sm font-label-sm text-outline uppercase tracking-wider">
+                        <th className="py-4 px-6 font-semibold w-40">Fecha/Hora</th>
+                        <th className="py-4 px-6 font-semibold">Cliente &amp; Mascota</th>
+                        <th className="py-4 px-6 font-semibold">Servicio</th>
+                        <th className="py-4 px-6 font-semibold w-44">Método</th>
+                        <th className="py-4 px-6 font-semibold text-right w-36">Monto</th>
+                        <th className="py-4 px-6 font-semibold text-center w-32">Estado</th>
+                        <th className="py-4 px-6 font-semibold text-right w-40">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody className="font-body-sm text-body-sm divide-y divide-hairline">
+                    <tbody className="divide-y divide-outline-variant/20 font-body-sm text-body-sm text-on-background">
                       {filteredHistorial.map((p) => {
                         const isAnulado = p.tipoPago === 'Anulado';
                         
                         return (
                           <tr
                             key={p.id}
-                            className={`hover:bg-surface-soft/30 transition-colors ${
-                              isAnulado ? 'bg-error-container/10 opacity-70' : ''
+                            className={`hover:bg-surface transition-colors group ${
+                              isAnulado ? 'bg-surface/50 opacity-60' : ''
                             }`}
                           >
-                            <td className="py-sm px-md text-secondary whitespace-nowrap">
-                              {new Date(p.fechaPago).toLocaleString('es-ES', {
-                                day: '2-digit',
-                                month: 'short',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
+                            <td className="py-4 px-6 whitespace-nowrap">
+                              <p className="font-label-md text-label-md text-on-surface">
+                                {new Date(p.fechaPago).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </p>
+                              <p className="text-[12px] text-on-surface-variant mt-xxs">
+                                {new Date(p.fechaPago).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                              </p>
                             </td>
-                            <td className={`py-sm px-md text-ink font-semibold ${isAnulado ? 'line-through' : ''}`}>
-                              {p.propietarioNombre || 'Dueño'}
-                            </td>
-                            <td className="py-sm px-md text-secondary">
-                              {p.mascotaNombre || 'Mascota'}
-                            </td>
-                            <td className="py-sm px-md text-secondary">
-                              {p.servicioNombre || 'Servicio'}
-                            </td>
-                            <td className="py-sm px-md">
-                              <div className="flex flex-col gap-xxs font-body-sm">
-                                <span className="flex items-center gap-1 font-medium text-ink">
-                                  <span className="material-symbols-outlined text-[16px] text-secondary">
-                                    {p.metodoPago === 'Tarjeta' ? 'credit_card' : 'payments'}
-                                  </span>
-                                  {p.metodoPago} {p.ultimosDigitosTarjeta ? `*${p.ultimosDigitosTarjeta}` : ''}
-                                </span>
-                                {p.referencia && (
-                                  <span className="text-[11px] text-body-muted font-code select-all">
-                                    {p.referencia}
-                                  </span>
-                                )}
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary shrink-0">
+                                  <span className="material-symbols-outlined text-[20px]">person</span>
+                                </div>
+                                <div>
+                                  <p className={`font-label-md text-label-md text-on-surface font-semibold ${isAnulado ? 'line-through' : ''}`}>
+                                    {p.propietarioNombre || 'Cliente'}
+                                  </p>
+                                  <p className={`text-[12px] text-on-surface-variant flex items-center gap-1 font-medium mt-xxs ${isAnulado ? 'line-through' : ''}`}>
+                                    <span className="material-symbols-outlined text-[14px]">pets</span>
+                                    {p.mascotaNombre || 'Mascota'}
+                                  </p>
+                                </div>
                               </div>
                             </td>
-                            <td className={`py-sm px-md text-ink font-semibold text-right whitespace-nowrap ${isAnulado ? 'line-through' : ''}`}>
+                            <td className={`py-4 px-6 text-on-surface-variant font-medium ${isAnulado ? 'line-through' : ''}`}>
+                              {p.servicioNombre || 'Consulta General'}
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-2 text-on-surface font-medium">
+                                <span className="material-symbols-outlined text-outline text-[20px]">
+                                  {p.metodoPago === 'Tarjeta' ? 'credit_card' : 'payments'}
+                                </span>
+                                {p.metodoPago} {p.ultimosDigitosTarjeta ? `*${p.ultimosDigitosTarjeta}` : ''}
+                              </div>
+                              {p.referencia && (
+                                <span className="text-[10px] text-body-muted font-code mt-1 block select-all">
+                                  Ref: {p.referencia}
+                                </span>
+                              )}
+                            </td>
+                            <td className={`py-4 px-6 text-on-surface font-semibold text-right whitespace-nowrap ${isAnulado ? 'line-through' : ''}`}>
                               S/. {p.monto.toFixed(2)}
                             </td>
-                            <td className="py-sm px-md text-center">
-                              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
+                            <td className="py-4 px-6 text-center">
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-label-sm font-label-sm font-semibold border ${
                                 isAnulado
                                   ? 'bg-error-container text-on-error-container border-error/20'
-                                  : 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                  : 'bg-[#e6fffa] text-primary border-primary-container/30'
                               }`}>
                                 {isAnulado ? 'Anulado' : 'Válido'}
                               </span>
                             </td>
-                            <td className="py-sm px-md text-right">
-                              <div className="flex items-center justify-end gap-xs md:opacity-0 group-hover:opacity-100 transition-opacity">
+                            <td className="py-4 px-6 text-right">
+                              <div className="flex items-center justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                 {!isAnulado && (
                                   <>
                                     <button
                                       onClick={() => handleDescargarComprobante(p.id, p.referencia)}
-                                      className="p-xs text-body-muted hover:text-primary hover:bg-surface-variant/50 rounded-md transition-all cursor-pointer"
-                                      title="Descargar Comprobante PDF"
+                                      className="p-2 text-outline hover:text-primary hover:bg-surface-container rounded-full transition-colors cursor-pointer"
+                                      title="Descargar PDF"
                                     >
-                                      <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                                      <span className="material-symbols-outlined text-[20px]">picture_as_pdf</span>
                                     </button>
                                     
                                     {isUserAdmin && (
@@ -594,7 +624,7 @@ export default function GestionPagos() {
                                           setSelectedPagoForAnulacion(p);
                                           setIsAnulacionModalOpen(true);
                                         }}
-                                        className="p-xs text-body-muted hover:text-error hover:bg-error-container/30 rounded-md transition-all cursor-pointer"
+                                        className="p-2 text-error/80 hover:text-error hover:bg-error-container/50 rounded-full transition-colors cursor-pointer"
                                         title="Anular Transacción"
                                       >
                                         <span className="material-symbols-outlined text-[20px]">cancel</span>
@@ -603,7 +633,7 @@ export default function GestionPagos() {
                                   </>
                                 )}
                                 {isAnulado && (
-                                  <span className="text-caption font-caption text-body-muted italic select-none">
+                                  <span className="text-caption font-caption text-body-muted italic select-none pr-2">
                                     Sin acciones
                                   </span>
                                 )}
@@ -617,27 +647,27 @@ export default function GestionPagos() {
                 </div>
 
                 {/* Pagination */}
-                <div className="border-t border-hairline bg-surface-soft px-lg py-sm flex items-center justify-between mt-auto">
-                  <span className="font-caption text-caption text-secondary">
-                    Total Registros: {totalPagosCount}
+                <div className="bg-surface-container-low px-6 py-4 flex items-center justify-between border-t border-outline-variant/30">
+                  <span className="text-label-sm font-label-sm text-outline">
+                    Mostrando 10 registros por página
                   </span>
-                  <div className="flex items-center gap-xs">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={() => setPage((p) => Math.max(p - 1, 1))}
                       disabled={page === 1}
-                      className="w-8 h-8 flex items-center justify-center rounded-md border border-hairline text-secondary hover:text-ink hover:border-outline-variant transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      className="p-1 rounded text-outline hover:bg-surface-variant transition-colors disabled:opacity-50 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                      <span className="material-symbols-outlined">chevron_left</span>
                     </button>
-                    <span className="font-caption text-caption text-ink px-sm py-xxs bg-canvas rounded-md border border-hairline font-bold">
+                    <span className="w-8 h-8 rounded bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">
                       {page}
                     </span>
                     <button
                       onClick={() => setPage((p) => p + 1)}
-                      disabled={filteredHistorial.length < 10} // Assumes 10 elements per page
-                      className="w-8 h-8 flex items-center justify-center rounded-md border border-hairline text-secondary hover:text-ink hover:border-outline-variant transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                      disabled={filteredHistorial.length < 10}
+                      className="p-1 rounded text-outline hover:bg-surface-variant transition-colors disabled:opacity-50 cursor-pointer"
                     >
-                      <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                      <span className="material-symbols-outlined">chevron_right</span>
                     </button>
                   </div>
                 </div>

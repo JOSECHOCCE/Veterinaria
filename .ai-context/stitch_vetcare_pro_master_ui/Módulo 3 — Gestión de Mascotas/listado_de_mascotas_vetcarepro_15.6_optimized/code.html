@@ -1,0 +1,357 @@
+<!DOCTYPE html><html class="h-full bg-surface-bright" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>VetCarePro - Pets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7fafc",
+                        "surface-tint": "#006a63",
+                        "on-primary-fixed": "#00201d",
+                        "surface": "#f7fafc",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d7dadc",
+                        "on-secondary-fixed": "#121c2c",
+                        "inverse-on-surface": "#eef1f3",
+                        "secondary-container": "#d6e0f6",
+                        "surface-container-low": "#f1f4f6",
+                        "outline": "#6c7a77",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "outline-variant": "#bbc9c7",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#3c4947",
+                        "primary": "#006a63",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-secondary-container": "#596376",
+                        "secondary-fixed": "#d9e3f9",
+                        "on-primary-container": "#005750",
+                        "inverse-primary": "#5adace",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#555f71",
+                        "on-background": "#181c1e",
+                        "surface-container": "#ebeef0",
+                        "primary-fixed-dim": "#5adace",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-high": "#e5e9eb",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "tertiary-container": "#ffab67",
+                        "primary-container": "#4fd1c5",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#79f7ea",
+                        "on-surface": "#181c1e",
+                        "tertiary": "#8e4e11",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "tertiary-fixed": "#ffdcc4",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-tertiary-container": "#773d00",
+                        "background": "#f7fafc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px",
+                        "base-unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface-bright text-on-surface h-full flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low dark:bg-surface-container-low h-screen w-64 flex flex-col fixed left-0 top-0 border-r-0 shadow-none z-20">
+<div class="flex flex-col h-full py-6 px-4">
+<div class="mb-8 px-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-3xl text-primary" data-weight="fill" style="font-variation-settings: 'FILL' 1;">pets</span>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">VetCarePro</span>
+<span class="font-label-sm text-label-sm text-secondary">City Vet Center</span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-md text-label-md">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-on-secondary-container text-on-secondary-container dark:text-secondary-container rounded-lg font-semibold transition-all duration-200 ease-in-out active:scale-95" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-label-md text-label-md">Pets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">event</span>
+<span class="font-label-md text-label-md">Appointments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-label-md text-label-md">Finances</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 pt-4 border-t border-surface-variant">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors transition-all duration-200 ease-in-out active:scale-95 rounded-lg" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+<div class="mt-6 px-4 flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover border-2 border-surface-variant" data-alt="A professional headshot of a female veterinarian wearing scrubs, smiling softly in a brightly lit, clean modern clinic setting. The lighting is soft and airy, creating a trustworthy and warm mood." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjhm24VNjUuCgJZIcfATjEXswF0tFRvJ7LGfHEEEU0Uno39p6MZXxf3NoqVoWjHUWoR1SWC5h4MPCvkK9GF5IIB2ym7TSVQJqkmpOR2SC2TxMEVW4I-XjP0zJW8HJ1N6H1cQ_HxkQcDLVoiDljeS-RyiC4jeXCxKxt4ElzPFVasCI-4QGdOfzc34sOIyweggC1JUlz6a-wgABA50WTDrWdAVMCMO3CIBfDkK0K26BvPqpFOVMy-M7xPg">
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Dr. Smith</span>
+<span class="font-label-sm text-label-sm text-secondary">Clinic Administrator</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1 flex flex-col h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-lowest docked full-width top-0 sticky shadow-sm z-10">
+<div class="flex justify-between items-center h-16 px-margin-desktop w-full">
+<!-- Search Bar -->
+<div class="flex-1 max-w-md relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-full font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors" placeholder="Search pets, breeds, or owners..." type="text">
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-2">
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Page Content Canvas -->
+<main class="flex-1 overflow-y-auto p-margin-desktop bg-surface-bright">
+<!-- Page Header -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-2">Pets Directory</h1>
+<p class="font-body-md text-body-md text-secondary">Manage and locate patients contextually.</p>
+</div>
+<button class="bg-primary text-on-primary h-12 px-6 rounded-lg font-label-md text-label-md flex items-center gap-2 hover:bg-on-primary-fixed-variant transition-colors shadow-sm">
+<span class="material-symbols-outlined" style="font-size: 20px;">add</span>
+                    Add Pet
+                </button>
+</div>
+<!-- Filters & Controls Bar -->
+<div class="bg-surface-container-lowest p-4 rounded-xl shadow-[0_4px_15px_rgba(45,55,72,0.05)] mb-6 flex flex-wrap items-center gap-4 border border-surface-variant">
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Status:</span>
+<select class="bg-surface-bright border border-outline-variant rounded-lg px-3 py-1.5 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary">
+<option>All Statuses</option>
+<option>Active</option>
+<option>Inactive</option>
+</select>
+</div>
+<div class="w-px h-6 bg-surface-variant mx-2"></div>
+<div class="flex items-center gap-2">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Species:</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-md text-label-md flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[18px]">pets</span> All
+                        </button>
+<button class="px-3 py-1 rounded-full bg-surface-bright border border-outline-variant text-on-surface font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-low transition-colors">
+                            Dogs
+                        </button>
+<button class="px-3 py-1 rounded-full bg-surface-bright border border-outline-variant text-on-surface font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-low transition-colors">
+                            Cats
+                        </button>
+</div>
+</div>
+<div class="flex-1"></div>
+<div class="flex items-center gap-2 text-secondary">
+<span class="font-body-md text-body-md">Showing 6 of 124 pets</span>
+</div>
+</div>
+<!-- Data Grid (Bento style cards instead of traditional table) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Pet Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_15px_rgba(45,55,72,0.05)] border border-surface-variant hover:shadow-[0_8px_20px_rgba(45,55,72,0.08)] transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface-bright shadow-sm" data-alt="A high-quality, softly lit photograph of a golden retriever puppy looking happy. The image has a very light, bright background, fitting a clean, minimalist veterinary clinic brand style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGLkyijdSwLz9sNJLIq6dXqSMLg7m059hATtoS8THg7KxR8B6reUjzOpGqTkxJyOU5D_Sx7fiCC8mojqsJy5Kv2inZGbezLKYxbg7Vqkxov7ZoTAX89CIO3_mpq_qDfTILJXaOSYeVdd6hm4SypuUBxzsdTzscYqhpktl61dAOxHWXDT7ZROF74Qpvd9jni4x4giQtJS1CPYXFwFrQL7S8AHa-YxX5t_GnmkNOR5DyfG08aFzYvaM5xg">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-tight">Bella</h3>
+<p class="font-body-md text-body-md text-secondary">Golden Retriever</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e6fffa] text-primary font-label-sm text-label-sm border border-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                        </span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-2 mt-4 pt-4 border-t border-surface-variant">
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Species</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+                                Dog
+                            </span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Owner</span>
+<span class="font-body-md text-body-md text-on-surface">Sarah Jenkins</span>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg transition-colors border border-outline-variant">View Record</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high text-secondary rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_15px_rgba(45,55,72,0.05)] border border-surface-variant hover:shadow-[0_8px_20px_rgba(45,55,72,0.08)] transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface-bright shadow-sm" data-alt="A close-up, highly detailed portrait of a fluffy Maine Coon cat with striking eyes. The lighting is soft, warm, and airy, set against a pristine, uncluttered bright background suitable for a premium pet care UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDASZYKUqOKnwyluB3xWyt7baBCtBuSw9BETDSt_dlgtD4GVmhbo5EvvrMteSdZGFSmqAMo4-t-uR7T_L5RNL0hh77brXif0AnV-VRntWmxCfJPhUS1zczqZO8RI0NOeCytiVRMAunB6Y-V-uZQtzlRxOpjXgzVvmsTqWlRwVw2OqHENFLi6AKM-LVDDUOKu3w2LbW8kzjKomZYT5jwJjlo7xqnGQ6_x_g7T4RluhFremQGwMJMs5xEJQ">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-tight">Oliver</h3>
+<p class="font-body-md text-body-md text-secondary">Maine Coon</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e6fffa] text-primary font-label-sm text-label-sm border border-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                        </span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-2 mt-4 pt-4 border-t border-surface-variant">
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Species</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+                                Cat
+                            </span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Owner</span>
+<span class="font-body-md text-body-md text-on-surface">Mark Thompson</span>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg transition-colors border border-outline-variant">View Record</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high text-secondary rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_15px_rgba(45,55,72,0.05)] border border-surface-variant hover:shadow-[0_8px_20px_rgba(45,55,72,0.08)] transition-all duration-300 flex flex-col opacity-75">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-full bg-surface-variant flex items-center justify-center border-2 border-surface-bright shadow-sm">
+<span class="material-symbols-outlined text-secondary text-3xl">pets</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-tight">Max</h3>
+<p class="font-body-md text-body-md text-secondary">Beagle</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-highest text-secondary font-label-sm text-label-sm border border-outline-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Inactive
+                        </span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-2 mt-4 pt-4 border-t border-surface-variant">
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Species</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+                                Dog
+                            </span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Owner</span>
+<span class="font-body-md text-body-md text-on-surface">Elena Rodriguez</span>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg transition-colors border border-outline-variant">View Record</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high text-secondary rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Pet Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_15px_rgba(45,55,72,0.05)] border border-surface-variant hover:shadow-[0_8px_20px_rgba(45,55,72,0.08)] transition-all duration-300 flex flex-col">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-4">
+<img class="w-16 h-16 rounded-full object-cover border-2 border-surface-bright shadow-sm" data-alt="A beautiful studio shot of a Siamese cat sitting gracefully. The lighting is very clean and bright, characteristic of a high-end, minimalist veterinary brand aesthetic. Gentle shadows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYIqOleXhlnTx1XObQ4Q1Xk8-595GgVsdf1ik8W35nSE4mfLQwMlDj9p6Z9FFI_py_0nra8LbmKFE6NFTZajO93l2di8W1hqByc0DJjcn9KoMRFK3-ZcnQ6zCp2d12hoxRM6W5vHJpBZBnoddH7FC7odCrEaqWGVCfH4AaYU23hBcsfXkFhNPc9HkGNfXtyTU24BCbrch6OwvdB6DGTm1sqC1MtdBucXQQSjdsqMWQfEAgB60l8y8rPw">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface leading-tight">Luna</h3>
+<p class="font-body-md text-body-md text-secondary">Siamese</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#e6fffa] text-primary font-label-sm text-label-sm border border-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Active
+                        </span>
+</div>
+<div class="grid grid-cols-2 gap-y-4 gap-x-2 mt-4 pt-4 border-t border-surface-variant">
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Species</span>
+<span class="font-body-md text-body-md text-on-surface flex items-center gap-1">
+                                Cat
+                            </span>
+</div>
+<div>
+<span class="block font-label-sm text-label-sm text-secondary mb-1">Owner</span>
+<span class="font-body-md text-body-md text-on-surface">David Chen</span>
+</div>
+</div>
+<div class="mt-6 flex gap-2">
+<button class="flex-1 bg-surface-container-low hover:bg-surface-container-high text-on-surface font-label-md text-label-md py-2 rounded-lg transition-colors border border-outline-variant">View Record</button>
+<button class="w-10 h-10 flex items-center justify-center bg-surface-container-low hover:bg-surface-container-high text-secondary rounded-lg transition-colors border border-outline-variant">
+<span class="material-symbols-outlined" style="font-size: 20px;">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

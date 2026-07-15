@@ -159,8 +159,14 @@ export default function HistorialClinicoMascota() {
     );
   }
 
+  // Get the latest values for vitals cards
+  const latestWeight = mascota.peso || (historiales.length > 0 ? historiales[0].pesoActual : null);
+  const latestFC = historiales.length > 0 ? historiales[0].frecuenciaCardiaca : null;
+  const allergy = mascota.alergiasConocidas || alertas?.alergias || 'Ninguna';
+  const lastVaccine = alertas?.ultimaVacuna || 'Ninguna registrada';
+
   return (
-    <div className="flex-grow flex flex-col min-w-0 pb-section" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="flex-grow flex flex-col min-w-0 pb-section p-gutter select-none">
       
       {/* Breadcrumb Header */}
       <PageHeader
@@ -173,56 +179,93 @@ export default function HistorialClinicoMascota() {
         hasDivider={true}
       />
 
-      {/* Patient Header Card */}
-      <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col md:flex-row items-center md:items-start gap-lg mb-xl select-none">
-        <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-surface-soft bg-surface-soft flex items-center justify-center shrink-0">
-          <img
-            alt={mascota.nombre}
-            className="w-full h-full object-cover"
-            src={mascota.fotoUrl || getPetImageFallback(mascota.especie)}
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = getPetImageFallback(mascota.especie);
-            }}
-          />
-        </div>
-        <div className="flex-1 text-center md:text-left">
-          <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-sm mb-xs">
-            <h1 className="font-display-md text-display-md text-ink font-bold" style={{ fontFamily: 'Georgia, serif' }}>
-              {mascota.nombre}
-            </h1>
-            <span className="bg-surface-soft text-secondary font-caption-caps text-caption-caps px-3 py-1 rounded-full border border-hairline text-xs font-semibold">
-              PACIENTE: #PAC-{mascota.id}
-            </span>
+      {/* Patient Header (Bento Style matching Stitch) */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter mb-8">
+        {/* Profile Card */}
+        <div className="md:col-span-4 bg-surface-card rounded-xl border border-hairline shadow-xs p-6 flex flex-col items-center text-center">
+          <div className="w-24 h-24 rounded-full overflow-hidden mb-4 border-4 border-primary/20 bg-surface-soft flex items-center justify-center">
+            <img
+              alt={mascota.nombre}
+              className="w-full h-full object-cover"
+              src={mascota.fotoUrl || getPetImageFallback(mascota.especie)}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = getPetImageFallback(mascota.especie);
+              }}
+            />
           </div>
-          <p className="font-body-md text-body-md text-secondary">
+          <h2 className="font-display-sm text-display-sm text-ink font-bold mb-1">
+            {mascota.nombre}
+          </h2>
+          <p className="font-body-sm text-body-sm text-secondary mb-4">
             {mascota.especie} • {mascota.raza || 'Sin raza'} • {mascota.sexo || 'Sexo no especificado'} • {getPetAge(mascota.fechaNacimiento)}
           </p>
-          <div className="flex flex-wrap justify-center md:justify-start gap-md mt-sm text-body-sm text-body-muted">
-            {mascota.peso && (
-              <span className="flex items-center gap-xs">
-                <span className="material-symbols-outlined text-[18px]">weight</span>
-                Peso: {mascota.peso} kg
-              </span>
-            )}
-            {alertas?.ultimaVacuna && alertas.ultimaVacuna !== 'Ninguna registrada' && (
-              <span className="flex items-center gap-xs">
-                <span className="material-symbols-outlined text-[18px]">vaccines</span>
-                Última Vacuna: {alertas.ultimaVacuna}
-              </span>
-            )}
-            <span className="flex items-center gap-xs">
-              <span className="material-symbols-outlined text-[18px]">person</span>
-              Responsable: {mascota.usuarioNombre || 'No asignado'}
+          <div className="flex gap-2 flex-wrap justify-center w-full mt-auto">
+            <span className="px-3 py-1 bg-[#e6fffa] text-primary rounded-full font-label-sm text-label-sm border border-primary-container/30 font-semibold">
+              {mascota.activo ? 'Activo' : 'Inactivo'}
+            </span>
+            <span className="px-3 py-1 bg-surface-soft text-secondary rounded-full font-label-sm text-label-sm border border-hairline font-semibold">
+              PAC-{mascota.id}
             </span>
           </div>
         </div>
-      </section>
 
-      {/* Medical History Timeline */}
-      <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col gap-lg">
-        <h2 className="font-title-lg text-title-lg text-ink font-semibold flex items-center gap-xs pb-sm border-b border-hairline-soft">
-          <span className="material-symbols-outlined text-secondary">history</span>
-          Historial Médico Completo
+        {/* Vitals & Quick Info Bento Box */}
+        <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-surface-card rounded-xl border border-hairline shadow-xs p-4 flex flex-col justify-center">
+            <span className="material-symbols-outlined text-primary mb-2 text-[26px]">weight</span>
+            <span className="font-caption text-caption text-secondary uppercase tracking-wider">Último Peso</span>
+            <span className="font-display-sm text-display-sm text-ink font-bold mt-1">
+              {latestWeight ? `${latestWeight} kg` : '---'}
+            </span>
+            <span className="text-[10px] text-body-muted font-medium mt-1">Monitoreo continuo</span>
+          </div>
+
+          <div className="bg-surface-card rounded-xl border border-hairline shadow-xs p-4 flex flex-col justify-center">
+            <span className="material-symbols-outlined text-primary mb-2 text-[26px]">favorite</span>
+            <span className="font-caption text-caption text-secondary uppercase tracking-wider">Frec. Cardíaca</span>
+            <span className="font-display-sm text-display-sm text-ink font-bold mt-1">
+              {latestFC ? `${latestFC} lpm` : '---'}
+            </span>
+            <span className="text-[10px] text-body-muted font-medium mt-1">Última consulta</span>
+          </div>
+
+          <div className={`rounded-xl border shadow-xs p-4 flex flex-col justify-center ${
+            allergy !== 'Ninguna' && allergy !== 'Ninguna conocida'
+              ? 'bg-error-container/20 border-error/30 text-on-error-container'
+              : 'bg-surface-card border-hairline'
+          }`}>
+            <span className={`material-symbols-outlined mb-2 text-[26px] ${
+              allergy !== 'Ninguna' && allergy !== 'Ninguna conocida' ? 'text-error' : 'text-primary'
+            }`}>
+              warning
+            </span>
+            <span className="font-caption text-caption text-secondary uppercase tracking-wider">Alergias</span>
+            <span className="font-body-md text-body-md font-bold mt-1 truncate" title={allergy}>
+              {allergy}
+            </span>
+            <span className={`text-[10px] font-medium mt-1 ${
+              allergy !== 'Ninguna' && allergy !== 'Ninguna conocida' ? 'text-error font-bold' : 'text-body-muted'
+            }`}>
+              {allergy !== 'Ninguna' && allergy !== 'Ninguna conocida' ? 'Crítica / Severa' : 'Sin reportar'}
+            </span>
+          </div>
+
+          <div className="bg-surface-card rounded-xl border border-hairline shadow-xs p-4 flex flex-col justify-center">
+            <span className="material-symbols-outlined text-primary mb-2 text-[26px]">vaccines</span>
+            <span className="font-caption text-caption text-secondary uppercase tracking-wider">Última Vacuna</span>
+            <span className="font-body-md text-body-md text-ink font-bold mt-1 truncate" title={lastVaccine}>
+              {lastVaccine}
+            </span>
+            <span className="text-[10px] text-body-muted font-medium mt-1">Control de vacunas</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Medical History Timeline Layout (Alternating or clean layout matching Stitch) */}
+      <section className="bg-surface-card border border-hairline rounded-xl p-lg shadow-sm flex flex-col gap-lg flex-grow min-h-0">
+        <h2 className="font-title-lg text-title-lg text-ink font-semibold flex items-center gap-2 pb-sm border-b border-hairline-soft">
+          <span className="material-symbols-outlined text-primary">history</span>
+          Historial Médico Clínico
         </h2>
 
         {historiales.length === 0 ? (
@@ -231,72 +274,77 @@ export default function HistorialClinicoMascota() {
             description="Esta mascota no posee expedientes médicos o consultas registradas en su historial."
           />
         ) : (
-          <div className="relative pl-6 ml-4 border-l border-hairline flex flex-col gap-lg">
-            {historiales.map((h) => (
-              <article key={h.id} className="relative group">
-                {/* Timeline node */}
-                <div className="absolute -left-[35px] top-1.5 w-4.5 h-4.5 rounded-full bg-primary/20 border-2 border-primary flex items-center justify-center bg-canvas">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                </div>
+          <div className="relative pl-6 ml-4 border-l-2 border-hairline flex flex-col gap-lg">
+            {historiales.map((h) => {
+              const isConsultation = h.servicioNombre?.toLowerCase().includes('consult') || h.servicioNombre?.toLowerCase().includes('cheq');
+              const iconName = isConsultation ? 'stethoscope' : 'medication';
 
-                {/* Card */}
-                <div className="bg-canvas border border-hairline rounded-xl p-lg shadow-xs hover:border-outline-variant transition-colors flex flex-col gap-md">
-                  <div className="flex justify-between items-start flex-wrap gap-sm">
-                    <div>
-                      <h3 className="font-title-md text-title-md text-ink font-bold">
-                        {formatDate(h.fechaRegistro)}
-                      </h3>
-                      <p className="font-body-sm text-body-sm text-secondary flex items-center gap-xs mt-0.5">
-                        <span className="material-symbols-outlined text-[16px]">stethoscope</span>
-                        Atendido por: Dr(a). {h.veterinarioNombre}
-                      </p>
-                    </div>
-                    <span className="bg-primary-container/10 text-primary border border-primary/20 font-caption-caps text-caption-caps px-3 py-1 rounded-full text-xs font-semibold">
-                      {h.servicioNombre}
-                    </span>
+              return (
+                <article key={h.id} className="relative group">
+                  {/* Timeline Node Icon */}
+                  <div className="absolute -left-[37px] top-1 w-6.5 h-6.5 rounded-full border-2 border-primary/30 bg-canvas flex items-center justify-center text-primary shadow-sm">
+                    <span className="material-symbols-outlined text-[13px]">{iconName}</span>
                   </div>
 
-                  <div className="flex flex-col gap-xs mt-xs">
-                    <span className="font-caption-caps text-caption-caps text-secondary text-xs uppercase tracking-wider font-semibold">
-                      Diagnóstico
-                    </span>
-                    <p className="font-body-md text-body-md text-ink font-medium leading-relaxed">
-                      {h.diagnostico || 'Borrador clínico en evolución.'}
-                    </p>
-                  </div>
-
-                  {h.tratamiento && (
-                    <div className="flex flex-col gap-xs">
-                      <span className="font-caption-caps text-caption-caps text-secondary text-xs uppercase tracking-wider font-semibold">
-                        Tratamiento en Clínica
+                  {/* Card content */}
+                  <div className="bg-canvas border border-hairline rounded-xl p-lg shadow-xs hover:border-primary/30 hover:shadow-md transition-all flex flex-col gap-md">
+                    <div className="flex justify-between items-start flex-wrap gap-sm">
+                      <div>
+                        <span className="font-label-sm text-label-sm text-primary uppercase tracking-wider block">
+                          {formatDate(h.fechaRegistro)}
+                        </span>
+                        <p className="font-body-sm text-body-sm text-secondary flex items-center gap-xs mt-0.5 font-medium">
+                          <span className="material-symbols-outlined text-[16px]">person</span>
+                          Atendido por: Dr(a). {h.veterinarioNombre}
+                        </p>
+                      </div>
+                      <span className="bg-primary/5 text-primary border border-primary/10 font-caption-caps text-caption-caps px-3 py-1 rounded-full text-xs font-bold uppercase">
+                        {h.servicioNombre}
                       </span>
-                      <p className="font-body-sm text-body-sm text-body-strong leading-relaxed">
-                        {h.tratamiento}
-                      </p>
                     </div>
-                  )}
 
-                  <div className="mt-md pt-md border-t border-hairline flex flex-col sm:flex-row justify-between sm:items-center gap-sm">
-                    {h.proximoControl ? (
-                      <span className="inline-flex items-center gap-xs font-body-sm text-body-sm text-primary font-medium bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
-                        <span className="material-symbols-outlined text-[16px]">event_repeat</span>
-                        Próximo Control: {formatDate(h.proximoControl)}
+                    <div className="flex flex-col gap-xs mt-xs">
+                      <span className="font-caption-caps text-[10px] text-secondary uppercase tracking-wider font-bold">
+                        Diagnóstico
                       </span>
-                    ) : (
-                      <span />
+                      <h4 className="font-title-sm text-title-sm text-ink font-bold leading-relaxed">
+                        {h.diagnostico || 'Borrador clínico o consulta en curso.'}
+                      </h4>
+                    </div>
+
+                    {h.tratamiento && (
+                      <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
+                        <span className="font-caption-caps text-[10px] text-secondary uppercase tracking-wider block font-bold mb-1">
+                          Tratamiento en Clínica / Receta
+                        </span>
+                        <p className="font-body-sm text-body-sm text-ink leading-relaxed">
+                          {h.tratamiento}
+                        </p>
+                      </div>
                     )}
 
-                    <button
-                      onClick={() => handleOpenSoapDetail(h)}
-                      className="font-button text-button text-primary hover:text-primary-active transition-colors flex items-center gap-xxs hover:underline cursor-pointer font-bold self-end sm:self-auto"
-                    >
-                      Ver Detalle Completo
-                      <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
-                    </button>
+                    <div className="mt-md pt-md border-t border-hairline/80 flex flex-col sm:flex-row justify-between sm:items-center gap-sm">
+                      {h.proximoControl ? (
+                        <span className="inline-flex items-center gap-xs font-body-sm text-body-sm text-primary font-medium bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                          <span className="material-symbols-outlined text-[16px]">event_repeat</span>
+                          Próximo Control: {formatDate(h.proximoControl)}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+
+                      <button
+                        onClick={() => handleOpenSoapDetail(h)}
+                        className="font-button text-button text-primary hover:text-primary-active transition-colors flex items-center gap-xxs hover:underline cursor-pointer font-bold self-end sm:self-auto"
+                      >
+                        Ver Detalle Completo (SOAP)
+                        <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
@@ -335,7 +383,7 @@ export default function HistorialClinicoMascota() {
                 {/* S: Subjective */}
                 <div className="border-b border-hairline pb-md">
                   <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
-                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">S</span>
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs font-bold">S</span>
                     Subjetivo (Anamnesis)
                   </h4>
                   <p className="font-body-sm text-body-sm text-body-strong leading-relaxed bg-surface-soft/30 p-md rounded-lg border border-hairline-soft whitespace-pre-line">
@@ -346,7 +394,7 @@ export default function HistorialClinicoMascota() {
                 {/* O: Objective */}
                 <div className="border-b border-hairline pb-md">
                   <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
-                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">O</span>
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs font-bold">O</span>
                     Objetivo (Constantes Vitales y Examen Físico)
                   </h4>
                   
@@ -380,7 +428,7 @@ export default function HistorialClinicoMascota() {
                 {/* A: Analysis */}
                 <div className="border-b border-hairline pb-md">
                   <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs mb-sm">
-                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">A</span>
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs font-bold">A</span>
                     Análisis (Diagnóstico Clínico)
                   </h4>
                   <p className="font-body-sm text-body-sm text-ink font-semibold bg-surface-soft/50 p-md rounded-lg border border-hairline-soft">
@@ -391,20 +439,20 @@ export default function HistorialClinicoMascota() {
                 {/* P: Plan */}
                 <div className="flex flex-col gap-md">
                   <h4 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-xs">
-                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs">P</span>
+                    <span className="w-6 h-6 rounded bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-caption text-xs font-bold">P</span>
                     Plan (Tratamiento, Receta y Recomendaciones)
                   </h4>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-sm">
                     <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
-                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Procedimientos en Consultorio</span>
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1 font-bold">Procedimientos en Consultorio</span>
                       <p className="font-body-sm text-body-sm text-body-strong whitespace-pre-line">
                         {selectedHistorial.tratamiento || 'Ninguno registrado.'}
                       </p>
                     </div>
 
                     <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
-                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Medicamentos / Indicación de Cuidado</span>
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1 font-bold">Medicamentos / Indicación de Cuidado</span>
                       <p className="font-body-sm text-body-sm text-body-strong whitespace-pre-line">
                         {selectedHistorial.medicamentos || 'Ninguno prescrito.'}
                       </p>
@@ -413,7 +461,7 @@ export default function HistorialClinicoMascota() {
 
                   {selectedHistorial.recomendaciones && (
                     <div className="bg-surface-soft/30 p-md rounded-lg border border-hairline-soft">
-                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1">Indicaciones y Dieta</span>
+                      <span className="font-caption text-[11px] text-secondary uppercase tracking-wider block mb-1 font-bold">Indicaciones y Dieta</span>
                       <p className="font-body-sm text-body-sm text-body-strong">
                         {selectedHistorial.recomendaciones}
                       </p>
@@ -421,7 +469,7 @@ export default function HistorialClinicoMascota() {
                   )}
                 </div>
 
-                {/* Internal Observations (Staff only rule) */}
+                {/* Internal Observations (Staff only) */}
                 {isStaff && selectedHistorial.observaciones && (
                   <div className="bg-error/5 border border-error/10 p-md rounded-lg flex items-start gap-xs mt-xs">
                     <span className="material-symbols-outlined text-error text-[20px] mt-0.5">lock_open</span>

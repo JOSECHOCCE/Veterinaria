@@ -1,0 +1,411 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>VetCarePro | Diario Operativo</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7fafc",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#006a63",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#d9e3f9",
+                        "tertiary-fixed": "#ffdcc4",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-high": "#e5e9eb",
+                        "inverse-surface": "#2d3133",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#596376",
+                        "error": "#ba1a1a",
+                        "primary-container": "#4fd1c5",
+                        "on-primary-fixed-variant": "#00504a",
+                        "tertiary-container": "#ffab67",
+                        "on-primary-fixed": "#00201d",
+                        "surface-container-low": "#f1f4f6",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#5adace",
+                        "on-primary-container": "#005750",
+                        "primary": "#006a63",
+                        "on-background": "#181c1e",
+                        "on-tertiary-container": "#773d00",
+                        "surface-dim": "#d7dadc",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "outline-variant": "#bbc9c7",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#5adace",
+                        "primary-fixed": "#79f7ea",
+                        "on-surface": "#181c1e",
+                        "outline": "#6c7a77",
+                        "tertiary": "#8e4e11",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "inverse-on-surface": "#eef1f3",
+                        "background": "#f7fafc",
+                        "surface": "#f7fafc",
+                        "on-secondary-fixed": "#121c2c",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#d6e0f6",
+                        "surface-container": "#ebeef0",
+                        "on-surface-variant": "#3c4947",
+                        "secondary": "#555f71"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "container-max-width": "1200px",
+                        "base-unit": "8px"
+                    },
+                    "fontFamily": {
+                        "label-md": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; background-color: #f7fafc; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .metric-hover:hover { transform: translateY(-4px); transition: all 0.3s ease; box-shadow: 0 15px 30px -5px rgba(0, 106, 99, 0.1); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #bbc9c7; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface overflow-hidden">
+<div class="flex h-screen w-full">
+<!-- SideNavBar -->
+<aside class="flex flex-col h-full py-base-unit bg-surface-container-low dark:bg-inverse-surface h-screen w-64 flex-shrink-0">
+<div class="px-6 py-8">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed leading-tight">VetCarePro</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant/70">Veterinary Excellence</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<!-- Dashboard is Active -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary dark:text-primary-fixed font-bold border-r-4 border-primary dark:border-primary-fixed hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="font-body-md text-body-md">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">pets</span>
+<span class="font-body-md text-body-md">Pets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-body-md text-body-md">Appointments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-body-md text-body-md">Finances</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high dark:hover:bg-surface-variant transition-colors duration-200" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-body-md text-body-md">Services</span>
+</a>
+</nav>
+<div class="px-6 mb-8">
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-label-md text-label-md metric-hover shadow-lg shadow-primary/20">
+                    New Appointment
+                </button>
+</div>
+<footer class="px-4 border-t border-outline-variant/30 pt-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 rounded-lg text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">help_outline</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</footer>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background overflow-y-auto">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center px-margin-desktop w-full h-16 bg-surface dark:bg-on-background shadow-sm border-b border-outline-variant/30 flex-shrink-0 sticky top-0 z-10">
+<div class="flex items-center bg-surface-container-low px-4 py-1.5 rounded-full w-96">
+<span class="material-symbols-outlined text-outline">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-label-md w-full placeholder:text-outline" placeholder="Search patients, clients or records..." type="text">
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<button class="material-symbols-outlined hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined hover:text-primary transition-colors">help</button>
+<button class="material-symbols-outlined hover:text-primary transition-colors">settings</button>
+</div>
+<div class="h-8 w-px bg-outline-variant/30 mx-2"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="font-label-md text-label-md text-on-surface">Dr. Smith</p>
+<p class="text-[10px] uppercase tracking-wider font-bold text-primary">Senior Vet</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional headshot of a friendly veterinary doctor in a clean white lab coat, smiling warmly. The background is a soft-focus modern veterinary clinic with bright, airy lighting and teal accents, following a professional and nurturing light-mode aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvugQee4gi0xMD2OhYTF6pd6jAQFF9WW49XOtlWjFyPJo0S4MltmTRKc6Zx0jcpvL2i2ZHzZVJuEooi37OB-BU13WbRY2w2BvQV66spv70aMLWCJHDOiJVvSToBgt6M5isqoN6EKzv9Xjk8H5o91oxKQssSkptInkI8XO3lqGk-XZBj0gL-7NKx6eGjQ-8_R5oxOGcXqu_CiKfycVLETwNCArV9CekgQ6H97zBnJh9cmhos6lgXr8V8A">
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="p-margin-desktop space-y-8 max-w-[1440px] mx-auto w-full">
+<!-- Welcome Section -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-background">Diario Operativo</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Viernes, 24 de Mayo • Hospital Veterinario Central</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-surface-container-high text-primary rounded-lg font-label-md text-label-md flex items-center gap-2 metric-hover">
+<span class="material-symbols-outlined text-[20px]">download</span> Exportar Reporte
+                        </button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-lg font-label-md text-label-md flex items-center gap-2 metric-hover">
+<span class="material-symbols-outlined text-[20px]">add</span> Check In
+                        </button>
+</div>
+</div>
+<!-- Admin Financial Section -->
+<section class="grid grid-cols-12 gap-gutter">
+<div class="col-span-8 group cursor-pointer metric-hover bg-gradient-to-br from-primary to-[#004d48] rounded-xl p-8 relative overflow-hidden shadow-xl">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+</div>
+<div class="relative z-10 flex flex-col justify-between h-full">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-primary-container/20 px-3 py-1 rounded-full text-primary-fixed text-label-sm font-label-sm">Solo Administración</span>
+<span class="text-primary-fixed/60 text-label-sm font-label-sm">• Actualizado hace 2 min</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary mb-1">Recaudación Total del Día</h3>
+<p class="text-primary-fixed/80 font-body-md">Ingresos procesados por servicios y farmacia</p>
+</div>
+<div class="mt-8 flex items-baseline gap-4">
+<span class="font-headline-lg text-[48px] text-on-primary font-bold">$12,450.00</span>
+<span class="flex items-center text-primary-fixed font-bold bg-white/10 px-3 py-1 rounded-full text-label-md">
+<span class="material-symbols-outlined text-[18px]">trending_up</span> +12.5%
+                                </span>
+</div>
+</div>
+</div>
+<div class="col-span-4 group cursor-pointer metric-hover bg-white rounded-xl p-8 shadow-sm border border-outline-variant/30 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start">
+<div class="bg-tertiary-container/20 p-3 rounded-xl text-tertiary">
+<span class="material-symbols-outlined">pending_actions</span>
+</div>
+<span class="text-error font-bold font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">priority_high</span> Crítico
+                                </span>
+</div>
+<h3 class="mt-4 font-headline-md text-headline-md text-on-surface">Cobros Pendientes</h3>
+<p class="text-on-surface-variant font-body-md">Facturas abiertas por cerrar hoy</p>
+</div>
+<div class="mt-6">
+<span class="font-headline-lg text-[40px] text-tertiary font-bold">14</span>
+<div class="w-full bg-surface-container-low h-2 rounded-full mt-4 overflow-hidden">
+<div class="bg-tertiary h-full w-2/3 rounded-full"></div>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-2">Valor estimado: <span class="font-bold">$2,100.00</span></p>
+</div>
+</div>
+</section>
+<!-- Operations Overview Grid -->
+<div class="grid grid-cols-4 gap-gutter">
+<!-- Total Appts -->
+<div class="metric-hover bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-4 cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Citas Totales</p>
+<span class="material-symbols-outlined text-primary">event_available</span>
+</div>
+<div>
+<p class="font-headline-lg text-headline-lg text-on-surface">42</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Capacidad al 85%</p>
+</div>
+</div>
+<!-- Confirmed -->
+<div class="metric-hover bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-4 cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Confirmadas</p>
+<div class="w-2 h-2 rounded-full bg-primary mt-1.5 animate-pulse"></div>
+</div>
+<div>
+<p class="font-headline-lg text-headline-lg text-primary">28</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Listas para atención</p>
+</div>
+</div>
+<!-- Pending -->
+<div class="metric-hover bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-4 cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Pendientes</p>
+<span class="material-symbols-outlined text-tertiary">hourglass_top</span>
+</div>
+<div>
+<p class="font-headline-lg text-headline-lg text-tertiary">08</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Requieren seguimiento</p>
+</div>
+</div>
+<!-- Completed -->
+<div class="metric-hover bg-white p-6 rounded-xl shadow-sm border border-outline-variant/20 flex flex-col gap-4 cursor-pointer">
+<div class="flex justify-between items-start">
+<p class="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Completadas</p>
+<span class="material-symbols-outlined text-outline">task_alt</span>
+</div>
+<div>
+<p class="font-headline-lg text-headline-lg text-on-surface-variant">04</p>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Facturadas y cerradas</p>
+</div>
+</div>
+</div>
+<!-- Bottom Layout: Bento Style -->
+<section class="grid grid-cols-12 gap-gutter h-[400px]">
+<!-- Main Activity List -->
+<div class="col-span-8 bg-white rounded-xl shadow-sm border border-outline-variant/20 flex flex-col overflow-hidden">
+<div class="px-6 py-4 border-b border-outline-variant/10 flex justify-between items-center bg-surface-bright">
+<h4 class="font-headline-md text-headline-md text-on-surface text-[18px]">Agenda Próxima</h4>
+<div class="flex gap-2">
+<span class="bg-secondary-container text-on-secondary-container px-2 py-1 rounded text-[10px] font-bold">HOY</span>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-1 rounded text-[10px] font-bold">MAÑANA</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<table class="w-full text-left">
+<thead class="bg-surface-container-low/50 sticky top-0">
+<tr>
+<th class="px-6 py-3 font-label-sm text-label-sm text-outline uppercase tracking-wider">Paciente</th>
+<th class="px-6 py-3 font-label-sm text-label-sm text-outline uppercase tracking-wider">Servicio</th>
+<th class="px-6 py-3 font-label-sm text-label-sm text-outline uppercase tracking-wider">Veterinario</th>
+<th class="px-6 py-3 font-label-sm text-label-sm text-outline uppercase tracking-wider">Estado</th>
+<th class="px-6 py-3 font-label-sm text-label-sm text-outline uppercase tracking-wider"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary-container/20 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">pets</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Luna (Golden Retriever)</p>
+<p class="text-label-sm text-on-surface-variant">Prop. Carlos Ruiz</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-body-md text-body-md">Vacunación Triple</td>
+<td class="px-6 py-4 font-body-md text-body-md">Dr. Mendez</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1 bg-primary-container/30 text-on-primary-container px-2.5 py-1 rounded-full text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Confirmado
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined">pest_control</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Oliver (Gato Siamés)</p>
+<p class="text-label-sm text-on-surface-variant">Prop. Maria Elena</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4 font-body-md text-body-md">Control Parasitario</td>
+<td class="px-6 py-4 font-body-md text-body-md">Dra. Lopez</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1 bg-tertiary-container/30 text-on-tertiary-container px-2.5 py-1 rounded-full text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Pendiente
+                                            </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="material-symbols-outlined text-outline group-hover:text-primary transition-colors">more_vert</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Side Card: Quick Actions or Stats -->
+<div class="col-span-4 flex flex-col gap-gutter">
+<div class="flex-1 bg-white rounded-xl shadow-sm border border-outline-variant/20 p-6 flex flex-col justify-center items-center text-center">
+<div class="mb-4 relative">
+<svg class="w-24 h-24 transform -rotate-90">
+<circle class="text-surface-container-high" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251" stroke-dashoffset="62" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center font-headline-md text-primary">75%</div>
+</div>
+<h5 class="font-label-md text-label-md text-on-surface mb-1">Meta de Hoy</h5>
+<p class="text-label-sm text-on-surface-variant">Faltan $3,050 para el objetivo</p>
+</div>
+<div class="bg-inverse-surface rounded-xl p-6 text-on-primary">
+<div class="flex items-center gap-3 mb-4">
+<span class="material-symbols-outlined text-primary-fixed">bolt</span>
+<h5 class="font-label-md text-label-md">Tip Operativo</h5>
+</div>
+<p class="text-body-md italic font-light opacity-80">"Recuerda revisar el stock de vacunas quíntuples antes del turno de la tarde."</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<script>
+        // Micro-interactions and hover effects
+        document.querySelectorAll('.metric-hover').forEach(card => {
+            card.addEventListener('mousedown', () => {
+                card.classList.add('scale-95');
+            });
+            card.addEventListener('mouseup', () => {
+                card.classList.remove('scale-95');
+            });
+            card.addEventListener('mouseleave', () => {
+                card.classList.remove('scale-95');
+            });
+        });
+
+        // Simple Clock Update (Optional polish)
+        function updateTime() {
+            const now = new Date();
+            // Could add a clock to the top bar if desired
+        }
+        setInterval(updateTime, 1000);
+    </script>
+</body></html>

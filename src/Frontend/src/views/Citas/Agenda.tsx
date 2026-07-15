@@ -33,14 +33,16 @@ export default function Agenda() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<'diaria' | 'solicitudes' | 'configuracion'>('diaria');
+  const [activeTab, setActiveTab] = useState<'semanal' | 'solicitudes'>('semanal');
   const [selectedDate, setSelectedDate] = useState<string>(
     new Date().toISOString().split('T')[0]
   );
   
   // Filters
   const [selectedVet, setSelectedVet] = useState<string>('all');
-  const [activeStatusFilters, setActiveStatusFilters] = useState<string[]>(['Confirmada', 'EnEspera', 'EnAtencion', 'PendienteConfirmacion', 'Reprogramada']);
+  const [activeStatusFilters, setActiveStatusFilters] = useState<string[]>([
+    'Confirmada', 'EnEspera', 'EnAtencion', 'PendienteConfirmacion', 'Reprogramada'
+  ]);
   
   // Data
   const [citas, setCitas] = useState<CalendarioEventDto[]>([]);
@@ -67,45 +69,25 @@ export default function Agenda() {
   const [rejectingCitaId, setRejectingCitaId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState<string>('');
 
-  // Horarios configuration
-  const [horariosClinica, setHorariosClinica] = useState([
-    { day: 'Lunes', active: true, open: '08:00', close: '20:00' },
-    { day: 'Martes', active: true, open: '08:00', close: '20:00' },
-    { day: 'Miércoles', active: true, open: '08:00', close: '20:00' },
-    { day: 'Jueves', active: true, open: '08:00', close: '20:00' },
-    { day: 'Viernes', active: true, open: '08:00', close: '18:00' },
-    { day: 'Sábado', active: true, open: '09:00', close: '14:00' },
-    { day: 'Domingo', active: false, open: '', close: '' },
-  ]);
-  const [upcomingBlocks, setUpcomingBlocks] = useState([
-    { id: 1, title: 'Día de la Independencia', time: '16 Septiembre (Todo el día)', type: 'event_busy' },
-    { id: 2, title: 'Mantenimiento Quirófano', time: '22 Octubre (14:00 - 18:00)', type: 'construction' },
-  ]);
-  const [showAddBlockModal, setShowAddBlockModal] = useState<boolean>(false);
-  const [newBlockTitle, setNewBlockTitle] = useState<string>('');
-  const [newBlockDate, setNewBlockDate] = useState<string>('');
-  const [newBlockStart, setNewBlockStart] = useState<string>('00:00');
-  const [newBlockEnd, setNewBlockEnd] = useState<string>('23:59');
-
-  // Fetch all data
+  // Fetch data
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch veterinarians
       const vetRes = await VeterinariosService.getVeterinarios();
       if (vetRes.success && vetRes.data) {
         setVeterinarios(vetRes.data.veterinarios.map((v: any) => v.veterinario) || []);
       }
 
-      // Fetch appointments for a broad range (+/- 30 days) to populate both daily view and solicitudes
-      const startDate = new Date(selectedDate);
-      startDate.setDate(startDate.getDate() - 30);
-      const startIso = startDate.toISOString().split('T')[0] + 'T00:00:00';
+      // Fetch appointments for +/- 15 days around selected date
+      const baseDate = new Date(selectedDate + 'T00:00:00');
+      const start = new Date(baseDate);
+      start.setDate(start.getDate() - 15);
+      const end = new Date(baseDate);
+      end.setDate(end.getDate() + 15);
 
-      const endDate = new Date(selectedDate);
-      endDate.setDate(endDate.getDate() + 30);
-      const endIso = endDate.toISOString().split('T')[0] + 'T23:59:59';
+      const startIso = start.toISOString().split('T')[0] + 'T00:00:00';
+      const endIso = end.toISOString().split('T')[0] + 'T23:59:59';
 
       const citasData = await CitasService.getCalendarioData(startIso, endIso);
       setCitas(citasData || []);
@@ -121,7 +103,7 @@ export default function Agenda() {
     fetchData();
   }, [fetchData]);
 
-  // Handle URL actions (e.g. from Sidebar clicking "Nueva Consulta")
+  // Handle URL actions
   useEffect(() => {
     const action = searchParams.get('action');
     if (action === 'new') {
@@ -129,7 +111,7 @@ export default function Agenda() {
     }
   }, [searchParams, navigate]);
 
-  // Load client details when opening active appointment details
+  // Load client details
   useEffect(() => {
     const loadClientInfo = async () => {
       if (!activeCita) return;
@@ -153,7 +135,7 @@ export default function Agenda() {
     loadClientInfo();
   }, [activeCita]);
 
-  // Load availability slots when rescheduling
+  // Load availability slots
   useEffect(() => {
     const loadSlots = async () => {
       if (!isRescheduling || !rescheduleDate || !rescheduleVetId) return;
@@ -176,23 +158,16 @@ export default function Agenda() {
     try {
       await CitasService.cambiarEstado(id, nuevoEstado);
       toast.success(`Cita cambiada a estado: ${nuevoEstado}`);
-      
-      // Update local state details if drawer is open
       if (activeCita && activeCita.id === id) {
         setActiveCita({
           ...activeCita,
-          extendedProps: {
-            ...activeCita.extendedProps,
-            estado: nuevoEstado,
-          },
+          extendedProps: { ...activeCita.extendedProps, estado: nuevoEstado },
         });
       }
-      
       fetchData();
     } catch (err: any) {
       console.error('Error changing state:', err);
-      const msg = err.response?.data?.message || 'Error al cambiar el estado.';
-      toast.error(msg);
+      toast.error(err.response?.data?.message || 'Error al cambiar el estado.');
     }
   };
 
@@ -200,22 +175,16 @@ export default function Agenda() {
     try {
       await CitasService.cancelarCita(id);
       toast.success('Cita cancelada con éxito.');
-      
       if (activeCita && activeCita.id === id) {
         setActiveCita({
           ...activeCita,
-          extendedProps: {
-            ...activeCita.extendedProps,
-            estado: 'Cancelada',
-          },
+          extendedProps: { ...activeCita.extendedProps, estado: 'Cancelada' },
         });
       }
-
       fetchData();
     } catch (err: any) {
       console.error('Error canceling appointment:', err);
-      const msg = err.response?.data?.message || 'Error al cancelar la cita.';
-      toast.error(msg);
+      toast.error(err.response?.data?.message || 'Error al cancelar la cita.');
     }
   };
 
@@ -245,7 +214,6 @@ export default function Agenda() {
 
     try {
       const fechaHora = `${rescheduleDate}T${rescheduleTime}:00`;
-      
       const payload: CitaDto = {
         id: activeCita.id,
         fechaHora,
@@ -277,53 +245,49 @@ export default function Agenda() {
     setIsRescheduling(true);
   };
 
-  // Add Block Configuration
-  const handleAddManualBlock = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newBlockTitle.trim() || !newBlockDate) {
-      toast.error('Debes completar el título y la fecha.');
-      return;
-    }
-    const newBlock = {
-      id: Date.now(),
-      title: newBlockTitle,
-      time: `${newBlockDate} (${newBlockStart} - ${newBlockEnd})`,
-      type: 'event_busy'
-    };
-    setUpcomingBlocks([...upcomingBlocks, newBlock]);
-    toast.success('Bloqueo registrado con éxito.');
-    setShowAddBlockModal(false);
-    setNewBlockTitle('');
-    setNewBlockDate('');
+  // Generate week dates based on selectedDate starting from Monday
+  const getWeekDays = () => {
+    const baseDate = new Date(selectedDate + 'T00:00:00');
+    const day = baseDate.getDay();
+    const diff = baseDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust to start on Monday
+    const monday = new Date(baseDate.setDate(diff));
+    
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      return d;
+    });
+  };
+
+  const weekDays = getWeekDays();
+
+  // Navigation helpers
+  const navigateWeek = (direction: 'prev' | 'next') => {
+    const baseDate = new Date(selectedDate + 'T00:00:00');
+    baseDate.setDate(baseDate.getDate() + (direction === 'next' ? 7 : -7));
+    setSelectedDate(baseDate.toISOString().split('T')[0]);
+  };
+
+  const getWeekRangeLabel = () => {
+    const first = weekDays[0];
+    const last = weekDays[6];
+    const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' };
+    return `${first.toLocaleDateString('es-ES', options)} - ${last.toLocaleDateString('es-ES', { ...options, year: 'numeric' })}`;
   };
 
   // Filters calculation
-  const getFormattedSelectedDate = () => {
-    const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
-    const dateObj = new Date(selectedDate + 'T00:00:00');
-    const formatted = dateObj.toLocaleDateString('es-ES', options);
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-  };
-
-  // Filter appointments for the timeline (exact selectedDate matching)
   const filteredCitas = citas.filter((cita) => {
-    const citaDay = new Date(cita.start).toISOString().split('T')[0];
-    if (citaDay !== selectedDate) return false;
-
     // Vet filter
     if (selectedVet !== 'all' && String(cita.extendedProps.veterinarioId) !== selectedVet) {
       return false;
     }
-
     // Status filter
     if (!activeStatusFilters.includes(cita.extendedProps.estado)) {
       return false;
     }
-
     return true;
   });
 
-  // Filter requests (PendienteConfirmacion) in the +/- 30 day range
   const solicitudesCitas = citas.filter(
     (cita) => cita.extendedProps.estado === 'PendienteConfirmacion'
   );
@@ -333,11 +297,6 @@ export default function Agenda() {
       prev.includes(status) ? prev.filter((s) => s !== status) : [...prev, status]
     );
   };
-
-  // Stats for the day
-  const confirmedCount = filteredCitas.filter(c => c.extendedProps.estado === 'Confirmada').length;
-  const waitingCount = filteredCitas.filter(c => c.extendedProps.estado === 'EnEspera').length;
-  const inTreatmentCount = filteredCitas.filter(c => c.extendedProps.estado === 'EnAtencion').length;
 
   if (loading && citas.length === 0) {
     return (
@@ -349,18 +308,18 @@ export default function Agenda() {
 
   if (error) {
     return (
-      <div className="flex-1 p-lg">
+      <div className="flex-grow p-lg">
         <ErrorMessage message={error} onRetry={fetchData} />
       </div>
     );
   }
 
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none">
+    <div className="flex-grow flex flex-col min-w-0 select-none p-gutter">
       {/* Page Header */}
       <PageHeader
         title="Agenda de la Clínica"
-        description={getFormattedSelectedDate()}
+        description={getWeekRangeLabel()}
         actions={
           <>
             <button 
@@ -372,7 +331,7 @@ export default function Agenda() {
             </button>
             <button 
               onClick={() => navigate('/admin/agenda/nueva')}
-              className="flex items-center justify-center gap-xs px-lg py-2.5 bg-primary text-on-primary rounded-lg font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow-sm"
+              className="flex items-center justify-center gap-xs px-lg py-2.5 bg-primary text-on-primary rounded-lg font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow-sm animate-pulse"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Nueva Cita
@@ -385,12 +344,12 @@ export default function Agenda() {
       {/* Tabs */}
       <div className="flex border-b border-hairline mb-lg overflow-x-auto no-scrollbar">
         <button
-          onClick={() => setActiveTab('diaria')}
+          onClick={() => setActiveTab('semanal')}
           className={`px-lg py-3 font-title-sm text-title-sm border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
-            activeTab === 'diaria' ? 'border-primary text-primary font-bold' : 'border-transparent text-secondary hover:text-ink'
+            activeTab === 'semanal' ? 'border-primary text-primary font-bold' : 'border-transparent text-secondary hover:text-ink'
           }`}
         >
-          Agenda Diaria
+          Agenda Semanal
         </button>
         <button
           onClick={() => setActiveTab('solicitudes')}
@@ -405,42 +364,77 @@ export default function Agenda() {
             </span>
           )}
         </button>
-        <button
-          onClick={() => setActiveTab('configuracion')}
-          className={`px-lg py-3 font-title-sm text-title-sm border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
-            activeTab === 'configuracion' ? 'border-primary text-primary font-bold' : 'border-transparent text-secondary hover:text-ink'
-          }`}
-        >
-          Configuración y Bloqueos
-        </button>
       </div>
 
-      {activeTab === 'diaria' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
-          {/* Main Agenda Grid (8 cols) */}
-          <div className="lg:col-span-9 flex flex-col gap-md">
-            {/* Control Bar (Filters) */}
-            <div className="bg-surface-card rounded-xl border border-hairline p-md flex flex-col md:flex-row md:items-center justify-between gap-md shadow-sm">
-              <div className="flex flex-wrap items-center gap-md">
-                {/* Date Picker */}
+      {activeTab === 'semanal' && (
+        <div className="flex flex-col lg:flex-row gap-gutter flex-grow overflow-hidden min-h-0">
+          {/* Left Column: Quick Glance & Navigation (3 cols equivalent) */}
+          <div className="w-full lg:w-72 flex flex-col gap-md shrink-0">
+            {/* Quick stats */}
+            <div className="bg-surface-card rounded-xl border border-hairline p-md shadow-sm">
+              <h3 className="font-title-md text-title-md text-ink border-b border-hairline pb-2 mb-sm font-bold flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary">today</span>
+                Hoy
+              </h3>
+              <div className="grid grid-cols-2 gap-md mb-md">
+                <div className="flex flex-col items-center p-3 bg-surface-container-low rounded-lg">
+                  <span className="font-headline-lg text-headline-lg text-primary">{filteredCitas.length}</span>
+                  <span className="text-[10px] text-secondary mt-1 text-center font-bold">Total Citas</span>
+                </div>
+                <div className="flex flex-col items-center p-3 bg-error-container/30 rounded-lg">
+                  <span className="font-headline-lg text-headline-lg text-error">{solicitudesCitas.length}</span>
+                  <span className="text-[10px] text-on-error-container mt-1 text-center font-bold">Pendientes</span>
+                </div>
+              </div>
+              <div className="space-y-xs text-body-sm font-medium">
+                {['Confirmada', 'EnEspera', 'EnAtencion', 'Completada'].map((status) => {
+                  const count = filteredCitas.filter(c => c.extendedProps.estado === status).length;
+                  const label = status === 'EnEspera' ? 'En Sala' : status === 'EnAtencion' ? 'En Consulta' : status;
+                  return (
+                    <div key={status} className="flex justify-between items-center py-1">
+                      <span className="text-secondary">{label}</span>
+                      <span className="text-ink font-bold">{count}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Date Pickers & Vet Filter */}
+            <div className="bg-surface-card rounded-xl border border-hairline p-md shadow-sm flex flex-col gap-md">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => navigateWeek('prev')}
+                  className="p-1.5 rounded-full hover:bg-surface-soft border border-hairline cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_left</span>
+                </button>
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                  className="bg-canvas border border-hairline rounded-lg py-1 px-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer text-center"
                 />
+                <button
+                  onClick={() => navigateWeek('next')}
+                  className="p-1.5 rounded-full hover:bg-surface-soft border border-hairline cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-sm">chevron_right</span>
+                </button>
+              </div>
 
-                {/* Vet Filter */}
+              <div>
+                <label className="text-caption font-caption text-secondary block mb-1">Filtrar Veterinario</label>
                 <div className="relative">
                   <select
                     value={selectedVet}
                     onChange={(e) => setSelectedVet(e.target.value)}
-                    className="bg-canvas border border-hairline rounded-lg pl-3 pr-8 py-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer appearance-none min-w-[200px]"
+                    className="w-full bg-canvas border border-hairline rounded-lg pl-3 pr-8 py-2 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer appearance-none"
                   >
-                    <option value="all">Todos los Veterinarios</option>
+                    <option value="all">Todos los Médicos</option>
                     {veterinarios.map((v) => (
                       <option key={v.id} value={String(v.id)}>
-                        {v.nombre} ({v.especialidad})
+                        {v.nombre}
                       </option>
                     ))}
                   </select>
@@ -451,161 +445,159 @@ export default function Agenda() {
               </div>
 
               {/* Status Toggles */}
-              <div className="flex flex-wrap gap-xs">
+              <div className="flex flex-wrap gap-xs pt-2 border-t border-hairline/60">
                 {['Confirmada', 'EnEspera', 'EnAtencion', 'Reprogramada'].map((status) => {
                   const isActive = activeStatusFilters.includes(status);
                   const colors = ESTADO_COLORS[status] || { text: 'text-secondary', bg: 'bg-surface-dim' };
+                  const label = status === 'EnEspera' ? 'En Sala' : status === 'EnAtencion' ? 'En Consulta' : status;
                   return (
                     <button
                       key={status}
                       onClick={() => toggleStatusFilter(status)}
-                      className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-caption font-caption cursor-pointer transition-all ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-[11px] font-semibold cursor-pointer transition-all ${
                         isActive
-                          ? `${colors.bg} ${colors.text} border-primary/20 font-semibold shadow-xs`
-                          : 'bg-canvas text-secondary border-hairline opacity-60 hover:opacity-85'
+                          ? `${colors.bg} ${colors.text} border-primary/20 shadow-xs`
+                          : 'bg-canvas text-secondary border-hairline opacity-65 hover:opacity-85'
                       }`}
                     >
-                      <span className="material-symbols-outlined text-[12px]">{colors.icon || 'circle'}</span>
-                      {status === 'EnEspera' ? 'En Sala' : status === 'EnAtencion' ? 'En Consulta' : status}
+                      <span className="material-symbols-outlined text-[10px]">{colors.icon}</span>
+                      {label}
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Hourly Schedule Track */}
-            <div className="bg-surface-lowest rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
-              <div className="relative divide-y divide-hairline">
-                {HOURS.map((hour) => {
-                  const formattedHour = `${String(hour).padStart(2, '0')}:00`;
-                  const ampm = hour >= 12 ? 'PM' : 'AM';
-                  const hourLabel = `${String(hour > 12 ? hour - 12 : hour).padStart(2, '0')}:00 ${ampm}`;
-
-                  // Filter appointments for this exact starting hour
-                  const appointmentsInHour = filteredCitas.filter((c) => {
-                    const cDate = new Date(c.start);
-                    return cDate.getHours() === hour;
-                  });
-
-                  return (
-                    <div key={hour} className="flex min-h-[105px]">
-                      {/* Time Label Column */}
-                      <div className="w-24 shrink-0 py-4 pr-4 text-right border-r border-hairline bg-canvas/40 flex flex-col justify-start">
-                        <span className="font-caption-uppercase text-caption-uppercase text-secondary text-[11px] tracking-wider">
-                          {hourLabel}
-                        </span>
-                      </div>
-
-                      {/* Appointment Cards Column */}
-                      <div className="flex-1 p-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md relative">
-                        {appointmentsInHour.length > 0 ? (
-                          appointmentsInHour.map((c) => {
-                            const colors = ESTADO_COLORS[c.extendedProps.estado] || {
-                              bg: 'bg-surface-soft',
-                              border: 'border-l-4 border-hairline',
-                              text: 'text-secondary',
-                              icon: 'circle',
-                            };
-                            const startStr = new Date(c.start).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                            const endStr = new Date(c.end).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-
-                            return (
-                              <motion.div
-                                key={c.id}
-                                layoutId={`appointment-${c.id}`}
-                                onClick={() => {
-                                  setActiveCita(c);
-                                  setIsRescheduling(false);
-                                  setShowDetail(true);
-                                }}
-                                className={`rounded-lg p-3 ${colors.bg} ${colors.border} shadow-xs flex flex-col justify-between hover:shadow-md transition-all cursor-pointer group hover:-translate-y-0.5 duration-200`}
-                              >
-                                <div>
-                                  <div className="flex justify-between items-start mb-1">
-                                    <h3 className="font-title-sm text-title-sm text-ink group-hover:text-primary transition-colors font-semibold">
-                                      {c.extendedProps.mascota}
-                                    </h3>
-                                    <span className="material-symbols-outlined text-[18px] text-secondary">
-                                      {colors.icon}
-                                    </span>
-                                  </div>
-                                  <p className="font-body-sm text-body-sm text-secondary mb-2">
-                                    {c.extendedProps.propietario}
-                                  </p>
-                                  <div className="inline-flex items-center gap-1 bg-canvas px-2 py-0.5 rounded font-caption text-caption text-ink border border-hairline">
-                                    <span className="material-symbols-outlined text-[13px] text-primary">
-                                      medical_services
-                                    </span>
-                                    {c.extendedProps.servicio}
-                                  </div>
-                                </div>
-                                <div className="mt-3 flex items-center justify-between border-t border-hairline/40 pt-2 text-[12px] font-medium text-body-muted">
-                                  <span className="truncate max-w-[100px]">{c.extendedProps.veterinario}</span>
-                                  <span className="font-code text-ink font-semibold">{startStr} - {endStr}</span>
-                                </div>
-                              </motion.div>
-                            );
-                          })
-                        ) : (
-                          <div className="col-span-full h-full w-full flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => navigate(`/admin/agenda/nueva?date=${selectedDate}&time=${formattedHour}`)}
-                              className="text-primary hover:text-primary-active font-button text-button flex items-center gap-xs py-1 px-3 border border-dashed border-primary/40 rounded bg-canvas/50"
-                            >
-                              <span className="material-symbols-outlined text-sm">add</span>
-                              Agendar en este bloque
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
                   );
                 })}
               </div>
             </div>
           </div>
 
-          {/* Quick Stats Sidebar (3 cols) */}
-          <div className="lg:col-span-3 flex flex-col gap-md">
-            <div className="bg-surface-card rounded-xl border border-hairline p-lg shadow-sm">
-              <h3 className="font-title-md text-title-md text-ink mb-md font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">analytics</span>
-                Resumen del Día
-              </h3>
-              <div className="space-y-sm">
-                <div className="flex justify-between items-center py-2 border-b border-hairline/50">
-                  <span className="font-body-sm text-body-sm text-secondary">Confirmadas</span>
-                  <span className="font-title-sm text-title-sm text-ink font-bold">{confirmedCount}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-hairline/50">
-                  <span className="font-body-sm text-body-sm text-secondary">En Sala de Espera</span>
-                  <span className="font-title-sm text-title-sm text-primary font-bold">{waitingCount}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-hairline/50">
-                  <span className="font-body-sm text-body-sm text-secondary">En Atención Clínica</span>
-                  <span className="font-title-sm text-title-sm text-accent-teal font-bold">{inTreatmentCount}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="font-body-sm text-body-sm text-secondary">Total Citados</span>
-                  <span className="font-title-sm text-title-sm text-ink font-bold">{filteredCitas.length}</span>
-                </div>
+          {/* Right Column: Weekly Grid View */}
+          <div className="flex-grow bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col min-w-0 relative">
+            {/* Week Days Header */}
+            <div className="flex border-b border-hairline bg-surface-soft/60 sticky top-0 z-20">
+              {/* Hour scale spacer */}
+              <div className="w-16 border-r border-hairline shrink-0" />
+              {/* Days Columns */}
+              <div className="flex-grow grid grid-cols-7">
+                {weekDays.map((day, idx) => {
+                  const isToday = new Date().toDateString() === day.toDateString();
+                  const options: Intl.DateTimeFormatOptions = { weekday: 'short', day: 'numeric' };
+                  const [wday, dnum] = day.toLocaleDateString('es-ES', options).split(' ');
+                  return (
+                    <div
+                      key={idx}
+                      className={`py-3 text-center border-r border-hairline last:border-r-0 flex flex-col items-center justify-center relative ${
+                        isToday ? 'bg-primary/5' : ''
+                      }`}
+                    >
+                      {isToday && <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />}
+                      <span className={`font-caption text-caption uppercase tracking-wider ${isToday ? 'text-primary font-bold' : 'text-secondary'}`}>
+                        {wday}
+                      </span>
+                      <span className={`font-title-md text-title-md mt-1 ${isToday ? 'text-primary font-bold' : 'text-ink'}`}>
+                        {dnum}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="bg-surface-soft p-lg border border-hairline rounded-xl flex flex-col gap-sm">
-              <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
-                <span className="material-symbols-outlined text-accent-amber">info</span>
-                Atención Rápida
-              </h3>
-              <p className="font-body-sm text-body-sm text-secondary">
-                Los clientes pueden agendar a través del portal y aparecerán en la pestaña <strong>"Solicitudes Pendientes"</strong>.
-              </p>
-              <button
-                onClick={() => navigate('/admin/clientes')}
-                className="w-full text-center bg-canvas hover:bg-surface-card border border-hairline text-ink font-button text-button py-2 rounded-lg transition-colors cursor-pointer mt-2"
-              >
-                Buscar Ficha de Cliente
-              </button>
+            {/* Scrollable Calendar Body */}
+            <div className="flex-1 overflow-y-auto relative bg-canvas select-none" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+              <div className="flex min-h-[1248px] relative">
+                {/* Hours column labels */}
+                <div className="w-16 border-r border-hairline shrink-0 flex flex-col text-right pr-2 pt-2 bg-surface-card sticky left-0 z-10">
+                  {HOURS.map((hour) => {
+                    const label = `${String(hour > 12 ? hour - 12 : hour).padStart(2, '0')}:00 ${hour >= 12 ? 'PM' : 'AM'}`;
+                    return (
+                      <div key={hour} className="h-24 relative">
+                        <span className="font-caption text-[10px] text-secondary absolute -top-2 right-2">
+                          {label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Grid columns */}
+                <div className="flex-grow grid grid-cols-7 relative">
+                  {/* Grid hour background lines */}
+                  <div className="absolute inset-0 pointer-events-none flex flex-col pt-2">
+                    {HOURS.map((hour) => (
+                      <div key={hour} className="h-24 border-t border-hairline/60 w-full" />
+                    ))}
+                  </div>
+
+                  {/* Day Columns containing appointments */}
+                  {weekDays.map((day, colIdx) => {
+                    const dayStr = day.toISOString().split('T')[0];
+                    const appointmentsForDay = filteredCitas.filter((c) => {
+                      const cDate = new Date(c.start).toISOString().split('T')[0];
+                      return cDate === dayStr;
+                    });
+
+                    return (
+                      <div key={colIdx} className="border-r border-hairline/50 relative min-h-[1248px]">
+                        {appointmentsForDay.map((c) => {
+                          const startDate = new Date(c.start);
+                          const startHour = startDate.getHours();
+                          const startMin = startDate.getMinutes();
+                          const durationMin = c.extendedProps.duracion || 45;
+
+                          // Positioning math: 1 hour = 96px (h-24)
+                          const topOffset = (startHour - 8) * 96 + (startMin / 60) * 96 + 8; // +8 for top margin adjustment
+                          const cardHeight = (durationMin / 60) * 96 - 4; // -4 for padding space
+
+                          const colors = ESTADO_COLORS[c.extendedProps.estado] || {
+                            bg: 'bg-surface-soft',
+                            border: 'border-l-4 border-hairline',
+                            text: 'text-secondary',
+                            icon: 'circle',
+                          };
+
+                          return (
+                            <div
+                              key={c.id}
+                              onClick={() => {
+                                setActiveCita(c);
+                                setIsRescheduling(false);
+                                setShowDetail(true);
+                              }}
+                              style={{
+                                top: `${topOffset}px`,
+                                height: `${cardHeight}px`,
+                              }}
+                              className={`absolute left-1 right-1 rounded-r border-l-4 ${colors.bg} ${colors.border} p-1.5 flex flex-col justify-between overflow-hidden shadow-xs hover:shadow-md cursor-pointer hover:-translate-y-0.5 duration-200 group z-10 transition-all`}
+                            >
+                              <div className="flex flex-col gap-0.5 min-w-0">
+                                <div className="flex justify-between items-start gap-1">
+                                  <span className={`font-title-sm text-[11px] font-bold truncate ${colors.text} leading-tight`}>
+                                    {c.extendedProps.servicio}
+                                  </span>
+                                  <span className={`material-symbols-outlined text-[12px] shrink-0 ${colors.text}`}>
+                                    {colors.icon}
+                                  </span>
+                                </div>
+                                <div className="font-body-sm text-[12px] text-ink font-semibold truncate leading-tight">
+                                  {c.extendedProps.mascota}
+                                </div>
+                                <div className="text-[10px] text-secondary truncate leading-tight">
+                                  {c.extendedProps.propietario}
+                                </div>
+                              </div>
+                              {cardHeight > 55 && (
+                                <div className="text-[9px] text-body-muted flex items-center gap-0.5 font-medium border-t border-hairline/20 pt-1 mt-1 truncate">
+                                  <span className="material-symbols-outlined text-[10px]">person</span>
+                                  {c.extendedProps.veterinario?.split(' ')[0]}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -711,8 +703,8 @@ export default function Agenda() {
                           type="text"
                           value={rejectReason}
                           onChange={(e) => setRejectReason(e.target.value)}
-                          placeholder="Ej: No atendemos esa especialidad hoy..."
-                          className="bg-canvas border border-hairline rounded-lg py-1.5 px-2 text-body-sm focus:outline-none focus:border-error transition-all"
+                          placeholder="Ej: No disponible este especialista..."
+                          className="bg-canvas border border-hairline rounded-lg py-1.5 px-2 text-body-sm focus:outline-none focus:border-error transition-all text-ink"
                         />
                         <div className="flex gap-2 justify-end">
                           <button
@@ -738,130 +730,6 @@ export default function Agenda() {
         </div>
       )}
 
-      {activeTab === 'configuracion' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl max-w-6xl mx-auto w-full">
-          {/* Main Matrix Settings (8 cols) */}
-          <div className="lg:col-span-8 flex flex-col gap-lg bg-surface-card rounded-xl border border-hairline p-lg shadow-sm">
-            <div className="flex justify-between items-center mb-md border-b border-hairline pb-3">
-              <div>
-                <h3 className="font-title-lg text-title-lg text-ink font-bold">Matriz de Apertura Semanal</h3>
-                <p className="font-body-sm text-body-sm text-secondary">Establece los horarios generales de operación de la clínica.</p>
-              </div>
-              <button 
-                onClick={() => toast.success('Matriz de horarios guardada con éxito.')}
-                className="bg-primary text-on-primary font-button text-button px-5 py-2 rounded-lg hover:bg-primary-active transition-all cursor-pointer shadow-xs"
-              >
-                Guardar Plantilla
-              </button>
-            </div>
-            
-            <div className="border border-hairline rounded-lg overflow-hidden bg-canvas">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-surface-soft">
-                  <tr className="border-b border-hairline">
-                    <th className="py-3 px-4 font-caption-uppercase text-caption-uppercase text-body-muted w-1/4">Día</th>
-                    <th className="py-3 px-4 font-caption-uppercase text-caption-uppercase text-body-muted w-1/4">Estado</th>
-                    <th className="py-3 px-4 font-caption-uppercase text-caption-uppercase text-body-muted w-1/4">Apertura</th>
-                    <th className="py-3 px-4 font-caption-uppercase text-caption-uppercase text-body-muted w-1/4">Cierre</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-hairline">
-                  {horariosClinica.map((hc, idx) => (
-                    <tr key={hc.day} className={`hover:bg-surface-soft/40 transition-colors ${!hc.active ? 'bg-surface-container/20 opacity-60' : ''}`}>
-                      <td className="py-3.5 px-4 font-body-sm text-ink font-semibold">{hc.day}</td>
-                      <td className="py-3.5 px-4">
-                        <button
-                          onClick={() => {
-                            const updated = [...horariosClinica];
-                            updated[idx].active = !updated[idx].active;
-                            if (updated[idx].active) {
-                              updated[idx].open = '08:00';
-                              updated[idx].close = '20:00';
-                            } else {
-                              updated[idx].open = '';
-                              updated[idx].close = '';
-                            }
-                            setHorariosClinica(updated);
-                          }}
-                          className={`inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full font-caption text-caption cursor-pointer transition-all ${
-                            hc.active ? 'bg-success/15 text-success font-semibold' : 'bg-surface-dim text-secondary'
-                          }`}
-                        >
-                          {hc.active ? 'Abierto' : 'Cerrado'}
-                        </button>
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <input
-                          type="time"
-                          disabled={!hc.active}
-                          value={hc.open}
-                          onChange={(e) => {
-                            const updated = [...horariosClinica];
-                            updated[idx].open = e.target.value;
-                            setHorariosClinica(updated);
-                          }}
-                          className="bg-canvas border border-hairline rounded px-2 py-1 font-body-sm text-body-sm w-full max-w-[120px] focus:outline-none focus:border-primary disabled:opacity-50"
-                        />
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <input
-                          type="time"
-                          disabled={!hc.active}
-                          value={hc.close}
-                          onChange={(e) => {
-                            const updated = [...horariosClinica];
-                            updated[idx].close = e.target.value;
-                            setHorariosClinica(updated);
-                          }}
-                          className="bg-canvas border border-hairline rounded px-2 py-1 font-body-sm text-body-sm w-full max-w-[120px] focus:outline-none focus:border-primary disabled:opacity-50"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Sidebar Blocks Settings (4 cols) */}
-          <div className="lg:col-span-4 flex flex-col gap-lg">
-            <div className="bg-surface-soft p-lg border border-hairline rounded-xl shadow-sm">
-              <h3 className="font-title-lg text-title-lg text-ink font-bold mb-sm">Bloqueos Próximos</h3>
-              <p className="font-body-sm text-body-sm text-secondary mb-md">Días no laborables, festividades o mantenimientos específicos.</p>
-              
-              <div className="space-y-sm">
-                {upcomingBlocks.map((block) => (
-                  <div key={block.id} className="flex items-start gap-sm p-3 bg-canvas border border-hairline rounded-lg">
-                    <span className="material-symbols-outlined text-primary mt-0.5 text-[20px]">{block.type}</span>
-                    <div className="flex-grow">
-                      <h4 className="font-title-sm text-title-sm text-ink font-semibold">{block.title}</h4>
-                      <p className="font-caption text-caption text-body-muted mt-0.5">{block.time}</p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setUpcomingBlocks(upcomingBlocks.filter((b) => b.id !== block.id));
-                        toast.info('Bloqueo eliminado.');
-                      }}
-                      className="text-body-muted hover:text-error transition-colors p-1 cursor-pointer"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">delete</span>
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              <button
-                onClick={() => setShowAddBlockModal(true)}
-                className="mt-lg w-full flex items-center justify-center gap-xs py-2.5 border border-dashed border-primary text-primary font-button text-button hover:bg-primary/5 rounded-lg transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-[18px]">add</span>
-                Añadir Bloqueo Manual
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Detail Cita Drawer / Side panel overlay */}
       <AnimatePresence>
         {showDetail && activeCita && (
@@ -869,7 +737,7 @@ export default function Agenda() {
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
-              animate={{ opacity: 0.5 }}
+              animate={{ opacity: 0.4 }}
               exit={{ opacity: 0 }}
               onClick={() => setShowDetail(false)}
               className="fixed inset-0 bg-black z-40"
@@ -881,7 +749,7 @@ export default function Agenda() {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 bottom-0 w-full max-w-xl bg-canvas z-50 shadow-2xl flex flex-col p-lg border-l border-hairline overflow-y-auto"
+              className="fixed right-0 top-0 bottom-0 w-full max-w-xl bg-surface-container-lowest z-50 shadow-2xl flex flex-col p-lg border-l border-hairline overflow-y-auto"
             >
               {/* Drawer Header */}
               <div className="flex justify-between items-start border-b border-hairline pb-md mb-md">
@@ -908,15 +776,6 @@ export default function Agenda() {
                     {activeCita.extendedProps.servicio}
                   </h2>
                 </div>
-                <div className="flex items-center gap-xs">
-                  <button 
-                    onClick={() => window.print()} 
-                    title="Imprimir Cita"
-                    className="w-9 h-9 flex items-center justify-center rounded border border-hairline bg-canvas hover:bg-surface-soft transition-colors cursor-pointer text-secondary hover:text-ink"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">print</span>
-                  </button>
-                </div>
               </div>
 
               {isRescheduling ? (
@@ -925,7 +784,7 @@ export default function Agenda() {
                   <h3 className="font-title-md text-title-md text-ink font-bold mb-xs">Reprogramar Consulta</h3>
                   
                   <div>
-                    <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Veterinario Asignado</label>
+                    <label className="font-caption text-caption text-secondary block mb-1">Veterinario Asignado</label>
                     <select
                       value={rescheduleVetId}
                       onChange={(e) => setRescheduleVetId(Number(e.target.value))}
@@ -940,7 +799,7 @@ export default function Agenda() {
                   </div>
 
                   <div>
-                    <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Nueva Fecha</label>
+                    <label className="font-caption text-caption text-secondary block mb-1">Nueva Fecha</label>
                     <input
                       type="date"
                       value={rescheduleDate}
@@ -950,7 +809,7 @@ export default function Agenda() {
                   </div>
 
                   <div>
-                    <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Nuevo Horario</label>
+                    <label className="font-caption text-caption text-secondary block mb-1">Nuevo Horario</label>
                     {loadingSlots ? (
                       <div className="py-2"><Spinner size="sm" /></div>
                     ) : availableSlots.length > 0 ? (
@@ -981,7 +840,7 @@ export default function Agenda() {
                   </div>
 
                   <div>
-                    <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Motivo de Reprogramación</label>
+                    <label className="font-caption text-caption text-secondary block mb-1">Motivo de Reprogramación</label>
                     <textarea
                       value={rescheduleReason}
                       onChange={(e) => setRescheduleReason(e.target.value)}
@@ -1102,6 +961,16 @@ export default function Agenda() {
                         <span className="block font-caption text-caption text-secondary text-[11px]">Veterinario Titular</span>
                         <h4 className="font-title-sm text-title-sm text-ink font-bold">{activeCita.extendedProps.veterinario}</h4>
                       </div>
+                    </div>
+                  </section>
+
+                  {/* Cost Summary & Actions */}
+                  <section className="bg-canvas border border-hairline rounded-xl p-md shadow-xs flex flex-col gap-sm">
+                    <div className="flex justify-between items-center text-body-sm">
+                      <span className="text-secondary font-medium">Precio del Servicio:</span>
+                      <span className="text-ink font-bold font-code text-body-lg">
+                        ${activeCita.extendedProps.precio?.toFixed(2) || '0.00'}
+                      </span>
                     </div>
                   </section>
 
@@ -1233,79 +1102,6 @@ export default function Agenda() {
           </>
         )}
       </AnimatePresence>
-
-      {/* Add Block Manual Modal */}
-      {showAddBlockModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-md bg-black/50">
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-canvas border border-hairline rounded-xl p-lg w-full max-w-md shadow-xl"
-          >
-            <h3 className="font-title-lg text-title-lg text-ink font-bold mb-md">Añadir Bloqueo Manual</h3>
-            <form onSubmit={handleAddManualBlock} className="flex flex-col gap-md">
-              <div>
-                <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Título / Motivo</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ej: Mantimiento Quirófano..."
-                  value={newBlockTitle}
-                  onChange={(e) => setNewBlockTitle(e.target.value)}
-                  className="bg-canvas border border-hairline rounded-lg w-full py-2 px-3 text-body-sm focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Fecha</label>
-                <input
-                  type="date"
-                  required
-                  value={newBlockDate}
-                  onChange={(e) => setNewBlockDate(e.target.value)}
-                  className="bg-canvas border border-hairline rounded-lg w-full py-2 px-3 text-body-sm focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-md">
-                <div>
-                  <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Hora Inicio</label>
-                  <input
-                    type="time"
-                    required
-                    value={newBlockStart}
-                    onChange={(e) => setNewBlockStart(e.target.value)}
-                    className="bg-canvas border border-hairline rounded-lg w-full py-2 px-3 text-body-sm focus:outline-none focus:border-primary"
-                  />
-                </div>
-                <div>
-                  <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Hora Fin</label>
-                  <input
-                    type="time"
-                    required
-                    value={newBlockEnd}
-                    onChange={(e) => setNewBlockEnd(e.target.value)}
-                    className="bg-canvas border border-hairline rounded-lg w-full py-2 px-3 text-body-sm focus:outline-none focus:border-primary"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-md justify-end mt-lg">
-                <button
-                  type="button"
-                  onClick={() => setShowAddBlockModal(false)}
-                  className="px-4 py-2 font-button text-button border border-hairline rounded-lg hover:bg-surface-soft cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 font-button text-button bg-primary text-on-primary rounded-lg hover:bg-primary-active cursor-pointer"
-                >
-                  Crear Bloqueo
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 }

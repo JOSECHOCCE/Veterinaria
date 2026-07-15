@@ -71,83 +71,92 @@ export default function TopAppBar() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Aquí puedes implementar la lógica de búsqueda global
       console.log('Buscando:', searchQuery);
-      // Por ejemplo: navigate(`/admin/buscar?q=${searchQuery}`);
     }
   };
 
   return (
-    <header className="fixed top-0 right-0 left-0 md:left-72 z-50 flex items-center justify-between gap-4 px-6 py-3 bg-canvas border-b border-hairline shadow-sm">
-      {/* Barra de Búsqueda Global */}
-      <form onSubmit={handleSearch} className="flex-1 max-w-md">
-        <div className="relative">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-body-muted text-[18px]">
-            search
-          </span>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar clientes, mascotas, citas..."
-            className="w-full bg-surface-soft border border-hairline rounded-lg pl-10 pr-4 py-2 font-body-sm text-body-sm text-ink placeholder:text-body-muted focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
-          />
+    <header className="w-full top-0 sticky z-10 bg-surface shadow-sm shadow-[0_4px_20px_rgba(79,209,197,0.08)]">
+      <div className="flex justify-between items-center w-full px-gutter max-w-container-max mx-auto h-16">
+        <div className="flex-1 flex items-center">
+          {/* Barra de Búsqueda Global */}
+          <form onSubmit={handleSearch} className="relative w-64">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">
+              search
+            </span>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Buscar..."
+              className="w-full h-10 pl-10 pr-4 rounded-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary font-body-md text-body-md text-on-surface placeholder:text-on-surface-variant transition-all outline-none"
+            />
+          </form>
         </div>
-      </form>
 
-      {/* Iconos de Acción */}
-      <div className="flex items-center gap-2">
-        {/* Campana de Notificaciones en Tiempo Real */}
-        <div className="relative">
-          <motion.button
-            animate={shouldAnimate ? "wiggle" : "idle"}
-            variants={bellVariants}
-            onClick={handleToggleDropdown}
-            className="w-9 h-9 flex items-center justify-center rounded-full bg-transparent hover:bg-surface-soft hover:text-primary transition-all text-body-muted relative cursor-pointer"
-            title={`${unreadCount} notificaciones no leídas - Haz clic para ver notificaciones`}
+        {/* Iconos de Acción */}
+        <div className="flex items-center gap-4">
+          {/* Campana de Notificaciones en Tiempo Real */}
+          <div className="relative">
+            <motion.button
+              animate={shouldAnimate ? "wiggle" : "idle"}
+              variants={bellVariants}
+              onClick={handleToggleDropdown}
+              className="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all duration-300 scale-95 active:scale-90 flex items-center justify-center cursor-pointer relative"
+              title={`${unreadCount} notificaciones no leídas`}
+            >
+              <span className="material-symbols-outlined">notifications</span>
+              {unreadCount > 0 && (
+                <span className="absolute top-1 right-1 bg-error text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-surface shadow-sm leading-none">
+                  {unreadCount}
+                </span>
+              )}
+            </motion.button>
+
+            <NotificationDropdown 
+              isOpen={isDropdownOpen}
+              onClose={() => setIsDropdownOpen(false)}
+              notificaciones={notificaciones}
+              onMarkAllAsRead={handleMarkAllAsRead}
+              onMarkAsRead={handleMarkAsRead}
+            />
+          </div>
+
+          {/* Botón de Configuración */}
+          <button
+            onClick={() => navigate('/admin/configuracion')}
+            className="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all duration-300 scale-95 active:scale-90 flex items-center justify-center cursor-pointer"
+            title="Configuración"
           >
-            <span className="material-symbols-outlined text-[20px]">notifications</span>
-            {unreadCount > 0 && (
-              <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="absolute top-0 right-0 bg-error text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center border border-canvas shadow-sm leading-none"
-              >
-                {unreadCount}
-              </motion.span>
+            <span className="material-symbols-outlined">settings</span>
+          </button>
+
+          {/* Botón de Ayuda / Triage */}
+          <button
+            onClick={() => navigate('/admin/triage')}
+            className="text-on-surface-variant hover:bg-surface-container-low p-2 rounded-full transition-all duration-300 scale-95 active:scale-90 flex items-center justify-center cursor-pointer"
+            title="Ayuda / Triage"
+          >
+            <span className="material-symbols-outlined">help</span>
+          </button>
+
+          {/* Perfil del Usuario / Mi Cuenta */}
+          <div 
+            onClick={() => navigate('/admin/configuracion')}
+            className="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30 ml-2 cursor-pointer bg-surface-container shadow-sm flex items-center justify-center text-xs font-bold text-primary"
+            title="Mi Cuenta"
+          >
+            {user?.nombreCompleto ? (
+              <img 
+                alt="Veterinary staff avatar" 
+                className="w-full h-full object-cover" 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuChAiJN4WBY9Z0-_W4WtNnH3TrvHvc3F4vDGHBQz9pfPZAidK-Ku06iVKsQg6FD1BzOiTqfG6xbGvk1Ro6U4mNkRTfWlDaMgp9QlXfSGqZvrhDZ0h2CEuuLz05R_5RgIm2Z8gjsHuzixh52Jn65Wtv3G2grmU_1GNuztQQbYTYVt7cu7I9uTA0cmL-RFK0f6DMn20neAiaK3J2tBgkAxT0m-BjtHXm5MeOHpyhMkUkQVFE4otbUiU22Cg"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-[18px]">person</span>
             )}
-          </motion.button>
-
-          <NotificationDropdown 
-            isOpen={isDropdownOpen}
-            onClose={() => setIsDropdownOpen(false)}
-            notificaciones={notificaciones}
-            onMarkAllAsRead={handleMarkAllAsRead}
-            onMarkAsRead={handleMarkAsRead}
-          />
+          </div>
         </div>
-
-        {/* Botón de Emergencia / Triage */}
-        <button
-          onClick={() => navigate('/admin/triage')}
-          className="w-9 h-9 flex items-center justify-center rounded-full bg-transparent hover:bg-error/10 text-body-muted hover:text-error transition-all cursor-pointer"
-          title="Ingresar Emergencia (Triage)"
-        >
-          <span className="material-symbols-outlined text-[20px]">medical_services</span>
-        </button>
-
-        {/* Perfil del Usuario / Mi Cuenta */}
-        <button
-          onClick={() => navigate('/admin/configuracion')}
-          className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 text-primary flex items-center justify-center text-xs font-bold hover:bg-primary/20 transition-all cursor-pointer"
-          title="Mi Cuenta (Configuración)"
-        >
-          {user?.nombreCompleto ? (
-            user.nombreCompleto.charAt(0).toUpperCase()
-          ) : (
-            <span className="material-symbols-outlined text-[20px]">person</span>
-          )}
-        </button>
       </div>
     </header>
   );

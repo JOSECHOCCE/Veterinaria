@@ -261,7 +261,7 @@ export default function Triage() {
           {/* Vital Signs */}
           <section className="bg-surface-card rounded-xl p-lg border border-transparent shadow-xs flex flex-col gap-md">
             <h2 className="font-title-md text-title-md text-ink font-bold flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">vital_signs</span>
+              <span className="material-symbols-outlined text-primary">monitor_heart</span>
               Signos Vitales Básicos
             </h2>
 

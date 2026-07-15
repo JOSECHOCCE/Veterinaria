@@ -18,6 +18,7 @@ interface MascotaInfo {
   nombre: string;
   especie: string;
   raza?: string | null;
+  fotoUrl?: string | null;
   usuario?: UsuarioInfo | null;
 }
 
@@ -205,7 +206,6 @@ export default function RegistrarCobro() {
 
       toast.success(res.message || 'Pago registrado exitosamente.');
       
-      // Update success state to render confirmation screen
       setSuccessInfo({
         message: res.message || 'Pago registrado con éxito.',
         pagoId: res.pagoId,
@@ -230,7 +230,6 @@ export default function RegistrarCobro() {
       const res = await PagosService.descargarComprobante(successInfo.pagoId);
       
       if (res && res.fileBase64) {
-        // Decode Base64 and trigger download
         const byteCharacters = atob(res.fileBase64);
         const byteNumbers = new Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -260,6 +259,14 @@ export default function RegistrarCobro() {
     } finally {
       setDownloading(false);
     }
+  };
+
+  const getPetImageFallback = (esp: string) => {
+    const species = esp.toLowerCase();
+    if (species.includes('perro') || species.includes('canin') || species.includes('dog')) {
+      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuDM8pZR065mBN_zRsT0K-9h3W-ByY0dCkx1tJr6a_KXTKD63fcCW5FzMmFTzmcaQigIIqG5xFDGqXOQq0JWvRnTCq13J_DBfqi4QunaYKGRE_MqRX0DivSZ-mN9D_htDVybloxprk1_R1fFGlPD17YrWlt0_hwENNtVIaygWOCZ94AMIJnF7ZlEGmciyOTyS5OrBnA9vRzUw-nHhbN3CafZ-NxbGJNMglUBngYtJ7mo1oskzaYx3B6aoBIErCd0BxF692CDhzyjxZ8';
+    }
+    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuADiZUuDOMsyo4M1wr15dg3fsL80rExV4tuKhka1NyJjHWVWLimgnT9wQsjQr8_z23jhtb7SlqFPuCp44eCRnKKZQ06tqmkTYPWibResnGBfH25z7mbfCkavRFdwIZBit8JTNFZcCBpO5k-6zKZHsK3WQP1gLKHSuIWd0CnTSc3wHEu4qXuEj0S3VP0RG_a0KFGMwEZw77fbutpjCXcTFhJs8POZ_CGRMzwVeiFkdXY9Top7gLGWkK9vmUQRl9Kbxy8J9jI4X9UToA';
   };
 
   if (loading) {
@@ -347,155 +354,179 @@ export default function RegistrarCobro() {
     ? (parseFloat(montoTotalAjustado) || 0) - cita.montoPagado 
     : 0;
 
+  const originalPrecio = cita?.servicio?.precio ?? 0;
+
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none">
+    <div className="flex-grow flex flex-col min-w-0 select-none p-gutter">
       {/* Header */}
       <PageHeader
         title="Registrar Cobro"
-        description="Ingrese los detalles del cobro presencial recibido. Verifique las deudas previas y emita el comprobante correspondiente."
+        description="Complete los detalles del pago de la consulta y emita el comprobante correspondiente."
         backLink={{ to: '/admin/pagos', label: 'Volver a Caja' }}
         hasDivider={true}
       />
 
       {cita && (
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
           
-          {/* Left Column: Cita Details Card (5 cols) */}
-          <div className="lg:col-span-5 flex flex-col gap-lg">
-            <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col gap-md">
-              <h2 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-sm flex items-center gap-xs">
-                <span className="material-symbols-outlined text-primary">receipt</span>
-                Resumen de Cita
-              </h2>
+          {/* Left Column: Cita Details Card (4 cols) */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            
+            {/* Appointment Summary */}
+            <div className="bg-surface-container-lowest border border-surface-variant/50 rounded-xl p-6 shadow-xs relative overflow-hidden flex flex-col gap-4">
+              <div className="absolute top-0 left-0 w-full h-1 bg-primary" />
+              <h3 className="font-headline-md text-headline-md text-ink font-bold flex items-center gap-2 mb-2">
+                <span className="material-symbols-outlined text-primary">receipt_long</span>
+                Resumen
+              </h3>
 
-              <div className="flex flex-col gap-md font-body-sm text-body-sm">
+              {/* Patient Info */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container flex items-center justify-center shrink-0 border border-hairline">
+                  <img
+                    alt={cita.mascota?.nombre}
+                    className="w-full h-full object-cover"
+                    src={cita.mascota?.fotoUrl || getPetImageFallback(cita.mascota?.especie || '')}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getPetImageFallback(cita.mascota?.especie || '');
+                    }}
+                  />
+                </div>
                 <div>
-                  <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Cliente Responsable</span>
-                  <span className="text-ink font-semibold block text-body-md mt-xxs">
-                    {cita.mascota?.usuario?.nombre || 'Sin registrar'}
+                  <p className="font-label-sm text-label-sm text-outline uppercase tracking-wider">Paciente</p>
+                  <p className="font-body-lg text-body-lg font-semibold text-ink leading-tight">{cita.mascota?.nombre}</p>
+                  <p className="font-label-md text-label-md text-secondary mt-0.5">
+                    {cita.mascota?.especie} {cita.mascota?.raza ? `• ${cita.mascota.raza}` : ''}
+                  </p>
+                </div>
+              </div>
+
+              <hr className="border-t border-surface-variant my-1" />
+
+              {/* Owner Info */}
+              <div>
+                <p className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Propietario</p>
+                <div className="flex items-center gap-2 font-body-md text-ink font-medium">
+                  <span className="material-symbols-outlined text-secondary text-sm">person</span>
+                  {cita.mascota?.usuario?.nombre || 'Sin registrar'}
+                </div>
+              </div>
+
+              {/* Service Info */}
+              <div>
+                <p className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Servicio</p>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  <span className="px-3 py-1 bg-[#e6fffa] text-primary rounded-full text-label-sm font-label-sm font-semibold border border-primary-container/30">
+                    {cita.servicio?.nombre || 'Consulta General'}
                   </span>
-                  {cita.mascota?.usuario?.documento && (
-                    <span className="text-body-muted text-caption block font-caption mt-xxs">
-                      Doc. Identidad: {cita.mascota.usuario.documento}
-                    </span>
+                </div>
+              </div>
+
+              {/* Vet Info */}
+              <div>
+                <p className="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-1">Atendido por</p>
+                <div className="flex items-center gap-2 font-body-md text-ink">
+                  <span className="material-symbols-outlined text-secondary text-sm">stethoscope</span>
+                  Dr(a). {cita.veterinario?.nombre || 'No asignado'}
+                </div>
+              </div>
+            </div>
+
+            {/* Financial Totals Card */}
+            <div className="bg-primary text-on-primary rounded-xl p-6 shadow-md relative overflow-hidden flex flex-col justify-center">
+              <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+              <div className="relative z-10">
+                <div className="flex justify-between items-center mb-2 font-body-md">
+                  <p className="opacity-95">Precio Base Sugerido</p>
+                  <p className="font-semibold">S/. {originalPrecio.toFixed(2)}</p>
+                </div>
+                <div className="flex justify-between items-center mb-6 font-body-md">
+                  <p className="opacity-95">Abonado Previamente</p>
+                  <p className="font-semibold">S/. {cita.montoPagado.toFixed(2)}</p>
+                </div>
+                <hr className="border-t border-on-primary/20 mb-4"/>
+                <div className="flex justify-between items-end">
+                  <p className="font-body-lg font-medium">Saldo Pendiente</p>
+                  <p className="text-[32px] leading-none font-bold">S/. {(cita.montoTotal - cita.montoPagado).toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Column: Billing Form (8 cols) */}
+          <div className="lg:col-span-8 bg-surface-container-lowest border border-surface-variant/50 rounded-xl p-8 shadow-xs">
+            <h3 className="font-headline-md text-headline-md text-ink font-bold mb-6">Detalles del Pago</h3>
+            
+            <div className="flex flex-col gap-6">
+              
+              {/* Row: Amount and Method */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Monto Total Ajustado */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-label-md font-label-md text-on-surface" htmlFor="amount">
+                    Monto final a cobrar <span className="text-error font-bold">*</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined text-[20px]">attach_money</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="amount"
+                      value={montoTotalAjustado}
+                      onChange={(e) => {
+                        setMontoTotalAjustado(e.target.value);
+                        if (parseFloat(e.target.value) > 0) {
+                          setFormErrors((prev) => ({ ...prev, montoTotalAjustado: undefined }));
+                        }
+                      }}
+                      className={`w-full pl-12 pr-4 py-3 rounded-lg border bg-surface focus:outline-none focus:ring-1 transition-colors text-body-lg font-body-lg text-on-background placeholder:text-outline-variant ${
+                        formErrors.montoTotalAjustado ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'
+                      }`}
+                    />
+                  </div>
+                  {formErrors.montoTotalAjustado && (
+                    <span className="text-error text-caption font-caption mt-1">{formErrors.montoTotalAjustado}</span>
                   )}
                 </div>
 
-                <div className="border-t border-hairline pt-sm">
-                  <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Paciente / Mascota</span>
-                  <span className="text-ink font-medium block mt-xxs flex items-center gap-xxs">
-                    <span className="material-symbols-outlined text-secondary text-[16px]">pets</span>
-                    {cita.mascota?.nombre} ({cita.mascota?.especie})
-                    {cita.mascota?.raza ? ` • ${cita.mascota.raza}` : ''}
-                  </span>
-                </div>
-
-                <div className="border-t border-hairline pt-sm">
-                  <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Servicio Prestado</span>
-                  <span className="text-ink font-medium block mt-xxs">
-                    {cita.servicio?.nombre || 'Consulta General'}
-                  </span>
-                  <span className="text-body-muted text-caption block font-caption mt-xxs">
-                    Precio Sugerido Catálogo: S/. {(cita.servicio?.precio ?? 0).toFixed(2)}
-                  </span>
-                </div>
-
-                <div className="border-t border-hairline pt-sm">
-                  <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Atendido Por</span>
-                  <span className="text-ink font-medium block mt-xxs">
-                    Dr(a). {cita.veterinario?.nombre || 'No asignado'}
-                  </span>
-                </div>
-
-                <div className="border-t border-hairline pt-sm">
-                  <span className="block font-caption text-caption text-secondary uppercase tracking-wider">Fecha / Hora de Cita</span>
-                  <span className="text-ink font-medium block mt-xxs">
-                    {new Date(cita.fechaHora).toLocaleString('es-ES', {
-                      day: '2-digit',
-                      month: 'long',
-                      year: 'numeric',
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </span>
-                </div>
-
-                <div className="border-t border-hairline pt-sm bg-surface-soft/30 p-sm rounded-lg border border-hairline">
-                  <div className="flex justify-between items-center py-xxs">
-                    <span className="text-secondary font-caption text-caption uppercase tracking-wider">Total Acumulado Cita</span>
-                    <span className="text-ink font-semibold">S/. {cita.montoTotal.toFixed(2)}</span>
+                {/* Método de Pago */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-label-md font-label-md text-on-surface" htmlFor="payment-method">
+                    Método de pago <span className="text-error font-bold">*</span>
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="payment-method"
+                      value={metodoPago}
+                      onChange={(e) => setMetodoPago(e.target.value)}
+                      className="w-full pl-4 pr-10 py-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-md font-body-md text-on-background appearance-none cursor-pointer"
+                    >
+                      <option value="Efectivo">Efectivo</option>
+                      <option value="Tarjeta">Tarjeta (POS Externo)</option>
+                      <option value="Transferencia">Transferencia Bancaria</option>
+                      <option value="Yape">Yape</option>
+                      <option value="Plin">Plin</option>
+                    </select>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined pointer-events-none text-[20px]">expand_more</span>
                   </div>
-                  <div className="flex justify-between items-center py-xxs">
-                    <span className="text-secondary font-caption text-caption uppercase tracking-wider">Pagos Previos Asentados</span>
-                    <span className="text-emerald-800 font-semibold">S/. {cita.montoPagado.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center py-xxs border-t border-hairline mt-xxs pt-xxs">
-                    <span className="text-error font-bold font-caption text-caption uppercase tracking-wider">Saldo Pendiente</span>
-                    <span className="text-error font-bold text-body-md">S/. {(cita.montoTotal - cita.montoPagado).toFixed(2)}</span>
-                  </div>
+                  <p className="text-label-sm font-label-sm text-outline mt-1 flex items-center gap-1 font-medium">
+                    <span className="material-symbols-outlined text-[14px]">lock</span>
+                    PCI Compliant: No ingrese dígitos de tarjeta.
+                  </p>
                 </div>
-
-                {cita.estado !== 'Completada' && (
-                  <div className="bg-error/5 border border-error/15 text-error rounded-lg p-sm mt-xs flex gap-xs items-start">
-                    <span className="material-symbols-outlined text-sm mt-0.5">warning</span>
-                    <span className="font-caption text-caption">
-                      Atención: La cita está en estado <strong>{cita.estado}</strong>. Debería estar <strong>Completada</strong> para facturar.
-                    </span>
-                  </div>
-                )}
-              </div>
-            </section>
-          </div>
-
-          {/* Right Column: Billing Form (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col gap-lg bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs">
-            <h2 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-sm flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">point_of_sale</span>
-              Detalle de Recaudación
-            </h2>
-
-            <div className="flex flex-col gap-lg">
-              
-              {/* Form Input: Monto Total Ajustado */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">
-                  Monto Total Ajustado (S/.) <span className="text-error font-bold">*</span>
-                </label>
-                <p className="font-caption text-caption text-secondary">
-                  Modifique este campo si desea aplicar algún recargo, descuento o ajustar el valor del servicio en caja.
-                </p>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={montoTotalAjustado}
-                  onChange={(e) => {
-                    setMontoTotalAjustado(e.target.value);
-                    if (parseFloat(e.target.value) > 0) {
-                      setFormErrors((prev) => ({ ...prev, montoTotalAjustado: undefined }));
-                    }
-                  }}
-                  className={`bg-canvas border rounded-lg px-md py-sm font-body-sm text-ink focus:outline-none focus:ring-1 transition-colors ${
-                    formErrors.montoTotalAjustado 
-                      ? 'border-error focus:border-error focus:ring-error' 
-                      : 'border-hairline focus:border-primary focus:ring-primary'
-                  }`}
-                  placeholder="Ej. 80.00"
-                />
-                {formErrors.montoTotalAjustado && (
-                  <span className="text-error text-caption font-caption">{formErrors.montoTotalAjustado}</span>
-                )}
               </div>
 
-              {/* Form Select: Tipo de Cobro */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">Tipo de Cobro</label>
-                <div className="grid grid-cols-2 gap-sm mt-xxs">
+              {/* Row: Tipo de Pago Parcial o Completo */}
+              <div className="flex flex-col gap-2">
+                <label className="text-label-md font-label-md text-on-surface">Tipo de Recaudación</label>
+                <div className="grid grid-cols-2 gap-sm mt-1">
                   <button
                     type="button"
                     onClick={() => setTipoPagoSelection('Completo')}
                     className={`px-md py-3 rounded-lg border font-button text-button transition-all cursor-pointer text-center ${
                       tipoPagoSelection === 'Completo'
-                        ? 'bg-primary text-on-primary border-primary shadow-sm'
+                        ? 'bg-primary text-on-primary border-primary shadow-sm font-semibold'
                         : 'bg-canvas text-secondary border-hairline hover:bg-surface-soft'
                     }`}
                   >
@@ -506,7 +537,7 @@ export default function RegistrarCobro() {
                     onClick={() => setTipoPagoSelection('Parcial')}
                     className={`px-md py-3 rounded-lg border font-button text-button transition-all cursor-pointer text-center ${
                       tipoPagoSelection === 'Parcial'
-                        ? 'bg-primary text-on-primary border-primary shadow-sm'
+                        ? 'bg-primary text-on-primary border-primary shadow-sm font-semibold'
                         : 'bg-canvas text-secondary border-hairline hover:bg-surface-soft'
                     }`}
                   >
@@ -515,14 +546,15 @@ export default function RegistrarCobro() {
                 </div>
               </div>
 
-              {/* Form Input: Monto Abonado */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">
-                  Monto a Abonar en Caja (S/.) <span className="text-error font-bold">*</span>
+              {/* Monto a Abonar (Visible/Habilitado para Pago Parcial) */}
+              <div className="flex flex-col gap-2">
+                <label className="text-label-md font-label-md text-on-surface" htmlFor="amount-to-pay">
+                  Monto a Abonar en Caja <span className="text-error font-bold">*</span>
                 </label>
                 <input
                   type="number"
                   step="0.01"
+                  id="amount-to-pay"
                   value={montoAbonado}
                   onChange={(e) => {
                     setMontoAbonado(e.target.value);
@@ -531,55 +563,45 @@ export default function RegistrarCobro() {
                     }
                   }}
                   disabled={tipoPagoSelection === 'Completo'}
-                  className={`bg-canvas border rounded-lg px-md py-sm font-body-sm text-ink focus:outline-none focus:ring-1 transition-colors disabled:bg-surface-soft disabled:text-secondary ${
-                    formErrors.montoAbonado 
-                      ? 'border-error focus:border-error focus:ring-error' 
-                      : 'border-hairline focus:border-primary focus:ring-primary'
+                  className={`w-full p-4 py-3 rounded-lg border bg-surface focus:outline-none focus:ring-1 transition-colors text-body-md font-body-md text-on-background placeholder:text-outline-variant disabled:bg-surface-soft disabled:text-secondary ${
+                    formErrors.montoAbonado ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'
                   }`}
-                  placeholder="Ej. 40.00"
                 />
                 {formErrors.montoAbonado && (
-                  <span className="text-error text-caption font-caption">{formErrors.montoAbonado}</span>
+                  <span className="text-error text-caption font-caption mt-1">{formErrors.montoAbonado}</span>
                 )}
               </div>
 
-              {/* Form Select: Método de Pago */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">Método de Pago</label>
-                <select
-                  value={metodoPago}
-                  onChange={(e) => setMetodoPago(e.target.value)}
-                  className="bg-canvas border border-hairline rounded-lg px-md py-sm font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Tarjeta">Tarjeta (POS Externo)</option>
-                  <option value="Transferencia">Transferencia Bancaria</option>
-                  <option value="Yape">Yape</option>
-                  <option value="Plin">Plin</option>
-                </select>
-                <span className="text-[11px] text-body-muted font-caption italic mt-xxs block">
-                  * Seguridad PCI: Queda prohibida la recolección de números completos de tarjeta o CVV en esta terminal de caja.
-                </span>
+              {/* Operation Number */}
+              <div className="flex flex-col gap-2">
+                <label className="text-label-md font-label-md text-on-surface" htmlFor="operation-number">
+                  Número de operación / Referencia <span className="text-outline font-normal">(Opcional)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined text-[20px]">tag</span>
+                  <input
+                    type="text"
+                    id="operation-number"
+                    value={referenciaOpcional}
+                    onChange={(e) => setReferenciaOpcional(e.target.value)}
+                    placeholder="Ej: 987654321"
+                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-md font-body-md text-on-background placeholder:text-outline-variant"
+                  />
+                </div>
+                <p className="text-label-sm font-label-sm text-outline mt-1 font-medium">Requerido para transferencias y billeteras digitales.</p>
               </div>
 
-              {/* Form Input: Referencia */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">Número de Operación / Referencia (Opcional)</label>
-                <input
-                  type="text"
-                  value={referenciaOpcional}
-                  onChange={(e) => setReferenciaOpcional(e.target.value)}
-                  placeholder="Ej. TX-98234 o últimos 4 dígitos"
-                  className="bg-canvas border border-hairline rounded-lg px-md py-sm font-body-sm text-ink focus:outline-none focus:border-primary transition-colors"
-                />
-              </div>
-
-              {/* Form Input: Observaciones */}
-              <div className="flex flex-col gap-xs">
-                <label className="font-title-sm text-title-sm text-ink font-semibold">
-                  Observaciones Internas {parseFloat(montoTotalAjustado) !== (cita.servicio?.precio ?? 0) && <span className="text-error font-bold">*</span>}
+              {/* Observation Textarea */}
+              <div className="flex flex-col gap-2">
+                <label className="text-label-md font-label-md text-on-surface flex justify-between" htmlFor="observation">
+                  <span>Observación</span>
+                  {parseFloat(montoTotalAjustado) !== originalPrecio && (
+                    <span className="text-error font-bold text-label-sm">Requerido por cambio de precio sugerido</span>
+                  )}
                 </label>
                 <textarea
+                  id="observation"
+                  rows={3}
                   value={observacion}
                   onChange={(e) => {
                     setObservacion(e.target.value);
@@ -588,49 +610,47 @@ export default function RegistrarCobro() {
                     }
                   }}
                   placeholder={
-                    parseFloat(montoTotalAjustado) !== (cita.servicio?.precio ?? 0)
+                    parseFloat(montoTotalAjustado) !== originalPrecio
                       ? "Detalle obligatoriamente por qué el precio difiere del sugerido en catálogo..."
-                      : "Información adicional sobre el descuento, recargo o nota interna..."
+                      : "Agregue notas sobre el cobro (ej: descuento por cliente frecuente...)"
                   }
-                  rows={3}
-                  className={`bg-canvas border rounded-lg px-md py-sm font-body-sm text-ink focus:outline-none focus:ring-1 transition-colors resize-none ${
-                    formErrors.observacion 
-                      ? 'border-error focus:border-error focus:ring-error' 
-                      : 'border-hairline focus:border-primary focus:ring-primary'
+                  className={`w-full p-4 rounded-lg border bg-surface focus:outline-none focus:ring-1 transition-colors text-body-md font-body-md text-on-background resize-none placeholder:text-outline-variant ${
+                    formErrors.observacion ? 'border-error focus:border-error focus:ring-error' : 'border-outline-variant focus:border-primary focus:ring-primary'
                   }`}
                 />
                 {formErrors.observacion && (
-                  <span className="text-error text-caption font-caption">{formErrors.observacion}</span>
+                  <span className="text-error text-caption font-caption mt-1">{formErrors.observacion}</span>
                 )}
               </div>
 
-            </div>
+              {/* Divider */}
+              <hr className="border-t border-surface-variant my-4"/>
 
-            {/* Form Footer Actions */}
-            <div className="border-t border-hairline pt-md flex justify-end gap-md mt-lg">
-              <button
-                type="button"
-                onClick={() => navigate('/admin/pagos')}
-                disabled={saving}
-                className="px-md py-2.5 rounded-lg font-button text-button text-ink bg-transparent border border-outline-variant hover:bg-surface-soft transition-colors cursor-pointer disabled:opacity-50"
-              >
-                Cancelar
-              </button>
-              
-              <button
-                type="submit"
-                disabled={saving || cita.estado !== 'Completada'}
-                className="px-lg py-2.5 bg-primary hover:bg-primary-active text-on-primary font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-sm disabled:opacity-50 font-bold"
-              >
-                {saving ? (
-                  <span className="w-4 h-4 border-2 border-primary-dim border-t-white rounded-full animate-spin"></span>
-                ) : (
-                  <span className="material-symbols-outlined text-[18px]">payments</span>
-                )}
-                Confirmar y Cobrar
-              </button>
-            </div>
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/pagos')}
+                  className="px-6 py-3 rounded-lg border border-outline text-secondary hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md transition-colors duration-200 order-2 sm:order-1 h-12 cursor-pointer font-bold"
+                >
+                  Cancelar
+                </button>
+                
+                <button
+                  type="submit"
+                  disabled={saving || cita.estado !== 'Completada'}
+                  className="px-8 py-3 rounded-lg bg-primary text-on-primary hover:bg-primary-active font-label-md text-label-md transition-all duration-200 order-0 sm:order-3 h-12 flex items-center justify-center gap-2 cursor-pointer font-bold shadow-sm disabled:opacity-50"
+                >
+                  {saving ? (
+                    <span className="w-4 h-4 border-2 border-primary-dim border-t-white rounded-full animate-spin"></span>
+                  ) : (
+                    <span className="material-symbols-outlined text-sm">check_circle</span>
+                  )}
+                  Registrar Pago Recibido
+                </button>
+              </div>
 
+            </div>
           </div>
 
         </form>

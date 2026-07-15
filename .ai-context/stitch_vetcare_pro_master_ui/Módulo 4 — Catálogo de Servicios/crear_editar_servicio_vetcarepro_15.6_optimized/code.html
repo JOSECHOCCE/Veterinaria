@@ -1,0 +1,275 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-container": "#d6e0f6",
+                        "error": "#ba1a1a",
+                        "background": "#f7fafc",
+                        "on-primary-fixed": "#00201d",
+                        "on-secondary-fixed": "#121c2c",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#6c7a77",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-container": "#4fd1c5",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#ebeef0",
+                        "inverse-surface": "#2d3133",
+                        "primary": "#006a63",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "on-surface-variant": "#3c4947",
+                        "on-secondary": "#ffffff",
+                        "secondary": "#555f71",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "surface-bright": "#f7fafc",
+                        "on-tertiary-fixed": "#2f1500",
+                        "tertiary-container": "#ffab67",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "surface-tint": "#006a63",
+                        "primary-fixed-dim": "#5adace",
+                        "tertiary": "#8e4e11",
+                        "tertiary-fixed": "#ffdcc4",
+                        "on-primary-fixed-variant": "#00504a",
+                        "surface-container-high": "#e5e9eb",
+                        "on-secondary-container": "#596376",
+                        "secondary-fixed": "#d9e3f9",
+                        "primary-fixed": "#79f7ea",
+                        "surface-container-low": "#f1f4f6",
+                        "on-tertiary-container": "#773d00",
+                        "on-error-container": "#93000a",
+                        "inverse-on-surface": "#eef1f3",
+                        "surface-dim": "#d7dadc",
+                        "surface-variant": "#e0e3e5",
+                        "outline-variant": "#bbc9c7",
+                        "error-container": "#ffdad6",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-background": "#181c1e",
+                        "surface": "#f7fafc",
+                        "inverse-primary": "#5adace",
+                        "on-surface": "#181c1e",
+                        "on-primary-container": "#005750"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base-unit": "8px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px",
+                        "margin-desktop": "40px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"],
+                        "headline-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }]
+                    },
+                    boxShadow: {
+                        'ambient': '0 15px 15px -5px rgba(45, 55, 72, 0.05)',
+                    }
+                },
+            },
+        }
+    }catch(_e){}</script><meta charset="utf-8"></head><body class="bg-background text-on-background font-body-md antialiased min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-surface h-screen w-64 fixed left-0 top-0 shadow-sm flex flex-col p-4 space-y-2 z-20">
+<div class="mb-8 px-4 mt-2">
+<h1 class="text-headline-md font-headline-md text-primary tracking-tight">VetCarePro</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant mt-1">Veterinary Clinic MS</p>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-md text-label-md py-3 rounded-lg mb-6 flex items-center justify-center gap-2 hover:bg-primary-container hover:text-on-primary-container transition-colors duration-200 shadow-ambient">
+<span class="material-symbols-outlined text-lg" style="font-variation-settings: 'FILL' 1;">add</span>
+            New Appointment
+        </button>
+<div class="flex-1 space-y-2">
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
+<span class="font-label-md text-label-md">Clients</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">pets</span>
+<span class="font-label-md text-label-md">Pets</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">calendar_today</span>
+<span class="font-label-md text-label-md">Appointments</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">payments</span>
+<span class="font-label-md text-label-md">Finances</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-bold">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">medical_services</span>
+<span class="font-label-md text-label-md text-primary">Services</span>
+</a>
+</div>
+<div class="mt-auto space-y-2 pt-4 border-t border-surface-container-high">
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a href="#" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant transition-colors duration-200 rounded-lg group">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">help</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface shadow-sm docked full-width top-0 sticky z-10">
+<div class="flex justify-between items-center h-16 px-6">
+<div class="flex items-center bg-surface-container-low rounded-full px-4 py-2 w-96">
+<span class="material-symbols-outlined text-on-surface-variant mr-2">search</span>
+<input type="text" placeholder="Buscar pacientes, clientes o citas..." class="bg-transparent border-none outline-none text-body-md w-full focus:ring-0 text-on-surface">
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors rounded-full hover:bg-surface-variant">
+<span class="material-symbols-outlined">apps</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant ml-2 cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A close up, high quality headshot portrait of a friendly female veterinarian with short brown hair, wearing a clean white lab coat over a teal scrub top. Bright, soft, modern clinic lighting. Minimalist white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq3L5hExB9GLOQj7EBfWen81R0PieUsP5m5hkBqwJ6I-Nh8TLSXAI3M4y5vqLzImEqQY9br5xSrq2fRE6KG5-t5X4SMY0GIIh2DMiXlOzI6UUo5e-90HHhm7Om7_yzgOREhECKNf7TMZ_lVMCeJ2EVjPxBUAG5Vg-qoHYVWJOLMJ3L20Qpaky10aqI4qrWcyBP6eoIDiyrv0agvgZ6g4uslBcnMcEbCr6caE-dPEsBgFTv1eI6AS5fww">
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-10 overflow-y-auto">
+<div class="max-w-4xl mx-auto">
+<div class="mb-8 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2 text-on-surface-variant mb-2">
+<a class="font-label-md text-label-md hover:text-primary" href="#">Servicios</a>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-label-md text-label-md text-primary">Crear Nuevo</span>
+</div>
+<h2 class="text-headline-lg font-headline-lg text-on-background">Crear Servicio</h2>
+</div>
+</div>
+<div class="bg-surface rounded-xl shadow-ambient p-8">
+<form class="space-y-8">
+<!-- Grid Layout for Form -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+<!-- Name -->
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="serviceName">Nombre del Servicio <span class="text-error">*</span></label>
+<input class="w-full h-12 px-4 rounded-lg border border-surface-container-high bg-surface-bright text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-body-md" id="serviceName" placeholder="Ej. Consulta General" type="text">
+</div>
+<!-- Duration -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="duration">Duración (minutos) <span class="text-error">*</span></label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">schedule</span>
+<input class="w-full h-12 pl-12 pr-4 rounded-lg border border-surface-container-high bg-surface-bright text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-body-md" id="duration" placeholder="30" type="number">
+</div>
+</div>
+<!-- Base Price -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="price">Precio Base ($) <span class="text-error">*</span></label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">attach_money</span>
+<input class="w-full h-12 pl-12 pr-4 rounded-lg border border-surface-container-high bg-surface-bright text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-body-md" id="price" placeholder="0.00" step="0.01" type="number">
+</div>
+</div>
+<!-- Detailed-->
+<div class="col-span-1 md:col-span-2">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="description">Descripción Detallada</label>
+<textarea class="w-full p-4 rounded-lg border border-surface-container-high bg-surface-bright text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-body-md resize-none" id="description" placeholder="Describe los procedimientos incluidos en este servicio..." rows="4"></textarea>
+</div><div class="col-span-1 md:col-span-2">
+    <label class="block font-label-md text-label-md text-on-surface mb-2">Imagen de Portada (Opcional)</label>
+    <div class="relative border-2 border-dashed border-surface-container-high rounded-xl p-8 flex flex-col items-center justify-center gap-3 bg-surface-bright hover:border-primary transition-colors cursor-pointer group">
+        <input type="file" accept="image/png, image/jpeg" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" id="serviceImage">
+        <div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container group-hover:bg-primary group-hover:text-on-primary transition-colors">
+            <span class="material-symbols-outlined">add_a_photo</span>
+        </div>
+        <div class="text-center">
+            <p class="font-label-md text-label-md text-on-surface">Haga clic para cargar o arrastre y suelte</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant mt-1">PNG, JPG (Máx. 5MB)</p>
+        </div>
+    </div>
+</div>
+<!-- Business Rule Warning -->
+<div class="col-span-1 md:col-span-2 bg-secondary-container bg-opacity-30 rounded-lg p-4 flex gap-4 items-start border border-secondary-container">
+<span class="material-symbols-outlined text-primary mt-0.5">info</span>
+<div>
+<h4 class="font-label-md text-label-md text-on-surface">Nota de Facturación</h4>
+<p class="font-body-md text-body-md text-on-surface-variant mt-1">Los cambios en el precio base solo aplicarán para citas futuras. Las citas ya programadas o facturadas mantendrán el precio original.</p>
+</div>
+</div>
+<!-- Divider -->
+<div class="col-span-1 md:col-span-2 h-px bg-surface-container-high my-2"></div>
+<!-- Professional Requirements -->
+<div class="col-span-1 md:col-span-2 space-y-6">
+<h3 class="font-headline-md text-headline-md text-on-background text-xl">Requisitos del Profesional</h3>
+<div class="flex items-center gap-3">
+<label class="relative flex items-center p-3 rounded-full cursor-pointer" htmlfor="reqVet">
+<input class="before:content[''] peer relative h-5 w-5 cursor-pointer appearance-none rounded-md border border-outline-variant transition-all before:absolute before:top-2/4 before:left-2/4 before:block before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full before:bg-primary-container before:opacity-0 before:transition-opacity checked:border-primary checked:bg-primary checked:before:bg-primary hover:before:opacity-10" id="reqVet" type="checkbox">
+<span class="absolute text-white transition-opacity opacity-0 pointer-events-none top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 peer-checked:opacity-100">
+<svg class="h-3.5 w-3.5" fill="currentColor" stroke="currentColor" stroke-width="1" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" fill-rule="evenodd" class=""></path>
+</svg>
+</span>
+</label>
+<label class="font-body-md text-body-md text-on-surface cursor-pointer select-none" for="reqVet">Este servicio requiere un Veterinario colegiado</label>
+</div>
+<div class="">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="specialty">Especialidad Requerida (Opcional)</label>
+<div class="relative">
+<select class="w-full h-12 px-4 appearance-none rounded-lg border border-surface-container-high bg-surface-bright text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors font-body-md cursor-pointer" id="specialty">
+<option disabled="" selected="" value="">Selecciona una especialidad...</option>
+<option value="general">Medicina General</option>
+<option value="surgery">Cirugía</option>
+<option value="dermatology">Dermatología</option>
+<option value="dentistry">Odontología</option>
+<option value="none">Ninguna específica</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="flex items-center justify-end gap-4 pt-6 border-t border-surface-container-high mt-8">
+<button class="px-6 h-12 rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant transition-colors" type="button">
+                                Cancelar
+                            </button>
+<button class="px-8 h-12 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container hover:text-on-primary-container transition-colors shadow-ambient" type="button">
+                                Guardar cambios
+                            </button>
+</div>
+</form>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

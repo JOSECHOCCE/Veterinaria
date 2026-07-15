@@ -280,8 +280,10 @@ export default function CentroNotificaciones() {
                   onClick={() => handleNotificationClick(n)}
                   className={`group relative flex gap-4 p-5 rounded-xl border transition-all duration-200 cursor-pointer ${
                     !n.leida
-                      ? 'bg-surface-card border-transparent hover:border-outline-variant hover:bg-surface-soft shadow-sm'
-                      : 'bg-canvas border-hairline hover:border-outline-variant hover:bg-surface-soft'
+                      ? `bg-surface-card border-transparent hover:border-outline-variant hover:bg-surface-soft shadow-sm border-l-4 ${
+                          n.tipo === 'Warning' || n.tipo === 'Error' ? 'border-l-tertiary-container' : 'border-l-primary'
+                        }`
+                      : 'bg-canvas border-hairline hover:border-outline-variant hover:bg-surface-soft border-l-4 border-l-surface-container-high'
                   }`}
                 >
                   {/* Unread dot */}

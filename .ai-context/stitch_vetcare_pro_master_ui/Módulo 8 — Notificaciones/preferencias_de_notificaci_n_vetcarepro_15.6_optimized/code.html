@@ -1,0 +1,301 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Preferencias de Notificación - VetCarePro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-surface": "#181c1e",
+                        "surface-tint": "#006a63",
+                        "tertiary-container": "#ffab67",
+                        "on-primary-container": "#005750",
+                        "secondary": "#555f71",
+                        "surface-container-low": "#f1f4f6",
+                        "primary-fixed-dim": "#5adace",
+                        "on-error-container": "#93000a",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-bright": "#f7fafc",
+                        "primary": "#006a63",
+                        "on-secondary-container": "#596376",
+                        "tertiary-fixed": "#ffdcc4",
+                        "outline-variant": "#bbc9c7",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#00201d",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e5e9eb",
+                        "on-secondary-fixed": "#121c2c",
+                        "surface-dim": "#d7dadc",
+                        "on-background": "#181c1e",
+                        "surface-container": "#ebeef0",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-surface-variant": "#3c4947",
+                        "on-primary-fixed-variant": "#00504a",
+                        "tertiary": "#8e4e11",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "primary-container": "#4fd1c5",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed": "#79f7ea",
+                        "inverse-on-surface": "#eef1f3",
+                        "background": "#f7fafc",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "secondary-container": "#d6e0f6",
+                        "outline": "#6c7a77",
+                        "inverse-primary": "#5adace",
+                        "surface": "#f7fafc",
+                        "on-tertiary-container": "#773d00",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#d9e3f9"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px",
+                        "margin-desktop": "40px",
+                        "base-unit": "8px"
+                    },
+                    fontFamily: {
+                        "headline-md": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    fontSize: {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #006a63;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #006a63;
+        }
+        .toggle-checkbox:disabled + .toggle-label {
+            background-color: #e0e3e5;
+            cursor: not-allowed;
+        }
+        .toggle-checkbox:disabled {
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="h-screen w-64 fixed left-0 top-0 bg-surface shadow-sm bg-surface-container-low flex flex-col p-4 gap-2 z-20">
+<div class="mb-8 px-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">pets</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">VetCarePro</h1>
+<p class="font-label-sm text-label-sm text-secondary">Management Suite</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary rounded-xl py-3 px-4 font-label-md text-label-md font-bold flex items-center justify-center gap-2 mb-6 shadow-[0_4px_14px_0_rgba(0,106,99,0.39)] hover:bg-on-primary-container transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">add</span>
+            New Appointment
+        </button>
+<div class="flex-1 flex flex-col gap-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">groups</span>
+                Clients
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">pets</span>
+                Pets
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">calendar_today</span>
+                Appointments
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">payments</span>
+                Finances
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">medical_services</span>
+                Services
+            </a>
+</div>
+<div class="mt-auto border-t border-surface-variant pt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary-container text-on-primary-container rounded-xl active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors active:scale-95 duration-150 rounded-xl" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-64 flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 bg-surface-bright flex justify-between items-center h-16 px-gutter shadow-sm z-10">
+<div class="font-headline-md text-headline-md font-bold text-primary">
+                Preferencias de Notificación
+            </div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-all active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all active:opacity-80">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+<div class="h-8 w-px bg-surface-variant"></div>
+<button class="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-all active:opacity-80">
+<img class="w-8 h-8 rounded-full object-cover" data-alt="A small, circular avatar portrait of a smiling young professional woman with light brown hair, wearing a teal blouse in a softly lit, modern office setting. The aesthetic is clean, bright, and professional, perfectly matching a minimal light-mode UI design. 50-100 words." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApsgy6JIYxsJtdHJy57vtUwZZ2-WJ6mJ6dvd7S9p7AO9T-xv0tvBQXrkn2OesiRYmHQlICBf1CsMfUbVZFXYVw1SFzSQy009SvLDuF2c4NyjQg4hnl7d_0WIlClaJZiAsI8wnll9WZuOGKeH9kj1jyxH2SeN2BkNajFG-PPsS-RSVic7S_0OMgdD5IBEGDAchBzvqvVWDFNr1XSXgPof8y5FKliUSd4jFYENyo6_8dwinerVqlzJwB7g">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-margin-desktop bg-surface-bright overflow-y-auto">
+<div class="max-w-[800px] mx-auto">
+<div class="mb-8">
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Configuración de Alertas</h2>
+<p class="font-body-lg text-body-lg text-secondary">Administra cómo y cuándo VetCarePro se comunica contigo. Las notificaciones críticas para la salud y gestión de tu cuenta no pueden ser desactivadas.</p>
+</div>
+<!-- Bento Grid Layout for Settings -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+<!-- Opcionales Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_4px_15px_rgba(45,55,72,0.05)] border border-surface-variant flex flex-col h-full">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-full bg-primary-container/30 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">tune</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Notificaciones Opcionales</h3>
+</div>
+<div class="space-y-6 flex-1">
+<!-- Toggle Item 1 -->
+<div class="flex items-start justify-between gap-4">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Recordatorios de citas</h4>
+<p class="font-label-sm text-label-sm text-secondary font-normal">Recibe avisos 24h y 1h antes de tus visitas programadas.</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 left-0 checked:translate-x-6 border-surface-variant checked:border-primary" id="toggle1" name="toggle1" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle1"></label>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-high"></div>
+<!-- Toggle Item 2 -->
+<div class="flex items-start justify-between gap-4">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Boletines informativos</h4>
+<p class="font-label-sm text-label-sm text-secondary font-normal">Novedades de la clínica, consejos de salud y promociones.</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 left-0 checked:translate-x-6 border-surface-variant checked:border-primary" id="toggle2" name="toggle2" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle2"></label>
+</div>
+</div>
+<div class="h-px w-full bg-surface-container-high"></div>
+<!-- Toggle Item 3 -->
+<div class="flex items-start justify-between gap-4">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1">Campañas de vacunación</h4>
+<p class="font-label-sm text-label-sm text-secondary font-normal">Avisos estacionales para mantener las vacunas de tu mascota al día.</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 left-0 checked:translate-x-6 border-surface-variant checked:border-primary" id="toggle3" name="toggle3" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant cursor-pointer transition-colors duration-200 ease-in-out" for="toggle3"></label>
+</div>
+</div>
+</div>
+</div>
+<!-- Críticas Card -->
+<div class="bg-surface-container-low rounded-xl p-6 border border-surface-variant flex flex-col h-full relative overflow-hidden">
+<!-- Subtle decorative background element -->
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-error-container rounded-full opacity-20 blur-2xl"></div>
+<div class="flex items-center gap-3 mb-6 relative z-10">
+<div class="w-10 h-10 rounded-full bg-on-error-container/10 flex items-center justify-center text-on-error-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Notificaciones Críticas</h3>
+</div>
+<div class="space-y-6 flex-1 relative z-10">
+<p class="font-label-sm text-label-sm text-on-surface-variant mb-4 bg-white/50 p-3 rounded-lg border border-outline-variant/30">
+                                Estas alertas son obligatorias para garantizar el correcto funcionamiento del servicio y la salud de sus mascotas.
+                            </p>
+<!-- Locked Toggle 1 -->
+<div class="flex items-start justify-between gap-4 opacity-70">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1 flex items-center gap-2">
+                                        Confirmación de reserva
+                                        <span class="material-symbols-outlined text-[16px] text-secondary">lock</span>
+</h4>
+<p class="font-label-sm text-label-sm text-secondary font-normal">Correos transaccionales sobre la creación, modificación o cancelación de citas.</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none z-10 top-0 left-0 checked:translate-x-6 border-surface-variant checked:border-primary" disabled="" id="locked1" name="locked1" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant" for="locked1"></label>
+</div>
+</div>
+<!-- Locked Toggle 2 -->
+<div class="flex items-start justify-between gap-4 opacity-70">
+<div>
+<h4 class="font-label-md text-label-md text-on-surface mb-1 flex items-center gap-2">
+                                        Alertas de deudas
+                                        <span class="material-symbols-outlined text-[16px] text-secondary">lock</span>
+</h4>
+<p class="font-label-sm text-label-sm text-secondary font-normal">Avisos importantes sobre facturas pendientes o problemas de pago.</p>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in mt-1">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none z-10 top-0 left-0 checked:translate-x-6 border-surface-variant checked:border-primary" disabled="" id="locked2" name="locked2" type="checkbox">
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-variant" for="locked2"></label>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row justify-end items-center gap-4 mt-10 pt-6 border-t border-surface-variant">
+<button class="w-full sm:w-auto px-6 py-3 rounded-xl font-label-md text-label-md font-bold text-secondary bg-surface-container-highest hover:bg-surface-dim transition-colors active:scale-95 duration-150">
+                        Restablecer valores por defecto
+                    </button>
+<button class="w-full sm:w-auto px-6 py-3 rounded-xl font-label-md text-label-md font-bold text-on-primary bg-primary hover:bg-on-primary-container transition-colors shadow-sm active:scale-95 duration-150">
+                        Guardar cambios
+                    </button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

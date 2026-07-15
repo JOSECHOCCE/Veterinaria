@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import MascotasService from '../../services/mascotas.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import PageHeader from '../../components/common/PageHeader';
 
 export default function EditarMascota() {
   const { id } = useParams<{ id: string }>();
@@ -106,13 +105,14 @@ export default function EditarMascota() {
       console.error('Error updating pet:', err);
       toast.error(err.response?.data?.message || 'Error de conexión con el servidor.');
     } finally {
+      toast.dismiss();
       setSubmitting(false);
     }
   };
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[400px]">
+      <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
     );
@@ -120,206 +120,255 @@ export default function EditarMascota() {
 
   if (error) {
     return (
-      <div className="flex-1 p-lg">
+      <div className="flex-grow p-6">
         <ErrorMessage message={error} onRetry={loadPet} />
       </div>
     );
   }
 
   return (
-    <div className="p-xl max-w-4xl mx-auto w-full">
-      <PageHeader
-        title="Editar Mascota"
-        description="Modifica los detalles físicos, biométricos o notas médicas del paciente."
-        backLink={{ to: `/admin/mascotas/${petId}`, label: 'Volver a la Ficha' }}
-      />
+    <div className="flex-grow flex flex-col gap-6 animate-fadeIn max-w-4xl mx-auto w-full">
+      
+      {/* Breadcrumb Navigation */}
+      <div>
+        <nav className="flex items-center gap-2 text-body-muted font-bold text-xs mb-2">
+          <button onClick={() => navigate(`/admin/mascotas/${petId}`)} className="hover:text-primary transition-colors cursor-pointer">
+            Ficha de {nombre}
+          </button>
+          <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+          <span className="text-ink">Editar Detalles</span>
+        </nav>
+        <h1 className="font-headline-lg text-headline-lg text-ink">Modificar Expediente</h1>
+        <p className="font-body-md text-body-md text-body-muted mt-1">
+          Actualiza los datos físicos, biométricos y observaciones médicas de la mascota.
+        </p>
+      </div>
 
-      <form onSubmit={handleSubmit} className="space-y-xl bg-surface-card p-xl rounded-xl border border-hairline shadow-sm">
-        {/* Section 1: Basic Info */}
-        <section>
-          <h3 className="font-title-sm text-title-sm text-ink mb-md border-b border-hairline pb-xs font-semibold">
-            Información Básica
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="pet-name">
-                Nombre <span className="text-error">*</span>
-              </label>
-              <input
-                id="pet-name"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                type="text"
-                required
-              />
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="species">
-                Especie <span className="text-error">*</span>
-              </label>
-              <select
-                id="species"
-                value={especie}
-                onChange={(e) => setEspecie(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                required
+      {/* Form Container */}
+      <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-outline-variant/20 shadow-xs overflow-hidden">
+        
+        {/* Tutor Read-Only Display with Transfer Link */}
+        <div className="p-8 border-b border-outline-variant/15 bg-surface-bright flex flex-col md:flex-row gap-6">
+          <div className="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-[24px]">person</span>
+          </div>
+          <div className="flex-grow">
+            <h3 className="font-title-md text-title-md text-ink font-bold">Tutor Responsable</h3>
+            <p className="font-body-md text-body-md text-body-muted mt-1 mb-4">
+              El cambio de titular se maneja a través de un flujo con auditoría interna.
+            </p>
+            <div className="bg-white border border-outline-variant/40 rounded-xl p-4 flex items-center justify-between shadow-xs max-w-xl">
+              <div>
+                <span className="font-bold text-ink text-sm block">{ownerName}</span>
+                <span className="font-semibold text-body-muted text-xs block mt-0.5">Tutor Registrado</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate(`/admin/mascotas/${petId}/cambiar-responsable`)}
+                className="text-primary hover:underline text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
-                <option value="Canino">Canino</option>
-                <option value="Felino">Felino</option>
-                <option value="Exótico">Exótico</option>
-              </select>
+                <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
+                Cambiar Titular
+              </button>
             </div>
+          </div>
+        </div>
 
-            {/* Read-only Owner Display (with link to transfer flow) */}
-            <div className="md:col-span-2">
-              <label className="block font-title-sm text-title-sm text-ink mb-xs">
-                Cliente Responsable
-              </label>
-              <div className="bg-canvas border border-hairline rounded-lg p-md flex items-center justify-between">
-                <div>
-                  <span className="font-title-md text-title-md text-ink font-semibold">{ownerName}</span>
-                  <span className="font-body-sm text-body-sm text-body-muted ml-md">(Titular del expediente)</span>
+        {/* Pet Details Inputs */}
+        <div className="p-8 space-y-8">
+          
+          {/* Section 1: Basic Information */}
+          <div>
+            <h3 className="font-title-sm text-title-sm text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/15 pb-2 font-bold">
+              <span className="material-symbols-outlined text-[20px]">info</span>
+              Información Básica
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-name">
+                  Nombre de la Mascota <span className="text-error">*</span>
+                </label>
+                <input
+                  id="pet-name"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant/50 bg-white py-3 px-4 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                  type="text"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-species">
+                  Especie <span className="text-error">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    id="pet-species"
+                    value={especie}
+                    onChange={(e) => setEspecie(e.target.value)}
+                    className="w-full appearance-none rounded-xl border border-outline-variant/50 bg-white py-3 pl-4 pr-10 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors cursor-pointer"
+                    required
+                  >
+                    <option value="Canino">Canino</option>
+                    <option value="Felino">Felino</option>
+                    <option value="Exótico">Exótico</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-body-muted pointer-events-none">
+                    expand_more
+                  </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => navigate(`/admin/mascotas/${petId}/cambiar-responsable`)}
-                  className="text-primary hover:text-surface-tint font-button text-[13px] flex items-center gap-xxs cursor-pointer font-medium"
-                >
-                  <span className="material-symbols-outlined text-[18px]">swap_horiz</span>
-                  Transferir Titularidad
-                </button>
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-breed">Raza</label>
+                <input
+                  id="pet-breed"
+                  value={raza}
+                  onChange={(e) => setRaza(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant/50 bg-white py-3 px-4 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                  type="text"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-color">Color o Pelaje</label>
+                <input
+                  id="pet-color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant/50 bg-white py-3 px-4 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
+                  type="text"
+                />
               </div>
             </div>
           </div>
-        </section>
 
-        {/* Section 2: Physical Characteristics */}
-        <section>
-          <h3 className="font-title-sm text-title-sm text-ink mb-md border-b border-hairline pb-xs font-semibold">
-            Características Físicas
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="breed">
-                Raza
-              </label>
-              <input
-                id="breed"
-                value={raza}
-                onChange={(e) => setRaza(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                type="text"
-              />
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="sex">
-                Sexo
-              </label>
-              <select
-                id="sex"
-                value={sexo}
-                onChange={(e) => setSexo(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-              >
-                <option value="">Seleccionar</option>
-                <option value="Macho">Macho</option>
-                <option value="Hembra">Hembra</option>
-              </select>
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="color">
-                Color
-              </label>
-              <input
-                id="color"
-                value={color}
-                onChange={(e) => setColor(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                type="text"
-              />
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="dob">
-                Fecha de nacimiento
-              </label>
-              <input
-                id="dob"
-                value={fechaNacimiento}
-                onChange={(e) => setFechaNacimiento(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md text-ink border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                type="date"
-              />
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="weight">
-                Peso (kg)
-              </label>
-              <input
-                id="weight"
-                value={peso}
-                onChange={(e) => setPeso(e.target.value)}
-                step="0.1"
-                min="0"
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                type="number"
-              />
+          {/* Section 2: Physical Profile */}
+          <div>
+            <h3 className="font-title-sm text-title-sm text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/15 pb-2 font-bold">
+              <span className="material-symbols-outlined text-[20px]">vital_signs</span>
+              Perfil Físico
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block font-bold text-ink text-xs mb-3">Sexo <span className="text-error">*</span></label>
+                <div className="flex gap-6 mt-1">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      name="pet-sex"
+                      type="radio"
+                      value="Macho"
+                      checked={sexo === 'Macho'}
+                      onChange={() => setSexo('Macho')}
+                      className="w-5 h-5 text-primary border-outline-variant focus:ring-primary bg-white cursor-pointer"
+                      required
+                    />
+                    <span className="text-body-sm text-ink group-hover:text-primary transition-colors font-medium">Macho</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input
+                      name="pet-sex"
+                      type="radio"
+                      value="Hembra"
+                      checked={sexo === 'Hembra'}
+                      onChange={() => setSexo('Hembra')}
+                      className="w-5 h-5 text-primary border-outline-variant focus:ring-primary bg-white cursor-pointer"
+                    />
+                    <span className="text-body-sm text-ink group-hover:text-primary transition-colors font-medium">Hembra</span>
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-dob">Fecha de Nacimiento</label>
+                <input
+                  id="pet-dob"
+                  type="date"
+                  value={fechaNacimiento}
+                  onChange={(e) => setFechaNacimiento(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant/50 bg-white py-3 px-4 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors cursor-pointer"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-weight">Peso (kg)</label>
+                <div className="relative flex items-center border border-outline-variant/50 bg-white rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary pr-4 transition-colors">
+                  <input
+                    id="pet-weight"
+                    type="number"
+                    step="0.1"
+                    placeholder="0.0"
+                    value={peso}
+                    onChange={(e) => setPeso(e.target.value)}
+                    className="w-full py-3 px-4 bg-transparent border-none outline-none font-body-sm text-body-sm text-ink focus:ring-0"
+                  />
+                  <span className="text-xs text-body-muted font-bold">kg</span>
+                </div>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Section 3: Medical Notes */}
-        <section>
-          <h3 className="font-title-sm text-title-sm text-ink mb-md border-b border-hairline pb-xs font-semibold">
-            Historial y Observaciones
-          </h3>
-          <div className="space-y-md">
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="allergies">
-                Alergias conocidas
-              </label>
-              <textarea
-                id="allergies"
-                value={alergiasConocidas}
-                onChange={(e) => setAlergiasConocidas(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
-                rows={2}
-              />
-            </div>
-            <div>
-              <label className="block font-title-sm text-title-sm text-ink mb-xs" htmlFor="observations">
-                Observaciones generales (Resumen Clínico)
-              </label>
-              <textarea
-                id="observations"
-                value={observacionesGenerales}
-                onChange={(e) => setObservacionesGenerales(e.target.value)}
-                className="w-full rounded-md px-md py-sm font-body-md text-body-md border border-hairline bg-surface-container-lowest focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary resize-none"
-                rows={4}
-              />
+          {/* Section 3: Medical Notes */}
+          <div>
+            <h3 className="font-title-sm text-title-sm text-primary mb-6 flex items-center gap-2 border-b border-outline-variant/15 pb-2 font-bold">
+              <span className="material-symbols-outlined text-[20px]">medical_information</span>
+              Notas y Observaciones Clínicas
+            </h3>
+            <div className="space-y-6">
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-allergies">Alergias Conocidas</label>
+                <div className="flex items-start border border-outline-variant/50 bg-white rounded-xl overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary p-3 transition-colors">
+                  <span className="material-symbols-outlined text-outline mr-2 mt-0.5 text-[20px]">warning</span>
+                  <textarea
+                    id="pet-allergies"
+                    placeholder="Especificar alergias a alimentos, vacunas o medicamentos..."
+                    value={alergiasConocidas}
+                    onChange={(e) => setAlergiasConocidas(e.target.value)}
+                    className="w-full bg-transparent border-none focus:ring-0 text-body-sm text-ink font-body-sm resize-none outline-none"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-ink text-xs mb-2" htmlFor="pet-observations">Observaciones Generales</label>
+                <textarea
+                  id="pet-observations"
+                  placeholder="Temperamento, condiciones preexistentes o notas generales..."
+                  value={observacionesGenerales}
+                  onChange={(e) => setObservacionesGenerales(e.target.value)}
+                  className="w-full rounded-xl border border-outline-variant/50 bg-white p-4 font-body-sm text-body-sm text-ink focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors resize-y"
+                  rows={4}
+                />
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Actions */}
-        <div className="flex justify-end pt-lg border-t border-hairline gap-sm">
+        </div>
+
+        {/* Form Actions Footer */}
+        <div className="p-6 border-t border-outline-variant/15 bg-surface flex justify-end gap-4 items-center">
           <button
             type="button"
             onClick={() => navigate(-1)}
             disabled={submitting}
-            className="px-lg py-2.5 rounded-md font-button text-button text-ink bg-canvas border border-ink hover:bg-surface-soft transition-colors cursor-pointer"
+            className="px-6 h-12 rounded-xl font-bold text-xs text-secondary hover:bg-surface-container-high transition-colors cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={submitting}
-            className="px-lg py-2.5 rounded-md font-button text-button text-on-primary bg-primary hover:bg-primary-container transition-colors shadow-sm cursor-pointer"
+            className="px-8 h-12 rounded-xl font-bold text-xs bg-primary text-on-primary hover:bg-primary-container transition-colors shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
+            <span className="material-symbols-outlined text-[18px]">save</span>
             {submitting ? 'Guardando...' : 'Guardar Cambios'}
           </button>
         </div>
+
       </form>
+
     </div>
   );
 }

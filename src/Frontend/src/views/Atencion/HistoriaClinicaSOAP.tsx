@@ -441,8 +441,8 @@ export default function HistoriaClinicaSOAP() {
           {/* Critical Alerts */}
           <div className={`border-l-4 rounded-r-xl p-md flex flex-col gap-sm shadow-xs ${
             (mascota?.alergiasConocidas || alertasMedicas?.alergias || alertasMedicas?.condicionCronica) 
-              ? 'bg-error-container border-error text-on-error-container' 
-              : 'bg-success/10 border-success text-ink'
+              ? 'bg-error-container/20 border-error text-on-error-container' 
+              : 'bg-success/5 border-success text-success'
           }`}>
             <div className="flex items-center gap-xs font-title-sm text-title-sm font-semibold">
               <span className="material-symbols-outlined text-[20px]">

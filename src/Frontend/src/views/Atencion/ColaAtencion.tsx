@@ -131,7 +131,7 @@ export default function ColaAtencion() {
             onClick={() => navigate('/admin/triage')}
             className="bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
           >
-            <span className="material-symbols-outlined text-[18px]">emergency_home</span>
+            <span className="material-symbols-outlined text-[18px]">emergency</span>
             Registrar Triage
           </button>
         }

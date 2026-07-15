@@ -34,6 +34,7 @@ export default function Dashboard() {
   }, []);
 
   const formattedDate = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
     day: 'numeric',
     month: 'long',
     year: 'numeric'
@@ -42,20 +43,20 @@ export default function Dashboard() {
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'Completada':
-        return 'bg-emerald-100 text-emerald-800';
+        return 'bg-emerald-100 text-emerald-800 border-emerald-200';
       case 'Cancelada':
       case 'Rechazada':
-        return 'bg-rose-100 text-rose-800';
+        return 'bg-rose-100 text-rose-800 border-rose-200';
       case 'Confirmada':
-        return 'bg-teal-100 text-teal-800';
+        return 'bg-teal-100 text-teal-800 border-teal-200';
       case 'EnAtencion':
       case 'EnProceso':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 border-blue-200';
       case 'PendienteConfirmacion':
       case 'PendienteAsignacion':
       case 'Pendiente':
       default:
-        return 'bg-amber-100 text-amber-800';
+        return 'bg-amber-100 text-amber-800 border-amber-200';
     }
   };
 
@@ -77,6 +78,9 @@ export default function Dashboard() {
   const isAdmin = user?.role === 'Admin';
   const isRecepcionista = user?.role === 'Recepcionista';
   const showFinancials = isAdmin; // Restricción de negocio: Solo Admin ve financiero global
+
+  const pctCompletado = data?.citasHoyTotal ? Math.round((data.citasHoyCompletadas / data.citasHoyTotal) * 100) : 0;
+  const strokeDashoffset = 264 - (264 * pctCompletado) / 100;
 
   if (loading) {
     return (
@@ -117,232 +121,332 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-8 pb-12 select-none">
-      
-      {/* Header */}
-      <PageHeader
-        title="Resumen Operativo"
-        description="Métricas clave y estado de la clínica veterinaria para hoy."
-        actions={
-          <div className="text-left md:text-right shrink-0">
-            <p className="font-caption-caps text-caption-caps text-primary tracking-widest uppercase text-[11px] font-semibold">
-              Fecha de Hoy
-            </p>
-            <p className="font-title-md text-title-md text-ink mt-0.5">{formattedDate}</p>
-          </div>
-        }
-        hasDivider={true}
-      />
-
-      {/* Bento Grid: Métricas Clave */}
-      <div className={`grid grid-cols-1 ${showFinancials ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-6`}>
-        
-        {/* Citas Programadas */}
-        <div
-          onClick={() => navigate('/admin/agenda')}
-          className="bg-surface-card rounded-xl p-md flex flex-col justify-between h-40 border border-surface-soft hover:border-outline-variant hover:shadow-md transition-all duration-200 cursor-pointer shadow-sm"
-        >
-          <div className="flex justify-between items-start">
-            <h3 className="font-title-sm text-title-sm text-body-muted font-bold">Citas Programadas</h3>
-            <span className="material-symbols-outlined text-primary bg-primary-fixed p-2.5 rounded-xl text-[20px]">
-              calendar_month
-            </span>
-          </div>
-          <div>
-            <span className="font-display-xl text-[44px] leading-none text-ink font-bold">
-              {data?.citasHoyTotal || 0}
-            </span>
-            <p className="text-[12px] text-body-muted mt-2 font-medium">
-              Citas agendadas para el día de hoy
+    <div className="flex-grow w-full max-w-7xl mx-auto flex flex-col gap-8 pb-12 select-none animate-fadeIn">
+      {/* Page Welcome / Title Section */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+        <div>
+          <h2 className="font-headline-lg text-[32px] md:text-[38px] text-ink font-extrabold tracking-tight leading-tight">Diario Operativo</h2>
+          <div className="flex items-center gap-2 mt-2 text-body-muted font-medium">
+            <span className="material-symbols-outlined text-[20px] text-primary">calendar_month</span>
+            <p className="font-body-md text-[15px] capitalize">
+              {formattedDate} <span className="mx-2 text-outline-variant">•</span> <span className="font-bold text-primary">Hospital Central</span>
             </p>
           </div>
         </div>
+        <div className="flex gap-3 w-full md:w-auto">
+          <button
+            onClick={() => navigate('/admin/reportes')}
+            className="flex-1 md:flex-initial px-5 py-3 bg-white text-secondary border border-outline-variant/30 rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 shadow-xs hover:bg-surface hover:text-primary transition-all duration-200 cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-[20px]">ios_share</span> Exportar Reporte
+          </button>
+          {(isAdmin || isRecepcionista) && (
+            <button
+              onClick={() => navigate('/admin/agenda/nueva')}
+              className="flex-1 md:flex-initial px-5 py-3 bg-primary text-on-primary rounded-xl font-bold text-[14px] flex items-center justify-center gap-2 shadow-sm hover:bg-surface-tint transition-all duration-200 cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[20px]">add</span> Nueva Cita
+            </button>
+          )}
+        </div>
+      </div>
 
-        {/* Recaudación Total (Admin Exclusive) */}
-        {showFinancials && (
+      {/* High Impact Admin Section (Only visible to Admin role) */}
+      {showFinancials && (
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Financial Hero (2/3 width on large screens) */}
           <div
             onClick={() => navigate('/admin/reportes')}
-            className="bg-ink rounded-xl p-md flex flex-col justify-between h-40 shadow-md relative overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+            className="md:col-span-2 bg-gradient-to-br from-primary to-[#004d48] rounded-[2rem] p-8 md:p-10 relative overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer group"
           >
-            <div className="absolute -right-10 -top-10 w-32 h-32 bg-surface-variant opacity-10 rounded-full blur-2xl"></div>
-            <div className="flex justify-between items-start relative z-10">
-              <h3 className="font-title-sm text-title-sm text-surface-soft font-bold">Recaudación (Mes)</h3>
-              <span className="material-symbols-outlined text-surface bg-inverse-surface p-2.5 rounded-xl text-[20px]">
-                account_balance_wallet
+            <div className="absolute top-[-20%] right-[-10%] w-[350px] h-[350px] bg-primary-container/20 rounded-full blur-[100px]"></div>
+            <div className="absolute bottom-[-20%] left-[-10%] w-[300px] h-[300px] bg-black/20 rounded-full blur-[80px]"></div>
+            <div className="absolute top-8 right-8 opacity-[0.08] transform rotate-12 transition-transform group-hover:rotate-0 duration-700 ease-out hidden sm:block">
+              <span className="material-symbols-outlined text-[160px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                analytics
               </span>
             </div>
-            <div className="relative z-10">
-              <span className="font-display-xl text-[44px] leading-none text-surface font-bold">
-                ${(data?.ingresosMes || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <div className="relative z-10 flex flex-col justify-between h-full min-h-[160px]">
+              <div>
+                <div className="flex items-center gap-3 mb-6">
+                  <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-white text-[10px] font-extrabold tracking-[0.08em] uppercase border border-white/20">
+                    Solo Administración
+                  </span>
+                  <div className="flex items-center gap-1.5 bg-black/15 backdrop-blur-sm px-3.5 py-1 rounded-full">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary-fixed animate-pulse"></div>
+                    <span className="text-white/80 text-[10px] font-bold uppercase tracking-wider">En tiempo real</span>
+                  </div>
+                </div>
+                <h3 className="font-headline-md text-[26px] md:text-[30px] text-white font-extrabold mb-1 tracking-tight">Recaudación Total del Mes</h3>
+                <p className="text-white/80 font-body-sm max-w-md text-[14px]">Flujo contable consolidado acumulado para la clínica.</p>
+              </div>
+              <div className="mt-8 flex items-end justify-between">
+                <div className="flex flex-col">
+                  <span className="text-white/60 text-[11px] font-extrabold uppercase tracking-wider mb-1">Total Procesado</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-headline-lg text-[42px] md:text-[52px] text-white font-extrabold leading-none tracking-tight">
+                      S/. {(data?.ingresosMes || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    <span className="flex items-center gap-1 text-primary-fixed font-bold bg-white/10 backdrop-blur-md px-3 py-1 rounded-lg text-[12px] border border-white/15">
+                      <span className="material-symbols-outlined text-[14px]">trending_up</span> +12.5%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Pending Payments Widget (1/3 width) */}
+          <div
+            onClick={() => navigate('/admin/pagos')}
+            className="bg-white rounded-[2rem] p-8 border border-outline-variant/30 hover:border-primary-container hover:shadow-md transition-all duration-300 cursor-pointer flex flex-col justify-between group relative overflow-hidden"
+          >
+            <div className="absolute top-6 right-6">
+              <span className="bg-error/10 text-error px-3.5 py-1.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase flex items-center gap-1.5 border border-error/15">
+                <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse"></span> Crítico
               </span>
-              <p className="text-[11px] text-surface-dim mt-2 tracking-wide font-semibold">
-                Ingresos confirmados acumulados
+            </div>
+            <div>
+              <div className="bg-tertiary-container/10 w-14 h-14 rounded-2xl flex items-center justify-center text-tertiary mb-5 border border-tertiary-container/20 group-hover:scale-105 transition-transform duration-300">
+                <span className="material-symbols-outlined text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                  pending_actions
+                </span>
+              </div>
+              <h3 className="font-headline-md text-[24px] text-ink font-extrabold leading-tight">Pagos Pendientes</h3>
+              <p className="text-body-muted font-medium text-[14px] mt-1.5">
+                {data?.pagosPendientesCount || 0} facturas requieren cierre inmediato
+              </p>
+            </div>
+            <div className="mt-8">
+              <div className="flex items-end justify-between mb-3">
+                <span className="font-headline-lg text-[32px] text-tertiary font-extrabold leading-none">
+                  S/. {(data?.pagosPendientesTotal || 0).toLocaleString()}
+                </span>
+                <span className="text-[11px] font-extrabold text-body-muted uppercase tracking-wider">Monto estimado</span>
+              </div>
+              <div className="w-full bg-surface-container h-2.5 rounded-full overflow-hidden">
+                <div className="bg-gradient-to-r from-tertiary-container to-tertiary h-full rounded-full w-[65%]" />
+              </div>
+              <p className="text-[12px] font-bold text-body-muted mt-3 flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-[16px] text-tertiary">info</span>
+                Regularización requerida en caja
               </p>
             </div>
           </div>
-        )}
+        </section>
+      )}
 
-        {/* Cobros Pendientes */}
+      {/* Operations Overview Grid (Widgets) */}
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        {/* Total Appts */}
         <div
-          onClick={() => (isAdmin || isRecepcionista) ? navigate('/admin/pagos') : undefined}
-          className={`bg-surface-card rounded-xl p-md flex flex-col justify-between h-40 border border-surface-soft shadow-sm ${
-            (isAdmin || isRecepcionista) ? 'hover:border-outline-variant hover:shadow-md cursor-pointer transition-all duration-200' : 'cursor-default'
-          }`}
+          onClick={() => navigate('/admin/agenda')}
+          className="bg-white p-6 rounded-[1.5rem] border border-outline-variant/20 hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 relative overflow-hidden"
         >
           <div className="flex justify-between items-start">
-            <h3 className="font-title-sm text-title-sm text-body-muted font-bold">Cobros Pendientes</h3>
-            <span className="material-symbols-outlined text-accent-amber bg-[#fdf2e8] p-2.5 rounded-xl text-[20px]">
-              receipt_long
-            </span>
+            <p className="font-label-md text-label-md text-body-muted uppercase tracking-wider">Citas Programadas</p>
+            <span className="material-symbols-outlined text-secondary text-[22px]">event_note</span>
           </div>
           <div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-display-xl text-[44px] leading-none text-ink font-bold">
-                {data?.pagosPendientesCount || 0}
+            <p className="font-headline-lg text-[36px] text-ink font-extrabold leading-none">{data?.citasHoyTotal || 0}</p>
+            <p className="text-label-sm text-label-sm text-body-muted mt-1 font-semibold">Hoy</p>
+          </div>
+        </div>
+        {/* Confirmed */}
+        <div
+          onClick={() => navigate('/admin/agenda')}
+          className="bg-white p-6 rounded-[1.5rem] border border-outline-variant/20 hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 relative overflow-hidden"
+        >
+          <div className="flex justify-between items-start">
+            <p className="font-label-md text-label-md text-body-muted uppercase tracking-wider">Confirmadas</p>
+            <div className="w-2 h-2 rounded-full bg-primary mt-1.5 animate-pulse" />
+          </div>
+          <div>
+            <p className="font-headline-lg text-[36px] text-primary font-extrabold leading-none">{data?.citasHoyConfirmadas || 0}</p>
+            <p className="text-label-sm text-label-sm text-body-muted mt-1 font-semibold">Listas para consulta</p>
+          </div>
+        </div>
+        {/* Pending */}
+        <div
+          onClick={() => navigate('/admin/agenda')}
+          className="bg-white p-6 rounded-[1.5rem] border border-outline-variant/20 hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 relative overflow-hidden"
+        >
+          <div className="flex justify-between items-start">
+            <p className="font-label-md text-label-md text-body-muted uppercase tracking-wider">En Espera</p>
+            <span className="material-symbols-outlined text-tertiary text-[22px]">hourglass_top</span>
+          </div>
+          <div>
+            <p className="font-headline-lg text-[36px] text-tertiary font-extrabold leading-none">{data?.citasHoyPendientes || 0}</p>
+            <p className="text-label-sm text-label-sm text-body-muted mt-1 font-semibold">Esperando triage</p>
+          </div>
+        </div>
+        {/* Completed */}
+        <div
+          onClick={() => navigate('/admin/agenda')}
+          className="bg-white p-6 rounded-[1.5rem] border border-outline-variant/20 hover:border-primary/20 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 relative overflow-hidden"
+        >
+          <div className="flex justify-between items-start">
+            <p className="font-label-md text-label-md text-body-muted uppercase tracking-wider">Completadas</p>
+            <span className="material-symbols-outlined text-outline text-[22px]">task_alt</span>
+          </div>
+          <div>
+            <p className="font-headline-lg text-[36px] text-body-muted font-extrabold leading-none">{data?.citasHoyCompletadas || 0}</p>
+            <p className="text-label-sm text-label-sm text-body-muted mt-1 font-semibold">Cerradas y facturadas</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Bottom Section: Bento Split */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Bento: Agenda Próxima List Table */}
+        <div className="lg:col-span-8 bg-white rounded-[2rem] border border-outline-variant/20 shadow-xs flex flex-col overflow-hidden">
+          <div className="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center bg-surface-soft/20">
+            <div className="flex items-center gap-3">
+              <h4 className="font-headline-md text-[20px] text-ink font-extrabold tracking-tight">Agenda Próxima</h4>
+              <span className="bg-primary/10 text-primary px-3.5 py-1 rounded-full text-[12px] font-extrabold border border-primary/20">
+                {data?.proximasCitas?.length || 0} Total
               </span>
-              {showFinancials && data?.pagosPendientesTotal ? (
-                <span className="text-body-muted text-body-sm font-semibold">
-                  (${data.pagosPendientesTotal.toLocaleString()})
-                </span>
-              ) : null}
             </div>
-            <p className={`text-[12px] mt-2 font-semibold ${data?.pagosPendientesCount && data.pagosPendientesCount > 0 ? 'text-error' : 'text-body-muted'}`}>
-              {data?.pagosPendientesCount && data.pagosPendientesCount > 0 ? '⚠️ Requiere regularización' : 'No hay cobros retenidos'}
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Desglose de Estados */}
-      <div>
-        <div className="flex justify-between items-center mb-4 border-b border-hairline pb-2">
-          <h2 className="font-display-sm text-display-sm text-ink font-bold">Estados de Citas de Hoy</h2>
-          <button
-            onClick={() => navigate('/admin/agenda')}
-            className="font-button text-button text-primary hover:text-primary-active flex items-center gap-1 transition-colors cursor-pointer"
-          >
-            <span>Ver Agenda Completa</span>
-            <span className="material-symbols-outlined text-sm">arrow_forward</span>
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-          {/* Pendientes */}
-          <div className="bg-surface-soft rounded-xl p-4 border-l-4 border-accent-amber shadow-sm">
-            <p className="text-[12px] font-bold text-body-muted uppercase tracking-wider mb-1">Pendientes</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold">{data?.citasHoyPendientes || 0}</p>
-          </div>
-          {/* Confirmadas */}
-          <div className="bg-surface-soft rounded-xl p-4 border-l-4 border-tertiary shadow-sm">
-            <p className="text-[12px] font-bold text-body-muted uppercase tracking-wider mb-1">Confirmadas</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold">{data?.citasHoyConfirmadas || 0}</p>
-          </div>
-          {/* En Proceso */}
-          <div className="bg-surface-soft rounded-xl p-4 border-l-4 border-blue-500 shadow-sm">
-            <p className="text-[12px] font-bold text-body-muted uppercase tracking-wider mb-1">En Proceso</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold">{data?.citasHoyEnProceso || 0}</p>
-          </div>
-          {/* Completadas */}
-          <div className="bg-surface-soft rounded-xl p-4 border-l-4 border-success shadow-sm">
-            <p className="text-[12px] font-bold text-body-muted uppercase tracking-wider mb-1">Completadas</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold">{data?.citasHoyCompletadas || 0}</p>
-          </div>
-          {/* Canceladas */}
-          <div className="bg-surface-soft rounded-xl p-4 border-l-4 border-error shadow-sm">
-            <p className="text-[12px] font-bold text-body-muted uppercase tracking-wider mb-1">Canceladas</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold">{data?.citasHoyCanceladas || 0}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Próximas Citas */}
-      <div className="mt-2">
-        <h2 className="font-display-sm text-display-sm text-ink font-bold mb-4">Próximas Citas (Siguientes horas)</h2>
-        <div className="bg-surface-card rounded-xl overflow-hidden border border-hairline shadow-sm">
-          {data?.proximasCitas && data.proximasCitas.length > 0 ? (
-            <div className="divide-y divide-hairline">
-              {data.proximasCitas.map((cita) => {
-                const isUrgent = cita.estado === 'EnAtencion';
-                const time = new Date(cita.fechaHora).toLocaleTimeString('es-ES', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  hour12: true
-                });
-
-                return (
-                  <div
-                    key={cita.id}
-                    onClick={() => navigate(user?.role === 'Veterinario' ? '/admin/mi-agenda' : `/admin/agenda`)}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-5 hover:bg-surface-soft transition-colors cursor-pointer gap-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-full border border-hairline flex items-center justify-center shrink-0 ${
-                        isUrgent ? 'bg-error-container text-error' : 'bg-surface text-primary'
-                      }`}>
-                        <span className="material-symbols-outlined">
-                          {isUrgent ? 'emergency' : 'pets'}
-                        </span>
-                      </div>
-                      <div>
-                        <h4 className="font-title-md text-title-md text-ink font-bold">{cita.mascotaNombre}</h4>
-                        <p className="font-body-sm text-body-sm text-body-muted mt-0.5">
-                          Propietario: <span className="font-semibold text-ink">{cita.propietarioNombre}</span> • Servicio: <span className="font-semibold text-ink">{cita.servicioNombre}</span>
-                        </p>
-                        <p className="font-body-sm text-body-sm text-body-muted">
-                          Veterinario: <span className="font-semibold">{cita.veterinarioNombre}</span>
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between sm:justify-end gap-6 self-stretch sm:self-auto">
-                      <div className="text-left sm:text-right shrink-0">
-                        <p className="font-title-sm text-title-sm text-ink font-bold">{time}</p>
-                        <span className={`inline-block px-3 py-0.5 rounded-full font-caption text-[11px] font-bold mt-1 shadow-sm ${getStatusBadgeClass(cita.estado)}`}>
-                          {translateStatus(cita.estado)}
-                        </span>
-                      </div>
-                      <span className="material-symbols-outlined text-body-muted">chevron_right</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-12 bg-surface-soft/20 text-body-muted flex flex-col items-center justify-center gap-2">
-              <span className="material-symbols-outlined text-[48px] text-secondary">calendar_today</span>
-              <p className="font-body-md font-semibold">No hay citas programadas para las siguientes horas.</p>
-            </div>
-          )}
-
-          {/* Quick Actions Footer */}
-          <div className="p-4 text-center bg-surface-soft/60 border-t border-hairline flex flex-wrap justify-center gap-4">
-            {(isAdmin || isRecepcionista) && (
-              <button
-                onClick={() => navigate('/admin/agenda/nueva')}
-                className="bg-primary hover:bg-primary-active text-on-primary font-button text-button px-5 py-2 rounded-full transition-all shadow-sm cursor-pointer"
-              >
-                Nueva Cita
-              </button>
-            )}
             <button
               onClick={() => navigate(user?.role === 'Veterinario' ? '/admin/mi-agenda' : '/admin/agenda')}
-              className="bg-transparent border border-outline text-ink hover:bg-surface-card font-button text-button px-5 py-2 rounded-full transition-all cursor-pointer"
+              className="text-[12px] font-bold text-primary hover:underline cursor-pointer"
             >
-              Ver Todas las Citas
+              Ver agenda completa
             </button>
-            {(isAdmin || isRecepcionista) && (
-              <button
-                onClick={() => navigate('/admin/triage')}
-                className="bg-error/10 hover:bg-error/20 text-error font-button text-button px-5 py-2 rounded-full transition-all cursor-pointer border border-error/20"
-              >
-                Triage / Emergencia
-              </button>
+          </div>
+
+          <div className="overflow-x-auto">
+            {data?.proximasCitas && data.proximasCitas.length > 0 ? (
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-surface-soft/40 border-b border-outline-variant/10 font-bold text-[11px] text-outline uppercase tracking-wider">
+                    <th className="py-3 px-6">Paciente</th>
+                    <th className="py-3 px-6">Servicio</th>
+                    <th className="py-3 px-6">Veterinario</th>
+                    <th className="py-3 px-6 text-center">Estado</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant/15 font-body-sm text-[13px] text-body-strong">
+                  {data.proximasCitas.map((cita) => {
+                    const time = new Date(cita.fechaHora).toLocaleTimeString('es-ES', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: true
+                    });
+
+                    return (
+                      <tr
+                        key={cita.id}
+                        onClick={() => navigate(user?.role === 'Veterinario' ? '/admin/mi-agenda' : `/admin/agenda`)}
+                        className="hover:bg-surface-soft/30 transition-colors cursor-pointer group"
+                      >
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-3.5">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/15 shadow-inner">
+                              <span className="material-symbols-outlined text-[20px]">pets</span>
+                            </div>
+                            <div>
+                              <div className="font-bold text-ink text-[14px]">{cita.mascotaNombre}</div>
+                              <div className="text-[11px] text-body-muted mt-0.5">Prop: {cita.propietarioNombre}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 font-medium">
+                          <div>{cita.servicioNombre}</div>
+                          <div className="text-[11px] text-body-muted mt-0.5">{time}</div>
+                        </td>
+                        <td className="py-4 px-6 text-body-muted font-medium">
+                          {cita.veterinarioNombre}
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border shadow-xs ${getStatusBadgeClass(cita.estado)}`}>
+                            {translateStatus(cita.estado)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-16 text-body-muted flex flex-col items-center justify-center gap-2">
+                <span className="material-symbols-outlined text-[44px]">calendar_today</span>
+                <p className="font-body-md font-semibold">No hay citas programadas para las siguientes horas.</p>
+              </div>
             )}
           </div>
         </div>
-      </div>
 
+        {/* Right Column: Strategic Performance Metrics */}
+        <div className="lg:col-span-4 flex flex-col gap-6 w-full">
+          {/* Gauge Performance Card */}
+          <div className="bg-white rounded-[2rem] p-8 border border-outline-variant/20 shadow-xs flex flex-col items-center text-center">
+            <div className="flex justify-between items-center w-full mb-6 pb-2 border-b border-hairline">
+              <h5 className="font-extrabold text-[15px] text-ink">Desempeño Diario</h5>
+              <span className="material-symbols-outlined text-[20px] text-primary">analytics</span>
+            </div>
+            <div className="relative mb-6">
+              <svg className="w-40 h-40 transform -rotate-90" viewBox="0 0 100 100">
+                <circle className="text-surface-container-high" cx="50" cy="50" fill="transparent" r="42" stroke="currentColor" strokeWidth="8" />
+                <circle
+                  className="text-primary transition-all duration-1000 ease-out"
+                  cx="50"
+                  cy="50"
+                  fill="transparent"
+                  r="42"
+                  stroke="currentColor"
+                  strokeWidth="8"
+                  strokeDasharray="264"
+                  strokeDashoffset={strokeDashoffset}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="font-headline-lg text-[36px] text-ink font-extrabold leading-none tracking-tight">
+                  {pctCompletado}%
+                </span>
+                <span className="text-[10px] font-extrabold text-body-muted uppercase tracking-wider mt-1">Completado</span>
+              </div>
+            </div>
+            <div className="w-full">
+              <h5 className="font-bold text-ink text-[16px]">Meta de Hoy</h5>
+              <p className="text-[13px] text-body-muted mt-1.5 font-medium">
+                Se han completado <span className="font-bold text-primary">{data?.citasHoyCompletadas || 0}</span> de <span className="font-bold">{data?.citasHoyTotal || 0}</span> consultas.
+              </p>
+            </div>
+          </div>
+
+          {/* Operational Tip Card */}
+          <div className="bg-[#1a2b29] rounded-[2rem] p-8 text-white relative overflow-hidden group shadow-md">
+            <div className="absolute top-0 right-0 p-6 opacity-5 transform -rotate-12 group-hover:rotate-0 group-hover:scale-110 transition-transform duration-700 ease-out">
+              <span className="material-symbols-outlined text-[100px]">lightbulb</span>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-container/10 to-transparent opacity-50"></div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3.5 mb-5">
+                <div className="bg-primary/20 p-2.5 rounded-xl border border-primary/30">
+                  <span className="material-symbols-outlined text-primary-fixed text-[20px]">bolt</span>
+                </div>
+                <h5 className="font-extrabold text-[12px] tracking-wider text-primary-fixed-dim uppercase">TIP OPERATIVO</h5>
+              </div>
+              <p className="text-[15px] leading-relaxed font-medium text-white/90">
+                "El inventario de vacunas quíntuples está en su nivel mínimo sugerido. Considera realizar un pedido antes del cierre de hoy."
+              </p>
+              <div className="mt-8 flex items-center justify-between pt-5 border-t border-white/10 text-[12px] text-white/40 font-extrabold uppercase tracking-wider">
+                <span>Prioridad: Media</span>
+                {(isAdmin || isRecepcionista) && (
+                  <button
+                    onClick={() => navigate('/admin/reportes')}
+                    className="text-[#4fd1c5] hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
+                  >
+                    Gestionar <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

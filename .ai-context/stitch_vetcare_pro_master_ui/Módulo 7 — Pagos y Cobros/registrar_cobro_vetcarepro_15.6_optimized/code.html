@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCarePro - Registrar Cobro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#181c1e",
+                        "outline": "#6c7a77",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "secondary": "#555f71",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7fafc",
+                        "secondary-fixed": "#d9e3f9",
+                        "tertiary-fixed": "#ffdcc4",
+                        "outline-variant": "#bbc9c7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#121c2c",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7fafc",
+                        "tertiary-container": "#ffab67",
+                        "on-tertiary-container": "#773d00",
+                        "on-surface": "#181c1e",
+                        "surface-container": "#ebeef0",
+                        "on-secondary-container": "#596376",
+                        "tertiary": "#8e4e11",
+                        "on-primary-fixed-variant": "#00504a",
+                        "primary": "#006a63",
+                        "on-surface-variant": "#3c4947",
+                        "inverse-primary": "#5adace",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d7dadc",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#006a63",
+                        "surface-container-high": "#e5e9eb",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "secondary-container": "#d6e0f6",
+                        "on-primary-container": "#005750",
+                        "primary-fixed": "#79f7ea",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#4fd1c5",
+                        "surface-bright": "#f7fafc",
+                        "on-primary-fixed": "#00201d",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eef1f3",
+                        "surface-container-low": "#f1f4f6",
+                        "primary-fixed-dim": "#5adace",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "base-unit": "8px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        /* Ambient shadow for cards */
+        .ambient-shadow {
+            box-shadow: 0 4px 15px rgba(45, 55, 72, 0.05);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f4f6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #bbc9c7;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6c7a77;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-64 py-8 px-4 gap-2 bg-surface-container-low dark:bg-surface-container-lowest fixed left-0 top-0">
+<!-- Header -->
+<div class="flex items-center gap-4 mb-8 px-2">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="A minimalist, soft-style logo for a veterinary clinic. The design features a stylized, gentle pet silhouette (like a dog and cat) intertwined, rendered in calming teal and light blue colors on a pristine white background. The overall aesthetic is clean, professional, and nurturing, perfect for a high-end medical app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFUxLgcEJW1_8HC6d4vXjYJDZmC1ni5isyFkF0Sog7OeK_7Rs2IYIQF_J-j8CwhDGkiEUVued6uwdPar_rQyexBxVyo1W3bM5xnLpIrYcvCJXdEN2FPltjGeusKImL30gTXRdG9ZA4aozIiM96K-DzKe-oo1dhg37urHib-FgAt_Ph2Qw-8mhnHv8ZESlLZKnQisGl2bk_keTbtBka9OWh0pAlscyoRfkaliGREwVbveAknVyBfrhcvA"/>
+<div>
+<h1 class="text-headline-md font-headline-md text-primary font-bold">VetCarePro</h1>
+<p class="text-label-sm font-label-sm text-on-surface-variant">Veterinary Excellence</p>
+</div>
+</div>
+<!-- Main Navigation -->
+<div class="flex flex-col gap-2 flex-grow">
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-label-md font-label-md">Clients</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="text-label-md font-label-md">Pets</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="text-label-md font-label-md">Appointments</span>
+</a>
+<!-- Active (Finances match intent for payment capture) -->
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold bg-secondary-container/30 dark:bg-secondary-container/10 rounded-lg transition-transform duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined fill" data-icon="payments" data-weight="fill">payments</span>
+<span class="text-label-md font-label-md">Finances</span>
+</a>
+<!-- Inactive -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="text-label-md font-label-md">Services</span>
+</a>
+</div>
+<!-- Footer Navigation -->
+<div class="flex flex-col gap-2 mt-auto border-t border-outline-variant/30 pt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="text-label-md font-label-md">Help Center</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant dark:text-outline hover:text-primary hover:bg-surface-container-high transition-all duration-200 active:scale-95 cursor-pointer" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="text-label-md font-label-md">Log Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-64 flex flex-col h-screen overflow-hidden bg-surface">
+<!-- TopNavBar (Mobile Only for navigation shell layout, but keeping standard structure for desktop contextual header) -->
+<header class="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full h-16 bg-surface dark:bg-surface-container shadow-sm z-10">
+<div class="flex items-center gap-2">
+<button class="md:hidden p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full transition-colors cursor-pointer">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Breadcrumb context instead of brand on desktop when in side nav -->
+<div class="hidden md:flex items-center gap-2 text-on-surface-variant">
+<span class="text-label-md font-label-md">Finances</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="text-label-md font-label-md font-bold text-primary">Registrar Cobro</span>
+</div>
+<h1 class="md:hidden text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">VetCarePro</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container-low dark:hover:bg-surface-variant transition-colors rounded-full cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<img alt="Veterinarian Profile" class="w-8 h-8 rounded-full border border-outline-variant/30 ml-2 object-cover" data-alt="A professional headshot of a gentle, smiling veterinarian in teal scrubs, set against a bright, airy clinic background. High-key lighting, soft focus, minimal background distractions to emphasize trust and medical professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2dSja2Dp41q9LY0dQPBJK890ZcUxGBX8oMQB8dvd4uUeQgvDkpenKBOeWZgz4oLwc8iBQzZBWtX6PxsiE0S2W2revkGwQLJ8lXCkkgAjRokN23svGcCK2o5Zyhy7Zwj1HNV-dcGhcUYpK2IM4OJjZZa9m_1QBviJTTnn9HDt_ZWtYJKaRic0bT2u3PgDDlcTKoCr3HEyOahSkHoLHPo4vcC6qyAERLH5YkGAgWRTc8js-RxfuBxcRGw"/>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<div class="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop">
+<div class="max-w-container-max-width mx-auto">
+<!-- Page Title Area -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+<div>
+<h2 class="text-headline-lg-mobile md:text-headline-lg font-headline-lg text-on-background">Registrar Cobro</h2>
+<p class="text-body-md font-body-md text-on-surface-variant mt-1">Complete details to process payment for completed services.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container hover:bg-surface-container-high text-primary rounded-lg text-label-md font-label-md transition-colors border border-outline-variant/30 shadow-sm ambient-shadow">
+<span class="material-symbols-outlined text-sm">picture_as_pdf</span>
+                            Generar PDF
+                        </button>
+</div>
+</div>
+<!-- Main Layout Grid (Bento style) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Left Column: Summary Info (4 columns) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- Appointment Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow border border-surface-variant/50 relative overflow-hidden">
+<!-- Decorative accent line -->
+<div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+<h3 class="text-headline-md font-headline-md text-on-background mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">receipt_long</span>
+                                Resumen
+                            </h3>
+<div class="space-y-4">
+<!-- Patient Info -->
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A close-up, soft-focus photo of a friendly golden retriever looking attentive. The background is a clean, bright, light-teal veterinary clinic setting. The lighting is warm and natural, evoking a sense of calm and care typical of a premium medical app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRm3n8o-3_4z48LmoN0jEUxg-QA5IgVYixyHOZtyP_wNd9H0zLVKasR0tFFzKLKbwqAWEXUqzgiUWhE8CcAlcOZYbR_iA9-cn8DI3oa1nX9Madnuasz3H4-KD4hCetD6K1QILVpwUCoLLKmkB6RWl5-CERJAHXd5oWIpbCYSm7MabursbJca5zNlbEIkLXijjG628CYXck94Q641S8n1eoE8wg98lmRgtBwMXe5hm2oID6JxyqrXPPig"/>
+</div>
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider">Paciente</p>
+<p class="text-body-lg font-body-lg font-semibold text-on-background">Max</p>
+<p class="text-label-md font-label-md text-secondary">Golden Retriever • 4 años</p>
+</div>
+</div>
+<hr class="border-t border-surface-variant"/>
+<!-- Owner Info -->
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Propietario</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">person</span>
+<p class="text-body-md font-body-md text-on-background font-medium">Carlos Mendoza</p>
+</div>
+</div>
+<!-- Service Info -->
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Servicio</p>
+<div class="flex flex-wrap gap-2 mt-1">
+<span class="px-3 py-1 bg-[#e6fffa] text-primary rounded-full text-label-sm font-label-sm font-semibold">Consulta General</span>
+<span class="px-3 py-1 bg-[#e6fffa] text-primary rounded-full text-label-sm font-label-sm font-semibold">Vacunación Múltiple</span>
+</div>
+</div>
+<!-- Vet Info -->
+<div>
+<p class="text-label-sm font-label-sm text-on-surface-variant uppercase tracking-wider mb-1">Atendido por</p>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">stethoscope</span>
+<p class="text-body-md font-body-md text-on-background">Dr. Ana Silva</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Financial Totals Card -->
+<div class="bg-primary text-on-primary rounded-xl p-6 shadow-md relative overflow-hidden">
+<!-- Subtle background pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;"></div>
+<div class="relative z-10">
+<div class="flex justify-between items-center mb-2">
+<p class="text-body-md font-body-md opacity-90">Precio Base Sugerido</p>
+<p class="text-body-lg font-body-lg">$120.00</p>
+</div>
+<div class="flex justify-between items-center mb-6">
+<p class="text-body-md font-body-md opacity-90">Descuentos</p>
+<p class="text-body-lg font-body-lg">-$0.00</p>
+</div>
+<hr class="border-t border-on-primary/20 mb-4"/>
+<div class="flex justify-between items-end">
+<p class="text-body-lg font-body-lg font-medium">Saldo Actual</p>
+<p class="text-[32px] leading-none font-bold">$120.00</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Payment Form (8 columns) -->
+<div class="lg:col-span-8">
+<div class="bg-surface-container-lowest rounded-xl p-8 ambient-shadow border border-surface-variant/50">
+<h3 class="text-headline-md font-headline-md text-on-background mb-6">Detalles del Pago</h3>
+<form class="space-y-6">
+<!-- Amount and Method Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Amount Input -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface" for="amount">Monto final a cobrar <span class="text-error">*</span></label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined">attach_money</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-lg font-body-lg text-on-background placeholder:text-outline-variant" id="amount" required="" step="0.01" type="number" value="120.00"/>
+</div>
+</div>
+<!-- Payment Method Dropdown -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface" for="payment-method">Método de pago <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full pl-4 pr-10 py-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-md font-body-md text-on-background appearance-none cursor-pointer" id="payment-method" required="">
+<option disabled="" value="">Seleccione método</option>
+<option value="efectivo">Efectivo</option>
+<option selected="" value="tarjeta">Tarjeta (Débito/Crédito)</option>
+<option value="transferencia">Transferencia Bancaria</option>
+<option value="wallet">Billetera Digital (Wallet)</option>
+</select>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined pointer-events-none">expand_more</span>
+</div>
+<p class="text-label-sm font-label-sm text-outline mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+                                            PCI Compliant: No ingrese dígitos de tarjeta.
+                                        </p>
+</div>
+</div>
+<!-- Operation Number -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface" for="operation-number">Número de operación <span class="text-outline font-normal">(Opcional)</span></label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant material-symbols-outlined">tag</span>
+<input class="w-full pl-12 pr-4 py-3 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-md font-body-md text-on-background placeholder:text-outline-variant" id="operation-number" placeholder="Ej: 987654321" type="text"/>
+</div>
+<p class="text-label-sm font-label-sm text-outline mt-1">Requerido para transferencias y billeteras digitales.</p>
+</div>
+<!-- Observation Textarea -->
+<div class="flex flex-col gap-2">
+<label class="text-label-md font-label-md text-on-surface flex justify-between" for="observation">
+<span>Observación</span>
+<span class="text-error font-normal text-label-sm" id="observation-req" style="display:none;">Requerido por cambio de precio</span>
+</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors text-body-md font-body-md text-on-background resize-none placeholder:text-outline-variant" id="observation" placeholder="Agregue notas sobre el cobro (ej: descuento por cliente frecuente...)" rows="3"></textarea>
+</div>
+<!-- Divider -->
+<hr class="border-t border-surface-variant my-8"/>
+<!-- Action Buttons -->
+<div class="flex flex-col sm:flex-row gap-4 justify-end pt-2">
+<button class="px-6 py-3 rounded-lg border border-outline text-secondary hover:bg-surface-container-low hover:text-on-surface font-label-md text-label-md transition-colors duration-200 order-2 sm:order-1 h-12" type="button">
+                                        Cancelar
+                                    </button>
+<button class="px-6 py-3 rounded-lg bg-secondary-container text-on-secondary-container hover:bg-secondary-fixed font-label-md text-label-md transition-colors duration-200 shadow-sm order-1 sm:order-2 h-12 flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">pie_chart</span>
+                                        Registrar Pago Parcial
+                                    </button>
+<button class="px-8 py-3 rounded-lg bg-primary text-on-primary hover:bg-surface-tint hover:shadow-md font-label-md text-label-md transition-all duration-200 order-0 sm:order-3 h-12 flex items-center justify-center gap-2" type="button">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+                                        Registrar Pago Total
+                                    </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple interaction script to show requirement logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const amountInput = document.getElementById('amount');
+            const obsReqLabel = document.getElementById('observation-req');
+            const observationInput = document.getElementById('observation');
+            const basePrice = 120.00;
+
+            amountInput.addEventListener('input', (e) => {
+                const currentVal = parseFloat(e.target.value);
+                if (currentVal !== basePrice && !isNaN(currentVal)) {
+                    obsReqLabel.style.display = 'inline';
+                    observationInput.setAttribute('required', 'true');
+                    observationInput.classList.add('border-error');
+                } else {
+                    obsReqLabel.style.display = 'none';
+                    observationInput.removeAttribute('required');
+                    observationInput.classList.remove('border-error');
+                }
+            });
+        });
+    </script>
+</body></html>

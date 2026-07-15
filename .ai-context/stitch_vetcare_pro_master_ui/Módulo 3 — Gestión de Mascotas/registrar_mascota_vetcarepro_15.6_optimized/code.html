@@ -1,0 +1,345 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>VetCarePro - Registrar Mascota</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f7fafc",
+                    "surface-tint": "#006a63",
+                    "on-primary-fixed": "#00201d",
+                    "surface": "#f7fafc",
+                    "on-tertiary": "#ffffff",
+                    "surface-dim": "#d7dadc",
+                    "on-secondary-fixed": "#121c2c",
+                    "inverse-on-surface": "#eef1f3",
+                    "secondary-container": "#d6e0f6",
+                    "surface-container-low": "#f1f4f6",
+                    "outline": "#6c7a77",
+                    "error": "#ba1a1a",
+                    "surface-container-lowest": "#ffffff",
+                    "inverse-surface": "#2d3133",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#3d4759",
+                    "outline-variant": "#bbc9c7",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#3c4947",
+                    "primary": "#006a63",
+                    "on-tertiary-fixed-variant": "#6f3800",
+                    "on-secondary-container": "#596376",
+                    "secondary-fixed": "#d9e3f9",
+                    "on-primary-container": "#005750",
+                    "inverse-primary": "#5adace",
+                    "on-primary-fixed-variant": "#00504a",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "secondary": "#555f71",
+                    "on-background": "#181c1e",
+                    "surface-container": "#ebeef0",
+                    "primary-fixed-dim": "#5adace",
+                    "on-primary": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-high": "#e5e9eb",
+                    "secondary-fixed-dim": "#bdc7dc",
+                    "tertiary-container": "#ffab67",
+                    "primary-container": "#4fd1c5",
+                    "surface-container-highest": "#e0e3e5",
+                    "primary-fixed": "#79f7ea",
+                    "on-surface": "#181c1e",
+                    "tertiary": "#8e4e11",
+                    "tertiary-fixed-dim": "#ffb77f",
+                    "tertiary-fixed": "#ffdcc4",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-tertiary-container": "#773d00",
+                    "background": "#f7fafc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "40px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px",
+                    "container-max-width": "1200px",
+                    "base-unit": "8px"
+            },
+            "fontFamily": {
+                    "headline-lg-mobile": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "headline-lg": ["Quicksand"],
+                    "label-sm": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "body-md": ["Quicksand"]
+            },
+            "fontSize": {
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .icon-fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        .form-input-focus:focus-within {
+            border-color: #006a63;
+            box-shadow: 0 0 0 1px #006a63;
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 15px rgba(45, 55, 72, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-low h-screen w-64 flex flex-col fixed left-0 top-0 hidden md:flex z-20">
+<div class="flex flex-col h-full py-6 px-4">
+<!-- Brand -->
+<div class="flex items-center gap-3 px-4 mb-8">
+<span class="material-symbols-outlined text-primary text-3xl icon-fill">pets</span>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">VetCarePro</h1>
+<p class="font-label-sm text-label-sm text-secondary">City Vet Center</p>
+</div>
+</div>
+<!-- Nav Links -->
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">group</span>
+                    Clients
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container text-on-secondary-container rounded-lg font-label-md text-label-md font-semibold" href="#">
+<span class="material-symbols-outlined icon-fill">pets</span>
+                    Pets
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">event</span>
+                    Appointments
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">payments</span>
+                    Finances
+                </a>
+</div>
+<!-- Footer Nav -->
+<div class="mt-auto space-y-2 pt-4 border-t border-surface-variant">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">settings</span>
+                    Settings
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary hover:bg-surface-container-high transition-colors rounded-lg font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined">contact_support</span>
+                    Support
+                </a>
+</div>
+<!-- User Profile -->
+<div class="mt-4 flex items-center gap-3 px-4 py-3 bg-surface-container rounded-lg">
+<img class="w-10 h-10 rounded-full object-cover border border-outline-variant" data-alt="A small circular profile picture of a female veterinary clinic administrator with a warm smile, wearing a light blue scrub top, set against a bright, minimalist clinic background. The lighting is soft and professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8jzqz7Y4cm3iB-oQiNJycnm-RXCWaVzezRHTZzeyl3GVqxrSLWYM4ljogZfk4MjRP6yFWxzsqbWllw5t4Dg90-_8x-Dzwj88lnV_jxcF0jqyEqC0Mpd3JdRZpiqZDHxUyQDdfUVt1Ekplqx40-0aPcZ-ZN6MLtlenmnlylxZdmuPHBbtyBE4Cql02OUh5DQr2zO-554WBWcbHlqfi-fBcfcobZ8KbbXf4cut6M6H_nKxnM4XMLKw_dw">
+<div>
+<p class="font-label-md text-label-md text-on-surface">Admin User</p>
+<p class="font-label-sm text-label-sm text-secondary">Clinic Administrator</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-surface docked full-width top-0 sticky shadow-sm z-10 hidden md:block">
+<div class="flex justify-between items-center h-16 px-margin-desktop w-full">
+<div class="flex items-center gap-4">
+<button class="md:hidden p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all duration-200">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary">Registrar Mascota</h2>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all duration-200">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all duration-200 relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-surface-container rounded-full transition-all duration-200">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop max-w-container-max-width mx-auto w-full">
+<div class="mb-8">
+<nav class="flex items-center gap-2 text-secondary font-label-sm text-label-sm mb-2">
+<a class="hover:text-primary transition-colors" href="#">Pets</a>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-on-surface">Registrar Mascota</span>
+</nav>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">New Pet Registration</h1>
+<p class="font-body-md text-body-md text-secondary mt-1">Enter the details for the new animal to add them to the clinic's records.</p>
+</div>
+<!-- Form Container -->
+<form class="bg-surface-container-lowest rounded-xl ambient-shadow overflow-hidden">
+<!-- Mandatory Client Assignment Section -->
+<div class="p-8 border-b border-surface-variant bg-surface-bright">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container text-on-error-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined icon-fill">person_alert</span>
+</div>
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1 flex items-center gap-2">
+                                Client Assignment <span class="text-error">*</span>
+</h3>
+<p class="font-body-md text-body-md text-secondary mb-6">A pet must be linked to a responsible client. Search and select an existing client.</p>
+<div class="relative max-w-xl">
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="client-search">Client Responsible</label>
+<div class="relative form-input-focus rounded-lg border border-outline-variant bg-surface overflow-hidden flex items-center px-4 transition-colors">
+<span class="material-symbols-outlined text-outline mr-2">search</span>
+<input class="w-full py-3 bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md placeholder:text-outline-variant" id="client-search" placeholder="Search by name, phone, or ID..." required="" type="text">
+</div>
+<p class="font-label-sm text-label-sm text-error mt-2 hidden" id="client-error">Please select a valid client from the list.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Pet Details Section -->
+<div class="p-8 space-y-8">
+<div>
+<h3 class="font-body-lg text-body-lg text-primary mb-6 flex items-center gap-2 border-b border-surface-variant pb-2">
+<span class="material-symbols-outlined">info</span>
+                            Basic Information
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Name -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-name">Name <span class="text-error">*</span></label>
+<input class="w-full rounded-lg border border-outline-variant bg-surface py-3 px-4 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" id="pet-name" placeholder="e.g. Bella" required="" type="text">
+</div>
+<!-- Species -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-species">Species <span class="text-error">*</span></label>
+<div class="relative">
+<select class="w-full appearance-none rounded-lg border border-outline-variant bg-surface py-3 pl-4 pr-10 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none cursor-pointer" id="pet-species" required="">
+<option disabled="" selected="" value="">Select species</option>
+<option value="dog">Dog</option>
+<option value="cat">Cat</option>
+<option value="bird">Bird</option>
+<option value="reptile">Reptile</option>
+<option value="small_mammal">Small Mammal</option>
+<option value="other">Other</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">expand_more</span>
+</div>
+</div>
+<!-- Breed -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-breed">Breed</label>
+<input class="w-full rounded-lg border border-outline-variant bg-surface py-3 px-4 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" id="pet-breed" placeholder="e.g. Golden Retriever" type="text">
+</div>
+<!-- Color -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-color">Color / Markings</label>
+<input class="w-full rounded-lg border border-outline-variant bg-surface py-3 px-4 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none" id="pet-color" placeholder="e.g. Black with white paws" type="text">
+</div>
+</div>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-primary mb-6 flex items-center gap-2 border-b border-surface-variant pb-2">
+<span class="material-symbols-outlined">vital_signs</span>
+                            Physical Profile
+                        </h3>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Sex -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-3">Sex <span class="text-error">*</span></label>
+<div class="flex gap-4">
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 text-primary border-outline-variant focus:ring-primary focus:ring-offset-surface bg-surface cursor-pointer" name="pet-sex" required="" type="radio" value="male">
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Male</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="w-5 h-5 text-primary border-outline-variant focus:ring-primary focus:ring-offset-surface bg-surface cursor-pointer" name="pet-sex" type="radio" value="female">
+<span class="font-body-md text-body-md text-on-surface group-hover:text-primary transition-colors">Female</span>
+</label>
+</div>
+</div>
+<!-- DOB -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-dob">Date of Birth (Approx.)</label>
+<div class="relative">
+<input class="w-full rounded-lg border border-outline-variant bg-surface py-3 pl-4 pr-10 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none cursor-pointer" id="pet-dob" type="date">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline pointer-events-none">calendar_today</span>
+</div>
+</div>
+<!-- Weight -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-weight">Initial Weight</label>
+<div class="relative form-input-focus rounded-lg border border-outline-variant bg-surface overflow-hidden flex items-center pr-4 transition-colors">
+<input class="w-full py-3 px-4 bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md" id="pet-weight" placeholder="0.0" step="0.1" type="number">
+<span class="font-label-md text-label-md text-secondary shrink-0">kg</span>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-primary mb-6 flex items-center gap-2 border-b border-surface-variant pb-2">
+<span class="material-symbols-outlined">medical_information</span>
+                            Medical Notes
+                        </h3>
+<div class="space-y-6">
+<!-- Allergies -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-allergies">Known Allergies</label>
+<div class="relative form-input-focus rounded-lg border border-outline-variant bg-surface overflow-hidden flex items-start p-3 transition-colors">
+<span class="material-symbols-outlined text-outline mr-2 mt-0.5">warning</span>
+<textarea class="w-full bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md resize-none" id="pet-allergies" placeholder="List any known food or medication allergies..." rows="2"></textarea>
+</div>
+</div>
+<!-- Observations -->
+<div>
+<label class="block font-label-md text-label-md text-on-surface mb-2" for="pet-observations">General Observations</label>
+<textarea class="w-full rounded-lg border border-outline-variant bg-surface p-4 font-body-md text-body-md text-on-surface focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none resize-y" id="pet-observations" placeholder="Behavioral notes, pre-existing conditions, or general remarks..." rows="4"></textarea>
+</div>
+</div>
+</div>
+</div>
+<!-- Form Actions -->
+<div class="p-6 border-t border-surface-variant bg-surface flex justify-end gap-4 items-center">
+<button class="px-6 h-12 rounded-lg font-label-md text-label-md text-secondary hover:bg-surface-container-high transition-colors focus:ring-2 focus:ring-outline outline-none" type="button">
+                        Cancel
+                    </button>
+<button class="px-8 h-12 rounded-lg font-label-md text-label-md bg-primary text-on-primary hover:bg-on-primary-container transition-colors shadow-sm focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface outline-none flex items-center gap-2" type="submit">
+<span class="material-symbols-outlined text-[20px]">save</span>
+                        Save Pet
+                    </button>
+</div>
+</form>
+</main>
+</div>
+</body></html>

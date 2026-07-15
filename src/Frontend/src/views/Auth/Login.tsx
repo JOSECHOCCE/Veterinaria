@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import loginHero from '../../assets/login-hero.png';
 
 export default function Login() {
   const { login } = useAuth();
@@ -28,36 +29,24 @@ export default function Login() {
     }
   };
 
-  const inputBase: React.CSSProperties = {
-    width: '100%',
-    padding: '9px 12px 9px 40px',
-    border: '1px solid #e6dfd8',
-    backgroundColor: '#faf9f5',
-    fontSize: '14px',
-    color: '#141413',
-    borderRadius: '4px',
-    outline: 'none',
-    boxSizing: 'border-box',
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: '#faf9f5', fontFamily: 'Inter, sans-serif', position: 'relative' }}
+      className="flex h-screen overflow-hidden bg-canvas font-title-sm relative"
     >
       {/* Background animado */}
       <motion.div
         animate={{
           background: [
-            'radial-gradient(circle at 20% 50%, rgba(204, 120, 92, 0.03) 0%, transparent 50%)',
-            'radial-gradient(circle at 80% 50%, rgba(204, 120, 92, 0.03) 0%, transparent 50%)',
-            'radial-gradient(circle at 20% 50%, rgba(204, 120, 92, 0.03) 0%, transparent 50%)',
+            'radial-gradient(circle at 20% 50%, rgba(0, 106, 99, 0.02) 0%, transparent 50%)',
+            'radial-gradient(circle at 80% 50%, rgba(0, 106, 99, 0.02) 0%, transparent 50%)',
+            'radial-gradient(circle at 20% 50%, rgba(0, 106, 99, 0.02) 0%, transparent 50%)',
           ],
         }}
         transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
-        style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
+        className="absolute inset-0 pointer-events-none"
       />
 
       {/* Panel izquierdo — imagen */}
@@ -65,27 +54,26 @@ export default function Login() {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        style={{ display: 'none', position: 'relative', flex: '0 0 50%' }} 
-        className="lg-image-panel"
+        className="hidden lg:block relative flex-[0_0_50%] overflow-hidden lg-image-panel"
       >
         <motion.img
           alt="Clínica veterinaria VetCare Pro"
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
           transition={{ duration: 1.2, ease: 'easeOut' }}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLn0Pn2ZOZ-n7ij-V9klJiWe-AnBBH7uLJDbnVa5MNOfQI-swW-C1AzB1jIMHTXUFNJApUlJjcnpEQMv7jDs6BLXVv-CuIyR3vvk1mzULo_cS_lbCcP8ODnnXVRvLIJpsQJy0L0SODMldQvDqAIYeDpnHIBZr5xhfKYHkf72T643eClVj_0rRom34LIi-qJpa6_JzNOzpy8nWBt_nqN9V82MbLG3FsIlXLG4_U9FO6AfYexUoc3ixYS4CaFvhfK2L-XYsM39MAqY0"
+          className="absolute inset-0 w-full h-full object-cover object-center"
+          src={loginHero}
         />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,0.2), transparent)' }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent to-canvas/10" />
       </motion.div>
 
       {/* Panel derecho — formulario */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 32px', overflow: 'hidden', position: 'relative', zIndex: 1 }}>
+      <div className="flex-1 flex items-center justify-center px-8 overflow-hidden relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          style={{ width: '100%', maxWidth: '360px', display: 'flex', flexDirection: 'column', gap: '20px' }}
+          className="w-full max-w-[360px] flex flex-col gap-5"
         >
 
           {/* Logo */}
@@ -93,13 +81,13 @@ export default function Login() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            className="flex items-center gap-2"
           >
-            <svg viewBox="0 0 24 24" style={{ width: '28px', height: '28px', fill: '#cc785c' }}>
+            <svg viewBox="0 0 24 24" className="w-7 h-7 fill-primary">
               <path d="M4.5 11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm15 0a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-7.5-1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm-3.5 2c-2.5 0-7 1.5-7 4v1h14v-1c0-2.5-4.5-4-7-4zm7 0c-.3 0-.6 0-1 .1 1.2.9 2 2 2 2.9v1h6v-1c0-2.5-3.5-4-7-4z" />
             </svg>
-            <span style={{ fontFamily: 'Georgia, serif', fontSize: '24px', color: '#141413', letterSpacing: '-0.3px' }}>
-              VetCare <span style={{ color: '#cc785c', fontWeight: 700, fontStyle: 'italic' }}>Pro</span>
+            <span className="font-display-md text-title-md text-ink tracking-tight font-medium">
+              VetCare <span className="text-primary font-bold italic">Pro</span>
             </span>
           </motion.div>
 
@@ -109,10 +97,10 @@ export default function Login() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
           >
-            <h1 style={{ fontFamily: 'Georgia, serif', fontSize: '30px', fontWeight: 400, lineHeight: 1.1, color: '#141413', margin: '0 0 6px' }}>
+            <h1 className="font-display-lg text-[30px] font-normal leading-tight text-ink mb-1.5">
               Iniciar sesión
             </h1>
-            <p style={{ fontSize: '13px', color: '#3d3d3a', lineHeight: 1.5, margin: 0 }}>
+            <p className="text-[13px] text-body-muted leading-relaxed">
               Bienvenido de nuevo a VetCare Pro. Introduce tus credenciales para acceder.
             </p>
           </motion.div>
@@ -129,11 +117,11 @@ export default function Login() {
                   transition: { duration: 0.3 }
                 }}
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', padding: '10px 12px', borderRadius: '6px', backgroundColor: '#ffdad6', color: '#93000a', fontSize: '13px' }}
+                className="flex items-start gap-2 p-2.5 rounded bg-error-container text-error text-[13px]"
               >
-              <svg style={{ width: '16px', height: '16px', flexShrink: 0, marginTop: '1px' }} fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clipRule="evenodd" />
-              </svg>
+                <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" clipRule="evenodd" />
+                </svg>
                 <motion.span
                   animate={{ x: [0, -5, 5, -5, 5, 0] }}
                   transition={{ duration: 0.4 }}
@@ -150,7 +138,7 @@ export default function Login() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             onSubmit={handleSubmit} 
-            style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+            className="flex flex-col gap-3.5"
           >
 
             {/* Email */}
@@ -158,13 +146,13 @@ export default function Login() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.7 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+              className="flex flex-col gap-1"
             >
-              <label htmlFor="email" style={{ fontSize: '13px', fontWeight: 500, color: '#141413' }}>
+              <label htmlFor="email" className="text-[13px] font-medium text-ink">
                 Correo electrónico
               </label>
-              <div style={{ position: 'relative' }}>
-                <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#87736d', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-body-muted/60 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                 </svg>
                 <input
@@ -172,9 +160,7 @@ export default function Login() {
                   placeholder="doctor@vetcarepro.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={inputBase}
-                  onFocus={(e) => { e.target.style.borderColor = '#cc785c'; e.target.style.boxShadow = '0 0 0 1px #cc785c'; }}
-                  onBlur={(e) => { e.target.style.borderColor = '#e6dfd8'; e.target.style.boxShadow = 'none'; }}
+                  className="block w-full pl-10 pr-3 py-[9px] border border-hairline rounded bg-canvas text-ink text-[14px] placeholder:text-body-muted/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-150"
                 />
               </div>
             </motion.div>
@@ -184,18 +170,18 @@ export default function Login() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.4, delay: 0.8 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}
+              className="flex flex-col gap-1"
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <label htmlFor="password" style={{ fontSize: '13px', fontWeight: 500, color: '#141413' }}>
+              <div className="flex justify-between items-center">
+                <label htmlFor="password" className="text-[13px] font-medium text-ink">
                   Contraseña
                 </label>
-                <a href="#" style={{ fontSize: '12px', color: '#cc785c', textDecoration: 'none' }}>
+                <a href="#" className="text-[12px] text-primary hover:text-primary-active transition-colors">
                   ¿Olvidó su contraseña?
                 </a>
               </div>
-              <div style={{ position: 'relative' }}>
-                <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '18px', height: '18px', color: '#87736d', pointerEvents: 'none' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <div className="relative">
+                <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-body-muted/60 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z" />
                 </svg>
                 <input
@@ -203,9 +189,7 @@ export default function Login() {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  style={inputBase}
-                  onFocus={(e) => { e.target.style.borderColor = '#cc785c'; e.target.style.boxShadow = '0 0 0 1px #cc785c'; }}
-                  onBlur={(e) => { e.target.style.borderColor = '#e6dfd8'; e.target.style.boxShadow = 'none'; }}
+                  className="block w-full pl-10 pr-10 py-[9px] border border-hairline rounded bg-canvas text-ink text-[14px] placeholder:text-body-muted/50 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none transition-all duration-150"
                 />
               </div>
             </motion.div>
@@ -215,15 +199,15 @@ export default function Login() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.9 }}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+              className="flex items-center gap-2"
             >
               <input
                 id="remember" type="checkbox" name="remember"
                 checked={remember}
                 onChange={(e) => setRemember(e.target.checked)}
-                style={{ width: '15px', height: '15px', accentColor: '#cc785c', cursor: 'pointer' }}
+                className="w-[15px] h-[15px] accent-primary cursor-pointer border border-hairline rounded bg-canvas"
               />
-              <label htmlFor="remember" style={{ fontSize: '13px', color: '#3d3d3a', cursor: 'pointer', userSelect: 'none' }}>
+              <label htmlFor="remember" className="text-[13px] text-body-muted cursor-pointer user-select-none">
                 Mantener sesión iniciada
               </label>
             </motion.div>
@@ -235,26 +219,14 @@ export default function Login() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 1 }}
-              style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '11px 24px', backgroundColor: '#cc785c', color: '#ffffff', fontSize: '14px', fontWeight: 500, border: 'none', borderRadius: '4px', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px', transition: 'background-color 0.15s, box-shadow 0.2s', boxShadow: '0 2px 8px rgba(204, 120, 92, 0.2)' }}
-              onMouseEnter={(e) => { 
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = '#924a31'; 
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(204, 120, 92, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => { 
-                if (!loading) {
-                  e.currentTarget.style.backgroundColor = '#cc785c'; 
-                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(204, 120, 92, 0.2)';
-                }
-              }}
+              className="w-full display-flex justify-center items-center gap-2 py-2.5 px-6 bg-primary hover:bg-primary-active text-white text-[14px] font-medium border-0 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-70 mt-1 shadow-md transition-all duration-150"
             >
               {loading ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="flex items-center justify-center gap-2">
                   <motion.svg
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                    style={{ width: '16px', height: '16px' }} 
+                    className="w-4 h-4"
                     fill="none" 
                     stroke="currentColor" 
                     strokeWidth={2} 
@@ -265,12 +237,12 @@ export default function Login() {
                   Iniciando sesión...
                 </div>
               ) : (
-                <>
-                  Iniciar sesión
-                  <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <div className="flex items-center justify-center gap-2 w-full">
+                  <span>Iniciar sesión</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                   </svg>
-                </>
+                </div>
               )}
             </motion.button>
           </motion.form>
@@ -280,16 +252,14 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 1.1 }}
-            style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', paddingTop: '16px', borderTop: '1px solid #e6dfd8' }}
+            className="flex flex-col items-center gap-2.5 pt-4 border-t border-hairline"
           >
-            <p style={{ fontSize: '13px', color: '#3d3d3a', margin: 0 }}>
+            <p className="text-[13px] text-body-muted margin-0">
               ¿No tiene una cuenta para su clínica?
             </p>
             <Link
               to="/register"
-              style={{ textAlign: 'center', width: '100%', borderRadius: '4px', fontSize: '13px', fontWeight: 500, color: '#141413', border: '1px solid #c0b8b0', padding: '10px 24px', textDecoration: 'none', display: 'block', boxSizing: 'border-box', transition: 'background-color 0.15s' }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f5f0e8'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
+              className="text-center w-full rounded text-[13px] font-medium text-ink border border-hairline hover:bg-surface-soft py-2.5 px-6 no-underline block box-border transition-colors duration-150"
             >
               Registro de cliente
             </Link>
@@ -300,7 +270,7 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 1.2 }}
-            style={{ textAlign: 'center', fontSize: '11px', color: '#87736d', margin: 0 }}
+            className="text-center text-[11px] text-body-muted margin-0"
           >
             © 2024 VetCare Pro. Dedicated to Clinical Excellence.
           </motion.p>

@@ -127,34 +127,49 @@ export default function ReporteCitas() {
     }
   };
 
+  // Cálculo de KPIs dinámicos
+  const totalCitas = reporteData?.totalCitas || 0;
+  const pctEfectividad = totalCitas ? ((reporteData!.completadas / totalCitas) * 100).toFixed(1) : '0.0';
+  const pctCancelaciones = totalCitas ? ((reporteData!.canceladas / totalCitas) * 100).toFixed(1) : '0.0';
+  const pctPendientes = totalCitas ? ((reporteData!.pendientes / totalCitas) * 100).toFixed(1) : '0.0';
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-fadeIn">
       
-      {/* Filters Form */}
-      <div className="bg-surface-card rounded-xl p-4 border border-hairline shadow-sm">
-        <h3 className="font-title-sm text-title-sm text-ink font-bold mb-4">Filtros de Búsqueda</h3>
+      {/* Advanced Filter Bar */}
+      <div className="bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs">
+        <h3 className="font-title-sm text-title-sm text-ink font-bold mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[18px]">filter_alt</span>
+          Filtros de Búsqueda
+        </h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="fecha-inicio" className="font-label-sm text-body-muted font-bold text-[11px] uppercase tracking-wider">Fecha Inicio</label>
-            <input
-              id="fecha-inicio"
-              type="date"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[16px]">calendar_month</span>
+              <input
+                id="fecha-inicio"
+                type="date"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                className="w-full bg-surface border border-outline-variant/60 rounded-lg pl-9 pr-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="fecha-fin" className="font-label-sm text-body-muted font-bold text-[11px] uppercase tracking-wider">Fecha Fin</label>
-            <input
-              id="fecha-fin"
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[16px]">calendar_month</span>
+              <input
+                id="fecha-fin"
+                type="date"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+                className="w-full bg-surface border border-outline-variant/60 rounded-lg pl-9 pr-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -163,7 +178,7 @@ export default function ReporteCitas() {
               id="filter-estado"
               value={estado}
               onChange={(e) => setEstado(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
             >
               <option value="">Todos los estados</option>
               <option value="PendienteConfirmacion">Pendientes Confirmación</option>
@@ -181,7 +196,7 @@ export default function ReporteCitas() {
               id="filter-vet"
               value={veterinarioId}
               onChange={(e) => setVeterinarioId(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
             >
               <option value="">Todos los veterinarios</option>
               {veterinarios.map((v) => (
@@ -194,33 +209,56 @@ export default function ReporteCitas() {
         </div>
       </div>
 
-      {/* Summary Row */}
+      {/* Summary KPI Cards Grid (Premium Stitch design style) */}
       {reporteData && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Citas Totales</p>
-            <p className="font-title-lg text-title-lg text-ink font-bold mt-1">{reporteData.totalCitas}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="bg-white p-5 rounded-2xl border border-outline-variant/20 flex items-center gap-4 shadow-xs">
+            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>task_alt</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider leading-none">Citas Totales</p>
+              <p className="text-[26px] font-bold text-on-surface mt-1.5 leading-none">{totalCitas}</p>
+            </div>
           </div>
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-success">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Completadas</p>
-            <p className="font-title-lg text-title-lg text-success font-bold mt-1">{reporteData.completadas}</p>
+          
+          <div className="bg-white p-5 rounded-2xl border border-outline-variant/20 flex items-center gap-4 shadow-xs border-l-4 border-l-success">
+            <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider leading-none">Completadas</p>
+              <p className="text-[26px] font-bold text-success mt-1.5 leading-none">{reporteData.completadas} ({pctEfectividad}%)</p>
+            </div>
           </div>
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-error">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Canceladas</p>
-            <p className="font-title-lg text-title-lg text-error font-bold mt-1">{reporteData.canceladas}</p>
+
+          <div className="bg-white p-5 rounded-2xl border border-outline-variant/20 flex items-center gap-4 shadow-xs border-l-4 border-l-error">
+            <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px]" style={{ fontVariationSettings: "'FILL' 1" }}>cancel</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider leading-none">Canceladas</p>
+              <p className="text-[26px] font-bold text-error mt-1.5 leading-none">{reporteData.canceladas} ({pctCancelaciones}%)</p>
+            </div>
           </div>
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-accent-amber">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Pendientes</p>
-            <p className="font-title-lg text-title-lg text-accent-amber font-bold mt-1">{reporteData.pendientes}</p>
+
+          <div className="bg-white p-5 rounded-2xl border border-outline-variant/20 flex items-center gap-4 shadow-xs border-l-4 border-l-accent-amber">
+            <div className="w-12 h-12 rounded-full bg-[#fdf2e8] text-accent-amber flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[24px]">hourglass_empty</span>
+            </div>
+            <div>
+              <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider leading-none">Pendientes</p>
+              <p className="text-[26px] font-bold text-accent-amber mt-1.5 leading-none">{reporteData.pendientes} ({pctPendientes}%)</p>
+            </div>
           </div>
         </div>
       )}
 
       {/* Main Report Container */}
-      <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-xs overflow-hidden flex flex-col">
         
         {/* Table Action Bar */}
-        <div className="p-4 bg-surface-soft/60 border-b border-hairline flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="p-4 bg-surface-soft/60 border-b border-outline-variant/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h4 className="font-title-sm text-title-sm text-ink font-bold">Listado Detallado de Citas</h4>
           
           {reporteData && reporteData.detalle.length > 0 && (
@@ -228,7 +266,7 @@ export default function ReporteCitas() {
               <button
                 disabled={exporting !== null}
                 onClick={() => handleExport('csv')}
-                className="flex-1 sm:flex-initial bg-transparent border border-outline text-ink hover:bg-surface-card font-button text-button px-4 py-2 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-initial bg-transparent border border-outline text-ink hover:bg-surface-card font-button text-button px-4 py-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-[18px]">download</span>
                 {exporting === 'csv' ? 'Exportando...' : 'Exportar CSV'}
@@ -236,7 +274,7 @@ export default function ReporteCitas() {
               <button
                 disabled={exporting !== null}
                 onClick={() => handleExport('pdf')}
-                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
               >
                 <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
                 {exporting === 'pdf' ? 'Generando...' : 'Exportar PDF'}
@@ -261,17 +299,17 @@ export default function ReporteCitas() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-soft/40 border-b border-hairline text-ink font-bold text-[12px] uppercase tracking-wider">
-                  <th className="py-2.5 pl-6 pr-4">ID Cita</th>
-                  <th className="py-2.5 px-4">Fecha y Hora</th>
-                  <th className="py-2.5 px-4">Mascota</th>
-                  <th className="py-2.5 px-4">Servicio</th>
-                  <th className="py-2.5 px-4">Veterinario</th>
-                  <th className="py-2.5 pl-4 pr-4 text-right">Monto</th>
-                  <th className="py-2.5 pl-4 pr-6 text-center">Estado</th>
+                <tr className="bg-surface-soft/40 border-b border-outline-variant/10 text-ink font-bold text-[12px] uppercase tracking-wider">
+                  <th className="py-3 pl-6 pr-4">ID Cita</th>
+                  <th className="py-3 px-4">Fecha y Hora</th>
+                  <th className="py-3 px-4">Mascota</th>
+                  <th className="py-3 px-4">Servicio</th>
+                  <th className="py-3 px-4">Veterinario</th>
+                  <th className="py-3 pl-4 pr-4 text-right">Monto</th>
+                  <th className="py-3 pl-4 pr-6 text-center">Estado</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-hairline">
+              <tbody className="divide-y divide-outline-variant/10">
                 {reporteData.detalle.map((item) => {
                   const dateStr = new Date(item.fechaHora).toLocaleDateString('es-ES', {
                     day: '2-digit',
@@ -286,16 +324,21 @@ export default function ReporteCitas() {
 
                   return (
                     <tr key={item.citaId} className="hover:bg-surface-soft/30 transition-all font-body-sm text-[13px] text-body-strong">
-                      <td className="py-2.5 pl-6 pr-4 font-semibold select-all text-body-muted">#{item.citaId}</td>
-                      <td className="py-2.5 px-4">
+                      <td className="py-3 pl-6 pr-4 font-semibold select-all text-body-muted">#{item.citaId}</td>
+                      <td className="py-3 px-4">
                         <span className="font-semibold">{dateStr}</span>
                         <span className="text-body-muted ml-1.5">{timeStr}</span>
                       </td>
-                      <td className="py-2.5 px-4 font-semibold text-ink">{item.mascota}</td>
-                      <td className="py-2.5 px-4 font-medium">{item.servicio}</td>
-                      <td className="py-2.5 px-4 text-body-muted">{item.veterinario}</td>
-                      <td className="py-2.5 pl-4 pr-4 text-right font-semibold">${item.montoTotal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                      <td className="py-2.5 pl-4 pr-6 text-center">
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center gap-1 bg-primary-container/10 text-primary px-2.5 py-1 rounded-full text-xs font-semibold">
+                          <span className="material-symbols-outlined text-[14px]" style={{ fontVariationSettings: "'FILL' 1" }}>pets</span>
+                          {item.mascota}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 font-medium">{item.servicio}</td>
+                      <td className="py-3 px-4 text-body-muted">{item.veterinario}</td>
+                      <td className="py-3 pl-4 pr-4 text-right font-bold text-ink">S/. {item.montoTotal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="py-3 pl-4 pr-6 text-center">
                         <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold border shadow-xs ${getStatusBadgeClass(item.estado)}`}>
                           {translateStatus(item.estado)}
                         </span>

@@ -6,7 +6,6 @@ import MascotasService from '../../services/mascotas.service';
 import { useAuth } from '../../context/AuthContext';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
-import PageHeader from '../../components/common/PageHeader';
 
 interface Mascota {
   id: number;
@@ -106,7 +105,6 @@ export default function DetalleMascota() {
     loadDetails();
   }, [loadDetails]);
 
-  // Handle pet inactivation (soft delete)
   const handleInactivar = async () => {
     setDeleting(true);
     try {
@@ -133,9 +131,9 @@ export default function DetalleMascota() {
   const getPetImageFallback = (esp: string) => {
     const species = esp.toLowerCase();
     if (species.includes('perro') || species.includes('canin') || species.includes('dog')) {
-      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuDM8pZR065mBN_zRsT0K-9h3W-ByY0dCkx1tJr6a_KXTKD63fcCW5FzMmFTzmcaQigIIqG5xFDGqXOQq0JWvRnTCq13J_DBfqi4QunaYKGRE_MqRX0DivSZ-mN9D_htDVybloxprk1_R1fFGlPD17YrWlt0_hwENNtVIaygWOCZ94AMIJnF7ZlEGmciyOTyS5OrBnA9vRzUw-nHhbN3CafZ-NxbGJNMglUBngYtJ7mo1oskzaYx3B6aoBIErCd0BxF692CDhzyjxZ8';
+      return 'https://lh3.googleusercontent.com/aida-public/AB6AXuCGLkyijdSwLz9sNJLIq6dXqSMLg7m059hATtoS8THg7KxR8B6reUjzOpGqTkxJyOU5D_Sx7fiCC8mojqsJy5Kv2inZGbezLKYxbg7Vqkxov7ZoTAX89CIO3_mpq_qDfTILJXaOSYeVdd6hm4SypuUBxzsdTzscYqhpktl61dAOxHWXDT7ZROF74Qpvd9jni4x4giQtJS1CPYXFwFrQL7S8AHa-YxX5t_GnmkNOR5DyfG08aFzYvaM5xg';
     }
-    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuADiZUuDOMsyo4M1wr15dg3fsL80rExV4tuKhka1NyJjHWVWLimgnT9wQsjQr8_z23jhtb7SlqFPuCp44eCRnKKZQ06tqmkTYPWibResnGBfH25z7mbfCkavRFdwIZBit8JTNFZcCBpO5k-6zKZHsK3WQP1gLKHSuIWd0CnTSc3wHEu4qXuEj0S3VP0RG_a0KFGMwEZw77fbutpjCXcTFhJs8POZ_CGRMzwVeiFkdXY9Top7gLGWkK9vmUQRl9Kbxy8J9jI4X9UToA';
+    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuDASZYKUqOKnwyluB3xWyt7baBCtBuSw9BETDSt_dlgtD4GVmhbo5EvvrMteSdZGFSmqAMo4-t-uR7T_L5RNL0hh77brXif0AnV-VRntWmxCfJPhUS1zczqZO8RI0NOeCytiVRMAunB6Y-V-uZQtzlRxOpjXgzVvmsTqWlRwVw2OqHENFLi6AKM-LVDDUOKu3w2LbW8kzjKomZYT5jwJjlo7xqnGQ6_x_g7T4RluhFremQGwMJMs5xEJQ';
   };
 
   const getPetAge = (dobString: string | null | undefined) => {
@@ -166,7 +164,6 @@ export default function DetalleMascota() {
     }
   };
 
-  // Find the next future appointment
   const nextCita = citas
     .filter((c) => {
       const date = new Date(c.fechaHora);
@@ -176,7 +173,7 @@ export default function DetalleMascota() {
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center min-h-[400px]">
+      <div className="flex-grow flex items-center justify-center min-h-[400px]">
         <Spinner size="lg" />
       </div>
     );
@@ -184,382 +181,351 @@ export default function DetalleMascota() {
 
   if (error || !mascota) {
     return (
-      <div className="flex-1 p-lg">
-        <ErrorMessage
-          message={error || 'La mascota especificada no existe.'}
-          onRetry={loadDetails}
-        />
+      <div className="flex-grow p-6">
+        <ErrorMessage message={error || 'La mascota especificada no existe.'} onRetry={loadDetails} />
       </div>
     );
   }
 
   const hasCriticalAlerts =
-    alertas &&
-    (alertas.alergias !== 'Ninguna registrada' ||
-      alertas.condicionCronica !== 'Ninguna identificada');
+    mascota.alergiasConocidas && mascota.alergiasConocidas.trim().toLowerCase() !== 'ninguna' && mascota.alergiasConocidas.trim().toLowerCase() !== 'ninguna registrada';
 
   return (
-    <div className="flex-grow flex flex-col min-h-screen">
-      {/* Header Section: 360 View */}
-      <PageHeader
-        title={
-          <div className="flex items-center gap-lg">
-            <div className="relative">
+    <div className="flex-grow flex flex-col gap-6 animate-fadeIn">
+      
+      {/* Breadcrumb Header */}
+      <div className="flex justify-between items-center border-b border-outline-variant/15 pb-4">
+        <div>
+          <nav className="flex items-center gap-2 text-body-muted font-bold text-xs mb-2">
+            <button
+              onClick={() => navigate(isStaff ? '/admin/mascotas' : '/cliente/mis-mascotas')}
+              className="hover:text-primary transition-colors cursor-pointer"
+            >
+              {isStaff ? 'Pacientes' : 'Mis Mascotas'}
+            </button>
+            <span className="material-symbols-outlined text-[14px]">chevron_right</span>
+            <span className="text-ink">Expediente Clínico</span>
+          </nav>
+          <h1 className="font-headline-lg text-headline-lg text-ink">Ficha Médica 360°</h1>
+        </div>
+      </div>
+
+      {/* Main Bento Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        {/* Lateral Profile Card (Span 4) */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          
+          {/* Identity Card */}
+          <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-xs p-6 flex flex-col items-center text-center">
+            <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-bright relative shadow-sm mb-4">
               <img
                 src={mascota.fotoUrl || getPetImageFallback(mascota.especie)}
                 alt={mascota.nombre}
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-surface-card shadow-sm"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = getPetImageFallback(mascota.especie);
                 }}
               />
-              <div
-                className={`absolute bottom-0 right-0 w-4 h-4 rounded-full border-2 border-canvas ${
-                  mascota.activo ? 'bg-success' : 'bg-secondary'
-                }`}
-                title={mascota.activo ? 'Activa' : 'Inactiva'}
-              />
-            </div>
-            <div>
-              <div className="flex items-center gap-sm">
-                <span>{mascota.nombre}</span>
-                {mascota.sexo && (
-                  <span
-                    className="material-symbols-outlined text-secondary"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    {mascota.sexo.toLowerCase() === 'macho' ? 'male' : 'female'}
-                  </span>
-                )}
+              <div className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-1 border-2 border-white flex items-center justify-center h-8 w-8 shadow-sm">
+                <span className="material-symbols-outlined text-sm font-bold">
+                  {mascota.sexo?.toLowerCase() === 'macho' ? 'male' : 'female'}
+                </span>
               </div>
             </div>
-          </div>
-        }
-        backLink={{
-          to: isStaff ? '/admin/mascotas' : '/cliente/mis-mascotas',
-          label: isStaff ? 'Volver a Pacientes' : 'Volver a Mis Mascotas'
-        }}
-        description={
-          <div className="flex flex-col gap-xs mt-xs">
-            <p className="font-body-md text-body-md text-secondary">
-              {mascota.especie} • {mascota.raza || 'Sin raza'} • {getPetAge(mascota.fechaNacimiento)}
-            </p>
-            <div className="flex items-center gap-xs text-body-sm">
-              <span className="material-symbols-outlined text-[18px] text-body-muted">person</span>
-              <span className="text-body-muted">Responsable:</span>
+
+            <h2 className="font-headline-lg text-[22px] font-bold text-ink leading-tight mb-1">{mascota.nombre}</h2>
+            <span className="bg-[#e6fffa] text-primary px-3.5 py-1 rounded-full font-bold text-xs border border-primary-container/20">
+              {mascota.raza || 'Sin raza definida'}
+            </span>
+
+            <div className="w-full grid grid-cols-2 gap-4 text-left border-t border-outline-variant/15 pt-4 mt-6 text-xs">
+              <div>
+                <p className="font-bold text-body-muted uppercase tracking-wider mb-0.5">Edad</p>
+                <p className="font-semibold text-ink">{getPetAge(mascota.fechaNacimiento)}</p>
+              </div>
+              <div>
+                <p className="font-bold text-body-muted uppercase tracking-wider mb-0.5">Peso</p>
+                <p className="font-semibold text-ink">{mascota.peso ? `${mascota.peso} kg` : 'N/A'}</p>
+              </div>
+              <div>
+                <p className="font-bold text-body-muted uppercase tracking-wider mb-0.5">Especie</p>
+                <p className="font-semibold text-ink">{mascota.especie}</p>
+              </div>
+              <div>
+                <p className="font-bold text-body-muted uppercase tracking-wider mb-0.5">Estado</p>
+                <p className="font-semibold text-primary flex items-center gap-1">
+                  <span className="material-symbols-outlined text-[14px]">check_circle</span>
+                  {mascota.activo ? 'Activa' : 'Inactiva'}
+                </p>
+              </div>
+            </div>
+
+            <div className="w-full mt-6 space-y-3">
               {isStaff ? (
+                <>
+                  <button
+                    onClick={() => navigate(isStaff ? '/admin/agenda/nueva' : '/cliente/nueva-cita')}
+                    className="w-full bg-primary hover:bg-primary-container text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs flex justify-center items-center gap-1.5 cursor-pointer"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                    Agendar Cita
+                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => navigate(`/admin/mascotas/${mascota.id}/editar`)}
+                      className="w-full border border-outline-variant hover:bg-surface-container-low text-ink font-bold text-xs py-2 rounded-xl transition-colors cursor-pointer"
+                    >
+                      Editar
+                    </button>
+                    {mascota.activo && (
+                      <button
+                        onClick={() => setShowInactivarModal(true)}
+                        className="w-full border border-error text-error hover:bg-rose-50 font-bold text-xs py-2 rounded-xl transition-colors cursor-pointer"
+                      >
+                        Inactivar
+                      </button>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <button
+                  onClick={() => navigate('/cliente/nueva-cita')}
+                  className="w-full bg-primary hover:bg-primary-container text-white font-bold text-xs py-3 rounded-xl transition-all shadow-xs flex justify-center items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                  Agendar Control
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Owner Info Card */}
+          <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-xs p-6">
+            <div className="flex items-center justify-between mb-4 pb-2 border-b border-outline-variant/10">
+              <h3 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-secondary text-[20px]">person</span>
+                Tutor Responsable
+              </h3>
+              {isStaff && (
                 <Link
                   to={`/admin/clientes/${mascota.usuarioId}`}
-                  className="text-primary hover:underline font-medium"
+                  className="text-primary hover:bg-secondary-container rounded-full p-1.5 transition-colors flex items-center"
                 >
-                  {mascota.usuarioNombre || 'Ver Dueño'}
+                  <span className="material-symbols-outlined text-[18px]">open_in_new</span>
                 </Link>
-              ) : (
-                <span className="font-medium text-ink">{mascota.usuarioNombre || 'Tú'}</span>
               )}
             </div>
-          </div>
-        }
-        actions={
-          <div className="flex flex-wrap items-center gap-sm">
-            {isStaff ? (
-              <>
-                <button
-                  onClick={() => navigate(`/admin/mascotas/${mascota.id}/editar`)}
-                  className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px]">edit</span>
-                  Editar
-                </button>
-                <button
-                  onClick={() => navigate(`/admin/mascotas/${mascota.id}/cambiar-responsable`)}
-                  className="bg-canvas border border-ink text-ink font-button text-button py-2.5 px-5 rounded hover:bg-surface-soft transition-colors flex items-center gap-xs cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px]">swap_horiz</span>
-                  Cambio Resp.
-                </button>
-                {mascota.activo && (
-                  <button
-                    onClick={() => setShowInactivarModal(true)}
-                    className="bg-canvas border border-error text-error font-button text-button py-2.5 px-5 rounded hover:bg-error-container/10 transition-colors flex items-center gap-xs cursor-pointer"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">block</span>
-                    Inactivar
-                  </button>
-                )}
-              </>
-            ) : (
-              <button
-                onClick={() => navigate('/cliente/nueva-cita')}
-                className="bg-primary text-on-primary font-button text-button py-2.5 px-5 rounded hover:bg-primary-container transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
-              >
-                <span className="material-symbols-outlined text-[18px]">calendar_today</span>
-                Agendar Control
-              </button>
-            )}
-          </div>
-        }
-        hasDivider={true}
-      />
-
-      {/* Critical Medical Alerts */}
-      {hasCriticalAlerts && (
-        <section className="bg-error-container border border-error/20 rounded-lg p-md mb-xl flex items-start gap-md">
-          <span className="material-symbols-outlined text-error mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }}>
-            warning
-          </span>
-          <div>
-            <h3 className="font-title-sm text-title-sm text-on-error-container font-semibold mb-xxs">Alertas Médicas Críticas</h3>
-            <ul className="list-disc list-inside font-body-sm text-body-sm text-on-error-container/80 space-y-1">
-              {alertas.alergias !== 'Ninguna registrada' && (
-                <li>
-                  <strong className="font-semibold">Alergias:</strong> {alertas.alergias}
-                </li>
-              )}
-              {alertas.condicionCronica !== 'Ninguna identificada' && (
-                <li>
-                  <strong className="font-semibold">Condición Crónica:</strong> {alertas.condicionCronica}
-                </li>
-              )}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {/* Bento Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-        {/* Column 1: Summary & Biometrics */}
-        <div className="lg:col-span-1 flex flex-col gap-lg">
-          {/* Executive Summary */}
-          <div className="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm">
-            <h2 className="font-title-md text-title-md text-ink mb-md border-b border-hairline-soft pb-sm flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">analytics</span>
-              Resumen Clínico
-            </h2>
-            <p className="font-body-sm text-body-sm text-body-strong leading-relaxed mb-md whitespace-pre-wrap">
-              {mascota.observacionesGenerales || 'No se han registrado observaciones o notas adicionales sobre el paciente.'}
-            </p>
-            <div className="flex flex-wrap gap-xs">
-              <span className="bg-surface-dim text-ink font-caption-caps text-caption-caps px-3 py-1 rounded-full border border-hairline">
-                Peso: {mascota.peso ? `${mascota.peso} kg` : 'N/A'}
-              </span>
-              <span className="bg-surface-dim text-ink font-caption-caps text-caption-caps px-3 py-1 rounded-full border border-hairline">
-                Especie: {mascota.especie}
-              </span>
-              {alertas?.ultimaVacuna !== 'Ninguna registrada' && (
-                <span className="bg-success/10 text-tertiary-container font-caption-caps text-caption-caps px-3 py-1 rounded-full border border-success/20">
-                  Vacuna: {alertas?.ultimaVacuna}
-                </span>
-              )}
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full overflow-hidden bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-xs">
+                {mascota.usuarioNombre?.slice(0, 2).toUpperCase() || 'TR'}
+              </div>
+              <div>
+                <p className="font-bold text-ink text-xs">{mascota.usuarioNombre || 'No asignado'}</p>
+                <p className="text-[10px] text-body-muted font-bold uppercase tracking-wider mt-0.5">Propietario del Expediente</p>
+              </div>
             </div>
           </div>
 
-          {/* Biometrics */}
-          <div className="bg-canvas border border-hairline rounded-xl p-lg">
-            <h2 className="font-title-sm text-title-sm text-ink mb-md">Datos Generales</h2>
-            <ul className="space-y-sm font-body-sm text-body-sm">
-              <li className="flex justify-between border-b border-hairline pb-xs">
-                <span className="text-body-muted">Especie</span>
-                <span className="text-ink font-medium">{mascota.especie}</span>
-              </li>
-              <li className="flex justify-between border-b border-hairline pb-xs">
-                <span className="text-body-muted">Raza</span>
-                <span className="text-ink font-medium">{mascota.raza || 'Sin raza definida'}</span>
-              </li>
-              <li className="flex justify-between border-b border-hairline pb-xs">
-                <span className="text-body-muted">Fecha Nacimiento</span>
-                <span className="text-ink font-medium">
-                  {mascota.fechaNacimiento ? formatDate(mascota.fechaNacimiento) : 'No registrada'}
-                </span>
-              </li>
-              <li className="flex justify-between border-b border-hairline pb-xs">
-                <span className="text-body-muted">Color</span>
-                <span className="text-ink font-medium">{mascota.color || 'No registrado'}</span>
-              </li>
-              <li className="flex justify-between border-b border-hairline pb-xs">
-                <span className="text-body-muted">Sexo</span>
-                <span className="text-ink font-medium">{mascota.sexo || 'No registrado'}</span>
-              </li>
-              <li className="flex justify-between pb-xs">
-                <span className="text-body-muted">Identificador</span>
-                <span className="font-code text-code text-ink font-semibold">#PAC-{mascota.id}</span>
-              </li>
-            </ul>
-          </div>
         </div>
 
-        {/* Column 2 & 3: Next Appointment & Clinical History */}
-        <div className="lg:col-span-2 flex flex-col gap-lg">
-          {/* Next Appointment */}
-          {nextCita ? (
-            <div className="bg-surface-soft rounded-xl p-lg border border-hairline flex items-center justify-between shadow-sm">
-              <div className="flex items-center gap-md">
-                <div className="bg-primary-container/20 p-sm rounded-lg text-primary text-center min-w-[70px]">
-                  <span className="block font-caption-caps text-caption-caps mb-[-4px]">
-                    {new Date(nextCita.fechaHora)
-                      .toLocaleDateString('es-ES', { month: 'short' })
-                      .toUpperCase()}
-                  </span>
-                  <span className="font-title-lg text-title-lg font-bold">
-                    {new Date(nextCita.fechaHora).getDate()}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-title-sm text-title-sm text-ink font-medium">{nextCita.servicio?.nombre || 'Consulta'}</h3>
-                  <p className="font-body-sm text-body-sm text-body-muted flex items-center gap-xs mt-1">
-                    <span className="material-symbols-outlined text-[16px]">schedule</span>
-                    {new Date(nextCita.fechaHora).toLocaleTimeString('es-ES', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}{' '}
-                    con {nextCita.veterinario?.nombre || 'Veterinario'}
-                  </p>
-                </div>
+        {/* Central Cards (Span 8) */}
+        <div className="lg:col-span-8 flex flex-col gap-6">
+          
+          {/* High Visibility Alerts */}
+          {hasCriticalAlerts && (
+            <div className="bg-error-container rounded-2xl p-5 border-l-4 border-error flex items-start gap-4 shadow-xs">
+              <span className="material-symbols-outlined text-error text-[28px] mt-0.5">warning</span>
+              <div>
+                <h3 className="font-title-sm text-title-sm font-bold text-on-error-container mb-1">Alertas Médicas Críticas</h3>
+                <p className="font-body-sm text-body-sm text-on-error-container/90">
+                  <strong>Alergias Conocidas:</strong> {mascota.alergiasConocidas}
+                </p>
               </div>
-              <span className="bg-primary-fixed text-on-primary-fixed font-caption text-caption px-3 py-1 rounded-full border border-primary-fixed-dim">
-                Próxima Cita
-              </span>
-            </div>
-          ) : (
-            <div className="bg-surface-soft/40 rounded-xl p-md border border-hairline text-center text-body-muted font-body-sm">
-              No hay citas programadas para el paciente.
             </div>
           )}
 
-          {/* Historial de Consultas */}
-          <div className="bg-canvas border border-hairline rounded-xl p-lg flex-grow shadow-sm">
-            <div className="flex items-center justify-between mb-lg border-b border-hairline pb-sm">
-              <h2 className="font-title-md text-title-md text-ink flex items-center gap-xs font-semibold">
-                <span className="material-symbols-outlined text-secondary">history</span>
+          {/* Vitals & Next Appointment Row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Upcoming Appointment */}
+            <div className="bg-white rounded-2xl border border-outline-variant/20 p-6 flex flex-col justify-between shadow-xs">
+              <h3 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-1.5 mb-4">
+                <span className="material-symbols-outlined text-primary text-[20px]">event_upcoming</span>
+                Próxima Cita
+              </h3>
+              {nextCita ? (
+                <div className="bg-surface-bright border border-outline-variant/15 rounded-xl p-4 flex gap-4 items-center">
+                  <div className="bg-secondary-container text-on-secondary-container rounded-lg p-2.5 text-center min-w-[65px] shadow-sm">
+                    <span className="block text-[10px] font-bold uppercase tracking-wider leading-none">
+                      {new Date(nextCita.fechaHora).toLocaleDateString('es-ES', { month: 'short' }).slice(0, 3)}
+                    </span>
+                    <span className="block text-title-lg font-bold mt-1 leading-none">
+                      {new Date(nextCita.fechaHora).getDate()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-ink text-xs truncate">{nextCita.servicio?.nombre || 'Consulta'}</p>
+                    <p className="text-[11px] text-body-muted flex items-center gap-1 mt-1 font-semibold">
+                      <span className="material-symbols-outlined text-[14px]">schedule</span>
+                      {new Date(nextCita.fechaHora).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-body-muted italic py-3">No hay citas programadas.</p>
+              )}
+            </div>
+
+            {/* Quick Summary / Vitals */}
+            <div className="bg-white rounded-2xl border border-outline-variant/20 p-6 flex flex-col justify-between shadow-xs">
+              <h3 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-1.5 mb-4">
+                <span className="material-symbols-outlined text-primary text-[20px]">monitor_heart</span>
+                Últimos Datos Clínicos
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-surface-bright rounded-xl p-3 border border-outline-variant/15 text-center">
+                  <span className="text-[10px] font-bold text-body-muted block mb-1 uppercase tracking-wider">Peso Ficha</span>
+                  <span className="font-bold text-sm text-ink">
+                    {mascota.peso ? `${mascota.peso} kg` : 'N/A'}
+                  </span>
+                </div>
+                <div className="bg-surface-bright rounded-xl p-3 border border-outline-variant/15 text-center">
+                  <span className="text-[10px] font-bold text-body-muted block mb-1 uppercase tracking-wider">Vacunas</span>
+                  <span className="font-bold text-sm text-ink truncate block" title={alertas?.ultimaVacuna || 'N/A'}>
+                    {alertas?.ultimaVacuna || 'Ninguna'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* History of consultations */}
+          <div className="bg-white border border-outline-variant/20 rounded-2xl flex flex-col shadow-xs overflow-hidden">
+            <div className="p-6 border-b border-outline-variant/15 flex justify-between items-center">
+              <h3 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-primary text-[20px]">history</span>
                 Historial de Consultas
-              </h2>
+              </h3>
               {historiales.length > 0 && (
                 <Link
                   to={isStaff ? `/admin/mascotas/${mascota.id}/historial` : `/cliente/mascotas/${mascota.id}/historial`}
-                  className="font-button text-button text-primary hover:text-primary-active font-semibold flex items-center gap-xxs"
+                  className="font-bold text-xs text-primary hover:underline flex items-center gap-0.5"
                 >
-                  Ver Todo
+                  Ver Historial Completo
                   <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                 </Link>
               )}
             </div>
 
             {historiales.length === 0 ? (
-              <div className="border border-dashed border-hairline rounded-xl flex flex-col items-center justify-center p-10 bg-canvas/30 text-center">
+              <div className="flex flex-col items-center justify-center p-12 text-center bg-surface-bright">
                 <span className="material-symbols-outlined text-[48px] text-body-muted mb-2">clinical_notes</span>
-                <p className="font-title-md text-title-md font-bold text-ink">Sin atenciones registradas</p>
-                <p className="font-body-sm text-body-sm text-body-muted mt-1 max-w-sm">
-                  Las consultas y atenciones médicas aparecerán documentadas cronológicamente en esta sección.
+                <p className="font-bold text-ink text-sm">Sin atenciones registradas</p>
+                <p className="text-xs text-body-muted mt-1 max-w-sm">
+                  Las consultas y prescripciones médicas aparecerán documentadas aquí de forma cronológica.
                 </p>
               </div>
             ) : (
-              <div className="relative pl-xs">
-                {/* Vertical Line */}
-                <div className="absolute left-[19px] top-2 bottom-0 w-px bg-hairline"></div>
-
-                <div className="space-y-6">
-                  {historiales.slice(0, 3).map((h) => (
-                    <div key={h.id} className="relative pl-xl group">
-                      <div className="absolute left-0 top-1 w-10 h-10 bg-surface rounded-full border border-hairline flex items-center justify-center z-10 group-hover:border-primary transition-colors">
-                        <span className="material-symbols-outlined text-secondary text-[20px] group-hover:text-primary">
-                          vaccines
-                        </span>
+              <div className="divide-y divide-outline-variant/10">
+                {historiales.slice(0, 3).map((h) => (
+                  <div key={h.id} className="p-6 hover:bg-surface-bright/30 transition-colors flex gap-4 items-start">
+                    <div className="bg-surface-container-high rounded-full p-2 text-secondary shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">medical_services</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-4">
+                        <h4 className="font-bold text-ink text-sm">{h.servicioNombre}</h4>
+                        <span className="text-[10px] font-bold text-body-muted">{formatDate(h.fechaRegistro)}</span>
                       </div>
-                      <div className="bg-surface-soft rounded-lg p-md border border-hairline group-hover:border-outline-variant transition-colors">
-                        <div className="flex justify-between items-start mb-xs gap-sm flex-wrap">
-                          <h4 className="font-title-sm text-title-sm text-ink font-semibold">{h.servicioNombre}</h4>
-                          <span className="font-caption text-caption text-body-muted">{formatDate(h.fechaRegistro)}</span>
-                        </div>
-                        <p className="font-body-sm text-body-sm text-body-strong mb-sm mt-xs">
-                          {h.diagnostico && (
-                            <>
-                              <strong className="text-ink">Diagnóstico:</strong> {h.diagnostico}
-                            </>
-                          )}
-                          {!h.diagnostico && h.tratamiento && (
-                            <>
-                              <strong className="text-ink">Tratamiento:</strong> {h.tratamiento}
-                            </>
-                          )}
-                        </p>
-                        {h.medicamentos && (
-                          <div className="bg-canvas border border-hairline/60 rounded px-3 py-1.5 font-code text-code text-ink my-sm">
-                            <span className="font-semibold text-body-muted block text-[11px] uppercase tracking-wide">Medicamentos:</span>
+                      <p className="text-body-sm text-body-strong mt-2">
+                        {h.diagnostico && (
+                          <span>
+                            <strong className="font-bold text-ink">Diagnóstico:</strong> {h.diagnostico}
+                          </span>
+                        )}
+                        {!h.diagnostico && h.tratamiento && (
+                          <span>
+                            <strong className="font-bold text-ink">Tratamiento:</strong> {h.tratamiento}
+                          </span>
+                        )}
+                      </p>
+                      {h.medicamentos && (
+                        <div className="mt-3 flex items-center gap-1.5 flex-wrap">
+                          <span className="bg-secondary-container text-on-secondary-container text-[10px] font-extrabold px-2.5 py-0.5 rounded-md flex items-center gap-1 shadow-xxs">
+                            <span className="material-symbols-outlined text-[12px]">prescriptions</span>
                             {h.medicamentos}
-                          </div>
-                        )}
-                        {h.recomendaciones && (
-                          <p className="text-body-sm text-body-muted italic mt-xs">
-                            * {h.recomendaciones}
-                          </p>
-                        )}
-                        <div className="flex items-center gap-xs mt-sm pt-xs border-t border-hairline/40">
-                          <span className="font-caption text-caption text-secondary">
-                            Atendido por: <strong className="font-semibold text-ink">{h.veterinarioNombre}</strong>
                           </span>
                         </div>
-                      </div>
+                      )}
+                      <p className="text-[11px] text-body-muted font-bold uppercase tracking-wider mt-3">
+                        Atendido por: <span className="text-ink">{h.veterinarioNombre}</span>
+                      </p>
                     </div>
-                  ))}
-                  {historiales.length > 3 && (
-                    <div className="pt-md flex justify-center">
-                      <Link
-                        to={isStaff ? `/admin/mascotas/${mascota.id}/historial` : `/cliente/mascotas/${mascota.id}/historial`}
-                        className="bg-surface-soft border border-hairline text-secondary hover:text-ink font-button text-button px-6 py-2.5 rounded-full hover:bg-surface-variant transition-all text-center"
-                      >
-                        Ver Historial Completo ({historiales.length} registros)
-                      </Link>
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
+
+          {/* Observations card */}
+          <div className="bg-white border border-outline-variant/20 rounded-2xl p-6 shadow-xs">
+            <h3 className="font-title-sm text-title-sm text-ink font-bold flex items-center gap-1.5 border-b border-outline-variant/10 pb-3 mb-4">
+              <span className="material-symbols-outlined text-primary text-[20px]">chat</span>
+              Observaciones del Expediente
+            </h3>
+            <p className="text-body-sm text-body-strong leading-relaxed whitespace-pre-wrap">
+              {mascota.observacionesGenerales || 'No se han registrado observaciones adicionales sobre el temperamento o conducta del paciente.'}
+            </p>
+          </div>
+
         </div>
+
       </div>
 
-      {/* Soft-delete (Inactivar) Confirmation Modal */}
+      {/* Inactivar Modal */}
       <AnimatePresence>
         {showInactivarModal && (
-          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-md">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-canvas border border-hairline rounded-xl max-w-md w-full p-xl shadow-lg"
+              className="bg-white border border-outline-variant/30 rounded-2xl max-w-md w-full p-6 shadow-xl"
             >
-              <div className="flex items-start gap-md mb-md">
-                <span className="material-symbols-outlined text-error text-[32px]">warning</span>
+              <div className="flex items-start gap-4 mb-4">
+                <span className="material-symbols-outlined text-error text-[32px] shrink-0">warning</span>
                 <div>
-                  <h3 className="font-title-lg text-title-lg text-ink font-semibold">¿Inactivar Mascota?</h3>
-                  <p className="font-body-sm text-body-sm text-body-muted mt-sm leading-relaxed">
-                    Esta acción marcará a <strong className="text-ink">{mascota.nombre}</strong> como inactiva en el sistema.
+                  <h3 className="font-title-md text-title-md text-ink font-bold">¿Dar de baja mascota?</h3>
+                  <p className="text-body-sm text-body-muted mt-2 leading-relaxed">
+                    Marcar a <strong className="text-ink">{mascota.nombre}</strong> como inactiva inhabilitará su registro en el panel activo.
                   </p>
-                  <p className="font-body-sm text-body-sm text-error font-medium mt-sm bg-error-container/10 p-sm rounded border border-error/15">
-                    <strong>¡Atención!</strong> Se cancelarán de forma automática todas las citas programadas a futuro para este paciente.
+                  <p className="text-xs text-error font-semibold mt-3 bg-rose-50 border border-error/25 p-3 rounded-xl leading-normal">
+                    <strong>¡Acción Crítica!</strong> Se cancelarán de forma automática todas las citas agendadas a futuro para este paciente.
                   </p>
                 </div>
               </div>
-              <div className="flex justify-end gap-sm mt-lg pt-md border-t border-hairline">
+              <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-outline-variant/10">
                 <button
                   onClick={() => setShowInactivarModal(false)}
                   disabled={deleting}
-                  className="px-lg py-2.5 rounded font-button text-button text-ink bg-transparent hover:bg-surface-soft transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-secondary hover:bg-surface-soft transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleInactivar}
                   disabled={deleting}
-                  className="px-lg py-2.5 rounded font-button text-button text-on-error bg-error hover:bg-opacity-90 transition-all cursor-pointer flex items-center gap-xs"
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-error hover:bg-red-700 transition-all cursor-pointer flex items-center gap-1"
                 >
-                  {deleting ? 'Inactivando...' : 'Confirmar Inactivación'}
+                  {deleting ? 'Procesando...' : 'Confirmar Inactivación'}
                 </button>
               </div>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
     </div>
   );
 }

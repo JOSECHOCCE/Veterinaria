@@ -114,38 +114,36 @@ export default function PortalCliente() {
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full pb-12 relative">
+    <div className="flex-1 flex flex-col min-w-0 p-6 md:pt-4 md:px-10 md:pb-10 max-w-[1400px] mx-auto w-full relative">
       
       {/* Fondo con Orbes Difuminados Tridimensionales */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[40%] rounded-full bg-primary/4 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
-        <div className="absolute top-[30%] -right-[15%] w-[60%] h-[50%] rounded-full bg-accent-teal/4 blur-[130px] animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[40%] rounded-full bg-primary/5 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[30%] -right-[15%] w-[60%] h-[50%] rounded-full bg-accent-teal/5 blur-[130px] animate-pulse" style={{ animationDuration: '12s' }} />
       </div>
 
       {/* Alertas / Notificaciones activas */}
       {alertas.length > 0 && (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 mb-6">
           {alertas.map((alerta) => (
             <motion.div
               key={alerta.id}
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-error-container/85 backdrop-blur-md text-on-error-container p-4 rounded-xl flex items-start sm:items-center gap-3 border border-error/15 shadow-md transition-all hover:shadow-lg"
+              className="bg-error-container/80 backdrop-blur-md text-on-error-container p-4 rounded-xl flex items-center justify-between border border-error/15 shadow-sm transition-all"
             >
-              <div className="bg-error/10 p-2 rounded-lg shrink-0 flex items-center justify-center text-error animate-bounce">
-                <span className="material-symbols-outlined text-[20px]">warning</span>
-              </div>
-              <div className="flex-1">
-                <span className="font-title-sm text-title-sm block sm:inline font-bold">
-                  {alerta.titulo}:
-                </span>
-                <span className="font-body-sm text-body-sm sm:ml-2 block sm:inline">
-                  {alerta.mensaje}
-                </span>
+              <div className="flex items-center gap-3">
+                <div className="bg-error/10 p-2 rounded-lg shrink-0 flex items-center justify-center text-error animate-bounce">
+                  <span className="material-symbols-outlined text-[20px]">warning</span>
+                </div>
+                <div>
+                  <span className="font-bold text-sm block sm:inline">{alerta.titulo}:</span>
+                  <span className="text-xs sm:ml-2 block sm:inline">{alerta.mensaje}</span>
+                </div>
               </div>
               <button
                 onClick={() => navigate('/cliente/nueva-cita')}
-                className="bg-error text-on-error px-5 py-2 rounded-full font-button text-[12px] font-bold hover:bg-opacity-90 transition-all ml-auto whitespace-nowrap hidden sm:block cursor-pointer shadow-sm active:scale-95"
+                className="bg-error text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-opacity-95 transition-all cursor-pointer shadow-sm active:scale-95 whitespace-nowrap ml-4"
               >
                 Atender Alerta
               </button>
@@ -154,199 +152,276 @@ export default function PortalCliente() {
         </div>
       )}
 
-      {/* Bloque de Bienvenida y Acciones Rápidas */}
-      <PageHeader
-        title={
-          <span className="bg-gradient-to-r from-primary via-primary-active to-[#b86d5c] bg-clip-text text-transparent">
-            Hola, {user?.nombreCompleto?.split(' ')[0] || 'Cliente'}
-          </span>
-        }
-        description="Bienvenido de nuevo a tu portal. Aquí tienes el resumen y estado de salud de tus mascotas."
-        actions={
-          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-            <button
-              onClick={() => navigate('/cliente/nueva-cita')}
-              className="bg-gradient-to-r from-primary to-primary-active hover:shadow-lg hover:shadow-primary/20 text-on-primary px-6 py-3 rounded-full font-button text-button transition-all flex items-center justify-center gap-2 shadow-md cursor-pointer w-full sm:w-auto active:scale-95 animate-fade-in"
-            >
-              <span className="material-symbols-outlined text-[18px]">add</span>
-              Solicitar Cita
-            </button>
-            <button
-              onClick={() => navigate('/cliente/mis-pagos')}
-              className="bg-canvas/60 backdrop-blur-sm border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft hover:border-outline-variant hover:shadow-sm transition-all cursor-pointer w-full sm:w-auto"
-            >
-              Mis Pagos
-            </button>
-            <button
-              onClick={() => navigate('/cliente/mis-mascotas')}
-              className="bg-canvas/60 backdrop-blur-sm border border-hairline text-ink px-6 py-3 rounded-full font-button text-button hover:bg-surface-soft hover:border-outline-variant hover:shadow-sm transition-all cursor-pointer w-full sm:w-auto"
-            >
-              Mis Mascotas
-            </button>
+      {/* Hero Welcome Panel (Glassmorphism Style) */}
+      <section className="mb-8">
+        <div className="bg-white/70 backdrop-blur-md border border-white/50 shadow-sm rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden group">
+          {/* Abstract patterns */}
+          <div className="absolute -right-16 -top-16 w-80 h-80 bg-primary/10 rounded-full blur-[80px]" />
+          <div className="absolute -left-20 -bottom-20 w-60 h-60 bg-accent-teal/10 rounded-full blur-[60px]" />
+          
+          <div className="relative z-10 flex-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+              <span className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
+              Portal de Cliente Premium
+            </div>
+            <h2 className="text-3xl lg:text-4xl font-bold text-on-surface mb-3 leading-tight">
+              Bienvenido de nuevo, <span className="text-primary">{user?.nombreCompleto?.split(' ')[0] || 'Cliente'}</span>.
+            </h2>
+            <p className="text-sm font-medium text-on-surface-variant max-w-xl leading-relaxed">
+              Tu familia está en buenas manos. Tus compañeros tienen sus cuidados al día, ¡gracias por confiar en VetCarePro!
+            </p>
           </div>
-        }
-        hasDivider={true}
-      />
+          
+          <div className="relative z-10 shrink-0">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-gradient-to-tr from-primary/10 to-primary-container/10 rounded-full blur-2xl group-hover:blur-3xl transition-all duration-500" />
+              <div className="w-36 h-36 rounded-[2rem] bg-primary-container/20 text-primary flex items-center justify-center font-bold text-4xl shadow-md border-4 border-white rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                {user?.nombreCompleto ? user.nombreCompleto.charAt(0).toUpperCase() : 'C'}
+              </div>
+              <div className="absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl shadow-md border border-outline-variant/30 flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined text-lg">verified</span>
+                </div>
+                <div>
+                  <p className="text-[8px] uppercase font-bold text-on-surface-variant tracking-wider leading-none">Miembro</p>
+                  <p className="text-xs font-bold text-on-surface leading-normal">Premium</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Bento Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-2">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 mt-2">
         
-        {/* Mis Mascotas Section (Spans 8 columns) */}
-        <section className="lg:col-span-8 flex flex-col gap-4">
-          <div className="flex items-center justify-between border-b border-hairline pb-2">
-            <h2 className="font-display-sm text-display-sm text-ink font-bold">Mis Mascotas</h2>
-            <Link
-              to="/cliente/mis-mascotas"
-              className="text-primary font-bold hover:text-primary-active hover:underline font-label-md text-label-md flex items-center gap-1 transition-colors"
-            >
-              Ver todas
-              <span className="material-symbols-outlined text-[18px] translate-y-[1px]">arrow_forward</span>
-            </Link>
-          </div>
-
-          {mascotas.length === 0 ? (
-            <div className="border border-dashed border-hairline rounded-2xl flex flex-col items-center justify-center p-8 bg-canvas/40 backdrop-blur-sm min-h-[300px] shadow-sm">
-              <div className="bg-surface-card p-4 rounded-full border border-hairline mb-3 text-primary">
-                <span className="material-symbols-outlined text-[40px]">pets</span>
+        {/* Left Column (Companions & Action Center) */}
+        <div className="xl:col-span-8 flex flex-col gap-8">
+          
+          {/* Companions Section */}
+          <section>
+            <div className="flex items-center justify-between mb-6 border-b border-surface-variant/40 pb-3">
+              <div>
+                <h3 className="font-bold text-lg text-on-surface">Mis Compañeros</h3>
+                <p className="text-xs text-on-surface-variant mt-0.5">Gestión de mascotas registradas bajo tu cuidado</p>
               </div>
-              <h3 className="font-title-md text-title-md text-ink text-center font-bold">¿Aún no tienes mascotas registradas?</h3>
-              <p className="font-body-sm text-body-sm text-body-muted text-center mt-2 max-w-sm">
-                Registra a tu primer compañero de vida para comenzar a gestionar sus citas y vacunas.
-              </p>
-              <button
-                onClick={() => navigate('/cliente/mis-mascotas?action=new')}
-                className="mt-4 bg-primary text-on-primary px-6 py-2.5 rounded-full font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow active:scale-95"
+              <Link
+                to="/cliente/mis-mascotas"
+                className="px-4 py-2 bg-primary/10 text-primary rounded-xl font-bold text-xs hover:bg-primary hover:text-white transition-all flex items-center gap-1 cursor-pointer"
               >
-                Registrar Mascota
-              </button>
+                Ver Todas <span className="material-symbols-outlined text-sm">arrow_forward</span>
+              </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {mascotas.slice(0, 4).map((mascota) => (
-                <div
-                  key={mascota.id}
-                  onClick={() => navigate(`/cliente/mascotas/${mascota.id}`)}
-                  className="bg-canvas/60 backdrop-blur-sm rounded-2xl p-4 flex flex-col border border-hairline/40 hover:border-primary/20 hover:shadow-lg transition-all duration-300 cursor-pointer group shadow-sm relative overflow-hidden"
-                >
-                  {/* Card Image con zoom suave */}
-                  <div className="w-full h-44 rounded-xl mb-4 overflow-hidden relative shadow-inner">
-                    <div
-                      className="w-full h-full bg-cover bg-center group-hover:scale-[1.03] transition-transform duration-500"
-                      style={{ backgroundImage: `url(${getPetImage(mascota.especie)})` }}
-                    ></div>
-                    {/* Al día status ring overlay */}
-                    <div className="absolute top-3 right-3 bg-canvas/90 backdrop-blur-sm px-3 py-1 rounded-full border border-hairline/75 flex items-center gap-1.5 shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
-                      <span className="font-caption-caps text-[9px] text-ink font-bold uppercase tracking-wider">Al día</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex justify-between items-end">
-                    <div>
-                      <h3 className="font-title-lg text-title-lg text-ink font-bold group-hover:text-primary transition-colors leading-tight">
-                        {mascota.nombre}
-                      </h3>
-                      <p className="font-body-sm text-body-sm text-body-muted mt-1 flex items-center gap-1">
-                        <span className="font-semibold text-secondary-container px-2 py-0.5 rounded bg-surface-soft text-[11px] font-sans">
-                          {mascota.especie}
-                        </span>
-                        {mascota.raza && <span className="text-[12px] truncate max-w-[100px]">• {mascota.raza}</span>} 
-                        <span className="text-[12px]">• {getPetAge(mascota.fechaNacimiento)}</span>
-                      </p>
-                    </div>
-                    <div className="bg-primary/10 group-hover:bg-primary group-hover:text-on-primary transition-all p-2 rounded-full shrink-0 flex items-center justify-center text-primary shadow-sm">
-                      <span className="material-symbols-outlined text-[18px]">pets</span>
-                    </div>
-                  </div>
+
+            {mascotas.length === 0 ? (
+              <div className="border border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center p-8 bg-white/40 backdrop-blur-sm min-h-[220px] shadow-sm">
+                <div className="bg-surface-container-low p-4 rounded-full border border-outline-variant mb-3 text-primary">
+                  <span className="material-symbols-outlined text-[32px]">pets</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Próximas Citas Section (Spans 4 columns) */}
-        <section className="lg:col-span-4 bg-canvas/80 backdrop-blur-md rounded-2xl border border-hairline/50 p-6 flex flex-col min-h-[420px] shadow-md relative overflow-hidden">
-          {/* Header */}
-          <div className="flex justify-between items-center mb-5 pb-3 border-b border-hairline/60">
-            <h2 className="font-display-sm text-[20px] font-bold text-ink">Próximas Citas</h2>
-            <button
-              onClick={() => navigate('/cliente/mis-citas')}
-              className="text-primary hover:text-primary-active transition-all cursor-pointer p-1 rounded-full hover:bg-primary/5 shrink-0"
-            >
-              <span className="material-symbols-outlined text-[20px] translate-y-[2px]">arrow_forward</span>
-            </button>
-          </div>
-
-          {citas.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
-              <div className="bg-surface-card p-3 rounded-full border border-hairline mb-2 text-body-muted">
-                <span className="material-symbols-outlined text-[32px]">calendar_today</span>
-              </div>
-              <p className="font-body-sm text-body-sm text-body-muted font-bold">No tienes citas programadas</p>
-              <p className="text-[12px] text-body-muted mt-1 max-w-[200px]">Cuando agendes una cita aparecerá aquí.</p>
-              <button
-                onClick={() => navigate('/cliente/nueva-cita')}
-                className="mt-5 bg-transparent border border-outline hover:border-primary hover:text-primary hover:bg-primary/5 text-ink px-4 py-2.5 rounded-full font-button text-button transition-all w-full cursor-pointer shadow-sm"
-              >
-                Solicitar Cita
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4 flex-1">
-              <ul className="flex flex-col gap-4 overflow-y-auto max-h-[310px] pr-1 scrollbar-thin">
-                {citas.map((cita) => {
-                  const dateObj = new Date(cita.fechaHora);
-                  const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
-                  const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
-                  
-                  return (
-                    <li
-                      key={cita.id}
-                      onClick={() => navigate('/cliente/mis-citas')}
-                      className="bg-canvas/50 p-4 rounded-xl border border-hairline/60 shadow-sm relative overflow-hidden cursor-pointer hover:shadow-md hover:border-primary/20 transition-all group"
-                    >
-                      {/* Borde izquierdo dinámico */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary group-hover:w-1.5 transition-all"></div>
-                      
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="font-caption-caps text-[10px] text-primary tracking-wider font-bold uppercase">
-                          {dateStr}
-                        </span>
-                        <span className="font-title-sm text-title-sm font-bold text-ink bg-surface-soft px-2 py-0.5 rounded text-[11px] font-sans shadow-sm">
-                          {timeStr}
-                        </span>
-                      </div>
-                      
-                      <h4 className="font-title-md text-title-md text-ink font-bold group-hover:text-primary transition-colors mt-1.5 leading-tight">
-                        {cita.servicioNombre}
-                      </h4>
-                      
-                      <div className="flex flex-col gap-1 mt-3 text-body-muted text-body-sm font-medium">
-                        <p className="flex items-center gap-1.5">
-                          <span className="material-symbols-outlined text-[15px] text-primary">pets</span>
-                          <span>Paciente: <strong className="text-ink">{cita.mascotaNombre}</strong></span>
-                        </p>
-                        <p className="flex items-center gap-1.5 mt-0.5">
-                          <span className="material-symbols-outlined text-[15px] text-accent-teal">person</span>
-                          <span>Médico: <strong className="text-ink">{cita.veterinarioNombre}</strong></span>
-                        </p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-
-              <div className="mt-auto pt-4 border-t border-hairline/60">
+                <h3 className="font-bold text-sm text-on-surface">¿Aún no tienes mascotas registradas?</h3>
+                <p className="text-xs text-on-surface-variant text-center mt-1 max-w-sm">
+                  Registra a tu primer compañero de vida para comenzar a gestionar sus citas y vacunas.
+                </p>
                 <button
-                  onClick={() => navigate('/cliente/mis-citas')}
-                  className="w-full bg-surface-card border border-hairline hover:border-outline-variant hover:bg-surface-soft text-ink py-2.5 rounded-full font-button text-button transition-colors cursor-pointer font-bold shadow-sm"
+                  onClick={() => navigate('/cliente/mis-mascotas?action=new')}
+                  className="mt-4 bg-primary text-white px-5 py-2 rounded-lg font-bold text-xs hover:bg-primary-active transition-all cursor-pointer shadow-sm active:scale-95"
                 >
-                  Ver Historial Completo
+                  Registrar Mascota
                 </button>
               </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {mascotas.slice(0, 4).map((mascota) => (
+                  <div
+                    key={mascota.id}
+                    onClick={() => navigate(`/cliente/mis-mascotas`)}
+                    className="bg-white border border-primary/10 rounded-2xl p-6 relative overflow-hidden group cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-container/40 transition-all duration-300 shadow-sm"
+                  >
+                    <div className="absolute top-0 right-0 w-28 h-28 bg-primary/5 -mr-10 -mt-10 rounded-full transition-transform group-hover:scale-125 duration-500" />
+                    
+                    <div className="flex items-start justify-between relative z-10">
+                      <div className="flex items-center gap-4">
+                        <div className="relative">
+                          <img
+                            className="w-20 h-20 rounded-xl object-cover shadow-sm border-2 border-white"
+                            src={getPetImage(mascota.especie)}
+                            alt={mascota.nombre}
+                          />
+                          <div className="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-bold text-on-surface group-hover:text-primary transition-colors">
+                            {mascota.nombre}
+                          </h4>
+                          <p className="text-xs font-medium text-on-surface-variant mt-0.5">
+                            {mascota.especie} {mascota.raza ? `· ${mascota.raza}` : ''}
+                          </p>
+                          <div className="mt-2.5 flex gap-1.5">
+                            <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded text-[9px] font-bold uppercase tracking-wider border border-green-100">
+                              Sano
+                            </span>
+                            <span className="px-2 py-0.5 bg-slate-50 text-on-surface-variant rounded text-[9px] font-bold uppercase tracking-wider">
+                              {getPetAge(mascota.fechaNacimiento)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <span className="material-symbols-outlined text-on-surface-variant opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all">
+                        info
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          {/* Action Center Section */}
+          <section>
+            <h3 className="font-bold text-lg text-on-surface mb-6 border-b border-surface-variant/40 pb-3">Centro de Acciones</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <button 
+                onClick={() => navigate('/cliente/nueva-cita')}
+                className="bg-white border border-primary/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center group cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-container/40 transition-all duration-300 shadow-sm"
+              >
+                <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <span className="material-symbols-outlined text-xl">calendar_add_on</span>
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-on-surface">Agendar Cita</p>
+                  <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">Solicitar visita</p>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/cliente/mis-pagos')}
+                className="bg-white border border-primary/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center group cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-container/40 transition-all duration-300 shadow-sm"
+              >
+                <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-300">
+                  <span className="material-symbols-outlined text-xl">receipt_long</span>
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-on-surface">Mis Facturas</p>
+                  <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">Pagos y cobros</p>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/cliente/mis-citas')}
+                className="bg-white border border-primary/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center group cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-container/40 transition-all duration-300 shadow-sm"
+              >
+                <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all duration-300">
+                  <span className="material-symbols-outlined text-xl">medical_information</span>
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-on-surface">Historial</p>
+                  <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">Consultas previas</p>
+                </div>
+              </button>
+
+              <button 
+                onClick={() => navigate('/cliente/mis-mascotas')}
+                className="bg-white border border-primary/10 rounded-2xl p-6 flex flex-col items-center gap-4 text-center group cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-primary-container/40 transition-all duration-300 shadow-sm"
+              >
+                <div className="w-12 h-12 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-all duration-300">
+                  <span className="material-symbols-outlined text-xl">qr_code_2</span>
+                </div>
+                <div>
+                  <p className="font-bold text-xs text-on-surface">Tarjetas ID</p>
+                  <p className="text-[10px] text-on-surface-variant font-medium mt-0.5">Credenciales digitales</p>
+                </div>
+              </button>
             </div>
-          )}
-        </section>
+          </section>
+        </div>
+
+        {/* Right Column (Timeline of Scheduled Appointments) */}
+        <div className="xl:col-span-4 flex flex-col gap-6">
+          <section className="bg-white border border-primary/10 rounded-3xl p-6 shadow-sm sticky top-6 flex flex-col min-h-[420px] justify-between">
+            <div>
+              <div className="flex justify-between items-center mb-6 pb-3 border-b border-surface-variant/40">
+                <h3 className="font-bold text-base text-on-surface">Próximas Citas</h3>
+                <button
+                  onClick={() => navigate('/cliente/mis-citas')}
+                  className="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-lg">more_horiz</span>
+                </button>
+              </div>
+
+              {citas.length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center p-6 min-h-[220px]">
+                  <div className="bg-surface-container-low p-3 rounded-full border border-outline-variant mb-2 text-on-surface-variant/40">
+                    <span className="material-symbols-outlined text-[28px]">event_available</span>
+                  </div>
+                  <p className="text-xs font-bold text-on-surface">No tienes citas programadas</p>
+                  <p className="text-[11px] text-on-surface-variant mt-1 max-w-[200px]">Cuando agendes una cita aparecerá aquí.</p>
+                  <button
+                    onClick={() => navigate('/cliente/nueva-cita')}
+                    className="mt-4 bg-transparent border border-outline-variant hover:border-primary hover:text-primary hover:bg-primary/5 text-on-surface px-4 py-2 rounded-lg font-semibold text-xs transition-all w-full cursor-pointer shadow-sm"
+                  >
+                    Agendar Cita
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6 relative pl-6 border-l-2 border-primary/30 ml-2 mt-4">
+                  {citas.map((cita) => {
+                    const dateObj = new Date(cita.fechaHora);
+                    const dateStr = dateObj.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }).toUpperCase();
+                    const timeStr = dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+                    return (
+                      <div key={cita.id} className="relative">
+                        {/* Timeline Dot */}
+                        <div className="absolute left-[-31px] top-1.5 w-4 h-4 rounded-full bg-primary border-4 border-white shadow-sm" />
+                        
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="px-2 py-0.5 bg-primary/10 text-primary text-[9px] font-bold rounded uppercase tracking-wider">
+                              {dateStr} - {timeStr}
+                            </span>
+                          </div>
+                          
+                          <h4 className="font-bold text-sm text-on-surface mt-1 leading-snug">
+                            {cita.servicioNombre} · {cita.mascotaNombre}
+                          </h4>
+                          
+                          {/* Doctor info card */}
+                          <div className="mt-3 flex items-center gap-3 p-3 bg-surface-container-low rounded-xl border border-outline-variant/60">
+                            <div className="w-8 h-8 rounded-full bg-primary-container/20 text-primary flex items-center justify-center font-bold text-[10px]">
+                              {cita.veterinarioNombre ? cita.veterinarioNombre.split(' ').slice(0, 2).map(n => n[0]).join('') : 'Dr'}
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-on-surface">{cita.veterinarioNombre}</p>
+                              <p className="text-[9px] text-on-surface-variant font-medium">Especialista Asignado</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Promo/Feature Section */}
+            <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-primary to-primary-active text-white relative overflow-hidden shadow-sm">
+              <div className="absolute -right-4 -bottom-4 opacity-10">
+                <span className="material-symbols-outlined text-8xl">health_metrics</span>
+              </div>
+              <h5 className="font-bold text-sm">Monitoreo Clínico</h5>
+              <p className="text-[11px] mt-1.5 opacity-90 leading-relaxed font-medium">
+                Accede a las analíticas completas de tus mascotas integradas en tiempo real por nuestros especialistas.
+              </p>
+              <button 
+                onClick={() => navigate('/cliente/mis-mascotas')}
+                className="mt-3.5 px-4 py-2 bg-white text-primary text-[10px] font-bold rounded-lg shadow cursor-pointer active:scale-95 transition-all"
+              >
+                Explorar Ficha
+              </button>
+            </div>
+          </section>
+        </div>
 
       </div>
     </div>

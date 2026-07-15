@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>VetCarePro - Cobros Pendientes</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-background": "#181c1e",
+                        "outline": "#6c7a77",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "secondary": "#555f71",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7fafc",
+                        "secondary-fixed": "#d9e3f9",
+                        "tertiary-fixed": "#ffdcc4",
+                        "outline-variant": "#bbc9c7",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary-fixed": "#121c2c",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7fafc",
+                        "tertiary-container": "#ffab67",
+                        "on-tertiary-container": "#773d00",
+                        "on-surface": "#181c1e",
+                        "surface-container": "#ebeef0",
+                        "on-secondary-container": "#596376",
+                        "tertiary": "#8e4e11",
+                        "on-primary-fixed-variant": "#00504a",
+                        "primary": "#006a63",
+                        "on-surface-variant": "#3c4947",
+                        "inverse-primary": "#5adace",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "error-container": "#ffdad6",
+                        "surface-dim": "#d7dadc",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#006a63",
+                        "surface-container-high": "#e5e9eb",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "secondary-container": "#d6e0f6",
+                        "on-primary-container": "#005750",
+                        "primary-fixed": "#79f7ea",
+                        "on-tertiary-fixed": "#2f1500",
+                        "primary-container": "#4fd1c5",
+                        "surface-bright": "#f7fafc",
+                        "on-primary-fixed": "#00201d",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eef1f3",
+                        "surface-container-low": "#f1f4f6",
+                        "primary-fixed-dim": "#5adace",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "base-unit": "8px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "body-md": ["Quicksand"],
+                        "headline-lg-mobile": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    },
+                    "boxShadow": {
+                        "ambient": "0 4px 15px 0 rgba(45, 55, 72, 0.05)"
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        .ambient-shadow { box-shadow: theme('boxShadow.ambient'); }
+    </style>
+</head>
+<body class="font-body-md text-body-md bg-background antialiased flex flex-col md:flex-row min-h-screen">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex h-screen w-64 flex-col fixed left-0 top-0 py-8 px-4 gap-2 bg-surface-container-low text-primary bg-surface-container-low transition-transform duration-200 active:scale-95 z-50 shadow-[1px_0_10px_rgba(45,55,72,0.02)]">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+</div>
+<div>
+<div class="text-headline-md font-headline-md text-primary">VetCarePro</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Veterinary Excellence</div>
+</div>
+</div>
+<ul class="flex flex-col gap-2 flex-grow">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-label-md text-label-md">Clients</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="pets">pets</span>
+<span class="font-label-md text-label-md">Pets</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-label-md text-label-md">Appointments</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-secondary-container/30 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="payments" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-label-md text-label-md">Finances</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-label-md text-label-md">Services</span>
+</a>
+</li>
+</ul>
+<ul class="flex flex-col gap-2 mt-auto">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-md text-label-md">Help Center</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="font-label-md text-label-md">Log Out</span>
+</a>
+</li>
+</ul>
+</nav>
+<!-- TopNavBar (Mobile only) -->
+<nav class="md:hidden flex justify-between items-center px-margin-mobile w-full h-16 bg-surface shadow-sm sticky top-0 z-50 cursor-pointer active:opacity-80">
+<div class="text-headline-md font-headline-md font-bold text-primary">VetCarePro</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-primary" data-icon="settings">settings</span>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-grow md:ml-64 p-margin-mobile md:p-margin-desktop max-w-[1400px] w-full mx-auto">
+<header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-background mb-1">Cobros Pendientes</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Gestión de cuentas por cobrar y facturación pendiente.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-12 px-6 rounded-lg bg-surface-container-high text-on-surface font-label-md text-label-md hover:bg-surface-variant transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="download">download</span>
+                    Exportar
+                </button>
+</div>
+</header>
+<!-- Filters -->
+<div class="bg-surface-container-lowest rounded-xl p-6 ambient-shadow mb-8 border border-surface-container-low flex flex-wrap gap-4 items-end">
+<div class="flex-1 min-w-[200px]">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Buscar Cliente o Mascota</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full h-12 pl-10 pr-4 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-surface" placeholder="Ej. Juan Pérez, Toby..." type="text">
+</div>
+</div>
+<div class="w-full sm:w-auto min-w-[180px]">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Fecha</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">calendar_today</span>
+<select class="w-full h-12 pl-10 pr-8 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-surface appearance-none cursor-pointer">
+<option>Últimos 7 días</option>
+<option>Este mes</option>
+<option>Mes anterior</option>
+<option>Todos</option>
+</select>
+</div>
+</div>
+<div class="w-full sm:w-auto min-w-[180px]">
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-2">Veterinario</label>
+<div class="relative">
+<select class="w-full h-12 px-4 pr-8 rounded-lg border border-outline-variant bg-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all font-body-md text-body-md text-on-surface appearance-none cursor-pointer">
+<option>Todos los especialistas</option>
+<option>Dra. Ana López</option>
+<option>Dr. Carlos Ruiz</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Data Table -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow overflow-hidden border border-surface-container-low">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant/30">
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Cliente</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Mascota</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Servicio / Veterinario</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Fecha</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Monto</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Estado</th>
+<th class="py-4 px-6 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md text-on-background divide-y divide-surface-container-high">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md text-on-surface">María González</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">+34 600 123 456</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-container/30 flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="pets">pets</span>
+</div>
+<div>
+<div class="font-label-md text-label-md">Luna</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Golden Retriever</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md">Consulta General</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Dra. Ana López</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">12 Oct 2023</td>
+<td class="py-4 px-6 font-label-md text-label-md">€ 45.00</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full font-label-sm text-label-sm bg-error-container text-on-error-container">
+                                    Pendiente
+                                </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                                    Registrar Cobro
+                                </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md text-on-surface">Carlos Ramírez</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">+34 611 987 654</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container/50 flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="cruelty_free">cruelty_free</span>
+</div>
+<div>
+<div class="font-label-md text-label-md">Milo</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Gato Persa</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md">Vacunación Anual</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Dr. Carlos Ruiz</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">14 Oct 2023</td>
+<td class="py-4 px-6 font-label-md text-label-md">€ 60.00</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full font-label-sm text-label-sm bg-error-container text-on-error-container">
+                                    Pendiente
+                                </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                                    Registrar Cobro
+                                </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-lowest/50 transition-colors">
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md text-on-surface">Laura Martínez</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">+34 622 345 678</div>
+</td>
+<td class="py-4 px-6">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-container/30 flex items-center justify-center text-on-tertiary-container">
+<span class="material-symbols-outlined text-[16px]" data-icon="pets">pets</span>
+</div>
+<div>
+<div class="font-label-md text-label-md">Rocky</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Bulldog Francés</div>
+</div>
+</div>
+</td>
+<td class="py-4 px-6">
+<div class="font-label-md text-label-md">Rayos X Tórax</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Dra. Ana López</div>
+</td>
+<td class="py-4 px-6 text-on-surface-variant">15 Oct 2023</td>
+<td class="py-4 px-6 font-label-md text-label-md">€ 120.00</td>
+<td class="py-4 px-6">
+<span class="inline-flex items-center px-2.5 py-1 rounded-full font-label-sm text-label-sm bg-error-container text-on-error-container">
+                                    Pendiente
+                                </span>
+</td>
+<td class="py-4 px-6 text-right">
+<button class="h-10 px-4 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary/90 transition-colors shadow-sm">
+                                    Registrar Cobro
+                                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="border-t border-surface-container-low px-6 py-4 flex items-center justify-between bg-surface-bright">
+<div class="font-label-sm text-label-sm text-on-surface-variant">
+                    Mostrando 1 a 3 de 12 cobros
+                </div>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded-md flex items-center justify-center bg-surface-container-high text-on-surface-variant hover:bg-surface-variant transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center bg-primary-container text-on-primary-container font-label-md text-label-md">1</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center bg-surface text-on-surface-variant hover:bg-surface-variant transition-colors font-label-md text-label-md">2</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center bg-surface text-on-surface-variant hover:bg-surface-variant transition-colors font-label-md text-label-md">3</button>
+<button class="w-8 h-8 rounded-md flex items-center justify-center bg-surface text-on-surface-variant hover:bg-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

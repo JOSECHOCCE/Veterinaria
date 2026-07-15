@@ -1,8 +1,12 @@
 {
   "mcpServers": {
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp"
+    },
     "engram": {
       "args": [
-        "mcp"
+        "mcp",
+        "--project=veterinaria"
       ],
       "command": "engram"
     }

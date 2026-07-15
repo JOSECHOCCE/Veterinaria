@@ -117,301 +117,301 @@ export default function FichaClienteDetalle() {
     return <ErrorMessage title="Error al cargar la ficha" message={error || 'No se encontró el propietario'} onRetry={loadDetails} />;
   }
 
+  const getInitials = (nombre: string) => {
+    if (!nombre) return 'U';
+    return nombre
+      .split(' ')
+      .filter((n) => n.length > 0)
+      .slice(0, 2)
+      .map((n) => n[0].toUpperCase())
+      .join('');
+  };
+
+  const getInitialsBg = (nombre: string) => {
+    if (!nombre) return 'bg-secondary-container text-on-secondary-container';
+    const char = nombre.trim().charAt(0).toUpperCase();
+    if (char >= 'A' && char <= 'H') {
+      return 'bg-secondary-container text-on-secondary-container';
+    } else if (char >= 'I' && char <= 'P') {
+      return 'bg-tertiary-container text-on-tertiary-container';
+    } else {
+      return 'bg-primary-container/20 text-on-primary-container';
+    }
+  };
+
   const { usuario, citas, totalGastado, pagosPendientes } = detalle;
 
   return (
-    <div className="flex-1 flex flex-col gap-lg pb-xxl">
+    <div className="flex-1 flex flex-col min-w-0 p-6 md:pt-4 md:px-10 md:pb-10 max-w-[1400px] mx-auto w-full">
       {/* Context & Header */}
       <PageHeader
         title={
-          <div className="flex flex-col sm:flex-row sm:items-center gap-md select-text">
-            <span>{usuario?.nombre}</span>
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 select-text">
+            <span className="font-bold text-on-surface">{usuario?.nombre}</span>
             <span
-              className={`inline-flex items-center gap-xxs px-3 py-1 rounded-full border font-caption text-caption ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${
                 usuario?.activo
                   ? 'bg-success/10 border-success/30 text-success'
                   : 'bg-surface-soft border-hairline text-body-muted'
               }`}
             >
               <span className={`w-2 h-2 rounded-full ${usuario?.activo ? 'bg-success' : 'bg-secondary'}`} />
-              {usuario?.activo ? 'Activo' : 'Inactivo'}
+              {usuario?.activo ? 'Cliente Activo' : 'Inactivo'}
             </span>
           </div>
         }
-        backLink={{ to: '/admin/clientes', label: 'Directorio' }}
-        description={
-          <div className="flex flex-wrap gap-x-xl gap-y-sm mt-md select-text">
-            <div className="flex items-center gap-sm text-body-muted">
-              <span className="material-symbols-outlined text-[18px]">phone_iphone</span>
-              <span className="font-body-md text-body-md">{usuario?.telefono}</span>
-            </div>
-            <div className="flex items-center gap-sm text-body-muted">
-              <span className="material-symbols-outlined text-[18px]">mail</span>
-              <span className="font-body-md text-body-md">{usuario?.email || 'Sin correo electrónico'}</span>
-            </div>
-            {usuario?.direccion && (
-              <div className="flex items-center gap-sm text-body-muted w-full md:w-auto">
-                <span className="material-symbols-outlined text-[18px]">location_on</span>
-                <span className="font-body-md text-body-md">{usuario.direccion}</span>
-              </div>
-            )}
-            {usuario?.dni && (
-              <div className="flex items-center gap-sm text-body-muted w-full md:w-auto border-t md:border-t-0 md:border-l border-hairline pt-xxs md:pt-0 md:pl-md">
-                <span className="font-caption text-caption uppercase mr-xxs">DNI:</span>
-                <span className="font-code text-code text-ink">{usuario.dni}</span>
-              </div>
-            )}
-          </div>
-        }
+        backLink={{ to: '/admin/clientes', label: 'Volver a Clientes' }}
         actions={
-          <div className="flex items-center gap-sm">
-            <Link to={`/admin/clientes/${clientId}/editar`}>
-              <motion.button
-                className="px-4 py-2 border border-ink text-ink font-button text-button rounded-lg hover:bg-surface-soft transition-colors flex items-center gap-sm cursor-pointer shadow-sm"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="material-symbols-outlined text-[18px]">edit</span>
-                Editar Ficha
-              </motion.button>
-            </Link>
+          <div className="flex items-center gap-3">
             <motion.button
               onClick={handleToggleActivo}
-              className={`px-4 py-2 border border-transparent font-button text-button rounded-lg transition-colors flex items-center gap-sm cursor-pointer ${
+              className={`h-10 px-4 border rounded-lg font-medium text-sm flex items-center gap-2 cursor-pointer transition-colors ${
                 usuario?.activo
-                  ? 'text-error hover:bg-error-container/30'
-                  : 'text-success hover:bg-success/10'
+                  ? 'border-error text-error hover:bg-error-container/20'
+                  : 'border-success text-success hover:bg-green-50'
               }`}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileTap={{ scale: 0.95 }}
             >
               <span className="material-symbols-outlined text-[18px]">
                 {usuario?.activo ? 'block' : 'check_circle'}
               </span>
-              {usuario?.activo ? 'Inactivar' : 'Activar Cuenta'}
+              {usuario?.activo ? 'Inactivar Cuenta' : 'Activar Cuenta'}
             </motion.button>
+            <Link to={`/admin/clientes/${clientId}/editar`}>
+              <motion.button
+                className="h-10 px-4 bg-primary text-white font-medium text-sm rounded-lg hover:bg-primary-active transition-colors flex items-center gap-2 cursor-pointer shadow-sm"
+                whileTap={{ scale: 0.95 }}
+              >
+                <span className="material-symbols-outlined text-[18px]">edit</span>
+                Editar Perfil
+              </motion.button>
+            </Link>
           </div>
         }
       />
 
       {/* Bento Layout Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-xl">
-        {/* Left Column (Mascotas & Citas) */}
-        <div className="lg:col-span-8 flex flex-col gap-xxl">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        
+        {/* Client Identity Card (Col-span-2) */}
+        <div className="lg:col-span-2 bg-surface-container-lowest rounded-xl border border-surface-variant p-6 flex flex-col md:flex-row gap-6 relative overflow-hidden shadow-sm">
+          {/* Decorative radial gradient */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 pointer-events-none" />
           
-          {/* Mascotas Section */}
-          <section className="bg-canvas">
-            <div className="flex items-end justify-between mb-lg border-b border-hairline pb-sm">
-              <h3 className="font-display-sm text-display-sm text-ink">Mis Mascotas</h3>
-              <Link to={`/admin/mascotas?new=true&clienteId=${clientId}`}>
-                <motion.button
-                  className="text-primary hover:text-primary-active font-button text-button flex items-center gap-xxs transition-colors cursor-pointer"
-                  whileHover={{ x: 1 }}
-                >
-                  <span className="material-symbols-outlined text-[18px]">add</span>
-                  Registrar nueva
-                </motion.button>
-              </Link>
-            </div>
-
-            {usuario?.mascotas && usuario.mascotas.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
-                {usuario.mascotas.map((mascota) => (
-                  <motion.div
-                    key={mascota.id}
-                    className="group bg-surface-card rounded-xl p-lg flex flex-col gap-md transition-all hover:bg-surface-soft relative overflow-hidden border border-hairline shadow-sm"
-                    whileHover={{ y: -2 }}
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-surface-container-high rounded-bl-[100px] -z-10 transition-transform group-hover:scale-110" />
-                    
-                    <div className="flex justify-between items-start">
-                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-canvas bg-surface-soft flex items-center justify-center shrink-0">
-                        {mascota.fotoUrl ? (
-                          <img
-                            src={mascota.fotoUrl}
-                            alt={mascota.nombre}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span className="material-symbols-outlined text-primary/40 text-[28px]">
-                            pets
-                          </span>
-                        )}
-                      </div>
-                      <Link
-                        to={`/admin/mascotas/${mascota.id}`}
-                        className="text-body-muted hover:text-ink p-xxs hover:bg-surface-variant/40 rounded-full transition-colors cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined">visibility</span>
-                      </Link>
-                    </div>
-
-                    <div>
-                      <h4 className="font-title-lg text-title-lg text-ink font-semibold">
-                        {mascota.nombre}
-                      </h4>
-                      <p className="font-body-sm text-body-sm text-body-muted mt-1">
-                        {mascota.especie} {mascota.raza ? `· ${mascota.raza}` : ''}{' '}
-                        {mascota.sexo ? `· ${mascota.sexo}` : ''}
-                      </p>
-                    </div>
-
-                    <div className="mt-auto pt-sm border-t border-hairline flex gap-sm">
-                      <span className="inline-flex items-center gap-1 text-xs font-caption text-secondary">
-                        <span className="material-symbols-outlined text-[14px]">
-                          {mascota.activo ? 'check_circle' : 'cancel'}
-                        </span>{' '}
-                        {mascota.activo ? 'Ficha Activa' : 'Ficha Inactiva'}
-                      </span>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            ) : (
-              <div className="p-xl bg-surface-card rounded-xl border border-hairline text-center">
-                <span className="material-symbols-outlined text-body-muted/40 text-[48px] mb-xs">
-                  pets
-                </span>
-                <p className="font-body-md text-body-md text-body-muted">
-                  Este propietario aún no tiene mascotas registradas.
+          <div className={`relative z-10 w-24 h-24 rounded-full flex items-center justify-center font-bold text-3xl shrink-0 ${getInitialsBg(usuario?.nombre || '')}`}>
+            {getInitials(usuario?.nombre || '')}
+          </div>
+          
+          <div className="flex-1 relative z-10">
+            <div className="flex justify-between items-start">
+              <div>
+                <h3 className="font-bold text-2xl text-on-surface">{usuario?.nombre}</h3>
+                <p className="font-medium text-sm text-on-surface-variant flex items-center gap-2 mt-1 select-text">
+                  <span className="material-symbols-outlined text-[18px] text-primary">location_on</span>
+                  {usuario?.direccion || 'Sin dirección registrada'}
                 </p>
               </div>
-            )}
-          </section>
-
-          {/* Historial de Citas Section */}
-          <section className="bg-canvas">
-            <div className="flex items-end justify-between mb-lg border-b border-hairline pb-sm">
-              <h3 className="font-display-sm text-display-sm text-ink">Historial de Citas</h3>
             </div>
-
-            {citas && citas.length > 0 ? (
-              <div className="relative pl-6 border-l border-hairline flex flex-col gap-lg ml-xs">
-                {citas.map((cita) => (
-                  <motion.div
-                    key={cita.id}
-                    className="relative"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <div className="absolute -left-[31px] top-1 w-3 h-3 rounded-full bg-canvas border-2 border-primary z-10" />
-                    
-                    <div className="flex flex-col sm:flex-row sm:items-baseline gap-xs sm:gap-md">
-                      <span className="font-caption-uppercase text-caption-uppercase text-body-muted w-28 flex-shrink-0">
-                        {formatDate(cita.fechaHora)}
-                      </span>
-                      <div className="bg-surface-card rounded-lg p-4 flex-1 border border-hairline hover:shadow-sm transition-all">
-                        <div className="flex justify-between items-start mb-sm gap-xs">
-                          <h5 className="font-title-sm text-title-sm text-ink font-semibold">
-                            {cita.servicio?.nombre || 'Consulta Médica'}{' '}
-                            {cita.mascota ? `(${cita.mascota.nombre})` : ''}
-                          </h5>
-                          <span
-                            className={`text-[11px] font-caption px-2 py-0.5 rounded-sm uppercase tracking-wide border ${getEstadoBadgeClass(
-                              cita.estado
-                            )}`}
-                          >
-                            {getEstadoLabel(cita.estado)}
-                          </span>
-                        </div>
-                        {cita.motivo && (
-                          <p className="font-body-sm text-body-sm text-body-muted mb-md italic">
-                            Motivo: "{cita.motivo}"
-                          </p>
-                        )}
-                        <div className="mt-md flex flex-wrap gap-x-lg gap-y-xs justify-between items-center text-xs font-caption text-secondary border-t border-hairline/40 pt-sm">
-                          {cita.veterinario && (
-                            <span className="flex items-center gap-xs">
-                              <span className="material-symbols-outlined text-[14px]">person</span>
-                              Dr/a: {cita.veterinario.nombre}
-                            </span>
-                          )}
-                          <span className="font-semibold text-ink">
-                            Total: {formatCurrency(cita.montoTotal)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">call</span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-on-surface-variant">Teléfono</p>
+                  <p className="text-sm font-semibold text-on-surface select-text">{usuario?.telefono}</p>
+                </div>
               </div>
-            ) : (
-              <div className="p-xl bg-surface-card rounded-xl border border-hairline text-center">
-                <span className="material-symbols-outlined text-body-muted/40 text-[48px] mb-xs">
-                  calendar_today
-                </span>
-                <p className="font-body-md text-body-md text-body-muted">
-                  No se registran visitas previas en el historial.
-                </p>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">mail</span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-on-surface-variant">Email</p>
+                  <p className="text-sm font-semibold text-on-surface select-text">{usuario?.email || 'Sin email registrado'}</p>
+                </div>
               </div>
-            )}
-          </section>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-on-surface-variant">Cliente desde</p>
+                  <p className="text-sm font-semibold text-on-surface">OCT 15, 2021</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">badge</span>
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-on-surface-variant">DNI / ID</p>
+                  <p className="text-sm font-code text-on-surface select-text">{usuario?.dni || 'Sin DNI registrado'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Right Column (Sidebar Action Cards) */}
-        <div className="lg:col-span-4 flex flex-col gap-xl">
-          {/* Planificar Visita (Bento Card CTA) */}
-          <div className="bg-surface-container-low rounded-xl p-xl border border-hairline flex flex-col gap-md text-center items-center">
-            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-xs">
-              <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+        {/* Financial Summary Card */}
+        <div className="bg-surface-container-lowest rounded-xl border border-surface-variant p-6 flex flex-col justify-between shadow-sm">
+          <div className="flex items-center justify-between mb-4 border-b border-surface-variant/40 pb-3">
+            <h3 className="font-semibold text-base text-on-surface">Estado Financiero</h3>
+            <span className="material-symbols-outlined text-on-surface-variant">account_balance_wallet</span>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="p-4 rounded-lg bg-surface-container-low flex justify-between items-center border border-outline-variant">
+              <span className="text-sm font-medium text-on-surface-variant">Total Facturado</span>
+              <span className="font-bold text-lg text-on-surface">{formatCurrency(totalGastado || 0)}</span>
             </div>
-            <h3 className="font-display-sm text-display-sm text-ink leading-tight font-semibold">
-              Planificar visita
-            </h3>
-            <p className="font-body-sm text-body-sm text-body-muted">
-              Agenda la próxima revisión o consulta para cualquiera de las mascotas asociadas.
-            </p>
-            <Link
-              to={`/admin/agenda?clienteId=${clientId}`}
-              className="w-full mt-sm"
-              onClick={(e) => {
-                if (!usuario?.activo) {
-                  e.preventDefault();
-                  toast.error('No se pueden agendar citas para clientes inactivos.');
-                }
-              }}
-            >
-              <button
-                disabled={!usuario?.activo}
-                className="w-full bg-primary hover:bg-primary-active text-on-primary font-button text-button py-3 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-              >
-                Crear cita
+            
+            <div className={`p-4 rounded-lg border flex flex-col gap-1 ${
+              (pagosPendientes || 0) > 0 
+                ? 'bg-error-container/20 border-error'
+                : 'bg-surface-container-low border-outline-variant'
+            }`}>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-medium text-on-surface-variant">Deuda Pendiente</span>
+                <span className={`font-bold text-lg ${(pagosPendientes || 0) > 0 ? 'text-error' : 'text-on-surface'}`}>
+                  {formatCurrency(pagosPendientes || 0)}
+                </span>
+              </div>
+              {(pagosPendientes || 0) > 0 && (
+                <p className="text-[10px] font-semibold text-error-container bg-error/15 px-2 py-0.5 rounded self-start mt-1 uppercase tracking-wide">
+                  Pago pendiente de cobro
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <Link to={`/admin/pagos?clienteId=${clientId}`} className="mt-4">
+            <button className="w-full h-10 rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-semibold text-sm cursor-pointer">
+              Ver Historial de Pagos
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* Bottom Grid: Pets & Appointment Timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        
+        {/* Associated Pets Card */}
+        <div className="bg-surface-container-lowest rounded-xl border border-surface-variant p-6 flex flex-col shadow-sm">
+          <div className="flex items-center justify-between mb-6 border-b border-surface-variant/40 pb-3">
+            <h3 className="font-bold text-base text-on-surface">Mascotas Asociadas</h3>
+            <Link to={`/admin/mascotas?new=true&clienteId=${clientId}`}>
+              <button className="h-8 px-3 rounded-lg bg-primary/10 border border-primary/20 text-primary font-semibold text-xs hover:bg-primary/20 transition-colors flex items-center gap-1 cursor-pointer">
+                <span className="material-symbols-outlined text-[16px]">add</span>
+                Añadir Mascota
               </button>
             </Link>
           </div>
-
-          {/* Resumen Financiero Card */}
-          <div className="bg-surface-card rounded-xl p-lg flex flex-col gap-md border border-hairline">
-            <div className="flex items-center gap-sm border-b border-hairline pb-sm mb-xs">
-              <span className="material-symbols-outlined text-ink">account_balance_wallet</span>
-              <h3 className="font-title-md text-title-md text-ink font-semibold">Resumen Financiero</h3>
-            </div>
-            
-            <div className="flex flex-col gap-xs">
-              <span className="font-caption text-caption text-body-muted uppercase tracking-wide">
-                Deuda Pendiente
-              </span>
-              <div className="flex items-baseline gap-sm">
-                <span className="font-display-md text-display-md text-ink font-bold">
-                  {formatCurrency(pagosPendientes || 0)}
-                </span>
-                {(pagosPendientes || 0) > 0 && (
-                  <span className="inline-flex items-center gap-1 text-[10px] font-caption text-error bg-error/10 border border-error/20 px-2 py-0.5 rounded">
-                    Pagos pendientes
+          
+          <div className="space-y-3 flex-1">
+            {usuario?.mascotas && usuario.mascotas.length > 0 ? (
+              usuario.mascotas.map((mascota) => (
+                <Link
+                  key={mascota.id}
+                  to={`/admin/mascotas/${mascota.id}`}
+                  className="flex items-center gap-4 p-3 rounded-lg border border-surface-variant/60 hover:bg-surface-container-low transition-colors cursor-pointer group"
+                >
+                  <div className="w-12 h-12 rounded-full bg-primary-container/20 text-on-primary-container flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-[24px]">pets</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center mb-0.5">
+                      <h4 className="font-bold text-sm text-on-surface group-hover:text-primary transition-colors truncate">
+                        {mascota.nombre}
+                      </h4>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant">
+                        {mascota.especie === 'Perro' ? 'Perro' : mascota.especie === 'Gato' ? 'Gato' : mascota.especie}
+                      </span>
+                    </div>
+                    <p className="text-xs text-on-surface-variant truncate">
+                      {mascota.raza || 'Raza no especificada'} • {mascota.sexo || 'Sexo no especificado'}
+                    </p>
+                  </div>
+                  <span className="material-symbols-outlined text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">
+                    chevron_right
                   </span>
-                )}
+                </Link>
+              ))
+            ) : (
+              <div className="p-8 text-center border border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center">
+                <span className="material-symbols-outlined text-on-surface-variant/40 text-[48px] mb-2">pets</span>
+                <p className="text-sm font-medium text-on-surface-variant">Este propietario aún no tiene mascotas asociadas.</p>
               </div>
-              <p className="font-body-sm text-body-sm text-body-muted mt-1">
-                Total histórico facturado: <strong className="text-ink">{formatCurrency(totalGastado || 0)}</strong>
-              </p>
-            </div>
-            
-            <Link to={`/admin/pagos?clienteId=${clientId}`} className="w-full mt-sm">
-              <button className="w-full border border-ink text-ink font-button text-button py-2 rounded-lg hover:bg-surface-soft transition-colors cursor-pointer">
-                Ver Facturación
-              </button>
-            </Link>
+            )}
+          </div>
+        </div>
+
+        {/* Appointment Timeline Card */}
+        <div className="bg-surface-container-lowest rounded-xl border border-surface-variant p-6 flex flex-col shadow-sm">
+          <div className="flex items-center justify-between mb-6 border-b border-surface-variant/40 pb-3">
+            <h3 className="font-bold text-base text-on-surface">Historial de Citas</h3>
+          </div>
+          
+          <div className="space-y-4 flex-1">
+            {citas && citas.length > 0 ? (
+              <div className="relative pl-6 border-l-2 border-surface-variant ml-2 space-y-4">
+                {citas.slice(0, 3).map((cita) => (
+                  <div key={cita.id} className="relative">
+                    {/* Timeline Dot */}
+                    <div className="absolute w-3 h-3 bg-primary rounded-full -left-[31px] top-1.5 border-2 border-surface-container-lowest" />
+                    
+                    <div className="bg-surface-container-low p-3.5 rounded-lg border border-outline-variant hover:shadow-sm transition-all flex flex-col gap-2">
+                      <div className="flex justify-between items-start gap-2">
+                        <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                          {formatDate(cita.fechaHora)}
+                        </span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wide border ${getEstadoBadgeClass(cita.estado)}`}>
+                          {getEstadoLabel(cita.estado)}
+                        </span>
+                      </div>
+                      
+                      <div className="flex justify-between items-baseline gap-2">
+                        <h4 className="font-bold text-sm text-on-surface">
+                          {cita.servicio?.nombre || 'Consulta Médica'}
+                        </h4>
+                        {cita.mascota && (
+                          <span className="text-[11px] font-bold text-on-surface-variant">
+                            Paciente: {cita.mascota.nombre}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {cita.motivo && (
+                        <p className="text-xs text-on-surface-variant italic">
+                          "{cita.motivo}"
+                        </p>
+                      )}
+                      
+                      <div className="flex justify-between items-center text-[10px] font-semibold text-on-surface-variant border-t border-outline-variant/40 pt-2 mt-1">
+                        {cita.veterinario && (
+                          <span className="flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">person</span>
+                            Dr/a: {cita.veterinario.nombre}
+                          </span>
+                        )}
+                        <span className="font-bold text-on-surface">
+                          Monto: {formatCurrency(cita.montoTotal)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-8 text-center border border-dashed border-outline-variant rounded-lg flex flex-col items-center justify-center h-full">
+                <span className="material-symbols-outlined text-on-surface-variant/40 text-[48px] mb-2">calendar_today</span>
+                <p className="text-sm font-medium text-on-surface-variant">No se registran visitas previas en el historial.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

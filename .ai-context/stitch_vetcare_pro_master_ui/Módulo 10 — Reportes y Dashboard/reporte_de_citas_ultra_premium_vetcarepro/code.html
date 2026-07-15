@@ -1,0 +1,547 @@
+<!DOCTYPE html><html class="light" lang="es"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>VetCarePro | Reporte de Citas</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#f7fafc",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#006a63",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#d9e3f9",
+                    "tertiary-fixed": "#ffdcc4",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e5e9eb",
+                    "inverse-surface": "#2d3133",
+                    "on-error": "#ffffff",
+                    "on-secondary-container": "#596376",
+                    "error": "#ba1a1a",
+                    "primary-container": "#4fd1c5",
+                    "on-primary-fixed-variant": "#00504a",
+                    "tertiary-container": "#ffab67",
+                    "on-primary-fixed": "#00201d",
+                    "surface-container-low": "#f1f4f6",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#5adace",
+                    "on-primary-container": "#005750",
+                    "primary": "#006a63",
+                    "on-background": "#181c1e",
+                    "on-tertiary-container": "#773d00",
+                    "surface-dim": "#d7dadc",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed-dim": "#bdc7dc",
+                    "outline-variant": "#bbc9c7",
+                    "on-secondary": "#ffffff",
+                    "primary-fixed-dim": "#5adace",
+                    "primary-fixed": "#79f7ea",
+                    "on-surface": "#181c1e",
+                    "outline": "#6c7a77",
+                    "tertiary": "#8e4e11",
+                    "on-secondary-fixed-variant": "#3d4759",
+                    "tertiary-fixed-dim": "#ffb77f",
+                    "inverse-on-surface": "#eef1f3",
+                    "background": "#f7fafc",
+                    "surface": "#f7fafc",
+                    "on-secondary-fixed": "#121c2c",
+                    "on-tertiary-fixed-variant": "#6f3800",
+                    "surface-container-highest": "#e0e3e5",
+                    "secondary-container": "#d6e0f6",
+                    "surface-container": "#ebeef0",
+                    "on-surface-variant": "#3c4947",
+                    "secondary": "#555f71"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "gutter": "24px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "container-max-width": "1200px",
+                    "base-unit": "8px"
+            },
+            "fontFamily": {
+                    "label-md": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "headline-lg-mobile": ["Quicksand"],
+                    "label-sm": ["Quicksand"],
+                    "headline-lg": ["Quicksand"],
+                    "body-md": ["Quicksand"],
+                    "body-lg": ["Quicksand"]
+            },
+            "fontSize": {
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f4f6;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #bbc9c7;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #6c7a77;
+        }
+        .table-row-hover:hover {
+            background-color: rgba(0, 106, 99, 0.04);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex h-screen overflow-hidden">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="flex flex-col h-full py-base-unit bg-surface-container-low dark:bg-inverse-surface h-screen w-64 flex-shrink-0">
+<div class="px-6 py-8 mb-4">
+<h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed">VetCarePro</h1>
+<p class="text-label-sm text-on-surface-variant/70 uppercase tracking-widest">Veterinary Excellence</p>
+</div>
+<nav class="flex-grow space-y-1 px-4">
+<a class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="dashboard">dashboard</span>
+<span class="font-body-md text-body-md">Dashboard</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="groups">groups</span>
+<span class="font-body-md text-body-md">Clients</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="pets">pets</span>
+<span class="font-body-md text-body-md">Pets</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl transition-all text-primary dark:text-primary-fixed font-bold border-r-4 border-primary dark:border-primary-fixed bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="calendar_today">calendar_today</span>
+<span class="font-body-md text-body-md">Appointments</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="payments">payments</span>
+<span class="font-body-md text-body-md">Finances</span>
+</a>
+<a class="flex items-center px-4 py-3 rounded-xl transition-colors duration-200 text-on-surface-variant dark:text-outline-variant hover:text-primary hover:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="medical_services">medical_services</span>
+<span class="font-body-md text-body-md">Services</span>
+</a>
+</nav>
+<div class="px-4 mt-auto space-y-1 mb-6">
+<button class="w-full mb-4 py-3 px-4 bg-primary text-on-primary rounded-xl font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-lg">add_circle</span>
+                New Appointment
+            </button>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="settings">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center px-4 py-2 text-on-surface-variant hover:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined mr-3" data-icon="help_outline">help_outline</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace -->
+<main class="flex-grow flex flex-col min-w-0 bg-surface overflow-hidden">
+<!-- TopNavBar (Authority: JSON) -->
+<header class="flex justify-between items-center px-margin-desktop w-full border-b border-outline-variant/30 bg-surface dark:bg-on-background shadow-sm h-16 flex-shrink-0">
+<div class="flex items-center gap-6 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 focus:ring-2 focus:ring-primary/20 text-body-md" placeholder="Search appointments or clients..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 px-4">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2 rounded-lg font-bold hover:scale-95 duration-150 transition-all">
+                    Check In
+                </button>
+<div class="flex items-center gap-3 ml-4 border-l pl-6 border-outline-variant/30">
+<div class="text-right hidden xl:block">
+<p class="font-label-md text-label-md text-on-surface">Dr. Smith</p>
+<p class="text-[10px] text-on-surface-variant uppercase tracking-tighter">Senior Veterinarian</p>
+</div>
+<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A clean, professional headshot of a smiling veterinarian in a clinical setting, wearing a high-quality white lab coat with a subtle logo. The background is a soft-focus modern veterinary clinic with bright, natural morning light casting gentle shadows. The overall aesthetic is trustworthy, minimalist, and deeply professional with a soft teal color accent." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHdfW_vVdCOdOvbHF2KYHPZtwdaMbUed2CROllfw98aB9sxeR99-gh5yulSoVMZcXpg6TuaAqiWrGmQwTGFvCgZ_R_7orZD5TF39IJ2G_-CCXWqTU6oRa-1v50bVxmLelrb9ZLjaO8Gnld34PKTFedy0x56EbyYuClWch8zw_d5JI0cG8iKMrlkJNnkywXj8oayGppiqTOcesX70aN1Wh2h8bfmK8dRAharAlnQh5M7fjxlcVeNSrsgA">
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="flex-grow overflow-hidden flex flex-col p-8 gap-8">
+<!-- Header & Export Action -->
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">Reporte de Citas</h2>
+<p class="text-body-md text-on-surface-variant">Gestión administrativa y análisis de flujo de pacientes.</p>
+</div>
+<button class="flex items-center gap-2 bg-surface-container-highest text-primary border border-primary/20 px-6 py-3 rounded-xl font-bold hover:bg-primary hover:text-on-primary transition-all shadow-sm">
+<span class="material-symbols-outlined">ios_share</span>
+                    Exportar Datos
+                </button>
+</div>
+<!-- Advanced Filter Bar -->
+<section class="bg-white rounded-2xl p-6 shadow-sm border border-outline-variant/20 grid grid-cols-1 md:grid-cols-4 xl:grid-cols-5 gap-6 items-end">
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block">Rango de Fecha</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-sm">calendar_month</span>
+<input class="w-full border border-outline-variant rounded-lg py-2 pl-9 pr-3 text-body-md focus:border-primary outline-none transition-colors" type="text" value="01 Oct, 2023 - 31 Oct, 2023">
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block">Veterinario</label>
+<select class="w-full border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:border-primary outline-none transition-colors bg-white">
+<option>Todos los Especialistas</option>
+<option>Dr. Smith (Senior)</option>
+<option>Dra. Garcia (Surgery)</option>
+<option>Dr. Miller (General)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block">Estado</label>
+<select class="w-full border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:border-primary outline-none transition-colors bg-white">
+<option>Todos los Estados</option>
+<option>Completado</option>
+<option>Cancelado</option>
+<option>No Asistió</option>
+<option>En Proceso</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-md text-label-md text-on-surface-variant block">Servicio</label>
+<select class="w-full border border-outline-variant rounded-lg py-2 px-3 text-body-md focus:border-primary outline-none transition-colors bg-white">
+<option>Todos los Servicios</option>
+<option>Consulta General</option>
+<option>Vacunación</option>
+<option>Cirugía</option>
+<option>Limpieza Dental</option>
+</select>
+</div>
+<div class="flex gap-2">
+<button class="flex-grow bg-primary-container text-on-primary-container py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 hover:brightness-95 transition-all">
+<span class="material-symbols-outlined text-lg">filter_alt</span>
+                        Aplicar
+                    </button>
+<button class="p-2.5 border border-outline-variant rounded-lg text-outline hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined">restart_alt</span>
+</button>
+</div>
+</section>
+<!-- High-Density Data Table -->
+<div class="flex-grow bg-white rounded-2xl shadow-sm border border-outline-variant/20 overflow-hidden flex flex-col">
+<div class="overflow-x-auto custom-scrollbar flex-grow">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead class="sticky top-0 bg-surface-container-low z-10">
+<tr>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Fecha &amp; Hora</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Cliente</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Paciente</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Servicio</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Veterinario</th>
+<th class="px-6 py-4 font-label-md text-label-md text-on-surface-variant border-b border-outline-variant/30">Estado Final</th>
+<th class="px-6 py-4 border-b border-outline-variant/30"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/20">
+<!-- Row 1 -->
+<tr class="table-row-hover transition-colors">
+<td class="px-6 py-4">
+<p class="font-label-md text-label-md text-on-surface">24 Oct, 2023</p>
+<p class="text-label-sm text-on-surface-variant">09:30 AM</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">EM</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Elena Martínez</p>
+<p class="text-label-sm text-on-surface-variant">ID: 48292</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                                        Luna (Husky)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Consulta General</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Dr. Smith</p>
+</td>
+<td class="px-6 py-4">
+<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">Completado</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="table-row-hover transition-colors">
+<td class="px-6 py-4">
+<p class="font-label-md text-label-md text-on-surface">24 Oct, 2023</p>
+<p class="text-label-sm text-on-surface-variant">10:45 AM</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center text-xs font-bold">RG</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Ricardo Gómez</p>
+<p class="text-label-sm text-on-surface-variant">ID: 10293</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                                        Oliver (Gato)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Vacunación Anual</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Dra. Garcia</p>
+</td>
+<td class="px-6 py-4">
+<span class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">En Proceso</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="table-row-hover transition-colors">
+<td class="px-6 py-4">
+<p class="font-label-md text-label-md text-on-surface">24 Oct, 2023</p>
+<p class="text-label-sm text-on-surface-variant">12:15 PM</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">SJ</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Sofia Jimenez</p>
+<p class="text-label-sm text-on-surface-variant">ID: 55431</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                                        Coco (Poodle)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Cirugía Dental</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Dr. Miller</p>
+</td>
+<td class="px-6 py-4">
+<span class="bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">No Asistió</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Repeat Rows for Visual Density -->
+<!-- Row 4 -->
+<tr class="table-row-hover transition-colors">
+<td class="px-6 py-4">
+<p class="font-label-md text-label-md text-on-surface">24 Oct, 2023</p>
+<p class="text-label-sm text-on-surface-variant">02:30 PM</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold">MT</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Marco Torres</p>
+<p class="text-label-sm text-on-surface-variant">ID: 99281</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                                        Rex (Pastor Alemán)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Radiografía</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Dra. Garcia</p>
+</td>
+<td class="px-6 py-4">
+<span class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">Completado</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="table-row-hover transition-colors">
+<td class="px-6 py-4">
+<p class="font-label-md text-label-md text-on-surface">24 Oct, 2023</p>
+<p class="text-label-sm text-on-surface-variant">04:00 PM</p>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center text-xs font-bold">AV</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Andrea Vega</p>
+<p class="text-label-sm text-on-surface-variant">ID: 33104</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-sm font-bold">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">pets</span>
+                                        Mimi (Siames)
+                                    </span>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Desparasitación</p>
+</td>
+<td class="px-6 py-4">
+<p class="text-body-md text-on-surface">Dr. Smith</p>
+</td>
+<td class="px-6 py-4">
+<span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider">Agendado</span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-outline hover:text-primary transition-colors p-1">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Footer Pagination -->
+<div class="bg-surface-container-low px-6 py-4 flex justify-between items-center border-t border-outline-variant/30">
+<p class="text-label-sm text-on-surface-variant">Mostrando 1-15 de 1,240 registros</p>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded hover:bg-surface-container-high transition-all text-on-surface-variant disabled:opacity-30" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded bg-primary text-on-primary font-bold text-xs">1</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high text-on-surface-variant font-bold text-xs">2</button>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high text-on-surface-variant font-bold text-xs">3</button>
+<span class="px-1 text-on-surface-variant">...</span>
+<button class="w-8 h-8 rounded hover:bg-surface-container-high text-on-surface-variant font-bold text-xs">83</button>
+</div>
+<button class="p-2 rounded hover:bg-surface-container-high transition-all text-on-surface-variant">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dashboard Mini-Stats Footer -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">task_alt</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-tighter">Citas Totales</p>
+<p class="text-headline-md font-bold text-on-surface">1,240</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-tighter">Efectividad</p>
+<p class="text-headline-md font-bold text-on-surface">92.4%</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">cancel</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-tighter">Cancelaciones</p>
+<p class="text-headline-md font-bold text-on-surface">4.1%</p>
+</div>
+</div>
+<div class="bg-white p-4 rounded-xl shadow-sm border border-outline-variant/20 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+</div>
+<div>
+<p class="text-label-sm text-on-surface-variant uppercase tracking-tighter">Crecimiento Mensual</p>
+<p class="text-headline-md font-bold text-on-surface">+12%</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.querySelectorAll('tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.add('scale-[0.99]');
+                setTimeout(() => {
+                    row.classList.remove('scale-[0.99]');
+                }, 100);
+            });
+        });
+
+        // Simple filter button interaction
+        const applyBtn = document.querySelector('button.bg-primary-container');
+        applyBtn.addEventListener('click', function() {
+            this.innerHTML = '<span class="material-symbols-outlined text-lg animate-spin">sync</span> Procesando...';
+            setTimeout(() => {
+                this.innerHTML = '<span class="material-symbols-outlined text-lg">filter_alt</span> Aplicar';
+            }, 800);
+        });
+    </script>
+</body></html>

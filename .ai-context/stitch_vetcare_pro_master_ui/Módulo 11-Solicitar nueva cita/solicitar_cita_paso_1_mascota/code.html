@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>VetCarePro - Reserva de Cita</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#79f7ea",
+                    "secondary-fixed": "#d9e3f9",
+                    "primary-fixed-dim": "#5adace",
+                    "error-container": "#ffdad6",
+                    "outline-variant": "#bbc9c7",
+                    "outline": "#6c7a77",
+                    "surface-container": "#ebeef0",
+                    "inverse-surface": "#2d3133",
+                    "on-secondary-container": "#596376",
+                    "on-primary": "#ffffff",
+                    "secondary": "#555f71",
+                    "on-error-container": "#93000a",
+                    "surface-variant": "#e0e3e5",
+                    "on-tertiary-fixed": "#2f1500",
+                    "on-surface": "#181c1e",
+                    "inverse-on-surface": "#eef1f3",
+                    "on-error": "#ffffff",
+                    "inverse-primary": "#5adace",
+                    "secondary-fixed-dim": "#bdc7dc",
+                    "on-tertiary-fixed-variant": "#6f3800",
+                    "surface-tint": "#006a63",
+                    "secondary-container": "#d6e0f6",
+                    "tertiary-fixed": "#ffdcc4",
+                    "tertiary": "#8e4e11",
+                    "surface-bright": "#f7fafc",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e5e9eb",
+                    "surface-dim": "#d7dadc",
+                    "surface-container-low": "#f1f4f6",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed": "#00201d",
+                    "on-background": "#181c1e",
+                    "primary-container": "#4fd1c5",
+                    "on-surface-variant": "#3c4947",
+                    "background": "#f7fafc",
+                    "on-secondary-fixed-variant": "#3d4759",
+                    "tertiary-container": "#ffab67",
+                    "primary": "#006a63",
+                    "surface": "#f7fafc",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-fixed-variant": "#00504a",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb77f",
+                    "on-tertiary-container": "#773d00",
+                    "surface-container-highest": "#e0e3e5",
+                    "on-primary-container": "#005750",
+                    "on-secondary-fixed": "#121c2c"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max-width": "1200px",
+                    "margin-desktop": "40px",
+                    "base-unit": "8px",
+                    "margin-mobile": "16px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-md": ["Quicksand"],
+                    "label-md": ["Quicksand"],
+                    "body-lg": ["Quicksand"],
+                    "headline-lg": ["Quicksand"],
+                    "label-sm": ["Quicksand"],
+                    "headline-md": ["Quicksand"],
+                    "headline-lg-mobile": ["Quicksand"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "500"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: #f7fafc;
+            color: #181c1e;
+            overflow-x: hidden;
+        }
+
+        .pet-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .pet-card.selected {
+            border-color: #006a63;
+            background-color: #f0fdfa;
+            box-shadow: 0 10px 25px -5px rgba(0, 106, 99, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .step-line {
+            height: 4px;
+            border-radius: 2px;
+            background-color: #e2e8f0;
+            flex-grow: 1;
+        }
+
+        .step-line.active {
+            background-color: #006a63;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .fill-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar Cluster -->
+<header class="w-full h-16 bg-surface shadow-sm flex justify-between items-center px-margin-desktop fixed top-0 left-0 z-50 glass-effect">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">pets</span>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">VetCarePro</h1>
+</div>
+<div class="hidden md:flex gap-8 items-center">
+<nav class="flex gap-6">
+<span class="text-on-surface-variant font-medium font-Quicksand text-body-md hover:bg-surface-container-low transition-colors duration-200 cursor-pointer px-3 py-1 rounded-lg">Dashboard</span>
+<span class="text-primary font-bold border-b-2 border-primary font-Quicksand text-body-md cursor-pointer px-3 py-1">Mis Citas</span>
+<span class="text-on-surface-variant font-medium font-Quicksand text-body-md hover:bg-surface-container-low transition-colors duration-200 cursor-pointer px-3 py-1 rounded-lg">Pacientes</span>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-all">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:bg-surface-container-low p-2 rounded-full transition-all">settings</span>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a friendly female pet owner in her early 30s, smiling warmly. She has soft cinematic lighting across her face with a clean, blurred minimalist interior background. The aesthetic is high-end, bright, and polished, reflecting a premium pet care service brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuChzZqd6mg_UA7hpNP8jJF2ebHQG0Kff0JIrMMrU3v2K7wDOSvCBUw3YabrSBQooAoayp22Q2r30Qz0Uc_Bp3mlGU8z5hVcXTZFV3XZNM8RfkyWkILP4EyQDF7ZcjP4z42_-y8NKcstkoE5d-WPVgxTBmwo4Pk_DTfW0nDiTDc047AoctPsrDaS-6zs-n7XjTWQb-D4XIejlJEWr1iX7-ZdnBPeEdHcZN2bEE5AGZhEHJT9Tvyc9vfEDA"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto min-h-screen">
+<!-- Wizard Header & Progress -->
+<section class="mb-12 text-center">
+<div class="flex items-center justify-center gap-4 mb-8 max-w-md mx-auto">
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-body-md">1</div>
+<span class="text-label-sm font-label-sm text-primary">Mascota</span>
+</div>
+<div class="step-line active"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-body-md">2</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Servicio</span>
+</div>
+<div class="step-line"></div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center font-bold text-body-md">3</div>
+<span class="text-label-sm font-label-sm text-on-surface-variant">Fecha</span>
+</div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">¿A quién vamos a atender?</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Selecciona a tu compañero para su próxima visita médica.</p>
+</section>
+<!-- Pet Selection Grid (Asymmetric Bento-ish Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-16">
+<!-- Pet Card: Max (Selected) -->
+<div class="pet-card selected relative bg-white rounded-xl p-8 border-2 flex flex-col items-center text-center cursor-pointer group" onclick="selectPet(this)">
+<div class="absolute top-4 right-4 bg-primary text-on-primary rounded-full w-8 h-8 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm font-bold">check</span>
+</div>
+<div class="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-primary-container p-1 bg-white shadow-md">
+<img class="w-full h-full object-cover rounded-full" data-alt="A high-quality studio photograph of a cheerful Golden Retriever named Max, looking directly into the camera with a soft expression. The lighting is bright and even, highlighting the golden texture of the fur against a soft, cream-colored minimalist background. The mood is nurturing and optimistic, perfectly suited for a luxury veterinary clinic's interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-RQVxOONBciR1oH2fEa7aKzp88j_lYGuk2SB13skyIHIu7rUQ4KOxO-XmgdhECKpv1tqyRH8eZg3r1oIY7o4oO0pKDM9VLMjKzEyynFiAaHNoOgo9Ni9jqyZ1TveBvoziwqrClbB4LGqKizmlBoyl3A8kOnK4iMbkGip8-h86uNxvR2YJgdohGw4tRpdmLnAMzDUqMdjLT3awIhtf0p1KGwgUF0oD8TEMi0ic_8nyqMTToMbjXlgiGw"/>
+</div>
+<div class="bg-primary-container/20 text-on-primary-container px-3 py-1 rounded-full text-label-sm font-label-sm mb-3">Perro</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Max</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Golden Retriever • 4 años</p>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-base">medical_services</span>
+<span class="text-label-sm font-label-sm">Última visita: 12 Mayo</span>
+</div>
+</div>
+<!-- Pet Card: Luna -->
+<div class="pet-card relative bg-white rounded-xl p-8 border-2 border-outline-variant/30 flex flex-col items-center text-center cursor-pointer group hover:border-primary-container hover:shadow-lg" onclick="selectPet(this)">
+<div class="absolute top-4 right-4 bg-surface-container-high text-on-surface-variant/20 rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-transparent p-1 bg-white group-hover:border-primary-container transition-all">
+<img class="w-full h-full object-cover rounded-full" data-alt="A professional, high-definition close-up portrait of a sleek, elegant black domestic shorthair cat named Luna. Her bright green eyes are sharp and clear, reflecting a calm, safe clinical environment. The lighting is sophisticated, creating subtle highlights on her dark fur against a warm grey minimalist backdrop. The visual style is premium and ultra-clean." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDHImxk3CSJiFd1XxUNRDIG1XL5ZTlQcnloZXgiwcXoD3t-m1GfZ1bcFKiIuNfR06jc0ROBsGmL1yOpn86VQm8x96fW2FcbnDG8r1Il_57fbg6nhGOzYGf3GVxuIBv4opgi3PNYI9VlOqxUvFiGnDDxOTQMj2mv4gcbXoxGbGlUEF9sLXq22Y94_Eu0XQ5Q3ueJVmIA6P0fXLCL7zPTehybk0Sb8uHGzhjM4OYPSbQH9edBAMqg-d1dUA"/>
+</div>
+<div class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-label-sm font-label-sm mb-3">Gato</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Luna</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Mestizo • 2 años</p>
+<div class="flex items-center gap-2 text-secondary">
+<span class="material-symbols-outlined text-base">calendar_today</span>
+<span class="text-label-sm font-label-sm">Próxima vacuna: Junio</span>
+</div>
+</div>
+<!-- Pet Card: Rocky -->
+<div class="pet-card relative bg-white rounded-xl p-8 border-2 border-outline-variant/30 flex flex-col items-center text-center cursor-pointer group hover:border-primary-container hover:shadow-lg" onclick="selectPet(this)">
+<div class="absolute top-4 right-4 bg-surface-container-high text-on-surface-variant/20 rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<div class="w-32 h-32 rounded-full overflow-hidden mb-6 border-4 border-transparent p-1 bg-white group-hover:border-primary-container transition-all">
+<img class="w-full h-full object-cover rounded-full" data-alt="A detailed digital photograph of a energetic French Bulldog named Rocky. He is sitting attentively in a bright, modern indoor space with soft natural light streaming in. The image has a very high dynamic range and pristine clarity, showcasing the soft grey tones of the dog's coat. The overall aesthetic is gentle, clean, and high-end, representing professional veterinary care." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJxDzoV_aH0wzgQbkeTkH3bTPmiP51F3BgZCWM21XOrvI4I5Ji8hbBllFJW6CgfGZlQUPecw0bYSgq_yR-fbH2E04aGwSSMzHdUZnlppkTCROhoSDNf85KuZ6aSUgFhCoTpol6VZEUztkMtxNSOgo2vzEhJLDPa-LUxmtqab_qo6N_S-VbNfp66CZ3P9MSf7zoSmO8gJA5UGQalndfkcgpGZzOb6RhPFpqBVo_5HxZJZ_RaBH2LZ1dmg"/>
+</div>
+<div class="bg-primary-container/20 text-on-primary-container px-3 py-1 rounded-full text-label-sm font-label-sm mb-3">Perro</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-1">Rocky</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mb-4">Bulldog Francés • 1 año</p>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-base">verified</span>
+<span class="text-label-sm font-label-sm">Plan Vitality Activo</span>
+</div>
+</div>
+<!-- Add New Pet (CTA Style) -->
+<div class="col-span-1 md:col-span-3 flex justify-center mt-4">
+<button class="flex items-center gap-2 text-primary hover:text-primary-container transition-all group font-medium">
+<span class="material-symbols-outlined bg-primary-container/10 p-2 rounded-full group-hover:bg-primary-container/20">add_circle</span>
+<span class="font-Quicksand text-body-md">Añadir otra mascota</span>
+</button>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="fixed bottom-0 left-0 w-full bg-white border-t border-outline-variant/10 p-6 glass-effect flex justify-between items-center px-margin-desktop z-50">
+<button class="flex items-center gap-2 text-secondary hover:text-primary transition-all font-medium py-3 px-6 rounded-lg">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="font-Quicksand text-body-md">Volver al Dashboard</span>
+</button>
+<button class="bg-primary hover:bg-primary-container text-on-primary px-12 py-4 rounded-lg font-bold text-body-lg shadow-lg hover:shadow-primary/20 transition-all active:scale-95 flex items-center gap-3">
+                Continuar
+                <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Side Decoration (Subtle Background elements) -->
+<div class="fixed -bottom-32 -left-32 w-96 h-96 bg-primary-container/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed -top-32 -right-32 w-96 h-96 bg-tertiary-container/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+<script>
+        function selectPet(element) {
+            // Remove selection from all cards
+            document.querySelectorAll('.pet-card').forEach(card => {
+                card.classList.remove('selected');
+                card.classList.add('border-outline-variant/30');
+                const checkIcon = card.querySelector('.absolute');
+                if (checkIcon) {
+                    checkIcon.innerHTML = '<span class="material-symbols-outlined text-sm">check</span>';
+                    checkIcon.classList.remove('bg-primary', 'text-on-primary');
+                    checkIcon.classList.add('bg-surface-container-high', 'text-on-surface-variant/20', 'opacity-0');
+                }
+            });
+
+            // Add selection to clicked card
+            element.classList.add('selected');
+            element.classList.remove('border-outline-variant/30');
+            const checkIcon = element.querySelector('.absolute');
+            if (checkIcon) {
+                checkIcon.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
+                checkIcon.classList.add('bg-primary', 'text-on-primary');
+                checkIcon.classList.remove('bg-surface-container-high', 'text-on-surface-variant/20', 'opacity-0');
+            }
+
+            // Haptic-like feedback animation
+            element.style.transform = 'scale(0.98)';
+            setTimeout(() => {
+                element.style.transform = '';
+            }, 100);
+        }
+    </script>
+</body></html>

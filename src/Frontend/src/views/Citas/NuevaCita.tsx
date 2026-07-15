@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import PageHeader from '../../components/common/PageHeader';
@@ -37,9 +37,9 @@ export default function NuevaCita() {
   const [suggestions, setSuggestions] = useState<SuggestedPet[]>([]);
   const [selectedPet, setSelectedPet] = useState<SuggestedPet | null>(null);
 
-  const [category, setCategory] = useState<string>('Consulta General');
   const [services, setServices] = useState<Servicio[]>([]);
   const [selectedServiceId, setSelectedServiceId] = useState<number>(0);
+  const [originChannel, setOriginChannel] = useState<string>('phone');
   const [motivo, setMotivo] = useState<string>('');
 
   const [date, setDate] = useState<string>(initialDate);
@@ -63,7 +63,6 @@ export default function NuevaCita() {
         const servRes = await ServiciosService.getServicios('', false);
         if (servRes.success && servRes.data?.servicios) {
           setServices(servRes.data.servicios);
-          // Set initial service
           const activeSvs = servRes.data.servicios.filter((s: Servicio) => s.activo);
           if (activeSvs.length > 0) {
             setSelectedServiceId(activeSvs[0].id);
@@ -136,7 +135,6 @@ export default function NuevaCita() {
       try {
         const slots = await CitasService.getHorariosDisponibles(selectedVetId, date);
         setAvailableSlots(slots || []);
-        // Reset selected time if not in the new slots
         if (initialTime && slots.some((s) => s.text === initialTime)) {
           setSelectedTimeSlot(initialTime);
         } else {
@@ -183,7 +181,6 @@ export default function NuevaCita() {
   }, [timerSeconds, reservationId, handleExpiredReservation]);
 
   const handleSelectSlot = async (slotTime: string) => {
-    // If there is an active reservation, release it first
     if (reservationId) {
       try {
         await CitasService.cambiarEstado(reservationId, 'Libre');
@@ -205,7 +202,6 @@ export default function NuevaCita() {
 
     setSelectedTimeSlot(slotTime);
     
-    // Call ReservaTemporal
     try {
       const fechaHora = `${date}T${slotTime}:00`;
       const dto: CitaDto = {
@@ -220,11 +216,11 @@ export default function NuevaCita() {
       if (res && res.citaId) {
         setReservationId(res.citaId);
         setTimerSeconds(300); // 5 minutes countdown
-        toast.info('Horario reservado temporalmente por 5 minutos para completar el registro.');
+        toast.info('Horario reservado temporalmente por 5 minutos.');
       }
     } catch (err: any) {
       console.error('Error booking temporary slot:', err);
-      toast.error(err.response?.data?.message || 'El horario seleccionado ya no está disponible.');
+      toast.error(err.response?.data?.message || 'El horario seleccionado no está disponible.');
       setSelectedTimeSlot('');
     }
   };
@@ -245,18 +241,14 @@ export default function NuevaCita() {
     }
 
     try {
-      // Transition ReservaTemporal -> PendienteConfirmacion
       await CitasService.cambiarEstado(reservationId, 'PendienteConfirmacion');
-
       if (makeConfirmed) {
-        // Recepcionist confirms the appointment directly
         await CitasService.cambiarEstado(reservationId, 'Confirmada');
         toast.success('Cita programada y confirmada exitosamente.');
       } else {
         toast.success('Cita guardada como solicitud pendiente.');
       }
 
-      // Clear timer and redirects
       if (timerRef.current) clearTimeout(timerRef.current);
       setReservationId(null);
       navigate('/admin/agenda');
@@ -277,10 +269,8 @@ export default function NuevaCita() {
     navigate('/admin/agenda');
   };
 
-  // Filter services by category
-  const filteredServices = services.filter(
-    (s) => s.activo && (category === 'Especialidad' ? s.especialidadRequerida : true)
-  );
+  const selectedService = services.find((s) => s.id === selectedServiceId);
+  const selectedVet = veterinarios.find((v) => v.id === selectedVetId);
 
   const formatTimer = () => {
     const mins = Math.floor(timerSeconds / 60);
@@ -289,13 +279,32 @@ export default function NuevaCita() {
   };
 
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none">
+    <div className="flex-grow flex flex-col min-w-0 select-none p-gutter">
       {/* Page Header */}
       <PageHeader
-        title="Programar Cita"
-        description="Complete los detalles para agendar una nueva consulta o procedimiento médico a un paciente."
+        title="Crear Cita Operativa"
+        description="Agenda una nueva visita para un paciente, asigna un especialista y confirma los detalles."
         onBack={handleCancel}
-        actions={<div className="font-title-sm text-title-sm text-ink font-semibold">Modo Operativo Recepción</div>}
+        actions={
+          <div className="flex gap-sm">
+            <button
+              type="button"
+              onClick={handleCancel}
+              className="px-lg py-2 rounded-lg border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container-low transition-colors duration-200 cursor-pointer"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={(e) => handleConfirmCita(e, true)}
+              disabled={!reservationId}
+              className="px-lg py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-active shadow-sm transition-all duration-200 disabled:opacity-50 cursor-pointer flex items-center gap-xs"
+            >
+              <span className="material-symbols-outlined text-[18px]">check</span>
+              Confirmar Cita
+            </button>
+          </div>
+        }
+        hasDivider={true}
       />
 
       {/* Timer Banner */}
@@ -305,87 +314,90 @@ export default function NuevaCita() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-accent-amber text-ink p-3 rounded-lg mb-lg flex justify-between items-center shadow-xs font-semibold"
+            className="bg-accent-amber/20 border border-accent-amber/40 text-on-tertiary-container p-3 rounded-lg mb-lg flex justify-between items-center shadow-xs font-semibold"
           >
             <span className="flex items-center gap-xs">
               <span className="material-symbols-outlined animate-spin text-[20px]">hourglass_top</span>
-              Bloque reservado temporalmente. Complete el registro.
+              Bloque reservado temporalmente. Complete la confirmación de la cita.
             </span>
-            <span className="font-code text-headline-sm font-bold bg-canvas/30 px-3 py-1 rounded">
+            <span className="font-code text-title-md font-bold bg-canvas/30 px-3 py-1 rounded">
               {formatTimer()}
             </span>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Form Grid */}
-      <form onSubmit={(e) => handleConfirmCita(e, true)} className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
-        {/* Left: Patient & Service */}
-        <div className="lg:col-span-7 flex flex-col gap-lg">
-          {/* Patient Selector */}
-          <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col gap-md">
-            <h2 className="font-title-md text-title-md text-ink font-bold flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">pets</span>
-              Paciente
-            </h2>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+        {/* Left Column: Form Content (8 cols) */}
+        <div className="lg:col-span-8 flex flex-col gap-lg">
+          {/* Patient Details */}
+          <div className="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm relative overflow-hidden flex flex-col gap-md">
+            <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">person_search</span>
+              Detalles del Paciente y Cliente
+            </h3>
 
             {selectedPet ? (
-              <div className="flex items-center justify-between p-3 bg-surface-soft border border-hairline rounded-lg shadow-inner">
-                <div className="flex items-center gap-sm">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
+              <div className="bg-surface-container-low rounded-lg p-md flex items-center justify-between border border-outline-variant/40">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center text-primary font-bold">
                     {selectedPet.nombre.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h4 className="font-title-sm text-title-sm text-ink font-bold leading-tight">
-                      {selectedPet.nombre}
-                    </h4>
+                    <h4 className="font-title-sm text-title-sm text-ink font-bold">{selectedPet.nombre}</h4>
                     <p className="font-body-sm text-body-sm text-secondary">
-                      Propietario: {selectedPet.propietarioNombre} ({selectedPet.especie})
+                      {selectedPet.especie} {selectedPet.raza && `• ${selectedPet.raza}`}
                     </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSelectedPet(null);
-                    setSelectedTimeSlot('');
-                    if (reservationId) {
-                      CitasService.cambiarEstado(reservationId, 'Libre');
-                      setReservationId(null);
-                    }
-                  }}
-                  className="text-secondary hover:text-error transition-colors p-1 cursor-pointer"
-                >
-                  <span className="material-symbols-outlined">close</span>
-                </button>
+                <div className="flex items-center gap-lg">
+                  <div className="text-right">
+                    <p className="font-label-md text-label-md text-ink">{selectedPet.propietarioNombre}</p>
+                    <p className="font-body-sm text-body-sm text-secondary">{selectedPet.propietarioTelefono}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedPet(null);
+                      setSelectedTimeSlot('');
+                      if (reservationId) {
+                        CitasService.cambiarEstado(reservationId, 'Libre');
+                        setReservationId(null);
+                      }
+                    }}
+                    className="text-secondary hover:text-error transition-colors p-1.5 cursor-pointer rounded-full hover:bg-surface-soft"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">close</span>
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="relative w-full">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary text-[20px]">
-                  search
-                </span>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-canvas border border-hairline rounded-lg py-2.5 pl-10 pr-4 font-body-sm text-body-sm text-ink placeholder:text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                  placeholder="Nombre de mascota, propietario o teléfono..."
-                />
+                <label className="block text-caption font-caption text-secondary mb-1">Buscar Mascota o Dueño</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-secondary">search</span>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="e.g., Bella (Golden Retriever) o Juan Perez"
+                    className="w-full pl-10 pr-4 py-2.5 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink placeholder:text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                  />
+                  {isSearching && (
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                      <Spinner size="sm" />
+                    </div>
+                  )}
+                </div>
 
-                {isSearching && (
-                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <Spinner size="sm" />
-                  </div>
-                )}
-
-                {/* Suggestions List or Empty State */}
+                {/* Suggestions dropdown */}
                 {searchTerm.trim() !== '' && !isSearching && (
                   <div className="absolute w-full mt-2 bg-surface-container-lowest border border-hairline rounded-lg shadow-lg overflow-hidden z-30 max-h-56 overflow-y-auto">
                     {suggestions.length > 0 ? (
                       <ul className="divide-y divide-hairline">
                         {suggestions.map((p) => (
                           <li
-                            key={`${p.id}-${p.propietarioId}`}
+                            key={p.id}
                             onClick={() => {
                               setSelectedPet(p);
                               setSearchTerm('');
@@ -395,9 +407,9 @@ export default function NuevaCita() {
                           >
                             <div>
                               <span className="font-body-sm text-ink font-semibold">{p.nombre}</span>
-                              <span className="text-secondary text-[12px] ml-2">({p.especie} {p.raza ? `• ${p.raza}` : ''})</span>
+                              <span className="text-secondary text-[12px] ml-2">({p.especie})</span>
                               <div className="text-[12px] text-body-muted font-medium mt-0.5">
-                                Dueño: {p.propietarioNombre}
+                                Propietario: {p.propietarioNombre}
                               </div>
                             </div>
                             <span className="material-symbols-outlined text-secondary text-[18px]">add</span>
@@ -405,238 +417,229 @@ export default function NuevaCita() {
                         ))}
                       </ul>
                     ) : (
-                      <div className="p-5 text-center flex flex-col items-center justify-center gap-2 bg-canvas/50">
-                        <div className="w-10 h-10 rounded-full bg-surface-soft flex items-center justify-center text-secondary border border-hairline mb-1">
-                          <span className="material-symbols-outlined text-[20px]">pets</span>
-                        </div>
-                        <p className="font-body-sm text-ink font-medium">
-                          No se encontró ningún paciente con <span className="font-bold text-primary">"{searchTerm}"</span>
-                        </p>
-                        <p className="font-caption text-caption text-body-muted max-w-[240px]">
-                          Verifica el nombre o teléfono, o registra una nueva ficha clínica en el sistema.
-                        </p>
-                        <Link
-                          to="/admin/mascotas?new=true"
-                          className="mt-2 inline-flex items-center gap-1.5 bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-button text-button py-1.5 px-4 rounded-full transition-all border border-primary/20 shadow-xs cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                          Registrar nuevo paciente
-                        </Link>
-                      </div>
+                      <div className="p-4 text-center text-secondary">No se encontraron pacientes.</div>
                     )}
                   </div>
                 )}
               </div>
             )}
-          </section>
+          </div>
 
-          {/* Service Selector */}
-          <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col gap-md">
-            <h2 className="font-title-md text-title-md text-ink font-bold flex items-center gap-xs">
+          {/* Service & Reason */}
+          <div className="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm flex flex-col gap-md">
+            <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
               <span className="material-symbols-outlined text-primary">medical_services</span>
-              Servicio Requerido
-            </h2>
+              Servicio y Canal
+            </h3>
 
-            <div className="flex flex-col gap-md">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
               <div>
-                <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Categoría</label>
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer"
-                >
-                  <option value="Consulta General">Consulta General</option>
-                  <option value="Vacunación">Vacunación</option>
-                  <option value="Cirugía">Cirugía</option>
-                  <option value="Peluquería / Estética">Peluquería / Estética</option>
-                  <option value="Especialidad">Especialidad</option>
-                </select>
+                <label className="block text-caption font-caption text-secondary mb-1">Servicio</label>
+                <div className="relative">
+                  <select
+                    value={selectedServiceId}
+                    onChange={(e) => {
+                      setSelectedServiceId(Number(e.target.value));
+                      setSelectedTimeSlot('');
+                      if (reservationId) {
+                        CitasService.cambiarEstado(reservationId, 'Libre');
+                        setReservationId(null);
+                      }
+                    }}
+                    className="w-full pl-3 pr-10 py-2.5 appearance-none bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer"
+                  >
+                    {services.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nombre} (${s.precio.toFixed(2)})
+                      </option>
+                    ))}
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+                </div>
               </div>
 
               <div>
-                <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Servicio Específico</label>
-                <select
-                  value={selectedServiceId}
+                <label className="block text-caption font-caption text-secondary mb-1">Canal de Origen</label>
+                <div className="relative">
+                  <select
+                    value={originChannel}
+                    onChange={(e) => setOriginChannel(e.target.value)}
+                    className="w-full pl-3 pr-10 py-2.5 appearance-none bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer"
+                  >
+                    <option value="phone">Llamada Telefónica</option>
+                    <option value="in_person">Presencial / Mostrador</option>
+                    <option value="online">Reserva Online</option>
+                  </select>
+                  <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-caption font-caption text-secondary mb-1">Motivo de la Cita</label>
+              <textarea
+                value={motivo}
+                onChange={(e) => setMotivo(e.target.value)}
+                placeholder="Describe brevemente el síntoma o motivo de la visita médica..."
+                rows={3}
+                className="w-full p-3 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary resize-none placeholder:text-secondary"
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Date, Time & Specialist */}
+          <div className="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm flex flex-col gap-md">
+            <h3 className="font-title-md text-title-md text-ink font-bold flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">event_available</span>
+              Horario y Especialista
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-lg">
+              <div>
+                <label className="block text-caption font-caption text-secondary mb-2">Seleccionar Fecha</label>
+                <input
+                  type="date"
+                  value={date}
                   onChange={(e) => {
-                    setSelectedServiceId(Number(e.target.value));
+                    setDate(e.target.value);
                     setSelectedTimeSlot('');
                     if (reservationId) {
                       CitasService.cambiarEstado(reservationId, 'Libre');
                       setReservationId(null);
                     }
                   }}
-                  className="w-full bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer"
-                >
-                  {filteredServices.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nombre} (${s.precio.toFixed(2)} - {s.duracionMinutos} min)
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="font-caption-caps text-caption-caps text-secondary block mb-1">
-                  Motivo de Consulta (Interno)
-                </label>
-                <textarea
-                  value={motivo}
-                  onChange={(e) => setMotivo(e.target.value)}
-                  className="w-full bg-canvas border border-hairline rounded-lg py-2.5 px-3 font-body-sm text-body-sm text-ink placeholder:text-secondary focus:outline-none focus:border-primary resize-none transition-colors"
-                  placeholder="Síntomas reportados, notas para el veterinario..."
-                  rows={3}
+                  className="w-full bg-canvas border border-hairline rounded-lg py-2.5 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer"
                 />
               </div>
-            </div>
-          </section>
-        </div>
 
-        {/* Right: Scheduling & Assignment */}
-        <div className="lg:col-span-5 flex flex-col gap-lg">
-          {/* Scheduling Card */}
-          <section className="bg-surface-card rounded-xl p-lg border border-transparent shadow-xs flex flex-col gap-md">
-            <h2 className="font-title-md text-title-md text-ink font-bold flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">calendar_month</span>
-              Programación
-            </h2>
-
-            <div>
-              <label className="font-caption-caps text-caption-caps text-secondary block mb-1">Fecha</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => {
-                  setDate(e.target.value);
-                  setSelectedTimeSlot('');
-                  if (reservationId) {
-                    CitasService.cambiarEstado(reservationId, 'Libre');
-                    setReservationId(null);
-                  }
-                }}
-                className="w-full bg-canvas border border-hairline rounded-lg py-2 px-3 font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary transition-colors cursor-pointer"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="font-caption-caps text-caption-caps text-secondary">Horarios Disponibles</label>
-                {availableSlots.length > 0 && (
-                  <span className="font-caption text-caption text-success flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-success"></span> Alta disponibilidad
-                  </span>
-                )}
-              </div>
-
-              {loadingSlots ? (
-                <div className="py-4 flex justify-center">
-                  <Spinner size="sm" />
-                </div>
-              ) : availableSlots.length > 0 ? (
-                <div className="grid grid-cols-3 gap-sm mt-2">
-                  {availableSlots.map((slot) => {
-                    const isActive = selectedTimeSlot === slot.text;
-                    return (
-                      <button
-                        key={slot.value}
-                        type="button"
-                        onClick={() => handleSelectSlot(slot.text)}
-                        className={`py-2 text-center border rounded-md font-body-sm text-body-sm cursor-pointer transition-colors ${
-                          isActive
-                            ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs'
-                            : 'border-hairline bg-canvas text-secondary hover:border-primary hover:text-primary'
-                        }`}
-                      >
-                        {slot.text}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="font-body-sm text-body-sm text-error mt-2">
-                  No hay horarios laborables/disponibles para la fecha y profesional seleccionados.
-                </p>
-              )}
-            </div>
-          </section>
-
-          {/* Professional Selection */}
-          <section className="bg-surface-container-lowest border border-hairline rounded-xl p-lg shadow-xs flex flex-col gap-md">
-            <h2 className="font-title-md text-title-md text-ink font-bold flex items-center gap-xs">
-              <span className="material-symbols-outlined text-primary">badge</span>
-              Veterinario Asignado
-            </h2>
-
-            <div className="flex flex-col gap-sm">
-              {veterinarios.map((v) => {
-                const isChecked = selectedVetId === v.id;
-                return (
-                  <label
-                    key={v.id}
-                    className={`flex items-center p-3 border rounded-lg cursor-pointer transition-colors relative ${
-                      isChecked ? 'border-primary bg-primary/5' : 'border-hairline bg-canvas hover:bg-surface-soft'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="vet"
-                      checked={isChecked}
-                      onChange={() => {
-                        setSelectedVetId(v.id);
+              <div className="flex flex-col gap-md">
+                <div>
+                  <label className="block text-caption font-caption text-secondary mb-1">Asignar Veterinario</label>
+                  <div className="relative">
+                    <select
+                      value={selectedVetId}
+                      onChange={(e) => {
+                        setSelectedVetId(Number(e.target.value));
                         setSelectedTimeSlot('');
                         if (reservationId) {
                           CitasService.cambiarEstado(reservationId, 'Libre');
                           setReservationId(null);
                         }
                       }}
-                      className="sr-only"
-                    />
-                    <div className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold mr-3 shrink-0">
-                      {v.nombre.charAt(0).toUpperCase()}
+                      className="w-full pl-3 pr-10 py-2.5 appearance-none bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-primary cursor-pointer"
+                    >
+                      {veterinarios.map((v) => (
+                        <option key={v.id} value={v.id}>
+                          {v.nombre} ({v.especialidad})
+                        </option>
+                      ))}
+                    </select>
+                    <span className="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-caption font-caption text-secondary mb-2">Bloques de Horas Disponibles</label>
+                  {loadingSlots ? (
+                    <div className="py-2"><Spinner size="sm" /></div>
+                  ) : availableSlots.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-sm">
+                      {availableSlots.map((slot) => {
+                        const isActive = selectedTimeSlot === slot.text;
+                        return (
+                          <button
+                            key={slot.value}
+                            type="button"
+                            onClick={() => handleSelectSlot(slot.text)}
+                            className={`py-2 text-center border rounded font-body-sm text-body-sm cursor-pointer transition-colors ${
+                              isActive
+                                ? 'border-primary bg-primary/10 text-primary font-bold shadow-xs'
+                                : 'border-hairline bg-canvas text-secondary hover:border-primary hover:text-primary'
+                            }`}
+                          >
+                            {slot.text}
+                          </button>
+                        );
+                      })}
                     </div>
-                    <div>
-                      <div className="font-title-sm text-title-sm text-ink font-bold leading-tight">{v.nombre}</div>
-                      <div className="font-caption text-caption text-secondary mt-0.5">{v.especialidad}</div>
-                    </div>
-                    {isChecked && (
-                      <span className="material-symbols-outlined text-primary absolute right-3 top-1/2 -translate-y-1/2 text-[18px]">
-                        check_circle
-                      </span>
-                    )}
-                  </label>
-                );
-              })}
+                  ) : (
+                    <p className="text-[12px] text-error">No hay bloques disponibles para esta fecha.</p>
+                  )}
+                </div>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="lg:col-span-12 mt-lg flex flex-col sm:flex-row justify-end items-center gap-md pt-lg border-t border-hairline">
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="w-full sm:w-auto px-lg py-2.5 rounded-lg font-button text-button border border-ink text-ink hover:bg-surface-soft transition-colors cursor-pointer text-center"
-          >
-            Cancelar y Volver
-          </button>
-          
-          <button
-            type="button"
-            disabled={!reservationId}
-            onClick={(e) => handleConfirmCita(e, false)}
-            className="w-full sm:w-auto px-lg py-2.5 rounded-lg font-button text-button border border-primary text-primary hover:bg-primary/5 transition-colors cursor-pointer text-center disabled:opacity-50"
-          >
-            Guardar como Pendiente
-          </button>
+        {/* Right Column: Sticky Summary Panel (4 cols) */}
+        <div className="lg:col-span-4 sticky top-6">
+          <div className="bg-surface-card rounded-xl p-lg border border-hairline shadow-sm flex flex-col gap-md">
+            <h3 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-3 mb-xs">
+              Resumen de la Cita
+            </h3>
+            
+            <div className="space-y-sm">
+              <div className="flex items-start gap-sm">
+                <span className="material-symbols-outlined text-secondary text-[20px] mt-0.5">pets</span>
+                <div>
+                  <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Paciente</p>
+                  <p className="font-title-sm text-title-sm text-ink font-semibold">
+                    {selectedPet ? selectedPet.nombre : 'No seleccionado'}
+                  </p>
+                </div>
+              </div>
 
-          <button
-            type="submit"
-            disabled={!reservationId}
-            className="w-full sm:w-auto px-xl py-2.5 rounded-lg font-button text-button bg-primary text-on-primary hover:bg-primary-active transition-colors cursor-pointer text-center shadow-sm disabled:opacity-50"
-          >
-            Confirmar Cita Directa
-          </button>
+              <div className="flex items-start gap-sm">
+                <span className="material-symbols-outlined text-secondary text-[20px] mt-0.5">vaccines</span>
+                <div>
+                  <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Servicio</p>
+                  <p className="font-title-sm text-title-sm text-ink font-semibold">
+                    {selectedService ? selectedService.nombre : 'No seleccionado'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-sm">
+                <span className="material-symbols-outlined text-secondary text-[20px] mt-0.5">event</span>
+                <div>
+                  <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Fecha y Hora</p>
+                  <p className="font-title-sm text-title-sm text-ink font-semibold">
+                    {date} {selectedTimeSlot && `at ${selectedTimeSlot}`}
+                  </p>
+                  {selectedService && (
+                    <p className="text-[11px] text-body-muted font-medium mt-0.5">Duración: ~{selectedService.duracionMinutos} mins</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-start gap-sm">
+                <span className="material-symbols-outlined text-secondary text-[20px] mt-0.5">badge</span>
+                <div>
+                  <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Especialista</p>
+                  <p className="font-title-sm text-title-sm text-ink font-semibold">
+                    {selectedVet ? selectedVet.nombre : 'No asignado'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-hairline/80 pt-md mt-sm">
+              <div className="flex justify-between items-center text-body-sm font-semibold mb-1">
+                <span className="text-secondary">Costo Estimado</span>
+                <span className="text-ink font-bold text-body-lg">
+                  ${selectedService ? selectedService.precio.toFixed(2) : '0.00'}
+                </span>
+              </div>
+              <p className="text-[10px] text-body-muted text-right">*El precio final puede variar según la consulta.</p>
+            </div>
+
+            <div className="bg-secondary-container/20 border border-secondary-container/40 rounded-lg p-3 text-[12px] text-on-secondary-container leading-relaxed flex items-start gap-2 mt-xs font-medium">
+              <span className="material-symbols-outlined text-[16px] text-secondary shrink-0 mt-0.5">info</span>
+              Se enviará una notificación SMS recordatoria automática al dueño antes de la cita confirmada.
+            </div>
+          </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 }

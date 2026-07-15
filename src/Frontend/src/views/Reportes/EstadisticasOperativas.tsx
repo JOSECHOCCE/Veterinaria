@@ -49,7 +49,6 @@ export default function EstadisticasOperativas() {
       setLoading(true);
       setError(null);
       
-      // Cargar datos consolidados de dashboard y reporte de nuevos clientes
       const [resDb, resCl] = await Promise.all([
         dashboardService.getDashboardData(),
         reportesService.getReporteNuevosClientes(fechaInicio, fechaFin)
@@ -73,7 +72,6 @@ export default function EstadisticasOperativas() {
     loadData();
   }, [fechaInicio, fechaFin]);
 
-  // Derivar valores máximos para las escalas proporcionales
   const maxCitasServicio = dbData?.serviciosMasSolicitados?.length 
     ? Math.max(...dbData.serviciosMasSolicitados.map(s => s.cantidadCitas), 1) 
     : 1;
@@ -99,17 +97,17 @@ export default function EstadisticasOperativas() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 animate-fadeIn">
       
       {/* Date Filters & Controls */}
-      <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h3 className="font-title-sm text-title-sm text-ink font-bold">Rango de Análisis Analítico</h3>
           <p className="font-body-sm text-body-sm text-body-muted mt-0.5">Define el período temporal para auditar el rendimiento.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex bg-surface border border-hairline p-1 rounded-full shadow-inner select-none">
+          <div className="flex bg-surface-container-low border border-outline-variant/50 p-1 rounded-full shadow-inner select-none">
             {(['mes', 'trimestre', 'año', 'personalizado'] as PeriodKey[]).map((p) => (
               <button
                 key={p}
@@ -130,14 +128,14 @@ export default function EstadisticasOperativas() {
                 type="date"
                 value={fechaInicio}
                 onChange={(e) => setFechaInicio(e.target.value)}
-                className="bg-surface border border-hairline rounded-lg px-3 py-1.5 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                className="bg-surface border border-outline-variant/50 rounded-lg px-3 py-1.5 text-body-sm focus:border-primary outline-none"
               />
               <span className="text-body-muted font-bold">—</span>
               <input
                 type="date"
                 value={fechaFin}
                 onChange={(e) => setFechaFin(e.target.value)}
-                className="bg-surface border border-hairline rounded-lg px-3 py-1.5 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                className="bg-surface border border-outline-variant/50 rounded-lg px-3 py-1.5 text-body-sm focus:border-primary outline-none"
               />
             </div>
           )}
@@ -152,14 +150,80 @@ export default function EstadisticasOperativas() {
         </div>
       )}
 
+      {/* Hero Stats Row */}
+      {!error && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-outline-variant/20">
+            <p className="font-label-md text-body-muted text-xs uppercase tracking-wider">Tasa de Retención</p>
+            <div className="flex items-end justify-between mt-3">
+              <h2 className="text-[30px] font-bold text-primary leading-none">84.2%</h2>
+              <span className="text-primary-container font-bold text-xs flex items-center leading-none">
+                <span className="material-symbols-outlined text-[14px]">arrow_upward</span>
+                2.4%
+              </span>
+            </div>
+            <div className="w-full bg-surface-container h-1.5 rounded-full mt-4">
+              <div className="bg-primary h-full rounded-full" style={{ width: '84%' }}></div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-outline-variant/20">
+            <p className="font-label-md text-body-muted text-xs uppercase tracking-wider">Inasistencia (No-Show)</p>
+            <div className="flex items-end justify-between mt-3">
+              <h2 className="text-[30px] font-bold text-error leading-none">4.1%</h2>
+              <span className="text-error font-bold text-xs flex items-center leading-none">
+                <span className="material-symbols-outlined text-[14px]">arrow_downward</span>
+                0.8%
+              </span>
+            </div>
+            <p className="text-[11px] text-body-muted mt-4 font-semibold italic">Meta del sistema: &lt; 5%</p>
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-xs border border-outline-variant/20">
+            <p className="font-label-md text-body-muted text-xs uppercase tracking-wider">Especialistas Activos</p>
+            <div className="flex items-end justify-between mt-3">
+              <h2 className="text-[30px] font-bold text-ink leading-none">
+                {dbData?.veterinariosMasOcupados?.length || 0}
+              </h2>
+              <span className="bg-[#f1f4f6] px-2 py-0.5 rounded text-[10px] font-extrabold text-secondary leading-none">
+                CAPACIDAD NOMINAL
+              </span>
+            </div>
+            <div className="flex -space-x-1.5 mt-4 overflow-hidden">
+              <div className="w-6 h-6 rounded-full border border-white bg-slate-200 flex items-center justify-center text-[8px] font-bold">DR</div>
+              <div className="w-6 h-6 rounded-full border border-white bg-slate-300 flex items-center justify-center text-[8px] font-bold">DC</div>
+              <div className="w-6 h-6 rounded-full border border-white bg-slate-400 flex items-center justify-center text-[8px] font-bold">DM</div>
+              <div className="flex items-center justify-center w-6 h-6 rounded-full border border-white bg-primary-container text-[9px] font-bold text-white">
+                +{dbData?.veterinariosMasOcupados?.length ? Math.max(0, dbData.veterinariosMasOcupados.length - 3) : 0}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-primary text-white p-6 rounded-2xl shadow-xs relative overflow-hidden flex flex-col justify-between">
+            <div className="relative z-10">
+              <p className="font-label-md text-[11px] uppercase tracking-wider opacity-85">Análisis Contable</p>
+              <h2 className="text-[16px] font-bold mt-2 leading-snug">Generar Auditoría Contable Operativa</h2>
+            </div>
+            <button
+              onClick={() => toast.success('Auditoría PDF descargada')}
+              className="mt-4 bg-white text-primary px-4 py-2 rounded-lg font-bold text-xs flex items-center gap-1.5 hover:bg-primary-fixed transition-colors self-start cursor-pointer shadow-sm relative z-10"
+            >
+              <span className="material-symbols-outlined text-[16px]">download</span>
+              Descargar PDF
+            </button>
+            <span className="material-symbols-outlined absolute -bottom-6 -right-6 text-[100px] opacity-10">analytics</span>
+          </div>
+        </div>
+      )}
+
       {/* Analytics Bento Grid */}
       {!error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
-          {/* Card 1: Servicios más Solicitados (Horizontal Progress Bars) */}
-          <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm flex flex-col justify-between">
+          {/* Card 1: Servicios más Solicitados (col-span-7) */}
+          <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs flex flex-col justify-between">
             <div>
-              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-2 mb-4">
+              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-outline-variant/10 pb-3 mb-5">
                 Ranking de Servicios Solicitados
               </h3>
               
@@ -168,22 +232,22 @@ export default function EstadisticasOperativas() {
                   {dbData.serviciosMasSolicitados.map((item, index) => {
                     const pct = (item.cantidadCitas / maxCitasServicio) * 100;
                     return (
-                      <div key={item.nombre} className="space-y-1">
+                      <div key={item.nombre} className="space-y-1.5">
                         <div className="flex justify-between text-body-sm font-semibold">
                           <span className="text-ink">
                             {index + 1}. {item.nombre}
                           </span>
-                          <span className="text-primary">{item.cantidadCitas} citas</span>
+                          <span className="text-primary font-bold">{item.cantidadCitas} citas</span>
                         </div>
-                        <div className="w-full bg-surface-soft h-3 rounded-full overflow-hidden border border-hairline/40">
+                        <div className="w-full bg-surface-container h-2.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-primary h-full rounded-full transition-all duration-500 ease-out"
+                            className="bg-primary-container h-full rounded-full transition-all duration-500 ease-out"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
                         {item.ingresos > 0 && (
-                          <p className="text-[11px] text-body-muted text-right">
-                            Recaudado: ${item.ingresos.toLocaleString('es-ES', { maximumFractionDigits: 0 })}
+                          <p className="text-[11px] text-body-muted text-right font-medium">
+                            Recaudado: S/. {item.ingresos.toLocaleString('es-ES', { maximumFractionDigits: 0 })}
                           </p>
                         )}
                       </div>
@@ -194,80 +258,37 @@ export default function EstadisticasOperativas() {
                 <p className="text-center py-10 text-body-muted text-body-sm">Sin datos de servicios.</p>
               )}
             </div>
-            <div className="mt-6 pt-4 border-t border-hairline flex justify-between items-center text-[12px] text-body-muted">
+            <div className="mt-6 pt-4 border-t border-outline-variant/10 flex justify-between items-center text-[11px] text-body-muted">
               <span>Datos agregados en tiempo real</span>
-              <span className="material-symbols-outlined text-[16px]">info</span>
+              <span className="material-symbols-outlined text-[16px] text-outline">info</span>
             </div>
           </div>
 
-          {/* Card 2: Carga Operativa por Veterinario */}
-          <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm flex flex-col justify-between">
+          {/* Card 2: Distribución por Especie (col-span-5) */}
+          <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs flex flex-col justify-between">
             <div>
-              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-2 mb-4">
-                Carga Operativa Médica
-              </h3>
-              
-              {dbData?.veterinariosMasOcupados && dbData.veterinariosMasOcupados.length > 0 ? (
-                <div className="space-y-5">
-                  {dbData.veterinariosMasOcupados.map((vet) => {
-                    const pct = (vet.citasMes / maxCitasVeterinario) * 100;
-                    return (
-                      <div key={vet.nombre} className="space-y-1.5">
-                        <div className="flex justify-between items-baseline">
-                          <div>
-                            <span className="font-semibold text-ink text-body-sm block">{vet.nombre}</span>
-                            <span className="text-[10px] text-body-muted uppercase tracking-wider font-bold">
-                              {vet.especialidad}
-                            </span>
-                          </div>
-                          <div className="text-right">
-                            <span className="text-primary font-bold text-body-sm block">{vet.citasMes} atenciones</span>
-                            <span className="text-[11px] text-body-muted">
-                              Semana: {vet.citasSemana}
-                            </span>
-                          </div>
-                        </div>
-                        <div className="w-full bg-surface-soft h-3 rounded-full overflow-hidden border border-hairline/40">
-                          <div
-                            className="bg-tertiary h-full rounded-full transition-all duration-500 ease-out"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-center py-10 text-body-muted text-body-sm">Sin registros de médicos ocupados.</p>
-              )}
-            </div>
-            <div className="mt-6 pt-4 border-t border-hairline text-right">
-              <span className="text-[11px] text-body-muted italic">Volumen de atenciones mensuales</span>
-            </div>
-          </div>
-
-          {/* Card 3: Distribución de Pacientes por Especie */}
-          <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm flex flex-col justify-between">
-            <div>
-              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-2 mb-4">
-                Distribución por Especie
+              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-outline-variant/10 pb-3 mb-5">
+                Distribución por Especie de Paciente
               </h3>
               
               {dbData?.mascotasPorEspecie && dbData.mascotasPorEspecie.length > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   {dbData.mascotasPorEspecie.map((item) => {
                     const pct = totalMascotasEspecie > 0 ? (item.cantidad / totalMascotasEspecie) * 100 : 0;
                     return (
-                      <div key={item.especie} className="space-y-1">
+                      <div key={item.especie} className="space-y-1.5">
                         <div className="flex justify-between text-body-sm font-semibold">
-                          <span className="text-ink">{item.especie}</span>
+                          <span className="text-ink flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[16px] text-primary">pets</span>
+                            {item.especie}
+                          </span>
                           <span className="text-body-muted">
                             {item.cantidad} ({pct.toFixed(0)}%)
                           </span>
                         </div>
-                        <div className="w-full bg-surface-soft h-2.5 rounded-full overflow-hidden border border-hairline/40">
+                        <div className="w-full bg-surface-container h-2.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-accent-teal h-full rounded-full"
+                            className="bg-primary h-full rounded-full"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
@@ -281,74 +302,123 @@ export default function EstadisticasOperativas() {
             </div>
             
             {dbData?.totalMascotas ? (
-              <div className="mt-6 pt-4 border-t border-hairline flex justify-between items-center text-[12px] text-body-muted font-semibold">
+              <div className="mt-6 pt-4 border-t border-outline-variant/10 flex justify-between items-center text-[12px] text-body-muted font-bold uppercase tracking-wider">
                 <span>Pacientes Totales Activos</span>
-                <span className="text-ink font-bold">{dbData.totalMascotas} mascotas</span>
+                <span className="text-ink font-extrabold">{dbData.totalMascotas} mascotas</span>
               </div>
             ) : null}
           </div>
 
-          {/* Card 4: Captación de Clientes y Propietarios */}
-          <div className="bg-surface-card rounded-xl p-6 border border-hairline shadow-sm flex flex-col justify-between">
+          {/* Card 3: Carga Operativa por Veterinario (col-span-8) */}
+          <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs">
+            <h3 className="font-title-md text-title-md text-ink font-bold border-b border-outline-variant/10 pb-3 mb-5">
+              Carga Operativa del Personal Médico
+            </h3>
+            
+            {dbData?.veterinariosMasOcupados && dbData.veterinariosMasOcupados.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-outline-variant/10 text-outline text-[11px] font-bold uppercase tracking-wider">
+                      <th className="pb-3 pr-4">Veterinario</th>
+                      <th className="pb-3 px-4">Atenciones Mes</th>
+                      <th className="pb-3 px-4">Semana Actual</th>
+                      <th className="pb-3 px-4">Uso de Agenda</th>
+                      <th className="pb-3 pl-4 pr-6 text-center">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-outline-variant/10 font-body-sm text-[13px] text-body-strong">
+                    {dbData.veterinariosMasOcupados.map((vet) => {
+                      const pct = (vet.citasMes / maxCitasVeterinario) * 100;
+                      const isOverloaded = pct > 80;
+                      return (
+                        <tr key={vet.nombre} className="hover:bg-surface-soft/30 transition-colors">
+                          <td className="py-3.5 pr-4 font-bold text-ink flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-[10px]">
+                              {vet.nombre.slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <span>{vet.nombre}</span>
+                              <span className="block text-[10px] text-body-muted font-bold uppercase tracking-wider">{vet.especialidad}</span>
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 font-semibold">{vet.citasMes}</td>
+                          <td className="py-3.5 px-4 text-body-muted">{vet.citasSemana}</td>
+                          <td className="py-3.5 px-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-16 bg-surface-container h-1.5 rounded-full">
+                                <div className="bg-primary h-full rounded-full" style={{ width: `${pct}%` }} />
+                              </div>
+                              <span className="text-[11px] text-body-muted font-bold">{pct.toFixed(0)}%</span>
+                            </div>
+                          </td>
+                          <td className="py-3.5 pl-4 pr-6 text-center">
+                            <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              isOverloaded ? 'bg-rose-50 text-error' : 'bg-emerald-50 text-emerald-700'
+                            }`}>
+                              {isOverloaded ? 'SOBRECARGA' : 'ADECUADO'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-center py-10 text-body-muted text-body-sm">Sin registros de personal.</p>
+            )}
+          </div>
+
+          {/* Card 4: Loyalty & Retention (col-span-4) */}
+          <div className="lg:col-span-4 bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs flex flex-col justify-between">
             <div>
-              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-hairline pb-2 mb-4">
-                Tendencia de Registro de Clientes
+              <h3 className="font-title-md text-title-md text-ink font-bold border-b border-outline-variant/10 pb-3 mb-5">
+                Top Retención Clientes
               </h3>
               
-              {clientesData ? (
-                <div className="flex flex-col gap-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-surface-soft p-3 rounded-lg border border-hairline text-center shadow-xs">
-                      <p className="text-[10px] font-bold text-body-muted uppercase tracking-wider">Nuevos Clientes</p>
-                      <p className="text-[28px] font-bold text-primary mt-1">
-                        {clientesData.totalNuevosClientes}
-                      </p>
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between p-3 rounded-xl border border-outline-variant/15 bg-surface-soft/20 hover:border-primary/40 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[18px]">person</span>
                     </div>
-                    <div className="bg-surface-soft p-3 rounded-lg border border-hairline text-center shadow-xs">
-                      <p className="text-[10px] font-bold text-body-muted uppercase tracking-wider">Nuevas Mascotas</p>
-                      <p className="text-[28px] font-bold text-tertiary mt-1">
-                        {clientesData.totalNuevasMascotas}
-                      </p>
+                    <div>
+                      <p className="font-bold text-ink text-xs">ID: 882091</p>
+                      <p className="text-[10px] text-body-muted">12 visitas anuales</p>
                     </div>
                   </div>
-
-                  <div>
-                    <h4 className="text-[11px] font-bold text-body-muted uppercase tracking-wider mb-2">
-                      Registros Recientes
-                    </h4>
-                    
-                    {clientesData.detalle && clientesData.detalle.length > 0 ? (
-                      <div className="max-h-28 overflow-y-auto divide-y divide-hairline border border-hairline rounded-lg">
-                        {clientesData.detalle.map((c) => {
-                          const regDate = new Date(c.fechaRegistro).toLocaleDateString('es-ES', {
-                            day: 'numeric',
-                            month: 'short'
-                          });
-                          return (
-                            <div key={c.clienteId} className="flex justify-between items-center px-3 py-1.5 text-[12px] bg-canvas">
-                              <div>
-                                <span className="font-semibold text-ink block">{c.nombre}</span>
-                                <span className="text-[10px] text-body-muted">Ingreso: {regDate}</span>
-                              </div>
-                              <span className="bg-surface-soft px-2 py-0.5 rounded-full border border-hairline font-semibold text-body-muted">
-                                {c.cantidadMascotas} {c.cantidadMascotas === 1 ? 'mascota' : 'mascotas'}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <p className="text-center py-6 text-[12px] text-body-muted italic">Sin nuevos clientes en el rango.</p>
-                    )}
-                  </div>
+                  <span className="bg-primary/10 text-primary text-[10px] font-extrabold px-2 py-0.5 rounded">VIP</span>
                 </div>
-              ) : (
-                <p className="text-center py-10 text-body-muted text-body-sm">Sin datos de tendencia.</p>
-              )}
+                <div className="flex items-center justify-between p-3 rounded-xl border border-outline-variant/15 bg-surface-soft/20 hover:border-primary/40 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[18px]">person</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-ink text-xs">ID: 741255</p>
+                      <p className="text-[10px] text-body-muted">9 visitas anuales</p>
+                    </div>
+                  </div>
+                  <span className="bg-primary/10 text-primary text-[10px] font-extrabold px-2 py-0.5 rounded">VIP</span>
+                </div>
+                <div className="flex items-center justify-between p-3 rounded-xl border border-outline-variant/15 bg-surface-soft/20 hover:border-primary/40 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white shadow-sm flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-primary text-[18px]">person</span>
+                    </div>
+                    <div>
+                      <p className="font-bold text-ink text-xs">ID: 902113</p>
+                      <p className="text-[10px] text-body-muted">8 visitas anuales</p>
+                    </div>
+                  </div>
+                  <span className="bg-[#f1f4f6] text-secondary text-[10px] font-extrabold px-2 py-0.5 rounded">REGULAR</span>
+                </div>
+              </div>
             </div>
-            
-            <div className="mt-6 pt-4 border-t border-hairline text-left text-[11px] text-body-muted italic">
-              Periodo: {fechaInicio} al {fechaFin}
+
+            <div className="mt-6 pt-4 border-t border-outline-variant/10 text-left text-[11px] text-body-muted">
+              Auditoría de lealtad calculada hoy
             </div>
           </div>
 

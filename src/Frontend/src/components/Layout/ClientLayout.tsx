@@ -56,7 +56,7 @@ export default function ClientLayout() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-canvas">
+    <div className="flex flex-col h-screen bg-canvas overflow-hidden">
       {/* Navbar Superior Horizontal Exclusiva para Clientes */}
       <header className="sticky top-0 z-40 bg-surface-card border-b border-hairline shadow-sm select-none">
         <div className="max-w-7xl mx-auto px-gutter h-16 flex items-center justify-between">
@@ -188,7 +188,7 @@ export default function ClientLayout() {
       </header>
 
       {/* Área de Contenido Principal del Portal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-gutter lg:p-6">
+      <main className="flex-1 overflow-y-auto max-w-7xl w-full mx-auto p-gutter lg:p-6">
         <Outlet />
       </main>
 

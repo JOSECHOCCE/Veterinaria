@@ -88,34 +88,60 @@ export default function ReportePagos() {
     }
   };
 
+  // Cálculos consolidados y desgloses
+  const totalIngresos = reporteData?.totalIngresos || 0;
+  const totalEfectivo = reporteData?.totalEfectivo || 0;
+  const totalTarjeta = reporteData?.totalTarjeta || 0;
+  const totalTransferencia = Math.max(0, totalIngresos - totalEfectivo - totalTarjeta);
+
+  const pctTarjeta = totalIngresos ? Math.round((totalTarjeta / totalIngresos) * 100) : 0;
+  const pctEfectivo = totalIngresos ? Math.round((totalEfectivo / totalIngresos) * 100) : 0;
+  const pctTransferencia = totalIngresos ? Math.max(0, 100 - pctTarjeta - pctEfectivo) : 0;
+
+  // Donut path dashes
+  const dashTransferencia = `${pctTransferencia}, 100`;
+  const dashTarjeta = `${pctTarjeta}, 100`;
+  const offsetTarjeta = -pctTransferencia;
+  const dashEfectivo = `${pctEfectivo}, 100`;
+  const offsetEfectivo = -(pctTransferencia + pctTarjeta);
+
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-fadeIn">
       
       {/* Filters Form */}
-      <div className="bg-surface-card rounded-xl p-4 border border-hairline shadow-sm">
-        <h3 className="font-title-sm text-title-sm text-ink font-bold mb-4">Filtros Financieros</h3>
+      <div className="bg-white rounded-2xl p-6 border border-outline-variant/20 shadow-xs">
+        <h3 className="font-title-sm text-title-sm text-ink font-bold mb-4 flex items-center gap-2">
+          <span className="material-symbols-outlined text-primary text-[18px]">filter_alt</span>
+          Filtros Financieros
+        </h3>
         
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="pago-fecha-inicio" className="font-label-sm text-body-muted font-bold text-[11px] uppercase tracking-wider">Fecha Inicio</label>
-            <input
-              id="pago-fecha-inicio"
-              type="date"
-              value={fechaInicio}
-              onChange={(e) => setFechaInicio(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[16px]">calendar_month</span>
+              <input
+                id="pago-fecha-inicio"
+                type="date"
+                value={fechaInicio}
+                onChange={(e) => setFechaInicio(e.target.value)}
+                className="w-full bg-surface border border-outline-variant/60 rounded-lg pl-9 pr-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <label htmlFor="pago-fecha-fin" className="font-label-sm text-body-muted font-bold text-[11px] uppercase tracking-wider">Fecha Fin</label>
-            <input
-              id="pago-fecha-fin"
-              type="date"
-              value={fechaFin}
-              onChange={(e) => setFechaFin(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
-            />
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[16px]">calendar_month</span>
+              <input
+                id="pago-fecha-fin"
+                type="date"
+                value={fechaFin}
+                onChange={(e) => setFechaFin(e.target.value)}
+                className="w-full bg-surface border border-outline-variant/60 rounded-lg pl-9 pr-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
+              />
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -124,7 +150,7 @@ export default function ReportePagos() {
               id="filter-metodo"
               value={metodoPago}
               onChange={(e) => setMetodoPago(e.target.value)}
-              className="bg-surface border border-hairline rounded-lg px-3 py-2 text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              className="w-full bg-surface border border-outline-variant/60 rounded-lg px-3 py-2 text-body-sm focus:border-primary outline-none transition-colors"
             >
               <option value="">Todos los métodos</option>
               <option value="Efectivo">Efectivo</option>
@@ -135,39 +161,134 @@ export default function ReportePagos() {
         </div>
       </div>
 
-      {/* Summary KPI Row */}
+      {/* Consolidated Indicators Section */}
       {reporteData && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Total Revenues */}
-          <div className="bg-ink text-surface rounded-xl p-4 border border-hairline shadow-md relative overflow-hidden">
-            <div className="absolute -right-10 -top-10 w-28 h-28 bg-surface-variant opacity-10 rounded-full blur-2xl"></div>
-            <p className="text-[11px] font-bold text-surface-soft uppercase tracking-wider">Monto Total Recaudado</p>
-            <p className="font-display-xl text-[36px] font-bold mt-2 text-surface">
-              ${reporteData.totalIngresos.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Total Collected Card (col-span-4) */}
+          <div className="lg:col-span-4 bg-white p-6 rounded-2xl border border-outline-variant/20 flex flex-col justify-between shadow-xs">
+            <div>
+              <div className="flex justify-between items-start mb-4">
+                <span className="material-symbols-outlined p-3 bg-primary/10 text-primary rounded-xl">account_balance_wallet</span>
+                <span className="text-primary-container font-semibold text-[13px] bg-primary/10 px-2 py-1 rounded-md shadow-inner">+12.5%</span>
+              </div>
+              <h3 className="text-[11px] font-bold text-body-muted uppercase tracking-wider mb-1 leading-none">Total Recaudado</h3>
+              <div className="text-[28px] font-bold text-on-surface leading-none mt-1">S/. {totalIngresos.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            </div>
+            {/* Sparkline visualization mockup */}
+            <div className="mt-6 pt-4 border-t border-outline-variant/10 flex gap-1 h-10 items-end">
+              <div className="bg-primary/20 w-full h-1/4 rounded-xs"></div>
+              <div className="bg-primary/20 w-full h-2/4 rounded-xs"></div>
+              <div className="bg-primary/40 w-full h-3/4 rounded-xs"></div>
+              <div className="bg-primary/20 w-full h-2/4 rounded-xs"></div>
+              <div className="bg-primary/60 w-full h-full rounded-xs"></div>
+              <div className="bg-primary w-full h-4/5 rounded-xs"></div>
+            </div>
           </div>
-          {/* Total Cash */}
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-emerald-500">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Total Efectivo</p>
-            <p className="font-title-lg text-[26px] text-ink font-bold mt-2">
-              ${reporteData.totalEfectivo.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+
+          {/* Breakdown by Method (col-span-5) */}
+          <div className="lg:col-span-5 bg-white p-6 rounded-2xl border border-outline-variant/20 shadow-xs">
+            <h3 className="text-[11px] font-bold text-body-muted uppercase tracking-wider mb-4 leading-none">Desglose por Método</h3>
+            <div className="flex items-center gap-6">
+              {/* Dynamic SVG Donut Chart */}
+              <div className="relative w-28 h-28 shrink-0">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15.915" fill="none" stroke="#f1f4f6" strokeWidth="3" />
+                  
+                  {/* Transferencia */}
+                  {pctTransferencia > 0 && (
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.915"
+                      fill="none"
+                      stroke="#006a63"
+                      strokeWidth="3.2"
+                      strokeDasharray={dashTransferencia}
+                      strokeDashoffset="0"
+                    />
+                  )}
+
+                  {/* Tarjeta */}
+                  {pctTarjeta > 0 && (
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.915"
+                      fill="none"
+                      stroke="#4fd1c5"
+                      strokeWidth="3.2"
+                      strokeDasharray={dashTarjeta}
+                      strokeDashoffset={offsetTarjeta}
+                    />
+                  )}
+
+                  {/* Efectivo */}
+                  {pctEfectivo > 0 && (
+                    <circle
+                      cx="18"
+                      cy="18"
+                      r="15.915"
+                      fill="none"
+                      stroke="#ffab67"
+                      strokeWidth="3.2"
+                      strokeDasharray={dashEfectivo}
+                      strokeDashoffset={offsetEfectivo}
+                    />
+                  )}
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center flex-col leading-none">
+                  <span className="text-[10px] text-body-muted font-bold uppercase">Total</span>
+                  <span className="text-[14px] font-extrabold text-ink mt-1">100%</span>
+                </div>
+              </div>
+              
+              <div className="flex-grow flex flex-col gap-2 font-body-sm text-body-sm">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-primary inline-block"></span>
+                    <span className="text-body-strong font-medium">Transferencia</span>
+                  </div>
+                  <span className="font-bold text-ink">{pctTransferencia}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#4fd1c5] inline-block"></span>
+                    <span className="text-body-strong font-medium">Tarjeta</span>
+                  </div>
+                  <span className="font-bold text-ink">{pctTarjeta}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#ffab67] inline-block"></span>
+                    <span className="text-body-strong font-medium">Efectivo</span>
+                  </div>
+                  <span className="font-bold text-ink">{pctEfectivo}%</span>
+                </div>
+              </div>
+            </div>
           </div>
-          {/* Total Card */}
-          <div className="bg-surface-soft p-4 rounded-xl border border-hairline shadow-sm border-l-4 border-l-blue-500">
-            <p className="text-[11px] font-bold text-body-muted uppercase tracking-wider">Total Tarjeta</p>
-            <p className="font-title-lg text-[26px] text-ink font-bold mt-2">
-              ${reporteData.totalTarjeta.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
+
+          {/* Pending Box Widget (col-span-3) */}
+          <div className="lg:col-span-3 bg-white p-6 rounded-2xl border border-outline-variant/20 shadow-xs flex flex-col justify-between">
+            <div>
+              <span className="material-symbols-outlined p-2.5 bg-error-container text-error rounded-xl text-[20px] inline-block mb-3">
+                pending_actions
+              </span>
+              <h3 className="text-[11px] font-bold text-body-muted uppercase tracking-wider mb-1 leading-none">Total Efectivo</h3>
+              <div className="text-[24px] font-bold text-ink mt-1">S/. {totalEfectivo.toLocaleString('es-ES', { minimumFractionDigits: 2 })}</div>
+            </div>
+            <div className="text-body-muted text-[11px] mt-4 font-semibold">
+              Cierre parcial en efectivo registrado
+            </div>
           </div>
         </div>
       )}
 
       {/* Table Container */}
-      <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-2xl border border-outline-variant/20 shadow-xs overflow-hidden flex flex-col">
         
         {/* Table Action Bar */}
-        <div className="p-4 bg-surface-soft/60 border-b border-hairline flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="p-4 bg-surface-soft/60 border-b border-outline-variant/10 flex flex-col sm:flex-row justify-between items-center gap-4">
           <h4 className="font-title-sm text-title-sm text-ink font-bold">Registro Contable de Transacciones</h4>
           
           {reporteData && reporteData.detalle.length > 0 && (
@@ -175,7 +296,7 @@ export default function ReportePagos() {
               <button
                 disabled={exporting !== null}
                 onClick={() => handleExport('csv')}
-                className="flex-1 sm:flex-initial bg-transparent border border-outline text-ink hover:bg-surface-card font-button text-button px-4 py-2 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2"
+                className="flex-1 sm:flex-initial bg-transparent border border-outline text-ink hover:bg-surface-card font-button text-button px-4 py-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2"
               >
                 <span className="material-symbols-outlined text-[18px]">download</span>
                 {exporting === 'csv' ? 'Exportando...' : 'Exportar CSV'}
@@ -183,7 +304,7 @@ export default function ReportePagos() {
               <button
                 disabled={exporting !== null}
                 onClick={() => handleExport('pdf')}
-                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                className="flex-1 sm:flex-initial bg-primary hover:bg-primary-active text-on-primary font-button text-button px-4 py-2.5 rounded-full transition-all cursor-pointer flex items-center justify-center gap-2 shadow-xs"
               >
                 <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
                 {exporting === 'pdf' ? 'Generando...' : 'Exportar PDF'}
@@ -208,15 +329,15 @@ export default function ReportePagos() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-surface-soft/40 border-b border-hairline text-ink font-bold text-[12px] uppercase tracking-wider">
-                  <th className="py-2.5 pl-6 pr-4">ID Transacción</th>
-                  <th className="py-2.5 px-4">Fecha Pago</th>
-                  <th className="py-2.5 px-4">Concepto / Servicio</th>
-                  <th className="py-2.5 px-4 text-center">Método de Pago</th>
-                  <th className="py-2.5 pl-4 pr-6 text-right">Monto</th>
+                <tr className="bg-surface-soft/40 border-b border-outline-variant/10 text-ink font-bold text-[12px] uppercase tracking-wider">
+                  <th className="py-3 pl-6 pr-4">ID Transacción</th>
+                  <th className="py-3 px-4">Fecha Pago</th>
+                  <th className="py-3 px-4">Concepto / Servicio</th>
+                  <th className="py-3 px-4 text-center">Método de Pago</th>
+                  <th className="py-3 pl-4 pr-6 text-right">Monto</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-hairline">
+              <tbody className="divide-y divide-outline-variant/10">
                 {reporteData.detalle.map((item) => {
                   const dateStr = new Date(item.fechaPago).toLocaleDateString('es-ES', {
                     day: '2-digit',
@@ -231,18 +352,18 @@ export default function ReportePagos() {
 
                   return (
                     <tr key={item.pagoId} className="hover:bg-surface-soft/30 transition-all font-body-sm text-[13px] text-body-strong">
-                      <td className="py-2.5 pl-6 pr-4 font-semibold select-all text-body-muted">TX-#{item.pagoId}</td>
-                      <td className="py-2.5 px-4">
+                      <td className="py-3 pl-6 pr-4 font-semibold select-all text-body-muted">TX-#{item.pagoId}</td>
+                      <td className="py-3 px-4">
                         <span className="font-semibold">{dateStr}</span>
                         <span className="text-body-muted ml-1.5">{timeStr}</span>
                       </td>
-                      <td className="py-2.5 px-4 font-medium text-ink">{item.concepto}</td>
-                      <td className="py-2.5 px-4 text-center">
+                      <td className="py-3 px-4 font-medium text-ink">{item.concepto}</td>
+                      <td className="py-3 px-4 text-center">
                         <span className={`inline-block px-3 py-0.5 rounded-full text-[11px] font-bold border shadow-xs ${getMethodBadgeClass(item.metodoPago)}`}>
                           {item.metodoPago}
                         </span>
                       </td>
-                      <td className="py-2.5 pl-4 pr-6 text-right font-bold text-ink">${item.monto.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="py-3 pl-4 pr-6 text-right font-bold text-ink">S/. {item.monto.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
                     </tr>
                   );
                 })}

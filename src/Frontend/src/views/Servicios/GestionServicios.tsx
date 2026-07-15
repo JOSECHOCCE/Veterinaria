@@ -9,6 +9,11 @@ import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
 import PageHeader from '../../components/common/PageHeader';
+import banoPeluqueria from '../../assets/Baño y Peluquería.png';
+import cirugiaMenor from '../../assets/Cirugía Menor.png';
+import consultaGeneral from '../../assets/Consulta General.png';
+import desparacitacion from '../../assets/Desparacitación.png';
+import vacunacion from '../../assets/Vacunación.png';
 
 export default function GestionServicios() {
   const navigate = useNavigate();
@@ -23,6 +28,7 @@ export default function GestionServicios() {
   const [buscar, setBuscar] = useState<string>('');
   const [debouncedBuscar, setDebouncedBuscar] = useState<string>('');
   const [mostrarInactivos, setMostrarInactivos] = useState<boolean>(true);
+  const [selectedCategory, setSelectedCategory] = useState<'Todos' | 'Medicina' | 'Cirugía' | 'Estética'>('Todos');
 
   // Dropdown overlay state for actions
   const [activeDropdownId, setActiveDropdownId] = useState<number | null>(null);
@@ -111,8 +117,53 @@ export default function GestionServicios() {
     );
   }
 
+  const getServiceCategory = (s: Servicio): 'Medicina' | 'Cirugía' | 'Estética' => {
+    const name = s.nombre.toLowerCase();
+    const desc = (s.descripcion || '').toLowerCase();
+    const esp = (s.especialidadRequerida || '').toLowerCase();
+    
+    if (name.includes('cirug') || name.includes('quirur') || name.includes('dental') || name.includes('limpieza') || esp.includes('cirug')) {
+      return 'Cirugía';
+    }
+    if (name.includes('estetic') || name.includes('peluquer') || name.includes('baño') || name.includes('uñas') || name.includes('spa') || name.includes('corte')) {
+      return 'Estética';
+    }
+    return 'Medicina';
+  };
+
+  const getServiceImage = (s: Servicio) => {
+    const name = s.nombre.toLowerCase();
+    const desc = (s.descripcion || '').toLowerCase();
+    
+    if (name.includes('vacuna') || name.includes('inmun') || desc.includes('vacuna')) {
+      return vacunacion;
+    }
+    if (name.includes('desparacit') || name.includes('desparasit') || name.includes('antiparasit') || desc.includes('desparacit') || desc.includes('desparasit')) {
+      return desparacitacion;
+    }
+    if (name.includes('cirug') || name.includes('quirur') || name.includes('dental') || name.includes('limpieza') || name.includes('operac') || desc.includes('cirug')) {
+      return cirugiaMenor;
+    }
+    if (name.includes('estetic') || name.includes('peluquer') || name.includes('baño') || name.includes('uñas') || name.includes('spa') || name.includes('corte') || desc.includes('baño')) {
+      return banoPeluqueria;
+    }
+    return consultaGeneral;
+  };
+
+  const filteredServicios = servicios.filter(s => {
+    if (selectedCategory === 'Todos') return true;
+    return getServiceCategory(s) === selectedCategory;
+  });
+
   return (
-    <div className="flex-grow flex flex-col min-w-0">
+    <div className="flex-1 flex flex-col min-w-0 p-6 md:pt-4 md:px-10 md:pb-10 max-w-[1400px] mx-auto w-full relative">
+      
+      {/* Fondo con Orbes Difuminados Tridimensionales */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[40%] rounded-full bg-primary/5 blur-[100px] animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute top-[45%] -right-[10%] w-[50%] h-[50%] rounded-full bg-accent-teal/5 blur-[120px]" />
+      </div>
+
       {/* Header Section */}
       <PageHeader
         title="Catálogo de Servicios"
@@ -121,9 +172,9 @@ export default function GestionServicios() {
           isAdmin ? (
             <button
               onClick={() => navigate('/admin/servicios/nuevo')}
-              className="bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs shadow-sm cursor-pointer"
+              className="bg-primary hover:bg-primary-active text-white px-6 py-3 rounded-full text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
             >
-              <span className="material-symbols-outlined text-sm">add</span>
+              <span className="material-symbols-outlined text-[18px]">add</span>
               Crear nuevo servicio
             </button>
           ) : undefined
@@ -131,158 +182,199 @@ export default function GestionServicios() {
         hasDivider={true}
       />
 
-      {/* Main Content: Table inside Card */}
-      <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden">
-        {/* Table Toolbar */}
-        <div className="p-lg border-b border-hairline bg-surface-soft/50 flex flex-col sm:flex-row sm:items-center justify-between gap-md">
+      {/* Toolbar (Search & Filters) */}
+      <div className="bg-white rounded-3xl p-4 mb-8 border border-primary/10 shadow-sm flex flex-col lg:flex-row gap-4 justify-between items-center">
+        <div className="flex flex-col md:flex-row gap-4 items-center w-full">
+          
           {/* Search bar */}
-          <div className="relative w-full sm:w-80">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-body-muted text-[18px]">search</span>
+          <div className="relative flex-grow w-full md:max-w-md">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
             <input
               value={buscar}
               onChange={(e) => setBuscar(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-canvas border border-hairline rounded-lg font-body-sm text-body-sm text-ink focus:outline-none focus:border-outline focus:ring-1 focus:ring-outline transition-all"
-              placeholder="Buscar servicio..."
+              className="w-full pl-10 pr-4 py-2.5 bg-surface-container-low border-none rounded-xl text-xs font-semibold focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none"
+              placeholder="Buscar servicios por nombre o descripción..."
               type="text"
             />
           </div>
 
-          <div className="flex items-center gap-lg">
+          <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
+            <button
+              onClick={() => setSelectedCategory('Todos')}
+              className={`px-4 py-1.5 rounded-full text-[11px] font-bold border transition-all ${selectedCategory === 'Todos' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:bg-surface-variant'}`}
+            >
+              Todos
+            </button>
+            <button
+              onClick={() => setSelectedCategory('Medicina')}
+              className={`px-4 py-1.5 rounded-full text-[11px] font-bold border transition-all ${selectedCategory === 'Medicina' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:bg-surface-variant'}`}
+            >
+              Medicina
+            </button>
+            <button
+              onClick={() => setSelectedCategory('Cirugía')}
+              className={`px-4 py-1.5 rounded-full text-[11px] font-bold border transition-all ${selectedCategory === 'Cirugía' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:bg-surface-variant'}`}
+            >
+              Cirugía
+            </button>
+            <button
+              onClick={() => setSelectedCategory('Estética')}
+              className={`px-4 py-1.5 rounded-full text-[11px] font-bold border transition-all ${selectedCategory === 'Estética' ? 'bg-primary text-white border-primary shadow-sm' : 'bg-surface-container-low text-on-surface-variant border-transparent hover:bg-surface-variant'}`}
+            >
+              Estética
+            </button>
+
+            <div className="h-6 w-[1px] bg-surface-variant/60 mx-2 hidden md:block" />
+
             {/* Show Inactives Toggle */}
-            <label className="flex items-center gap-sm font-body-sm text-body-sm text-ink cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-xs font-bold text-on-surface-variant cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={mostrarInactivos}
                 onChange={(e) => setMostrarInactivos(e.target.checked)}
-                className="rounded border-hairline text-primary focus:ring-primary w-4 h-4"
+                className="rounded border-outline-variant text-primary focus:ring-primary w-4 h-4 cursor-pointer"
               />
-              <span>Mostrar servicios inactivos</span>
+              <span>Mostrar inactivos</span>
             </label>
-            <div className="text-caption text-secondary font-caption select-none">
-              Total: {servicios.length} {servicios.length === 1 ? 'servicio' : 'servicios'}
-            </div>
           </div>
-        </div>
 
-        {/* Data Table */}
-        {servicios.length === 0 ? (
+        </div>
+      </div>
+
+      {/* Grid of Bento Service Cards */}
+      {filteredServicios.length === 0 ? (
+        <div className="bg-white border border-primary/10 rounded-3xl p-6">
           <EmptyState
             title="Catálogo vacío"
             description={buscar ? 'No hay servicios que coincidan con tu búsqueda.' : 'No hay servicios configurados actualmente.'}
             actionLabel={isAdmin ? 'Configurar Primer Servicio' : undefined}
             onAction={isAdmin ? () => navigate('/admin/servicios/nuevo') : undefined}
           />
-        ) : (
-          <div className="overflow-x-auto relative">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-surface-soft border-b border-hairline">
-                  <th className="py-sm px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Nombre del servicio</th>
-                  <th className="py-sm px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Duración est.</th>
-                  <th className="py-sm px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Precio base</th>
-                  <th className="py-sm px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Req. Veterinario</th>
-                  <th className="py-sm px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-right">Estado</th>
-                  <th className="py-sm px-lg w-16"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-hairline">
-                <AnimatePresence mode="popLayout">
-                  {servicios.map((s) => (
-                    <motion.tr
-                      key={s.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className={`hover:bg-surface-soft/50 transition-colors group ${!s.activo ? 'opacity-65 bg-surface/30' : ''}`}
-                    >
-                      <td className="py-sm px-md">
-                        <div className="font-body-md text-body-strong text-ink font-semibold">{s.nombre}</div>
-                        <div className="font-caption text-caption text-body-muted mt-0.5 max-w-md line-clamp-1">{s.descripcion || 'Sin descripción'}</div>
-                      </td>
-                      <td className="py-sm px-md font-body-sm text-body-muted font-medium">{s.duracionMinutos} min</td>
-                      <td className="py-sm px-md font-code text-code text-ink font-semibold">${s.precio.toFixed(2)}</td>
-                      <td className="py-sm px-md">
-                        {s.requiereVeterinario ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-primary-container/10 border border-primary-container/30 font-caption text-caption text-primary">
-                            <span className="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
-                            Sí
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-surface border border-hairline font-caption text-caption text-secondary">
-                            No
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-sm px-md text-right">
-                        {s.activo ? (
-                          <span className="inline-flex items-center font-caption text-caption text-success font-medium">
-                            <span className="material-symbols-outlined text-sm mr-1">check_circle</span>
-                            Activo
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center font-caption text-caption text-secondary">
-                            <span className="material-symbols-outlined text-sm mr-1">block</span>
-                            Inactivo
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-sm px-md text-right relative">
-                        {isAdmin && (
-                          <div className="inline-block text-left">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setActiveDropdownId((prev) => (prev === s.id ? null : s.id));
-                              }}
-                              className="text-secondary hover:text-ink p-1 rounded hover:bg-canvas transition-colors cursor-pointer"
-                            >
-                              <span className="material-symbols-outlined">more_vert</span>
-                            </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
+            {filteredServicios.map((s) => {
+              const cat = getServiceCategory(s);
+              const img = getServiceImage(s);
+              const badgeColors = 
+                cat === 'Cirugía' ? 'bg-tertiary-container/30 text-tertiary border-tertiary/10' :
+                cat === 'Estética' ? 'bg-secondary-container/30 text-on-secondary-container border-secondary/10' :
+                'bg-primary-container/20 text-primary border-primary/10';
 
-                            {activeDropdownId === s.id && (
-                              <>
-                                <div
-                                  className="fixed inset-0 z-20"
-                                  onClick={() => setActiveDropdownId(null)}
-                                />
-                                <div className="absolute right-0 mt-1 w-44 bg-surface-container-lowest border border-hairline rounded-md shadow-lg z-30 py-1 font-body-sm text-body-sm text-ink text-left">
-                                  <button
-                                    onClick={() => navigate(`/admin/servicios/${s.id}/editar`)}
-                                    className="w-full px-sm py-2 hover:bg-surface-soft transition-colors text-left flex items-center gap-xs cursor-pointer"
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">edit</span>
-                                    Editar Servicio
-                                  </button>
-                                  <button
-                                    onClick={() => handleToggleActivo(s.id)}
-                                    className="w-full px-sm py-2 hover:bg-surface-soft transition-colors text-left flex items-center gap-xs cursor-pointer"
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">
-                                      {s.activo ? 'block' : 'check_circle'}
-                                    </span>
-                                    {s.activo ? 'Desactivar' : 'Activar'}
-                                  </button>
-                                  <button
-                                    onClick={() => handleDelete(s.id)}
-                                    className="w-full px-sm py-2 hover:bg-error-container/10 text-error transition-colors text-left flex items-center gap-xs cursor-pointer"
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                                    Eliminar
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
+              return (
+                <motion.div
+                  key={s.id}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  className={`bg-white rounded-3xl overflow-hidden border border-primary/10 shadow-sm flex flex-col transition-all hover:-translate-y-1 hover:shadow-md relative group ${!s.activo ? 'opacity-70 bg-surface-container-low/20' : ''}`}
+                >
+                  {/* Header Image Section */}
+                  <div className="h-48 overflow-hidden relative bg-surface-variant">
+                    <img
+                      alt={s.nombre}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      src={img}
+                    />
+                    
+                    {/* Category Badge */}
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className={`px-3 py-1 rounded-full text-[10px] font-bold border uppercase tracking-wider shadow-sm ${badgeColors}`}>
+                        {cat}
+                      </span>
+                    </div>
+
+                    {/* Admin Actions Dropdown (Floating on top left) */}
+                    {isAdmin && (
+                      <div className="absolute top-4 left-4 z-10">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveDropdownId((prev) => (prev === s.id ? null : s.id));
+                          }}
+                          className="w-8 h-8 rounded-full bg-white/95 backdrop-blur text-secondary hover:text-ink flex items-center justify-center border border-primary/5 transition-all shadow-sm cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                        </button>
+
+                        {activeDropdownId === s.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-20"
+                              onClick={() => setActiveDropdownId(null)}
+                            />
+                            <div className="absolute left-0 mt-1 w-44 bg-white/95 backdrop-blur-md border border-primary/10 rounded-2xl shadow-xl z-30 py-2 text-xs font-bold text-on-surface text-left">
+                              <button
+                                onClick={() => navigate(`/admin/servicios/${s.id}/editar`)}
+                                className="w-full px-4 py-2.5 hover:bg-surface-soft transition-colors text-left flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">edit</span>
+                                Editar Servicio
+                              </button>
+                              <button
+                                onClick={() => handleToggleActivo(s.id)}
+                                className="w-full px-4 py-2.5 hover:bg-surface-soft transition-colors text-left flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">
+                                  {s.activo ? 'block' : 'check_circle'}
+                                </span>
+                                {s.activo ? 'Desactivar' : 'Activar'}
+                              </button>
+                              <button
+                                onClick={() => handleDelete(s.id)}
+                                className="w-full px-4 py-2.5 hover:bg-error-container/20 text-error transition-colors text-left flex items-center gap-1.5 cursor-pointer"
+                              >
+                                <span className="material-symbols-outlined text-[16px]">delete</span>
+                                Eliminar
+                              </button>
+                            </div>
+                          </>
                         )}
-                      </td>
-                    </motion.tr>
-                  ))}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                      </div>
+                    )}
+
+                  </div>
+
+                  {/* Details Area */}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h4 className="font-bold text-base text-on-surface leading-snug">{s.nombre}</h4>
+                      <span className="text-[10px] font-bold text-on-surface-variant shrink-0 bg-surface-soft px-2.5 py-1 rounded-md border border-outline-variant/30">
+                        {s.duracionMinutos} min
+                      </span>
+                    </div>
+                    
+                    <p className="text-xs text-on-surface-variant font-medium mb-6 flex-1 leading-relaxed line-clamp-2">
+                      {s.descripcion || 'Sin descripción detallada.'}
+                    </p>
+
+                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-surface-variant/30">
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider">Precio base</span>
+                        <span className="text-lg font-bold text-primary">S/. {s.precio.toFixed(2)}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        {s.requiereVeterinario ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary-container/10 border border-primary-container/30 text-[9px] font-bold text-primary uppercase">
+                            Veterinario
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface border border-outline-variant/30 text-[9px] font-bold text-on-surface-variant/60 uppercase">
+                            Estilista/Groomer
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
     </div>
   );
 }

@@ -38,6 +38,7 @@ import NuevoFlujoCita from './views/PortalCliente/NuevoFlujoCita';
 import CentroNotificaciones from './views/Notificaciones/CentroNotificaciones';
 import PreferenciasNotificacion from './views/Notificaciones/PreferenciasNotificacion';
 import Dashboard from './views/Dashboard/Dashboard';
+import ConfiguracionView from './views/Dashboard/ConfiguracionView';
 import ReportesHub from './views/Reportes/ReportesHub';
 import LandingPage from './views/PortalPublico/LandingPage';
 import ServiciosPublic from './views/PortalPublico/ServiciosPublic';
@@ -89,6 +90,7 @@ function App() {
         <Route path="servicios" element={<GestionServicios />} />
         <Route path="agenda" element={<Agenda />} />
         <Route path="agenda/nueva" element={<NuevaCita />} />
+        <Route path="configuracion" element={<ConfiguracionView />} />
         <Route path="cola" element={<ColaAtencion />} />
         <Route path="triage" element={<Triage />} />
         <Route path="atencion/:citaId" element={<HistoriaClinicaSOAP />} />

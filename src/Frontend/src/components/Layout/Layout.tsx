@@ -9,12 +9,12 @@ export default function Layout() {
   const [showGreeting, setShowGreeting] = useState(true);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen">
+    <div className="flex h-screen bg-background overflow-hidden">
       <Sidebar />
-      <TopAppBar />
       
-      {/* El contenido principal con padding-top adecuado para no ser tapado por la barra fija */}
-      <main className="flex-1 md:ml-72 pt-[4.5rem] px-6 pb-6 overflow-y-auto bg-canvas">
+      {/* Panel principal adaptado a laptops (ml-64) y estructura idéntica al prototipo */}
+      <main className="flex-1 md:ml-64 flex flex-col h-screen overflow-y-auto bg-background">
+        <TopAppBar />
         <Outlet />
       </main>
 

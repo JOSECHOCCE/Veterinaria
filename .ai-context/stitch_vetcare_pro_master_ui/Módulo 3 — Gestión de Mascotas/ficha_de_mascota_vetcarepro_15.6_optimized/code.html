@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ficha Completa de Mascota - VetCarePro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f7fafc",
+                        "surface-tint": "#006a63",
+                        "on-primary-fixed": "#00201d",
+                        "surface": "#f7fafc",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#d7dadc",
+                        "on-secondary-fixed": "#121c2c",
+                        "inverse-on-surface": "#eef1f3",
+                        "secondary-container": "#d6e0f6",
+                        "surface-container-low": "#f1f4f6",
+                        "outline": "#6c7a77",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "on-secondary": "#ffffff",
+                        "on-secondary-fixed-variant": "#3d4759",
+                        "outline-variant": "#bbc9c7",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#3c4947",
+                        "primary": "#006a63",
+                        "on-tertiary-fixed-variant": "#6f3800",
+                        "on-secondary-container": "#596376",
+                        "secondary-fixed": "#d9e3f9",
+                        "on-primary-container": "#005750",
+                        "inverse-primary": "#5adace",
+                        "on-primary-fixed-variant": "#00504a",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#555f71",
+                        "on-background": "#181c1e",
+                        "surface-container": "#ebeef0",
+                        "primary-fixed-dim": "#5adace",
+                        "on-primary": "#ffffff",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-high": "#e5e9eb",
+                        "secondary-fixed-dim": "#bdc7dc",
+                        "tertiary-container": "#ffab67",
+                        "primary-container": "#4fd1c5",
+                        "surface-container-highest": "#e0e3e5",
+                        "primary-fixed": "#79f7ea",
+                        "on-surface": "#181c1e",
+                        "tertiary": "#8e4e11",
+                        "tertiary-fixed-dim": "#ffb77f",
+                        "tertiary-fixed": "#ffdcc4",
+                        "on-tertiary-fixed": "#2f1500",
+                        "on-tertiary-container": "#773d00",
+                        "background": "#f7fafc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "margin-mobile": "16px",
+                        "gutter": "24px",
+                        "container-max-width": "1200px",
+                        "base-unit": "8px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Quicksand"],
+                        "body-lg": ["Quicksand"],
+                        "label-md": ["Quicksand"],
+                        "headline-lg": ["Quicksand"],
+                        "label-sm": ["Quicksand"],
+                        "headline-md": ["Quicksand"],
+                        "body-md": ["Quicksand"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "600" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Quicksand', sans-serif; background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        .ambient-shadow { box-shadow: 0 10px 15px -3px rgba(45, 55, 72, 0.05), 0 4px 6px -2px rgba(45, 55, 72, 0.025); }
+    </style>
+</head>
+<body class="flex bg-background min-h-screen">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-surface-container-low dark:bg-surface-container-low transition-all duration-200 ease-in-out z-20">
+<div class="flex flex-col h-full py-6 px-4">
+<div class="mb-8 px-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl" style="font-variation-settings: 'FILL' 1;">pets</span>
+<div class="flex flex-col">
+<span class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">VetCarePro</span>
+<span class="font-label-sm text-label-sm text-secondary">City Vet Center</span>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">dashboard</span>
+<span class="font-label-md text-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">group</span>
+<span class="font-label-md text-label-md">Clients</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container dark:bg-on-secondary-container text-on-secondary-container dark:text-secondary-container rounded-lg font-semibold active:scale-95 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">pets</span>
+<span class="font-label-md text-label-md">Pets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">event</span>
+<span class="font-label-md text-label-md">Appointments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">payments</span>
+<span class="font-label-md text-label-md">Finances</span>
+</a>
+</nav>
+<div class="mt-auto space-y-2 pt-6 border-t border-surface-variant">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">settings</span>
+<span class="font-label-md text-label-md">Settings</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary dark:text-on-secondary-fixed-variant hover:bg-surface-container-high transition-colors rounded-lg group" href="#">
+<span class="material-symbols-outlined group-hover:text-primary transition-colors">contact_support</span>
+<span class="font-label-md text-label-md">Support</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-64 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky bg-surface dark:bg-surface-container-lowest z-10">
+<div class="flex justify-between items-center h-16 px-margin-desktop w-full border-b border-surface-variant">
+<!-- Left side empty or breadcrumbs if needed, keeping simple for TopNavBar specs -->
+<div class="flex items-center">
+<h1 class="font-headline-md text-headline-md text-on-surface">Pet Profile</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface rounded-full p-2 transition-all duration-200 cursor-pointer">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden border border-surface-variant cursor-pointer">
+<img alt="Dr. Smith's Profile" class="w-full h-full object-cover" data-alt="A small, professional circular profile picture of a veterinarian, brightly lit, friendly expression, soft minimalist medical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuClxqy01Zyg5zz6R2ipLw_uIOY6zOKPhPEVuoWEDh2OItwXTVpbnnOVbdQbbd9sMd2lzphOx9gJ_v9PlyaCNAFGYd9wycNeb58WYrhwYREPeVwI96mFXJ3Fy8frXsMUCK6XnSvHYxfpjF5k0gtbzfPMdSLhgtwv68YFOeyLq8l6FBJ7wLU4X7vNbKXdTwKcRgtgWiheZOciiPusMK0iEcjeG58ztjlaIwuAOZUQ4ymKmUyuzlaTdcpvJg"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 p-margin-desktop bg-surface-bright overflow-y-auto">
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter max-w-container-max-width mx-auto">
+<!-- Lateral Profile Card (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Identity Card -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6 flex flex-col items-center text-center">
+<div class="w-32 h-32 rounded-full overflow-hidden border-4 border-surface-bright mb-4 relative shadow-sm">
+<img class="w-full h-full object-cover" data-alt="A high-quality, professional portrait of a beautiful Golden Retriever dog looking attentive and happy. Soft natural lighting, shallow depth of field, minimalist bright clinical background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFpIGBUWZTXWCe4RmdHbSSKmVGNihl5ygtncxfjc9-WDWw5Jn6jQ0Ri-kV3tlN_SXRjF7VtBtfXFo8zprOcVUlQ3X5_fp1nJx1Zl8LUJQLXckdLQMrNClYLDEMhKGtVrMByTmPq6ZA2J7TfDhWyImyBu9YV11g16tWGCXi3CJvuAYtQqfJpLg2dRKHMfezNT59Z1cZj39w7O9rdvFx7VGWnr18P-f7bTxLJioUg5OSpEqmKJhkvnJ9Dw"/>
+<div class="absolute bottom-1 right-1 bg-primary text-on-primary rounded-full p-1 border-2 border-surface-container-lowest flex items-center justify-center h-8 w-8">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">male</span>
+</div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface mb-1">Max</h2>
+<span class="bg-[#e6fffa] text-primary px-3 py-1 rounded-full font-label-sm text-label-sm mb-4">Golden Retriever</span>
+<div class="w-full grid grid-cols-2 gap-4 text-left border-t border-surface-variant pt-4 mt-2">
+<div>
+<p class="font-label-sm text-label-sm text-secondary">Age</p>
+<p class="font-body-md text-body-md text-on-surface">3 Years, 2 Mos</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary">Weight</p>
+<p class="font-body-md text-body-md text-on-surface">32.5 kg</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary">Microchip</p>
+<p class="font-body-md text-body-md text-on-surface">#9821734912</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary">Status</p>
+<p class="font-body-md text-body-md text-primary font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">check_circle</span> Active
+                                </p>
+</div>
+</div>
+<div class="w-full mt-6 space-y-3">
+<button class="w-full bg-primary hover:bg-on-primary-container text-on-primary font-label-md text-label-md py-3 rounded-lg transition-colors flex justify-center items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+                                Schedule Appointment
+                            </button>
+<div class="grid grid-cols-2 gap-3">
+<button class="w-full border border-outline-variant hover:bg-surface-container-low text-on-surface font-label-md text-label-md py-2 rounded-lg transition-colors">Edit</button>
+<button class="w-full border border-error text-error hover:bg-error-container font-label-md text-label-md py-2 rounded-lg transition-colors">Inactivate</button>
+</div>
+</div>
+</div>
+<!-- Owner Info Card -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">person</span>
+                                Owner Profile
+                            </h3>
+<button class="text-primary hover:bg-secondary-container rounded-full p-1 transition-colors">
+<span class="material-symbols-outlined">open_in_new</span>
+</button>
+</div>
+<div class="flex items-center gap-4 mb-4">
+<div class="h-12 w-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="A small, professional circular profile picture of a young woman, soft lighting, casual friendly look, minimalist background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwucYneTQq1xgX6TnWkO4lG-sPflMYWik1iiNRIQ4RTjWGar1ptNsFkmfM1sqorbKO4GuW4-_JjG3qyMPd_7aMvInqRS9g64zBDh38FGPCmWcZWqCX68G4hFmdZokSlzSguscEhtKd1ZeyFdycp6ZzQdU6MseA-ieNmxBRPKDgsB1KpusBfI5Wcfm3xi0yB3tldf5786h2sF6JXdB6Vjx0Mr-de74w_JNsfoT8xFeeiO_GnTrjMevgIw"/>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Sarah Jenkins</p>
+<p class="font-body-md text-body-md text-secondary">Premium Member</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">call</span>
+<span class="font-body-md text-body-md">+1 (555) 123-4567</span>
+</div>
+<div class="flex items-center gap-3 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+<span class="font-body-md text-body-md">sarah.j@example.com</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Central Cards (Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- High Visibility Alerts -->
+<div class="bg-error-container rounded-xl p-5 border-l-4 border-error flex items-start gap-4">
+<span class="material-symbols-outlined text-error text-3xl mt-1" style="font-variation-settings: 'FILL' 1;">warning</span>
+<div>
+<h3 class="font-headline-md text-[20px] font-bold text-on-error-container mb-1">Critical Alerts</h3>
+<ul class="list-disc list-inside font-body-md text-body-md text-on-error-container space-y-1">
+<li><strong>Severe Allergy:</strong> Penicillin (Anaphylaxis risk)</li>
+<li><strong>Chronic Condition:</strong> Mild Hip Dysplasia (Monitored)</li>
+</ul>
+</div>
+</div>
+<!-- Clinical Summary & Upcoming -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Upcoming Appointments -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline-md text-[20px] text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">event_upcoming</span>
+                                    Upcoming
+                                </h3>
+</div>
+<div class="bg-surface-bright border border-surface-variant rounded-lg p-4 flex gap-4 items-center">
+<div class="bg-secondary-container text-on-secondary-container rounded-lg p-2 text-center min-w-[60px]">
+<span class="block font-label-sm text-label-sm uppercase">Oct</span>
+<span class="block font-headline-md text-headline-md font-bold">14</span>
+</div>
+<div class="flex-1">
+<p class="font-label-md text-label-md text-on-surface">Annual Vaccination &amp; Checkup</p>
+<p class="font-body-md text-[14px] text-secondary flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[16px]">schedule</span> 10:00 AM - Dr. Smith
+                                    </p>
+</div>
+</div>
+</div>
+<!-- Vitals/Quick Stats -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow p-6">
+<h3 class="font-headline-md text-[20px] text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">monitor_heart</span>
+                                Latest Vitals
+                            </h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-bright rounded-lg p-3 border border-surface-variant">
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Heart Rate</span>
+<span class="font-headline-md text-[20px] text-on-surface">85 <span class="text-[14px] text-secondary font-normal">bpm</span></span>
+</div>
+<div class="bg-surface-bright rounded-lg p-3 border border-surface-variant">
+<span class="font-label-sm text-label-sm text-secondary block mb-1">Temperature</span>
+<span class="font-headline-md text-[20px] text-on-surface">101.2 <span class="text-[14px] text-secondary font-normal">°F</span></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Appointment History -->
+<div class="bg-surface-container-lowest rounded-xl ambient-shadow flex-1 flex flex-col">
+<div class="p-6 border-b border-surface-variant flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history</span>
+                                Clinical History
+                            </h3>
+<button class="text-primary font-label-md text-label-md hover:underline flex items-center gap-1">
+                                View Full <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<div class="p-0">
+<!-- List Item 1 -->
+<div class="p-4 px-6 border-b border-surface-variant hover:bg-surface-bright transition-colors flex items-start gap-4">
+<div class="bg-surface-container-high rounded-full p-2 text-secondary mt-1">
+<span class="material-symbols-outlined text-[20px]">medical_services</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-md text-[16px] text-on-surface">Ear Infection Treatment</h4>
+<span class="font-label-sm text-label-sm text-secondary">Sep 12, 2023</span>
+</div>
+<p class="font-body-md text-[14px] text-on-surface-variant mb-2">Presented with head shaking. Diagnosed bilateral otitis externa. Prescribed topical drops (Otomax) for 7 days.</p>
+<div class="flex gap-2">
+<span class="bg-surface-container text-secondary px-2 py-1 rounded text-[12px] font-medium flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">prescriptions</span> Otomax</span>
+</div>
+</div>
+</div>
+<!-- List Item 2 -->
+<div class="p-4 px-6 border-b border-surface-variant hover:bg-surface-bright transition-colors flex items-start gap-4">
+<div class="bg-surface-container-high rounded-full p-2 text-secondary mt-1">
+<span class="material-symbols-outlined text-[20px]">vaccines</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-md text-[16px] text-on-surface">Annual Boosters</h4>
+<span class="font-label-sm text-label-sm text-secondary">Oct 15, 2022</span>
+</div>
+<p class="font-body-md text-[14px] text-on-surface-variant">Administered DHPP, Rabies (3yr), and Bordetella vaccines. General physical exam normal.</p>
+</div>
+</div>
+<!-- List Item 3 -->
+<div class="p-4 px-6 hover:bg-surface-bright transition-colors flex items-start gap-4">
+<div class="bg-surface-container-high rounded-full p-2 text-secondary mt-1">
+<span class="material-symbols-outlined text-[20px]">healing</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-1">
+<h4 class="font-label-md text-[16px] text-on-surface">Laceration Repair</h4>
+<span class="font-label-sm text-label-sm text-secondary">Jun 04, 2022</span>
+</div>
+<p class="font-body-md text-[14px] text-on-surface-variant">Minor laceration on right front paw pad. Cleaned and bandaged. Dispensed Rimadyl for pain.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

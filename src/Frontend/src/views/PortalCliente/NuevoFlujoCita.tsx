@@ -10,6 +10,12 @@ interface Mascota {
   id: number;
   nombre: string;
   especie: string;
+  raza?: string;
+  fechaNacimiento?: string;
+  sexo?: string;
+  color?: string;
+  alergiasConocidas?: string;
+  peso?: number;
 }
 
 interface Servicio {
@@ -54,6 +60,9 @@ export default function NuevoFlujoCita() {
   
   // Search query for services
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchDoctorQuery, setSearchDoctorQuery] = useState('');
+  const [activeShift, setActiveShift] = useState<'Mañana' | 'Tarde'>('Mañana');
+  const [selectedDoctorCategory, setSelectedDoctorCategory] = useState<'Todos' | 'Medicina Interna' | 'Cirugía' | 'Dermatología'>('Todos');
 
   // Temporizador y reserva temporal
   const [timer, setTimer] = useState(300); // 5 minutos (300 segundos)
@@ -224,6 +233,149 @@ export default function NuevoFlujoCita() {
       .toUpperCase();
   };
 
+  const getPetImage = (nombre: string, especie: string) => {
+    const esp = especie.toLowerCase();
+    const name = nombre.toLowerCase();
+    if (esp.includes('gato') || esp.includes('cat') || esp.includes('felin')) {
+      return 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=200&h=200&fit=crop';
+    }
+    if (name.includes('rocky') || name.includes('bulldog')) {
+      return 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?w=200&h=200&fit=crop';
+    }
+    return 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=200&h=200&fit=crop';
+  };
+
+  const getDoctorImage = (nombre: string) => {
+    const name = nombre.toLowerCase();
+    if (name.includes('sarah') || name.includes('jenkins')) {
+      return 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=200&h=200&fit=crop';
+    }
+    if (name.includes('elena') || name.includes('rodriguez') || name.includes('ruiz')) {
+      return 'https://images.unsplash.com/photo-1594824813573-246434de83fb?w=200&h=200&fit=crop';
+    }
+    return 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=200&h=200&fit=crop';
+  };
+
+  const getServiceIcon = (nombre: string) => {
+    const name = nombre.toLowerCase();
+    if (name.includes('consult') || name.includes('gener')) return 'stethoscope';
+    if (name.includes('vacun') || name.includes('inmun')) return 'vaccines';
+    if (name.includes('desparasit') || name.includes('bug')) return 'bug_report';
+    if (name.includes('peluquer') || name.includes('corte') || name.includes('baño') || name.includes('estet')) return 'content_cut';
+    return 'medical_services';
+  };
+
+  const getDoctorCategory = (nombre: string) => {
+    const name = nombre.toLowerCase();
+    if (name.includes('sarah') || name.includes('jenkins')) return 'Medicina Interna';
+    if (name.includes('marcus') || name.includes('thorne')) return 'Cirugía';
+    if (name.includes('elena') || name.includes('rodriguez') || name.includes('ruiz')) return 'Dermatología';
+    return 'Medicina Interna';
+  };
+
+  const filteredVeterinarios = veterinarios.filter(v => {
+    const matchesSearch = v.nombre.toLowerCase().includes(searchDoctorQuery.toLowerCase()) || 
+      (v.especialidad && v.especialidad.toLowerCase().includes(searchDoctorQuery.toLowerCase()));
+    
+    if (selectedDoctorCategory === 'Todos') return matchesSearch;
+    return matchesSearch && getDoctorCategory(v.nombre) === selectedDoctorCategory;
+  });
+
+  const renderCalendar = () => {
+    const today = new Date();
+    const minDate = new Date();
+    minDate.setDate(today.getDate() + 1);
+
+    const baseDate = selectedFecha ? new Date(selectedFecha + 'T00:00:00') : minDate;
+    const year = baseDate.getFullYear();
+    const month = baseDate.getMonth();
+
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    const weekdays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+    
+    const prevMonthDays = [];
+    for (let i = 0; i < firstDayIndex; i++) {
+      prevMonthDays.push(<div key={`prev-${i}`} className="p-3 text-outline opacity-20 text-[13px] font-medium cursor-default">-</div>);
+    }
+
+    const monthDays = [];
+    for (let day = 1; day <= totalDays; day++) {
+      const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const targetDate = new Date(year, month, day);
+      const isPast = targetDate < minDate && targetDate.toDateString() !== minDate.toDateString();
+      const isSelected = selectedFecha === dayStr;
+
+      monthDays.push(
+        <button
+          key={`day-${day}`}
+          type="button"
+          disabled={isPast}
+          onClick={() => setSelectedFecha(dayStr)}
+          className={`p-3 text-[13px] font-bold rounded-xl transition-all cursor-pointer ${
+            isSelected
+              ? 'bg-primary text-white shadow-md scale-105'
+              : isPast
+              ? 'text-outline opacity-25 cursor-not-allowed'
+              : 'text-on-surface hover:bg-primary-container/10 hover:text-primary'
+          }`}
+        >
+          {day}
+        </button>
+      );
+    }
+
+    const monthNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
+    return (
+      <div className="bg-white rounded-3xl border border-primary/10 p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-base font-bold text-primary uppercase tracking-wide">
+            {monthNames[month]} {year}
+          </h3>
+          <div className="flex gap-1">
+            <button
+              type="button"
+              onClick={() => {
+                const prevMonth = new Date(year, month - 1, 1);
+                if (prevMonth >= new Date(today.getFullYear(), today.getMonth(), 1)) {
+                  setSelectedFecha(prevMonth.toISOString().split('T')[0]);
+                }
+              }}
+              className="w-8 h-8 rounded-full border border-primary/15 flex items-center justify-center text-secondary hover:bg-surface-soft cursor-pointer active:scale-95"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const nextMonth = new Date(year, month + 1, 1);
+                setSelectedFecha(nextMonth.toISOString().split('T')[0]);
+              }}
+              className="w-8 h-8 rounded-full border border-primary/15 flex items-center justify-center text-secondary hover:bg-surface-soft cursor-pointer active:scale-95"
+            >
+              <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 text-center gap-y-2">
+          {weekdays.map((wd) => (
+            <span key={wd} className="text-[10px] font-bold text-outline-variant uppercase tracking-wider mb-2">
+              {wd}
+            </span>
+          ))}
+          {prevMonthDays}
+          {monthDays}
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex flex-col gap-6 animate-pulse p-4">
@@ -269,7 +421,7 @@ export default function NuevoFlujoCita() {
       />
 
       {/* Wizard Container */}
-      <div className="bg-canvas/80 backdrop-blur-md border border-hairline/60 rounded-3xl p-6 md:p-8 shadow-xl max-w-3xl w-full mx-auto relative overflow-hidden">
+      <div className="bg-canvas/80 backdrop-blur-md border border-hairline/60 rounded-3xl p-6 md:p-8 shadow-xl max-w-5xl w-full mx-auto relative overflow-hidden">
         
         {/* Barra de Progreso Unificada */}
         <div className="relative flex justify-between items-center mb-8 px-2 md:px-4 select-none">
@@ -342,67 +494,96 @@ export default function NuevoFlujoCita() {
             >
               {/* STEP 1: Mascota */}
               {step === 1 && (
-                <div className="flex flex-col gap-4">
-                  <div className="border-b border-hairline/60 pb-3">
-                    <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-primary/10 pb-4 text-center">
+                    <h3 className="font-bold text-lg text-on-surface mb-1 flex items-center justify-center gap-2">
                       <span className="material-symbols-outlined text-primary text-[24px]">pets</span>
                       ¿A quién vamos a atender?
                     </h3>
-                    <p className="font-body-sm text-body-sm text-body-muted mt-1">Selecciona a la mascota que recibirá el servicio médico.</p>
+                    <p className="text-xs text-on-surface-variant font-medium">Selecciona a tu compañero para su próxima visita médica.</p>
                   </div>
                   
                   {mascotas.length === 0 ? (
-                    <div className="border border-dashed border-hairline p-8 rounded-2xl text-center bg-canvas/30 backdrop-blur-sm shadow-sm flex flex-col items-center">
-                      <div className="bg-surface-card p-3 rounded-full border border-hairline mb-3 text-body-muted">
+                    <div className="border border-dashed border-primary/20 p-8 rounded-3xl text-center bg-white shadow-sm flex flex-col items-center">
+                      <div className="bg-primary/5 p-4 rounded-full mb-3 text-primary">
                         <span className="material-symbols-outlined text-[32px]">pets</span>
                       </div>
-                      <p className="font-title-md text-title-md text-ink font-bold">No tienes mascotas registradas.</p>
-                      <p className="text-body-sm text-body-muted mt-1 max-w-sm">Debes añadir primero a tu mascota en tu panel.</p>
+                      <p className="font-bold text-sm text-on-surface">No tienes mascotas registradas.</p>
+                      <p className="text-xs text-on-surface-variant mt-1 max-w-sm">Debes añadir primero a tu mascota en tu panel.</p>
                       <button
                         type="button"
                         onClick={() => navigate('/cliente/mis-mascotas?action=new')}
-                        className="mt-4 bg-primary text-on-primary px-6 py-2.5 rounded-full font-button text-button hover:bg-primary-active transition-all cursor-pointer shadow active:scale-95"
+                        className="mt-4 bg-primary text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-primary-active transition-all cursor-pointer shadow active:scale-95"
                       >
                         Registrar una Mascota primero
                       </button>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-                      {mascotas.map((m) => (
-                        <div
-                          key={m.id}
-                          onClick={() => setSelectedMascotaId(m.id)}
-                          className={`p-4 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all duration-300 relative overflow-hidden ${
-                            selectedMascotaId === m.id
-                              ? 'border-primary bg-primary/5 shadow-md scale-[1.01]'
-                              : 'border-hairline bg-canvas/40 backdrop-blur-sm hover:bg-surface-soft/80'
-                          }`}
+                    <div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                        {mascotas.map((m) => {
+                          const isSelected = selectedMascotaId === m.id;
+                          const petImg = getPetImage(m.nombre, m.especie);
+                          return (
+                            <div
+                              key={m.id}
+                              onClick={() => setSelectedMascotaId(m.id)}
+                              className={`relative bg-white rounded-3xl p-6 border-2 flex flex-col items-center text-center cursor-pointer transition-all duration-300 group ${
+                                isSelected
+                                  ? 'border-primary bg-primary/5 shadow-md -translate-y-1'
+                                  : 'border-primary/10 hover:border-primary-container hover:shadow-md'
+                              }`}
+                            >
+                              {isSelected && (
+                                <div className="absolute top-4 right-4 bg-primary text-white rounded-full w-7 h-7 flex items-center justify-center shadow-sm">
+                                  <span className="material-symbols-outlined text-xs font-bold">check</span>
+                                </div>
+                              )}
+                              
+                              <div className={`w-28 h-28 rounded-full overflow-hidden mb-4 p-1 bg-white border-2 transition-all ${isSelected ? 'border-primary shadow-sm' : 'border-transparent group-hover:border-primary-container'}`}>
+                                <img
+                                  className="w-full h-full object-cover rounded-full"
+                                  alt={m.nombre}
+                                  src={petImg}
+                                />
+                              </div>
+
+                              <span className="bg-primary-container/20 text-primary px-3 py-0.5 rounded-full text-[10px] font-bold mb-2 uppercase tracking-wide">
+                                {m.especie}
+                              </span>
+                              
+                              <h4 className="font-bold text-base text-on-surface mb-0.5">{m.nombre}</h4>
+                              <p className="text-xs text-on-surface-variant font-medium mb-3">{m.raza || 'Mestizo'} • {m.sexo || 'Macho'}</p>
+                              
+                              <div className="flex items-center gap-1.5 text-primary text-[10px] font-bold mt-auto bg-primary/5 px-3 py-1 rounded-full border border-primary/10">
+                                <span className="material-symbols-outlined text-[14px]">verified</span>
+                                <span>Plan Activo</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Add New Pet (CTA Style) */}
+                      <div className="flex justify-center mt-8">
+                        <button
+                          type="button"
+                          onClick={() => navigate('/cliente/mis-mascotas?action=new')}
+                          className="flex items-center gap-2 text-primary hover:text-primary-active transition-all group font-bold text-xs"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg shrink-0 flex items-center justify-center ${selectedMascotaId === m.id ? 'bg-primary text-on-primary' : 'bg-surface-soft text-primary'}`}>
-                              <span className="material-symbols-outlined text-[24px]">pets</span>
-                            </div>
-                            <div>
-                              <h4 className="font-title-md text-title-md text-ink font-bold">{m.nombre}</h4>
-                              <p className="text-body-sm text-body-muted mt-0.5">{m.especie}</p>
-                            </div>
-                          </div>
-                          {selectedMascotaId === m.id && (
-                            <div className="bg-primary text-on-primary p-1 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-scale-in">
-                              <span className="material-symbols-outlined text-[14px] font-bold">check</span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                          <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                          <span>Añadir otra mascota</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex justify-end mt-8 border-t border-hairline/60 pt-4">
+                  <div className="flex justify-end mt-8 border-t border-primary/10 pt-4">
                     <button
                       type="button"
                       disabled={mascotas.length === 0}
                       onClick={() => setStep(2)}
-                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-on-primary px-8 py-2.5 rounded-full font-button text-button cursor-pointer transition-all active:scale-95 shadow-sm font-bold"
+                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-white px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                       Siguiente Paso
                     </button>
@@ -412,78 +593,89 @@ export default function NuevoFlujoCita() {
 
               {/* STEP 2: Servicio */}
               {step === 2 && (
-                <div className="flex flex-col gap-4">
-                  <div className="border-b border-hairline/60 pb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                      <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-primary/10 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="text-center md:text-left">
+                      <h3 className="font-bold text-lg text-on-surface mb-1 flex items-center justify-center md:justify-start gap-2">
                         <span className="material-symbols-outlined text-primary text-[24px]">vaccines</span>
-                        Selecciona el Servicio
+                        ¿Qué servicio necesita {mascotas.find(m => m.id === selectedMascotaId)?.nombre}?
                       </h3>
-                      <p className="font-body-sm text-body-sm text-body-muted mt-1">Elige el procedimiento médico o control preventivo requerido.</p>
+                      <p className="text-xs text-on-surface-variant font-medium">Selecciona el tipo de atención médica para tu mascota hoy.</p>
                     </div>
                     {/* Buscador de servicios */}
-                    <div className="relative max-w-xs w-full">
-                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-body-muted text-[18px]">search</span>
+                    <div className="relative max-w-xs w-full mx-auto md:mx-0">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
                       <input
                         type="text"
-                        placeholder="Buscar servicio..."
+                        placeholder="Buscar servicio por nombre..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-surface-card border border-hairline rounded-xl pl-9 pr-4 py-2 text-[13px] outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all font-medium"
+                        className="w-full bg-surface-container-low border-none rounded-xl pl-9 pr-4 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-primary/25 focus:bg-white transition-all"
                       />
                     </div>
                   </div>
                   
-                  <div className="flex flex-col gap-3 mt-2 max-h-[300px] overflow-y-auto pr-1 scrollbar-thin">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-2 max-h-[420px] overflow-y-auto pr-1 scrollbar-thin">
                     {filteredServicios.length === 0 ? (
-                      <div className="text-center py-8 text-body-muted font-medium bg-canvas/30 rounded-xl border border-hairline/40">
+                      <div className="col-span-full text-center py-10 text-xs font-bold text-on-surface-variant bg-white rounded-3xl border border-primary/10">
                         No se encontraron servicios que coincidan con la búsqueda.
                       </div>
                     ) : (
-                      filteredServicios.map((s) => (
-                        <div
-                          key={s.id}
-                          onClick={() => setSelectedServicioId(s.id)}
-                          className={`p-4 rounded-xl border-2 flex justify-between items-center cursor-pointer transition-all duration-300 ${
-                            selectedServicioId === s.id
-                              ? 'border-primary bg-primary/5 shadow-sm scale-[1.005]'
-                              : 'border-hairline bg-canvas/40 backdrop-blur-sm hover:bg-surface-soft/80'
-                          }`}
-                        >
-                          <div className="flex-1 pr-4">
-                            <h4 className="font-title-md text-title-md text-ink font-bold">{s.nombre}</h4>
-                            <p className="text-body-sm text-body-muted mt-1 font-medium flex items-center gap-1.5">
-                              <span className="material-symbols-outlined text-[15px] text-accent-teal">schedule</span>
-                              <span>Duración: {s.duracionMinutos} min</span>
-                            </p>
-                          </div>
-                          <div className="text-right flex items-center gap-3">
-                            <span className="font-title-lg text-title-lg text-primary font-bold bg-primary/5 px-3 py-1 rounded-lg border border-primary/10">
-                              S/. {s.precio.toFixed(2)}
-                            </span>
-                            {selectedServicioId === s.id && (
-                              <div className="bg-primary text-on-primary p-1 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-scale-in">
-                                <span className="material-symbols-outlined text-[14px] font-bold">check</span>
+                      filteredServicios.map((s) => {
+                        const isSelected = selectedServicioId === s.id;
+                        const icon = getServiceIcon(s.nombre);
+                        return (
+                          <div
+                            key={s.id}
+                            onClick={() => setSelectedServicioId(s.id)}
+                            className={`service-card cursor-pointer bg-white p-6 rounded-3xl border-2 flex flex-col items-center text-center transition-all duration-300 relative group hover:-translate-y-1 hover:shadow-md ${
+                              isSelected
+                                ? 'border-primary bg-primary/5 shadow-sm'
+                                : 'border-primary/10'
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="absolute top-4 right-4 bg-primary text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm">
+                                <span className="material-symbols-outlined text-[10px] font-bold">check</span>
                               </div>
                             )}
+
+                            <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition-transform group-hover:scale-105 ${
+                              isSelected ? 'bg-primary text-white' : 'bg-primary-fixed-dim text-primary'
+                            }`}>
+                              <span className="material-symbols-outlined text-2xl">{icon}</span>
+                            </div>
+
+                            <h4 className="font-bold text-sm text-on-surface mb-1.5 leading-snug line-clamp-1">{s.nombre}</h4>
+                            <p className="text-[11px] text-on-surface-variant font-medium mb-4 leading-relaxed line-clamp-2">
+                              {s.descripcion || 'Tratamiento veterinario personalizado.'}
+                            </p>
+
+                            <div className="mt-auto pt-4 border-t border-primary/10 w-full flex justify-between items-center text-xs font-bold">
+                              <div className="flex items-center gap-1 text-on-surface-variant">
+                                <span className="material-symbols-outlined text-sm">schedule</span>
+                                <span className="text-[10px]">{s.duracionMinutos} min</span>
+                              </div>
+                              <span className="text-primary font-bold text-sm">S/. {s.precio.toFixed(2)}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
 
-                  <div className="flex justify-between mt-8 border-t border-hairline/60 pt-4">
+                  <div className="flex justify-between mt-8 border-t border-primary/10 pt-4">
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="bg-surface-card border border-hairline hover:bg-surface-soft hover:border-outline-variant text-ink px-8 py-2.5 rounded-full font-button text-button cursor-pointer font-bold shadow-sm"
+                      className="bg-surface-container-low hover:bg-surface-variant text-on-surface px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95"
                     >
                       Atrás
                     </button>
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="bg-primary hover:bg-primary-active text-on-primary px-8 py-2.5 rounded-full font-button text-button cursor-pointer transition-all active:scale-95 shadow-sm font-bold"
+                      className="bg-primary hover:bg-primary-active text-white px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                       Siguiente Paso
                     </button>
@@ -493,64 +685,127 @@ export default function NuevoFlujoCita() {
 
               {/* STEP 3: Veterinario */}
               {step === 3 && (
-                <div className="flex flex-col gap-4">
-                  <div className="border-b border-hairline/60 pb-3">
-                    <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
-                      <span className="material-symbols-outlined text-primary text-[24px]">clinical_notes</span>
-                      Selecciona el Veterinario
-                    </h3>
-                    <p className="font-body-sm text-body-sm text-body-muted mt-1">Elige un médico especialista, o el médico asignado por defecto.</p>
-                  </div>
-                  
-                  <div className="flex flex-col gap-3 mt-2">
-                    {veterinarios.map((v) => (
-                      <div
-                        key={v.id}
-                        onClick={() => setSelectedVeterinarioId(v.id)}
-                        className={`p-4 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all duration-300 ${
-                          selectedVeterinarioId === v.id
-                            ? 'border-primary bg-primary/5 shadow-sm scale-[1.005]'
-                            : 'border-hairline bg-canvas/40 backdrop-blur-sm hover:bg-surface-soft/80'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          {/* Circular initial avatar con gradiente */}
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${
-                            selectedVeterinarioId === v.id
-                              ? 'bg-gradient-to-tr from-primary to-[#b86d5c] text-on-primary'
-                              : 'bg-gradient-to-tr from-surface-soft to-hairline/60 text-primary'
-                          }`}>
-                            {getInitials(v.nombre)}
-                          </div>
-                          <div>
-                            <h4 className="font-title-md text-title-md text-ink font-bold">{v.nombre}</h4>
-                            <p className="text-body-sm text-body-muted mt-0.5 font-medium flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-accent-teal"></span>
-                              {v.especialidad || 'Médico Veterinario General'}
-                            </p>
-                          </div>
-                        </div>
-                        {selectedVeterinarioId === v.id && (
-                          <div className="bg-primary text-on-primary p-1.5 rounded-full flex items-center justify-center shrink-0 shadow-sm animate-scale-in">
-                            <span className="material-symbols-outlined text-[14px] font-bold">check</span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-primary/10 pb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="text-center md:text-left">
+                      <h3 className="font-bold text-lg text-on-surface mb-1 flex items-center justify-center md:justify-start gap-2">
+                        <span className="material-symbols-outlined text-primary text-[24px]">clinical_notes</span>
+                        Elige a tu especialista de confianza
+                      </h3>
+                      <p className="text-xs text-on-surface-variant font-medium">Selecciona al profesional médico que atenderá a tu mascota hoy.</p>
+                    </div>
+                    {/* Buscador de veterinarios */}
+                    <div className="relative max-w-xs w-full mx-auto md:mx-0">
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">search</span>
+                      <input
+                        type="text"
+                        placeholder="Buscar especialista..."
+                        value={searchDoctorQuery}
+                        onChange={(e) => setSearchDoctorQuery(e.target.value)}
+                        className="w-full bg-surface-container-low border-none rounded-xl pl-9 pr-4 py-2 text-xs font-semibold outline-none focus:ring-2 focus:ring-primary/25 focus:bg-white transition-all"
+                      />
+                    </div>
                   </div>
 
-                  <div className="flex justify-between mt-8 border-t border-hairline/60 pt-4">
+                  {/* Specialty filters toolbar */}
+                  <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+                    {(['Todos', 'Medicina Interna', 'Cirugía', 'Dermatología'] as const).map((cat) => (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setSelectedDoctorCategory(cat)}
+                        className={`px-4 py-1.5 rounded-full text-[10px] font-bold border transition-all ${
+                          selectedDoctorCategory === cat
+                            ? 'bg-primary text-white border-primary shadow-sm'
+                            : 'bg-surface-container-low text-on-surface-variant border-transparent hover:bg-surface-variant'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-2">
+                    {filteredVeterinarios.length === 0 ? (
+                      <div className="col-span-full text-center py-10 text-xs font-bold text-on-surface-variant bg-white rounded-3xl border border-primary/10">
+                        No se encontraron especialistas en esta categoría.
+                      </div>
+                    ) : (
+                      filteredVeterinarios.map((v) => {
+                        const isSelected = selectedVeterinarioId === v.id;
+                        const docImg = getDoctorImage(v.nombre);
+                        const specialty = getDoctorCategory(v.nombre);
+                        
+                        return (
+                          <div
+                            key={v.id}
+                            className={`doctor-card bg-white rounded-3xl p-6 transition-all duration-300 border-2 flex flex-col items-center text-center cursor-pointer group hover:-translate-y-1 hover:shadow-md ${
+                              isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-primary/10'
+                            }`}
+                            onClick={() => setSelectedVeterinarioId(v.id)}
+                          >
+                            <div className="relative mb-4">
+                              <img
+                                className={`w-28 h-28 rounded-full object-cover border-4 transition-all ${isSelected ? 'border-primary shadow-sm' : 'border-primary-container/40 group-hover:border-primary-container'}`}
+                                alt={v.nombre}
+                                src={docImg}
+                              />
+                              <div className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-1 border-2 border-white flex items-center justify-center">
+                                <span className="material-symbols-outlined text-[12px] block">verified</span>
+                              </div>
+                            </div>
+                            
+                            <h4 className="font-bold text-base text-on-surface mb-1 leading-snug">{v.nombre}</h4>
+                            <span className="bg-primary-container/20 text-primary px-3 py-0.5 rounded-full text-[9px] font-bold mb-4 uppercase tracking-wider">
+                              {specialty}
+                            </span>
+                            
+                            <div className="flex items-center gap-1.5 mb-5 text-amber-500 justify-center">
+                              <span className="material-symbols-outlined fill-current text-[16px] text-amber-500" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
+                              <span className="font-bold text-xs text-on-surface">4.9</span>
+                              <span className="text-[10px] text-on-surface-variant font-medium">(100+ opiniones)</span>
+                            </div>
+
+                            <div className="w-full grid grid-cols-2 gap-2.5 mb-5 text-left text-[11px] font-bold">
+                              <div className="bg-surface-container-low p-2.5 rounded-2xl border border-primary/5">
+                                <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Exp.</p>
+                                <p className="text-on-surface text-xs font-bold">10+ años</p>
+                              </div>
+                              <div className="bg-surface-container-low p-2.5 rounded-2xl border border-primary/5">
+                                <p className="text-[9px] font-bold text-on-surface-variant uppercase tracking-wider mb-0.5">Disp.</p>
+                                <p className="text-primary text-xs font-bold">Hoy</p>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              className={`w-full py-2.5 rounded-full text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1.5 ${
+                                isSelected
+                                  ? 'bg-primary text-white shadow-sm'
+                                  : 'bg-surface-container-low hover:bg-surface-variant text-on-surface font-semibold'
+                              }`}
+                            >
+                              <span>{isSelected ? 'Seleccionado' : 'Seleccionar'}</span>
+                              {isSelected && <span className="material-symbols-outlined text-[14px]">check_circle</span>}
+                            </button>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <div className="flex justify-between mt-8 border-t border-primary/10 pt-4">
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="bg-surface-card border border-hairline hover:bg-surface-soft hover:border-outline-variant text-ink px-8 py-2.5 rounded-full font-button text-button cursor-pointer font-bold shadow-sm"
+                      className="bg-surface-container-low hover:bg-surface-variant text-on-surface px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95"
                     >
                       Atrás
                     </button>
                     <button
                       type="button"
                       onClick={() => setStep(4)}
-                      className="bg-primary hover:bg-primary-active text-on-primary px-8 py-2.5 rounded-full font-button text-button cursor-pointer transition-all active:scale-95 shadow-sm font-bold"
+                      className="bg-primary hover:bg-primary-active text-white px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                       Siguiente Paso
                     </button>
@@ -560,68 +815,117 @@ export default function NuevoFlujoCita() {
 
               {/* STEP 4: Fecha y Hora */}
               {step === 4 && (
-                <div className="flex flex-col gap-4">
-                  <div className="border-b border-hairline/60 pb-3">
-                    <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-primary/10 pb-4 text-center md:text-left">
+                    <h3 className="font-bold text-lg text-on-surface mb-1 flex items-center justify-center md:justify-start gap-2">
                       <span className="material-symbols-outlined text-primary text-[24px]">calendar_month</span>
-                      Selecciona Fecha y Hora
+                      Selecciona el mejor momento para la visita
                     </h3>
-                    <p className="font-body-sm text-body-sm text-body-muted mt-1">Las citas deben solicitarse desde mañana en adelante.</p>
+                    <p className="text-xs text-on-surface-variant font-medium">Elige el día y la hora que mejor te convenga para la salud de tu mascota.</p>
                   </div>
                   
-                  {/* Dos columnas en Desktop para optimización espacial */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-2">
-                    {/* Fecha Picker */}
-                    <div className="flex flex-col gap-2">
-                      <label className="font-label-sm text-ink font-bold text-[12px] uppercase tracking-wide">1. Seleccionar Fecha</label>
-                      <input
-                        type="date"
-                        min={getMinDate()}
-                        value={selectedFecha}
-                        onChange={(e) => setSelectedFecha(e.target.value)}
-                        className="w-full bg-surface-card border border-hairline rounded-xl px-4 py-3 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all cursor-pointer font-medium"
-                      />
+                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-2">
+                    
+                    {/* Left Column: Calendar Card */}
+                    <div className="lg:col-span-7">
+                      {renderCalendar()}
                     </div>
 
-                    {/* Hora Picker (Slots en grilla compacta de 3 columnas) */}
-                    <div className="flex flex-col gap-2">
-                      <label className="font-label-sm text-ink font-bold text-[12px] uppercase tracking-wide">2. Horarios Disponibles</label>
-                      
+                    {/* Right Column: Time Slots */}
+                    <div className="lg:col-span-5 bg-white rounded-3xl border border-primary/10 p-6 shadow-sm flex flex-col h-full">
+                      <div className="flex items-center gap-2 mb-6 text-primary">
+                        <span className="material-symbols-outlined text-[20px]">schedule</span>
+                        <h4 className="font-bold text-sm">Horarios disponibles</h4>
+                      </div>
+
+                      {/* Tabs Morning/Afternoon */}
+                      <div className="flex p-1 bg-surface-container-low rounded-xl mb-6">
+                        <button
+                          type="button"
+                          onClick={() => setActiveShift('Mañana')}
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                            activeShift === 'Mañana'
+                              ? 'bg-white text-primary shadow-sm'
+                              : 'text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          Mañana
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveShift('Tarde')}
+                          className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                            activeShift === 'Tarde'
+                              ? 'bg-white text-primary shadow-sm'
+                              : 'text-on-surface-variant hover:text-on-surface'
+                          }`}
+                        >
+                          Tarde
+                        </button>
+                      </div>
+
+                      {/* Slots Grid */}
                       {loadingHorarios ? (
-                        <div className="flex items-center justify-center gap-2 text-body-sm text-body-muted py-8 bg-canvas/30 rounded-xl border border-hairline/40">
-                          <span className="material-symbols-outlined animate-spin text-[20px] text-primary">sync</span>
-                          <span>Buscando bloques libres...</span>
-                        </div>
-                      ) : horarios.length === 0 ? (
-                        <div className="text-body-sm text-body-muted py-8 px-4 border border-dashed border-hairline rounded-xl bg-canvas/30 text-center font-medium">
-                          No hay bloques libres para este médico en la fecha elegida.
+                        <div className="flex flex-col items-center justify-center py-10 gap-2 text-xs text-on-surface-variant font-bold">
+                          <span className="material-symbols-outlined animate-spin text-[24px] text-primary">sync</span>
+                          <span>Buscando horarios libres...</span>
                         </div>
                       ) : (
-                        <div className="grid grid-cols-3 gap-2 max-h-[220px] overflow-y-auto pr-1 scrollbar-thin">
-                          {horarios.map((h, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setSelectedHoraBlock(h.value)}
-                              className={`py-2.5 px-2 border rounded-xl text-[13px] font-bold transition-all cursor-pointer active:scale-95 ${
-                                selectedHoraBlock === h.value
-                                  ? 'bg-primary border-primary text-on-primary shadow-md shadow-primary/15'
-                                  : 'border-hairline bg-canvas/50 hover:bg-surface-soft hover:border-outline-variant text-ink'
-                              }`}
-                            >
-                              {h.text}
-                            </button>
-                          ))}
+                        <div>
+                          {(() => {
+                            const time = selectedHoraBlock ? selectedHoraBlock.split('T')[1] : '';
+                            const slots = activeShift === 'Mañana' 
+                              ? horarios.filter(h => parseInt(h.text.split(':')[0], 10) < 12)
+                              : horarios.filter(h => parseInt(h.text.split(':')[0], 10) >= 12);
+                            
+                            if (slots.length === 0) {
+                              return (
+                                <div className="text-center py-10 text-xs font-bold text-on-surface-variant border border-dashed border-primary/10 rounded-2xl bg-surface-container-low/30">
+                                  No hay bloques libres en este turno.
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div className="grid grid-cols-2 gap-3 max-h-[260px] overflow-y-auto pr-1 scrollbar-thin">
+                                {slots.map((h, idx) => {
+                                  const isSelected = selectedHoraBlock === h.value;
+                                  return (
+                                    <button
+                                      key={idx}
+                                      type="button"
+                                      onClick={() => setSelectedHoraBlock(h.value)}
+                                      className={`py-3 px-2 border rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 ${
+                                        isSelected
+                                          ? 'bg-primary border-primary text-white shadow-md'
+                                          : 'border-primary/15 bg-white hover:bg-surface-soft hover:border-primary-container text-on-surface'
+                                      }`}
+                                    >
+                                      {h.text}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            );
+                          })()}
                         </div>
                       )}
+
+                      <div className="mt-6 p-4 bg-primary/5 rounded-2xl border border-primary/10 flex items-start gap-2.5">
+                        <span className="material-symbols-outlined text-primary text-[18px]">info</span>
+                        <p className="text-[10px] text-primary font-bold leading-normal">
+                          La duración estimada de la cita es de {servicios.find(s => s.id === selectedServicioId)?.duracionMinutos || 30} minutos.
+                        </p>
+                      </div>
+
                     </div>
                   </div>
 
-                  <div className="flex justify-between mt-8 border-t border-hairline/60 pt-4">
+                  <div className="flex justify-between mt-8 border-t border-primary/10 pt-4">
                     <button
                       type="button"
                       onClick={() => setStep(3)}
-                      className="bg-surface-card border border-hairline hover:bg-surface-soft hover:border-outline-variant text-ink px-8 py-2.5 rounded-full font-button text-button cursor-pointer font-bold shadow-sm"
+                      className="bg-surface-container-low hover:bg-surface-variant text-on-surface px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95"
                     >
                       Atrás
                     </button>
@@ -629,7 +933,7 @@ export default function NuevoFlujoCita() {
                       type="button"
                       disabled={!selectedHoraBlock || submitting}
                       onClick={handleProceedToConfirmation}
-                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-on-primary px-8 py-2.5 rounded-full font-button text-button cursor-pointer transition-all active:scale-95 shadow-sm font-bold"
+                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-white px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95 shadow-sm"
                     >
                       {submitting ? 'Reservando...' : 'Revisar Cita'}
                     </button>
@@ -637,25 +941,25 @@ export default function NuevoFlujoCita() {
                 </div>
               )}
 
-              {/* STEP 5: Confirmación y Temporizador (Diseño Ticket Troquelado) */}
+              {/* STEP 5: Confirmación */}
               {step === 5 && (
-                <div className="flex flex-col gap-5">
-                  <div className="border-b border-hairline/60 pb-3">
-                    <h3 className="font-title-lg text-title-lg text-ink font-bold flex items-center gap-2">
+                <div className="flex flex-col gap-6">
+                  <div className="border-b border-primary/10 pb-4 text-center md:text-left">
+                    <h3 className="font-bold text-lg text-on-surface mb-1 flex items-center justify-center md:justify-start gap-2">
                       <span className="material-symbols-outlined text-primary text-[24px]">verified</span>
                       Confirmación de Solicitud
                     </h3>
-                    <p className="font-body-sm text-body-sm text-body-muted mt-1">Revisa el desglose de tu reserva temporal.</p>
+                    <p className="text-xs text-on-surface-variant font-medium">Revisa el desglose y confirma tu reserva temporal.</p>
                   </div>
-                  
+
                   {/* Timer Banner con barra regresiva */}
                   <div className="bg-amber-50/70 border border-amber-200/50 text-amber-800 p-4 rounded-2xl flex flex-col gap-2.5 shadow-sm relative overflow-hidden">
                     <div className="flex items-center gap-3">
                       <span className="material-symbols-outlined text-[24px] text-amber-600 animate-pulse">timer</span>
                       <div className="flex-grow">
-                        <h4 className="font-bold text-body-sm leading-none">Bloque reservado por tiempo limitado</h4>
-                        <p className="text-[11px] text-amber-700 mt-1">
-                          Completa tu solicitud en los siguientes <strong className="font-bold text-[13px] text-primary">{formatTimer()} minutos</strong>.
+                        <h4 className="font-bold text-xs leading-none">Bloque reservado por tiempo limitado</h4>
+                        <p className="text-[10px] text-amber-700 mt-1">
+                          Completa tu solicitud en los siguientes <strong className="font-bold text-xs text-primary">{formatTimer()} minutos</strong>.
                         </p>
                       </div>
                     </div>
@@ -663,69 +967,123 @@ export default function NuevoFlujoCita() {
                     <div className="w-full h-1.5 bg-amber-200/40 rounded-full overflow-hidden relative">
                       <div 
                         className={`h-full transition-all duration-1000 ${
-                          timer > 120 ? 'bg-success' : timer > 60 ? 'bg-amber-500' : 'bg-error'
+                          timer > 120 ? 'bg-emerald-500' : timer > 60 ? 'bg-amber-500' : 'bg-rose-500'
                         }`}
                         style={{ width: `${(timer / 300) * 100}%` }}
                       ></div>
                     </div>
                   </div>
 
-                  {/* Resumen Card estilo TICKET TROQUELADO */}
-                  <div className="bg-canvas border border-hairline/60 rounded-2xl relative overflow-hidden shadow-inner p-5 space-y-4">
-                    <div className="flex justify-between items-center text-body-sm font-medium">
-                      <span className="text-body-muted">Paciente a atender:</span>
-                      <span className="text-ink font-bold">{mascotas.find(m => m.id === selectedMascotaId)?.nombre}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-body-sm font-medium">
-                      <span className="text-body-muted">Servicio solicitado:</span>
-                      <span className="text-ink font-bold">{servicios.find(s => s.id === selectedServicioId)?.nombre}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-body-sm font-medium">
-                      <span className="text-body-muted">Médico Veterinario:</span>
-                      <span className="text-ink font-bold">{veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre}</span>
-                    </div>
-                    <div className="flex justify-between items-center text-body-sm font-medium">
-                      <span className="text-body-muted">Fecha y Hora de la cita:</span>
-                      <span className="text-ink font-bold">
-                        {selectedFecha ? new Date(selectedFecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : ''} a las {selectedHoraBlock ? selectedHoraBlock.split('T')[1] : ''}
-                      </span>
-                    </div>
-
-                    {/* Dotted separator line */}
-                    <div className="border-t-2 border-dashed border-hairline/60 my-2 relative">
-                      {/* Circular punch-outs on both edges */}
-                      <div className="absolute -left-7 -top-2 w-4 h-4 bg-surface-card rounded-full border border-hairline/60 shadow-inner"></div>
-                      <div className="absolute -right-7 -top-2 w-4 h-4 bg-surface-card rounded-full border border-hairline/60 shadow-inner"></div>
+                  {/* Resumen Bento Grid del Ticket */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                    
+                    {/* Paciente y Servicio */}
+                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-surface-container-low/60 border border-primary/5 hover:bg-white transition-all shadow-sm">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary-container shrink-0">
+                        <img 
+                          className="w-full h-full object-cover" 
+                          alt="Mascota"
+                          src={getPetImage(
+                            mascotas.find(m => m.id === selectedMascotaId)?.nombre || '', 
+                            mascotas.find(m => m.id === selectedMascotaId)?.especie || ''
+                          )}
+                        />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Paciente</p>
+                        <h4 className="font-bold text-base text-primary leading-tight">
+                          {mascotas.find(m => m.id === selectedMascotaId)?.nombre}
+                        </h4>
+                        <p className="text-[11px] text-on-surface-variant font-semibold">
+                          {mascotas.find(m => m.id === selectedMascotaId)?.raza || 'Mestizo'}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className="text-body-muted text-body-sm font-bold uppercase tracking-wider">Costo sugerido</span>
-                      <span className="text-primary font-bold text-[20px] bg-primary/5 px-4 py-1.5 rounded-xl border border-primary/10">
-                        S/. {servicios.find(s => s.id === selectedServicioId)?.precio.toFixed(2)}
-                      </span>
+                    {/* Servicio */}
+                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-surface-container-low/60 border border-primary/5 hover:bg-white transition-all shadow-sm">
+                      <div className="w-14 h-14 rounded-2xl bg-primary-container/20 text-primary flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-2xl">
+                          {getServiceIcon(servicios.find(s => s.id === selectedServicioId)?.nombre || '')}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Servicio</p>
+                        <h4 className="font-bold text-base text-on-surface leading-tight">
+                          {servicios.find(s => s.id === selectedServicioId)?.nombre}
+                        </h4>
+                        <p className="text-[11px] text-on-surface-variant font-semibold">
+                          Duración: {servicios.find(s => s.id === selectedServicioId)?.duracionMinutos} min
+                        </p>
+                      </div>
                     </div>
+
+                    {/* Médico */}
+                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-surface-container-low/60 border border-primary/5 hover:bg-white transition-all shadow-sm">
+                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary-container shrink-0">
+                        <img 
+                          className="w-full h-full object-cover" 
+                          alt="Veterinario"
+                          src={getDoctorImage(veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre || '')}
+                        />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Médico</p>
+                        <h4 className="font-bold text-base text-on-surface leading-tight">
+                          {veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre}
+                        </h4>
+                        <p className="text-[11px] text-on-surface-variant font-semibold">
+                          {veterinarios.find(v => v.id === selectedVeterinarioId)?.especialidad || 'Veterinario General'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Fecha y Hora */}
+                    <div className="flex items-start gap-4 p-4 rounded-3xl bg-surface-container-low/60 border border-primary/5 hover:bg-white transition-all shadow-sm">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-2xl">calendar_today</span>
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Fecha y Hora</p>
+                        <h4 className="font-bold text-base text-on-surface leading-tight">
+                          {selectedFecha ? new Date(selectedFecha + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' }) : ''}
+                        </h4>
+                        <p className="text-[11px] text-primary font-bold">
+                          a las {selectedHoraBlock ? selectedHoraBlock.split('T')[1] : ''}
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* Resumen Costo Ticket */}
+                  <div className="bg-surface-soft border border-primary/10 rounded-3xl p-5 flex justify-between items-center mt-2 shadow-inner">
+                    <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Costo sugerido de atención</span>
+                    <span className="text-xl font-bold text-primary bg-white px-5 py-2 rounded-2xl border border-primary/10 shadow-sm">
+                      S/. {servicios.find(s => s.id === selectedServicioId)?.precio.toFixed(2)}
+                    </span>
                   </div>
 
                   {/* Motivo de la Cita */}
-                  <div className="flex flex-col gap-2 mt-1">
-                    <label htmlFor="booking-reason" className="font-label-sm text-ink font-bold text-[12px]">
-                      Motivo de la consulta / Observación (Opcional)
+                  <div className="flex flex-col gap-2 mt-2 text-left">
+                    <label htmlFor="booking-reason" className="text-xs font-bold text-on-surface">
+                      Motivo de la consulta / Síntomas observados (Opcional)
                     </label>
                     <textarea
                       id="booking-reason"
                       rows={3}
                       value={motivo}
                       onChange={(e) => setMotivo(e.target.value)}
-                      placeholder="Ej. Control de oreja inflamada, vacuna anual, etc."
-                      className="w-full bg-surface-card border border-hairline rounded-xl px-4 py-3 text-body-md focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all resize-none font-medium"
+                      placeholder="Describe brevemente el motivo de la visita o algún síntoma que presente..."
+                      className="w-full bg-surface-container-low border-none rounded-2xl px-4 py-3 text-xs font-medium focus:ring-2 focus:ring-primary/20 focus:bg-white outline-none transition-all resize-none"
                     ></textarea>
                   </div>
 
-                  <div className="flex justify-between mt-6 border-t border-hairline/60 pt-4">
+                  <div className="flex justify-between mt-6 border-t border-primary/10 pt-4">
                     <button
                       type="button"
                       onClick={() => { setTimerActive(false); setStep(4); }}
-                      className="bg-surface-card border border-hairline hover:bg-surface-soft hover:border-outline-variant text-ink px-8 py-2.5 rounded-full font-button text-button cursor-pointer font-bold shadow-sm"
+                      className="bg-surface-container-low hover:bg-surface-variant text-on-surface px-8 py-3 rounded-full text-xs font-bold cursor-pointer transition-all active:scale-95"
                     >
                       Atrás
                     </button>
@@ -733,9 +1091,9 @@ export default function NuevoFlujoCita() {
                       type="button"
                       disabled={submitting}
                       onClick={handleConfirmCita}
-                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-on-primary px-8 py-2.5 rounded-full font-button text-button cursor-pointer shadow-md font-bold transition-all active:scale-95"
+                      className="bg-primary hover:bg-primary-active disabled:bg-primary-disabled text-white px-8 py-3 rounded-full text-xs font-bold cursor-pointer shadow-md font-bold transition-all active:scale-95"
                     >
-                      {submitting ? 'Confirmando...' : 'Confirmar y Enviar'}
+                      {submitting ? 'Confirmando...' : 'Confirmar y Solicitar Cita'}
                     </button>
                   </div>
                 </div>
