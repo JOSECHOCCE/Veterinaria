@@ -62,6 +62,7 @@ public class TriageController : ControllerBase
 
         var pendientesTriage = citasEnSala
             .Where(c => !triageCitaIds.Contains(c.Id))
+            .OrderBy(c => c.FechaHora)
             .Select(c => new
             {
                 citaId = c.Id,
