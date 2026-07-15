@@ -4,6 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import PortalClienteService from '../../services/portalCliente.service';
 import PageHeader from '../../components/common/PageHeader';
 import { motion } from 'framer-motion';
+import { notificacionesService } from '../../services/notificaciones.service';
+import { toast } from 'sonner';
 
 interface MascotaInfo {
   id: number;
@@ -30,6 +32,32 @@ interface AlertaInfo {
   fechaCreacion: string;
 }
 
+const getAlertStyle = (tipo: string) => {
+  const t = tipo?.toLowerCase();
+  if (t === 'success') {
+    return {
+      container: 'bg-[#e6f4ea]/90 text-[#137333] border-[#137333]/15',
+      iconBg: 'bg-[#137333]/10 text-[#137333]',
+      icon: 'check_circle',
+      buttonPrimary: 'bg-[#137333] hover:bg-[#0f6229] text-white',
+    };
+  } else if (t === 'warning') {
+    return {
+      container: 'bg-[#fef7e0]/90 text-[#b06000] border-[#b06000]/15',
+      iconBg: 'bg-[#b06000]/10 text-[#b06000]',
+      icon: 'info',
+      buttonPrimary: 'bg-[#b06000] hover:bg-[#904e00] text-white',
+    };
+  } else { // error / default
+    return {
+      container: 'bg-[#fce8e6]/90 text-[#c5221f] border-[#c5221f]/15',
+      iconBg: 'bg-[#c5221f]/10 text-[#c5221f]',
+      icon: 'warning',
+      buttonPrimary: 'bg-[#c5221f] hover:bg-[#a51b19] text-white',
+    };
+  }
+};
+
 export default function PortalCliente() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -55,6 +83,17 @@ export default function PortalCliente() {
       setError(err.response?.data?.message || 'Error de conexión con el servidor.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAceptarAlerta = async (id: number) => {
+    try {
+      await notificacionesService.marcarLeida(id);
+      setAlertas((prev) => prev.filter((a) => a.id !== id));
+      toast.success('Notificación archivada');
+    } catch (err) {
+      console.error('Error marking notification as read:', err);
+      toast.error('Error al archivar la notificación');
     }
   };
 
@@ -125,30 +164,42 @@ export default function PortalCliente() {
       {/* Alertas / Notificaciones activas */}
       {alertas.length > 0 && (
         <div className="flex flex-col gap-3 mb-6">
-          {alertas.map((alerta) => (
-            <motion.div
-              key={alerta.id}
-              initial={{ opacity: 0, y: -15 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-error-container/80 backdrop-blur-md text-on-error-container p-4 rounded-xl flex items-center justify-between border border-error/15 shadow-sm transition-all"
-            >
-              <div className="flex items-center gap-3">
-                <div className="bg-error/10 p-2 rounded-lg shrink-0 flex items-center justify-center text-error animate-bounce">
-                  <span className="material-symbols-outlined text-[20px]">warning</span>
-                </div>
-                <div>
-                  <span className="font-bold text-sm block sm:inline">{alerta.titulo}:</span>
-                  <span className="text-xs sm:ml-2 block sm:inline">{alerta.mensaje}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => navigate('/cliente/nueva-cita')}
-                className="bg-error text-white px-4 py-2 rounded-full text-xs font-bold hover:bg-opacity-95 transition-all cursor-pointer shadow-sm active:scale-95 whitespace-nowrap ml-4"
+          {alertas.map((alerta) => {
+            const style = getAlertStyle(alerta.tipo);
+            return (
+              <motion.div
+                key={alerta.id}
+                initial={{ opacity: 0, y: -15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className={`backdrop-blur-md p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 border shadow-sm transition-all ${style.container}`}
               >
-                Atender Alerta
-              </button>
-            </motion.div>
-          ))}
+                <div className="flex items-center gap-3">
+                  <div className={`p-2 rounded-lg shrink-0 flex items-center justify-center ${style.iconBg}`}>
+                    <span className="material-symbols-outlined text-[20px]">{style.icon}</span>
+                  </div>
+                  <div>
+                    <span className="font-bold text-sm block sm:inline">{alerta.titulo}:</span>
+                    <span className="text-xs sm:ml-2 block sm:inline">{alerta.mensaje}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 self-end sm:self-center ml-auto">
+                  <button
+                    onClick={() => handleAceptarAlerta(alerta.id)}
+                    className="bg-white/80 hover:bg-white text-on-surface border border-outline/25 px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 whitespace-nowrap"
+                  >
+                    Aceptar
+                  </button>
+                  <button
+                    onClick={() => navigate('/cliente/notificaciones')}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 whitespace-nowrap ${style.buttonPrimary}`}
+                  >
+                    Detalles
+                  </button>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       )}
 

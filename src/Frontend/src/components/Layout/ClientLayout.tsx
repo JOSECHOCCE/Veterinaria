@@ -5,15 +5,57 @@ import { useState, useEffect } from 'react';
 import Logo from './Logo';
 import { useNotifications } from '../../hooks/useNotifications';
 import GreetingModal from '../Notifications/GreetingModal';
+import NotificationDropdown from '../Notifications/NotificationDropdown';
+import { notificacionesService } from '../../services/notificaciones.service';
 
 export default function ClientLayout() {
   const { isAuthenticated, loading, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { unreadCount } = useNotifications();
+  const { unreadCount, setUnreadCount } = useNotifications();
   const [shouldAnimate, setShouldAnimate] = useState(false);
   const [showGreeting, setShowGreeting] = useState(true);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [notificaciones, setNotificaciones] = useState<any[]>([]);
+
+  const handleToggleDropdown = async () => {
+    if (!isDropdownOpen) {
+      try {
+        const res = await notificacionesService.getRecientes();
+        if (res.success) {
+          setNotificaciones(res.data?.notificaciones || []);
+        }
+        if (unreadCount > 0) {
+          await notificacionesService.marcarTodasLeidas();
+          setUnreadCount(0);
+        }
+      } catch (err) {
+        console.error("Error al cargar notificaciones", err);
+      }
+    }
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificacionesService.marcarTodasLeidas();
+      setUnreadCount(0);
+      setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
+    } catch (err) {
+      console.error("Error al marcar todas como leídas", err);
+    }
+  };
+
+  const handleMarkAsRead = async (id: number) => {
+    try {
+      await notificacionesService.marcarLeida(id);
+      setUnreadCount(prev => Math.max(0, prev - 1));
+      setNotificaciones(prev => prev.map(n => n.id === id ? { ...n, leida: true } : n));
+    } catch (err) {
+      console.error("Error al marcar como leída", err);
+    }
+  };
 
   useEffect(() => {
     if (unreadCount > 0) {
@@ -103,24 +145,34 @@ export default function ClientLayout() {
           {/* Acciones del Usuario en Navbar */}
           <div className="flex items-center gap-3">
             {/* Campana de Notificaciones en Tiempo Real */}
-            <motion.button
-              animate={shouldAnimate ? "wiggle" : "idle"}
-              variants={bellVariants}
-              onClick={() => navigate('/cliente/notificaciones')}
-              className="p-2 rounded-full hover:bg-surface-soft transition-colors relative cursor-pointer text-primary"
-              title={`${unreadCount} notificaciones no leídas`}
-            >
-              <span className="material-symbols-outlined">notifications</span>
-              {unreadCount > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute top-1 right-1 bg-error text-white text-[9px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border border-surface-card shadow-sm leading-none"
-                >
-                  {unreadCount}
-                </motion.span>
-              )}
-            </motion.button>
+            <div className="relative">
+              <motion.button
+                animate={shouldAnimate ? "wiggle" : "idle"}
+                variants={bellVariants}
+                onClick={handleToggleDropdown}
+                className="p-2 rounded-full hover:bg-surface-soft transition-colors relative cursor-pointer text-primary flex items-center justify-center"
+                title={`${unreadCount} notificaciones no leídas`}
+              >
+                <span className="material-symbols-outlined">notifications</span>
+                {unreadCount > 0 && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="absolute top-1 right-1 bg-error text-white text-[9px] font-bold w-[18px] h-[18px] rounded-full flex items-center justify-center border border-surface-card shadow-sm leading-none"
+                  >
+                    {unreadCount}
+                  </motion.span>
+                )}
+              </motion.button>
+
+              <NotificationDropdown
+                isOpen={isDropdownOpen}
+                onClose={() => setIsDropdownOpen(false)}
+                notificaciones={notificaciones}
+                onMarkAllAsRead={handleMarkAllAsRead}
+                onMarkAsRead={handleMarkAsRead}
+              />
+            </div>
 
             {/* Perfil del Cliente */}
             <div className="hidden sm:flex items-center gap-3 bg-surface-soft border border-hairline rounded-full pl-3 pr-2 py-[3px] shadow-sm">

@@ -41,6 +41,10 @@ export default function TopAppBar() {
         if (res.success) {
           setNotificaciones(res.data?.notificaciones || []);
         }
+        if (unreadCount > 0) {
+          await notificacionesService.marcarTodasLeidas();
+          setUnreadCount(0);
+        }
       } catch (err) {
         console.error("Error al cargar notificaciones", err);
       }
