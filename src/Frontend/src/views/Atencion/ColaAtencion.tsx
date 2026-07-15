@@ -31,8 +31,8 @@ export default function ColaAtencion() {
   const [buscar, setBuscar] = useState<string>('');
   const [selectedNivel, setSelectedNivel] = useState<string>('all');
 
-  const fetchCola = useCallback(async () => {
-    setLoading(true);
+  const fetchCola = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     setError(null);
     try {
       const res = await AtencionService.getColaTriage();
@@ -44,14 +44,21 @@ export default function ColaAtencion() {
       }
     } catch (err: any) {
       console.error('Error fetching triage queue:', err);
-      setError('No pudimos conectar con el servidor. Compruebe su conexión.');
+      if (!silent) setError('No pudimos conectar con el servidor. Compruebe su conexión.');
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCola();
+    fetchCola(false);
+    
+    // Polling silencioso de 10 segundos para actualizar la cola y los tiempos en tiempo real
+    const interval = setInterval(() => {
+      fetchCola(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [fetchCola]);
 
   const handleIniciarConsulta = async (triage: TriageDto) => {
