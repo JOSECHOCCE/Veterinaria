@@ -151,6 +151,17 @@ export default function ColaAtencion() {
       return activeItems;
     }
 
+    if (user?.role === 'Recepcionista') {
+      // Recepcionista solo ve pacientes pendientes de triaje
+      return pendingItems;
+    }
+
+    if (user?.role === 'Veterinario') {
+      // Veterinario solo ve pacientes ya triados y listos para consulta
+      return activeItems;
+    }
+
+    // Admin ve la combinación de ambos
     return [...pendingItems, ...activeItems];
   };
 
@@ -179,13 +190,15 @@ export default function ColaAtencion() {
         title="Cola de Atención"
         description="Gestión y priorización de pacientes en sala de espera antes del ingreso a consulta."
         actions={
-          <button
-            onClick={() => navigate('/admin/triage')}
-            className="bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
-          >
-            <span className="material-symbols-outlined text-[18px]">emergency</span>
-            Registrar Triage
-          </button>
+          (user?.role === 'Recepcionista' || user?.role === 'Admin') ? (
+            <button
+              onClick={() => navigate('/admin/triage')}
+              className="bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-lg font-button text-button transition-colors flex items-center gap-xs cursor-pointer shadow-sm"
+            >
+              <span className="material-symbols-outlined text-[18px]">emergency</span>
+              Registrar Triage
+            </button>
+          ) : undefined
         }
         hasDivider={true}
       />
