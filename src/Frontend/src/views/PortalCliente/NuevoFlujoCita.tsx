@@ -100,10 +100,9 @@ export default function NuevoFlujoCita() {
         if (resServicios.success && serviciosList.length > 0) setSelectedServicioId(serviciosList[0].id);
         if (resVeterinarios.success && veterinariosList.length > 0) setSelectedVeterinarioId(veterinariosList[0].id);
 
-        // Poner fecha de mañana por defecto
-        const tom = new Date();
-        tom.setDate(tom.getDate() + 1);
-        setSelectedFecha(tom.toISOString().split('T')[0]);
+        // Poner fecha de hoy por defecto para demostración
+        const today = new Date();
+        setSelectedFecha(today.toISOString().split('T')[0]);
 
       } catch {
         setError('Error al cargar la información del formulario de citas.');
@@ -281,10 +280,36 @@ export default function NuevoFlujoCita() {
     return matchesSearch && getDoctorCategory(v.nombre) === selectedDoctorCategory;
   });
 
+  const renderDoctorAvatar = (nombre: string, sizeClass = "w-28 h-28 text-2xl", isSelected = false) => {
+    const clean = nombre.replace(/^(dr|dra|med|vet)\.?\s+/i, '');
+    const parts = clean.split(' ').filter(Boolean);
+    const initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : (parts[0] ? parts[0][0].toUpperCase() : 'V');
+    
+    // Deterministic color palette matching VetCare Pro branding
+    const hash = nombre.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const colors = [
+      'bg-primary/10 text-primary border-primary/20',
+      'bg-secondary/15 text-secondary border-secondary/20',
+      'bg-accent-teal/15 text-accent-teal border-accent-teal/20',
+      'bg-emerald-50 text-emerald-600 border-emerald-100',
+    ];
+    const colorClass = colors[hash % colors.length];
+
+    return (
+      <div 
+        className={`${sizeClass} rounded-full flex items-center justify-center font-bold border-2 transition-all ${
+          isSelected ? 'ring-4 ring-primary/20 scale-105' : ''
+        } ${colorClass}`}
+      >
+        {initials}
+      </div>
+    );
+  };
+
   const renderCalendar = () => {
     const today = new Date();
     const minDate = new Date();
-    minDate.setDate(today.getDate() + 1);
+    minDate.setHours(0, 0, 0, 0); // Permitir agendar hoy mismo
 
     const baseDate = selectedFecha ? new Date(selectedFecha + 'T00:00:00') : minDate;
     const year = baseDate.getFullYear();
@@ -304,7 +329,8 @@ export default function NuevoFlujoCita() {
     for (let day = 1; day <= totalDays; day++) {
       const dayStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const targetDate = new Date(year, month, day);
-      const isPast = targetDate < minDate && targetDate.toDateString() !== minDate.toDateString();
+      targetDate.setHours(0, 0, 0, 0);
+      const isPast = targetDate < minDate;
       const isSelected = selectedFecha === dayStr;
 
       monthDays.push(
@@ -412,13 +438,22 @@ export default function NuevoFlujoCita() {
         <div className="absolute top-[40%] -right-[15%] w-[60%] h-[50%] rounded-full bg-[#5db872]/3 blur-[120px]" />
       </div>
 
-      {/* Header */}
-      <PageHeader
-        title="Solicitar Nueva Cita"
-        description="Completa los pasos para reservar un bloque de atención médica para tu mascota."
-        backLink={{ to: '/cliente/mis-citas', label: 'Volver a Mis Citas' }}
-        hasDivider={true}
-      />
+      {/* Volver y Título Compactos para Optimizar Espacio Superior */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 max-w-5xl w-full mx-auto px-2 select-none mb-1">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/cliente/mis-citas')}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-hairline bg-canvas/80 backdrop-blur-md hover:bg-surface-soft hover:text-primary transition-all duration-200 text-body-muted cursor-pointer active:scale-95 shadow-sm"
+            title="Volver a Mis Citas"
+          >
+            <span className="material-symbols-outlined text-[20px] font-bold">arrow_back</span>
+          </button>
+          <div>
+            <h1 className="font-display-md text-[24px] text-ink font-bold leading-none mb-1">Solicitar Nueva Cita</h1>
+            <p className="font-body-sm text-[13px] text-body-muted">Reserva la atención médica para tu mascota paso a paso hoy.</p>
+          </div>
+        </div>
+      </div>
 
       {/* Wizard Container */}
       <div className="bg-canvas/80 backdrop-blur-md border border-hairline/60 rounded-3xl p-6 md:p-8 shadow-xl max-w-5xl w-full mx-auto relative overflow-hidden">
@@ -745,13 +780,9 @@ export default function NuevoFlujoCita() {
                             onClick={() => setSelectedVeterinarioId(v.id)}
                           >
                             <div className="relative mb-4">
-                              <img
-                                className={`w-28 h-28 rounded-full object-cover border-4 transition-all ${isSelected ? 'border-primary shadow-sm' : 'border-primary-container/40 group-hover:border-primary-container'}`}
-                                alt={v.nombre}
-                                src={docImg}
-                              />
+                              {renderDoctorAvatar(v.nombre, "w-28 h-28 text-2xl", isSelected)}
                               <div className="absolute bottom-1 right-1 bg-primary text-white rounded-full p-1 border-2 border-white flex items-center justify-center">
-                                <span className="material-symbols-outlined text-[12px] block">verified</span>
+                                <span className="material-symbols-outlined text-[12px] block font-bold">verified</span>
                               </div>
                             </div>
                             
@@ -1020,12 +1051,8 @@ export default function NuevoFlujoCita() {
 
                     {/* Médico */}
                     <div className="flex items-start gap-4 p-4 rounded-3xl bg-surface-container-low/60 border border-primary/5 hover:bg-white transition-all shadow-sm">
-                      <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-primary-container shrink-0">
-                        <img 
-                          className="w-full h-full object-cover" 
-                          alt="Veterinario"
-                          src={getDoctorImage(veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre || '')}
-                        />
+                      <div className="shrink-0">
+                        {renderDoctorAvatar(veterinarios.find(v => v.id === selectedVeterinarioId)?.nombre || '', "w-14 h-14 text-[14px]", false)}
                       </div>
                       <div>
                         <p className="text-[9px] font-bold text-on-surface-variant/60 uppercase tracking-wider mb-0.5">Médico</p>

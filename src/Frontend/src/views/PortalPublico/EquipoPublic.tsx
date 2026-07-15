@@ -1,8 +1,60 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { VeterinariosService, type VeterinarioConCitas } from '../../services/veterinarios.service';
+
+const getVetImage = (nombre: string) => {
+  const nameLower = nombre.toLowerCase();
+  if (nameLower.includes('carlos') || nameLower.includes('mendoza')) {
+    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuAGlZdgHpXK9UbKOSHlZCmPYjcU9BQ7ciOFU3TsncsNRubT5mQeP8gJ45kRufbV2PS3uIXUrS6UYg6m6TBwrhAtZgzNgzIoB55_iyFVsYDKxSAq--y3sWR2_QGL4rfIKwkY3VfLJEbvNsi3gF9zo9OmPBmqELdk9R7cJNZbmIcJCyg90SE8kqn8ZNNfkY_3C15VAbX3j2N7jWqUgCHcb8Mf7suIuIgvt67JFZhe085qc7sQrzaMKISQNw';
+  }
+  if (nameLower.includes('maría') || nameLower.includes('fernández') || nameLower.includes('maria')) {
+    return 'https://lh3.googleusercontent.com/aida-public/AB6AXuDO3vaPV28qM9tIziM6cELz9FPawbkY9GBrZtqphGd9g3v8imudRD1Kq3BpjnKLe0rgy2G1zCL4WluKLuTHHidEIXMy_oi25v4n8N1R-J7hgSQ1cSYHNa3_oC7J1P4OftHIy6Ur-h_vCjIdlD2EUXfc10qpvcGwk36DvogtK_LmRx7GlAmaJQbQ7tJyKG61zSF5dFONM6HWygPZDuBJPqwAbHZ32fGSMpJpuBv9otSZGcOrEmnKjcELiw';
+  }
+  return 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUlGxQowyaeYPLKnJ7UQpDHJORrA1z5yjli7-SPcLw8OhDQsAneAp6Q7Ovv6gJf-JQayGPFVCkD5InLqE-Vk4cyvXd_-y_pM_xsmRQaCiZzY5emdFBW9DaFKVzAY496uHgGmSrtx8nNC8vy1l86xck6aCaYkID2c5HCTMawI7RuhrYM1rJGx5yrkWbSJwAv0I6cqjREUAGB89336NmlBUHO_dZG1SJZtxkJwrcPpJDPTdQESuAa-sUsQ';
+};
+
+const getVetIcon = (especialidad: string) => {
+  const espLower = especialidad.toLowerCase();
+  if (espLower.includes('cirugía') || espLower.includes('quirúrgica')) return 'medical_services';
+  if (espLower.includes('derm') || espLower.includes('piel')) return 'healing';
+  if (espLower.includes('general')) return 'stethoscope';
+  return 'favorite';
+};
+
+const getVetQuote = (nombre: string) => {
+  const nameLower = nombre.toLowerCase();
+  if (nameLower.includes('carlos')) {
+    return '"En los momentos más críticos, ofrecemos dedicación absoluta y monitorización avanzada para asegurar su recuperación."';
+  }
+  if (nameLower.includes('maría') || nameLower.includes('maria')) {
+    return '"Cada intervención es una promesa de darle a tu mejor amigo una vida más larga, feliz y sin dolor."';
+  }
+  return '"Comprometidos con brindar la mejor calidad de atención para la salud y tranquilidad de tu mascota."';
+};
 
 export default function EquipoPublic() {
+  const [vets, setVets] = useState<VeterinarioConCitas[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchVets = async () => {
+      try {
+        const response = await VeterinariosService.getVeterinarios();
+        if (response.success && response.data && Array.isArray(response.data.veterinarios)) {
+          const activeVets = response.data.veterinarios.filter((v: VeterinarioConCitas) => v.veterinario.activo);
+          setVets(activeVets);
+        }
+      } catch (err) {
+        console.error('Error fetching veterinarians:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVets();
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -15,49 +67,6 @@ export default function EquipoPublic() {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
   };
-
-  const team = [
-    {
-      name: 'Dra. Elena Valdés',
-      role: 'Cirujana Principal',
-      icon: 'medical_services',
-      desc: '"Cada intervención es una promesa de darle a tu mejor amigo una vida más larga, feliz y sin dolor."',
-      detailIcon: 'school',
-      detail: 'Especialista en Traumatología',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDO3vaPV28qM9tIziM6cELz9FPawbkY9GBrZtqphGd9g3v8imudRD1Kq3BpjnKLe0rgy2G1zCL4WluKLuTHHidEIXMy_oi25v4n8N1R-J7hgSQ1cSYHNa3_oC7J1P4OftHIy6Ur-h_vCjIdlD2EUXfc10qpvcGwk36DvogtK_LmRx7GlAmaJQbQ7tJyKG61zSF5dFONM6HWygPZDuBJPqwAbHZ32fGSMpJpuBv9otSZGcOrEmnKjcELiw',
-      size: 'md:col-span-8 flex-col md:flex-row',
-    },
-    {
-      name: 'Dr. Martín Rojas',
-      role: 'Dermatólogo',
-      icon: 'healing',
-      desc: '"La piel refleja la salud interior; mi misión es devolverles el confort."',
-      detailIcon: 'spa',
-      detail: 'Dermatología Avanzada',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCqpaFbKSibfXNEig7VHJ54k9N9-Lntn6Qv8Nm8YnASTqET4xYm3fE-R-Own0s8ckDUzmQ_y3TtwKq2Umpn6l_IHFg_rj3bzW5QwPFphILAECY_xKSc085hR-_8HMm5k-u7EYQM2cVupbJtiA4oHJxDOyp7sTP_KExVLOeYUtweIdoQSxEMGIgCddxUUt4EcKGZL_2s5Zh6WgCXclPhomcv5FgPU8OviRA8iEIK9ivJbjydsZHSzbbz5Q',
-      size: 'md:col-span-4 flex-col',
-    },
-    {
-      name: 'Dra. Sofía Castro',
-      role: 'Medicina Interna',
-      icon: 'biotech',
-      desc: '"Investigar hasta encontrar la causa exacta, para brindar el tratamiento más efectivo."',
-      detailIcon: 'clinical_notes',
-      detail: 'Diagnóstico Clínico',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCUlGxQowyaeYPLKnJ7UQpDHJORrA1z5yjli7-SPcLw8OhDQsAneAp6Q7Ovv6gJf-JQayGPFVCkD5InLqE-Vk4cyvXd_-y_pM_xsmRQaCiZzY5emdFBW9DaFKVzAY496uHgGmSrtx8nNC8vy1l86xck6aCaYkID2c5HCTMawI7RuhrYM1rJGx5yrkWbSJwAv0I6cqjREUAGB89336NmlBUHO_dZG1SJZtxkJwrcPpJDPTdQESuAa-sUsQ',
-      size: 'md:col-span-4 flex-col',
-    },
-    {
-      name: 'Dr. Carlos Mendoza',
-      role: 'Cuidados Intensivos',
-      icon: 'favorite',
-      desc: '"En los momentos más críticos, ofrecemos dedicación absoluta y monitorización avanzada para asegurar su recuperación."',
-      detailIcon: 'monitor_heart',
-      detail: 'UCI Veterinaria 24/7',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAGlZdgHpXK9UbKOSHlZCmPYjcU9BQ7ciOFU3TsncsNRubT5mQeP8gJ45kRufbV2PS3uIXUrS6UYg6m6TBwrhAtZgzNgzIoB55_iyFVsYDKxSAq--y3sWR2_QGL4rfIKwkY3VfLJEbvNsi3gF9zo9OmPBmqELdk9R7cJNZbmIcJCyg90SE8kqn8ZNNfkY_3C15VAbX3j2N7jWqUgCHcb8Mf7suIuIgvt67JFZhe085qc7sQrzaMKISQNw',
-      size: 'md:col-span-8 flex-col md:flex-row-reverse',
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-canvas text-ink flex flex-col font-body-md antialiased overflow-x-hidden">
@@ -85,48 +94,92 @@ export default function EquipoPublic() {
         </section>
 
         {/* Bento Grid: The Team */}
-        <motion.section 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-12 gap-8"
-        >
-          {team.map((member) => (
-            <motion.article 
-              key={member.name}
-              variants={cardVariants}
-              className={`bg-canvas rounded-3xl border border-hairline/70 shadow-sm overflow-hidden flex hover:shadow-lg transition-all duration-300 group ${member.size}`}
-            >
-              {/* Image box */}
-              <div className="w-full md:w-1/2 h-64 md:h-auto overflow-hidden relative min-h-[220px]">
-                <img 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-103"
-                  src={member.img}
-                  alt={member.name}
-                />
-              </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 py-12">
+            <div className="col-span-12 flex flex-col items-center justify-center py-12 gap-4">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p className="font-body-sm text-body-muted animate-pulse">Cargando directorio de especialistas...</p>
+            </div>
+          </div>
+        ) : vets.length === 0 ? (
+          <div className="bg-surface-soft/40 rounded-3xl border border-hairline/60 p-12 text-center max-w-xl mx-auto my-6 shadow-sm">
+            <div className="bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-[32px]">group</span>
+            </div>
+            <h3 className="font-title-lg text-[20px] text-ink font-bold mb-2">No hay veterinarios registrados en este momento</h3>
+            <p className="font-body-sm text-body-muted leading-relaxed">
+              Nuestro directorio de especialistas médicos está siendo actualizado. Por favor regrese más tarde.
+            </p>
+          </div>
+        ) : (
+          <motion.section 
+            key={`team-grid-${vets.length}`}
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-12 gap-8"
+          >
+            {vets.map((v, index) => {
+              const nameLower = v.veterinario.nombre.toLowerCase();
+              // Determine card grid settings based on index
+              const mod = index % 4;
+              let cardSize = 'md:col-span-4 flex-col';
+              if (mod === 0) cardSize = 'md:col-span-8 flex-col md:flex-row';
+              else if (mod === 3) cardSize = 'md:col-span-8 flex-col md:flex-row-reverse';
 
-              {/* Text box */}
-              <div className="p-8 flex flex-col justify-center flex-1">
-                <div className="inline-flex items-center bg-primary/10 text-primary px-3 py-1 rounded-full font-caption text-caption w-fit mb-4 font-bold">
-                  <span className="material-symbols-outlined text-[16px] mr-1.5 font-bold">{member.icon}</span>
-                  {member.role}
-                </div>
-                <h2 className="font-title-lg text-[22px] text-ink font-bold mb-3">{member.name}</h2>
-                <p className="font-body-md text-body-md text-body-muted italic mb-6 leading-relaxed">
-                  {member.desc}
-                </p>
-                {member.detail && (
-                  <div className="flex items-center gap-2 mt-auto pt-4 border-t border-hairline/60 text-body-muted">
-                    <span className="material-symbols-outlined text-[18px] text-secondary font-bold">{member.detailIcon}</span>
-                    <span className="font-caption text-caption text-ink font-bold">{member.detail}</span>
+              const img = getVetImage(v.veterinario.nombre);
+              const icon = getVetIcon(v.veterinario.especialidad);
+              const quote = getVetQuote(v.veterinario.nombre);
+
+              return (
+                <motion.article 
+                  key={v.veterinario.id}
+                  variants={cardVariants}
+                  className={`bg-canvas rounded-3xl border border-hairline/70 shadow-sm overflow-hidden flex hover:shadow-lg transition-all duration-300 group ${cardSize}`}
+                >
+                  {/* Image box */}
+                  <div className="w-full md:w-1/2 h-64 md:h-auto overflow-hidden relative min-h-[240px]">
+                    <img 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      src={img}
+                      alt={v.veterinario.nombre}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                )}
-              </div>
-            </motion.article>
-          ))}
-        </motion.section>
+
+                  {/* Text box */}
+                  <div className="p-8 flex flex-col justify-center flex-1">
+                    <div className="inline-flex items-center bg-primary/10 text-primary px-3 py-1 rounded-full font-caption text-caption w-fit mb-4 font-bold border border-primary/20">
+                      <span className="material-symbols-outlined text-[16px] mr-1.5 font-bold">{icon}</span>
+                      {v.veterinario.especialidad}
+                    </div>
+                    <h2 className="font-title-lg text-[22px] text-ink font-bold mb-3 group-hover:text-primary transition-colors duration-300">{v.veterinario.nombre}</h2>
+                    <p className="font-body-md text-body-md text-body-muted italic mb-6 leading-relaxed flex-grow">
+                      {quote}
+                    </p>
+                    {(v.veterinario.email || v.veterinario.telefono) && (
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-auto pt-4 border-t border-hairline/60 text-body-muted">
+                        {v.veterinario.telefono && (
+                          <a href={`tel:${v.veterinario.telefono}`} className="flex items-center gap-1.5 font-caption text-caption text-ink font-bold hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold">call</span>
+                            {v.veterinario.telefono}
+                          </a>
+                        )}
+                        {v.veterinario.email && (
+                          <a href={`mailto:${v.veterinario.email}`} className="flex items-center gap-1.5 font-caption text-caption text-ink font-bold hover:text-primary transition-colors">
+                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold">mail</span>
+                            {v.veterinario.email}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </motion.article>
+              );
+            })}
+          </motion.section>
+        )}
 
         {/* Recruitment CTA */}
         <section className="bg-surface-soft/40 rounded-3xl p-8 md:p-12 mt-8 flex flex-col md:flex-row items-center justify-between gap-8 border border-hairline/60 shadow-sm">

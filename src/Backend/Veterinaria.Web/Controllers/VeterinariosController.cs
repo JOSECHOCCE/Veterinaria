@@ -26,6 +26,7 @@ public class VeterinariosController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public ActionResult<Response<object>> Index(string? especialidad, string? q, int page = 1)
     {
         var veterinariosEntities = _veterinarioService.GetVeterinarios(especialidad, q);

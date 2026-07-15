@@ -13,8 +13,15 @@ interface AuthContextType {
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
+}
+
+export function getHomeRouteForRole(role?: string): string {
+  if (role === 'Usuario' || role === 'Cliente') return '/cliente/portal';
+  if (role === 'Veterinario') return '/admin/mi-agenda';
+  if (role === 'Recepcionista') return '/admin/agenda';
+  return '/admin/dashboard';
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,6 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsAuthenticated(true);
         window.localStorage.setItem('user', JSON.stringify(userWithoutToken));
         window.localStorage.setItem('token', token);
+        return userWithoutToken;
       } else {
         throw new Error(response.data.message || 'Error al iniciar sesión');
       }

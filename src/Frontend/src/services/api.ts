@@ -27,8 +27,11 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Si la API responde con 401 (No Autorizado) y no estamos en la página de login, redirigir
-    if (error.response?.status === 401 && !window.location.pathname.endsWith('/login')) {
+    // Si la API responde con 401 (No Autorizado) y no estamos en la página de login o en rutas públicas, redirigir
+    const publicRoutes = ['/', '/servicios', '/equipo', '/contacto'];
+    const isPublicRoute = publicRoutes.includes(window.location.pathname);
+
+    if (error.response?.status === 401 && !window.location.pathname.endsWith('/login') && !isPublicRoute) {
       window.localStorage.removeItem('user');
       window.localStorage.removeItem('token');
       window.location.href = '/login';

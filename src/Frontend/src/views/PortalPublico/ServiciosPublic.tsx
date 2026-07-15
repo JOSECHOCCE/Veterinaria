@@ -1,8 +1,59 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { ServiciosService, type Servicio } from '../../services/servicios.service';
+import consultaGeneralImg from '../../assets/Consulta General.png';
+import vacunacionImg from '../../assets/Vacunación.png';
+import cirugiaMenorImg from '../../assets/Cirugía Menor.png';
+import banoPeluqueriaImg from '../../assets/Baño y Peluquería.png';
+import desparasitacionImg from '../../assets/Desparacitación.png';
+
+const serviceImages: Record<string, string> = {
+  'Consulta General': consultaGeneralImg,
+  'Vacunación': vacunacionImg,
+  'Cirugía Menor': cirugiaMenorImg,
+  'Baño y Peluquería': banoPeluqueriaImg,
+  'Desparasitación': desparasitacionImg,
+};
+
+const serviceIcons: Record<string, string> = {
+  'Consulta General': 'stethoscope',
+  'Vacunación': 'vaccines',
+  'Cirugía Menor': 'healing',
+  'Baño y Peluquería': 'content_cut',
+  'Desparasitación': 'favorite',
+};
+
+const getServiceImage = (nombre: string) => {
+  return serviceImages[nombre] || consultaGeneralImg;
+};
+
+const getServiceIcon = (nombre: string) => {
+  return serviceIcons[nombre] || 'medical_services';
+};
 
 export default function ServiciosPublic() {
+  const [services, setServices] = useState<Servicio[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await ServiciosService.getServicios();
+        if (response.success && response.data && Array.isArray(response.data.servicios)) {
+          const activeServices = response.data.servicios.filter((s: Servicio) => s.activo);
+          setServices(activeServices);
+        }
+      } catch (err) {
+        console.error('Error fetching services:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -15,33 +66,6 @@ export default function ServiciosPublic() {
     hidden: { opacity: 0, y: 30 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
   };
-
-  const services = [
-    {
-      title: 'Diagnóstico Avanzado',
-      icon: 'biotech',
-      desc: 'Equipamiento de última generación para ecografías, radiografías digitales y análisis de laboratorio. Resultados rápidos y precisos para un tratamiento efectivo y oportuno de su mascota.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC52jqfuKHdWsADwP0VAyK84717tYG8Kk5XYyIYYcNWnQvXxsXq9UzULloi479an1JIRdg4b-Qh8EVGqsWGzosu0_dEv81HKd0YEzPrGZfhKVBxwghF03sHiyP0I8MJQ3aj0gUBji-wqpG6i5RckDR9iMjgazlTX5zyTXaXiWPbHij981na33H-28mRAUAW_9j6aHcUcGs5MQUUipdkmSuaPOADXrmtwDYWEFKgWVQKr2mjFo_9I1Wbdg',
-    },
-    {
-      title: 'Especialidades Quirúrgicas',
-      icon: 'medical_services',
-      desc: 'Intervenciones quirúrgicas complejas realizadas por especialistas experimentados en quirófanos de alta seguridad. Desde cirugías preventivas hasta traumatología avanzada con monitoreo continuo.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuCInqdcUqsJS4HUGXj11SuAmWQCnMkXqW-2jqI25x_EP7vATMXo2NVDwjT7JM8-pPWKTLVe_hIEKB9CcAyghsO53n_fGJDwSn1luRUAfd2wMYXN3cXYU_ZCxlsLOx8CQ_6B3HfnNNyJ_OFrAJuAVbc7yv_O6fg6BgOdwV4FynTy4AGZmdPSTMwDk9kcxO6FObj3qC9VMR49pnlTd5UD_aFjNpmPoRxaA19iQasnB6Z5sDae5CO9eXqKrA',
-    },
-    {
-      title: 'Odontología Veterinaria',
-      icon: 'dentistry',
-      desc: 'Cuidado dental integral para prevenir enfermedades periodontales. Ofrecemos limpiezas profundas por ultrasonido, extracciones seguras y tratamientos orales especializados bajo anestesia controlada.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA8zTkeMqnPB5FjkqeD1kslMKiI4IiUaqrtTU8-Zjh_pdRIA6BfsfZ1o8x3iLytixa25FBNSjUJi09P5poH77KffFtWqeW8ezZb1lK15O4188F9vnZO_Oy9Zn2Bh8ImmTiogVZygs3s5ZA1QfuYuCm14VIihrZSlFNhiJdADfhYfsZi1PftLAbCtGQF4JKCNZe232osuUvjKq4X5lW1VnFBUQw28T5mMXohYABT_-BJcFhsMsdZicu8Sw',
-    },
-    {
-      title: 'Bienestar Animal',
-      icon: 'favorite',
-      desc: 'Programas de nutrición personalizada, fisioterapia y medicina preventiva. Nos enfocamos en mejorar la calidad de vida de su mascota a través de un enfoque holístico y preventivo a largo plazo.',
-      img: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAXBFJq1X1iq8lCgV0-NDi8mNHVJ3s-WqS165aNq_SCdPzMMqombQ7e1-gVJyszCiseyu7nvOX-YRwtrgI5udL-k-stlOocMkAFzipjLnU6Hxe3BmecGxaC6hfYCdzY2yujGnu9pRZLx2-AFGB9wDiVYnfGPcWONGl0b51wMAdO1P2efeisW0jwjc8hodbr-mBeyyKQNV3jab--_MJnx4dcnUpLUIVqrI1fvGZeIsvv6VAXOQyysMrb9g',
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-canvas text-ink flex flex-col font-body-md antialiased overflow-x-hidden">
@@ -69,43 +93,82 @@ export default function ServiciosPublic() {
         </section>
 
         {/* Services Grid */}
-        <motion.section 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-        >
-          {services.map((svc) => (
-            <motion.div 
-              key={svc.title}
-              variants={cardVariants}
-              className="bg-canvas rounded-3xl border border-hairline/70 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group"
-            >
-              <div className="h-60 w-full overflow-hidden relative">
-                <img 
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  src={svc.img}
-                  alt={svc.title}
-                />
-              </div>
-              <div className="p-8 flex flex-col flex-grow">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="bg-primary/10 text-primary p-2.5 rounded-xl">
-                    <span className="material-symbols-outlined text-[24px] font-bold">{svc.icon}</span>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-12">
+            <div className="col-span-2 flex flex-col items-center justify-center py-12 gap-4">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p className="font-body-sm text-body-muted animate-pulse">Cargando catálogo de servicios médicos...</p>
+            </div>
+          </div>
+        ) : services.length === 0 ? (
+          <div className="bg-surface-soft/40 rounded-3xl border border-hairline/60 p-12 text-center max-w-xl mx-auto my-6 shadow-sm">
+            <div className="bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-[32px]">medical_services</span>
+            </div>
+            <h3 className="font-title-lg text-[20px] text-ink font-bold mb-2">No hay servicios disponibles en este momento</h3>
+            <p className="font-body-sm text-body-muted leading-relaxed">
+              Nuestro catálogo de especialidades está siendo actualizado. Por favor regrese más tarde o contáctese con recepción para más información.
+            </p>
+          </div>
+        ) : (
+          <motion.section 
+            key={`services-grid-${services.length}`}
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8"
+          >
+            {services.map((svc) => {
+              const icon = getServiceIcon(svc.nombre);
+              const img = getServiceImage(svc.nombre);
+
+              return (
+                <motion.div 
+                  key={svc.id}
+                  variants={cardVariants}
+                  className="bg-canvas rounded-3xl border border-hairline/70 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col group"
+                >
+                  <div className="h-60 w-full overflow-hidden relative">
+                    <img 
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      src={img}
+                      alt={svc.nombre}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
-                  <h2 className="font-title-lg text-[22px] text-ink font-bold">{svc.title}</h2>
-                </div>
-                <p className="font-body-sm text-body-sm text-body-muted leading-relaxed flex-grow mb-6">
-                  {svc.desc}
-                </p>
-                <button className="text-primary hover:text-primary-active font-bold text-body-md inline-flex items-center gap-2 group-hover:translate-x-1 transition-transform cursor-pointer justify-start">
-                  Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </motion.section>
+                  <div className="p-8 flex flex-col flex-grow">
+                    <div className="flex items-center justify-between gap-3 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="bg-primary/10 text-primary p-2.5 rounded-xl group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+                          <span className="material-symbols-outlined text-[24px] font-bold">{icon}</span>
+                        </div>
+                        <h2 className="font-title-lg text-[22px] text-ink font-bold">{svc.nombre}</h2>
+                      </div>
+                      <span className="text-primary font-bold text-title-lg bg-primary/5 px-3 py-1 rounded-xl border border-primary/20">
+                        S/ {typeof svc.precio === 'number' ? svc.precio.toFixed(2) : Number(svc.precio || 0).toFixed(2)}
+                      </span>
+                    </div>
+                    
+                    <p className="font-body-sm text-body-sm text-body-muted leading-relaxed flex-grow mb-6">
+                      {svc.descripcion || 'Especialidad veterinaria de alta calidad con atención personalizada para el bienestar de su mascota.'}
+                    </p>
+
+                    <div className="flex items-center justify-between border-t border-hairline/60 pt-4 mt-auto">
+                      <span className="text-body-sm text-body-muted flex items-center gap-1.5 font-bold">
+                        <span className="material-symbols-outlined text-[18px] text-secondary">schedule</span>
+                        {svc.duracionMinutos} min
+                      </span>
+                      <button className="text-primary hover:text-primary-active font-bold text-body-md inline-flex items-center gap-2 group-hover:translate-x-1 transition-transform cursor-pointer justify-start">
+                        Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.section>
+        )}
 
         {/* Urgencias & Guía Section */}
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">

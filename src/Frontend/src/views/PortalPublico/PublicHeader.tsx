@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, getHomeRouteForRole } from '../../context/AuthContext';
 
 export default function PublicHeader() {
   const { isAuthenticated, user } = useAuth();
@@ -19,15 +19,7 @@ export default function PublicHeader() {
 
   const handleCtaClick = () => {
     if (isAuthenticated) {
-      if (user?.role === 'Usuario' || user?.role === 'Cliente') {
-        navigate('/cliente/portal');
-      } else if (user?.role === 'Veterinario') {
-        navigate('/admin/mi-agenda');
-      } else if (user?.role === 'Recepcionista') {
-        navigate('/admin/agenda');
-      } else {
-        navigate('/admin/dashboard');
-      }
+      navigate(getHomeRouteForRole(user?.role));
     } else {
       navigate('/login');
     }

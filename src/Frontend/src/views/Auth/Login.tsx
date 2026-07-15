@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, getHomeRouteForRole } from '../../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import loginHero from '../../assets/login-hero.png';
 
@@ -19,8 +19,8 @@ export default function Login() {
     setError(null);
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const loggedUser = await login(email, password);
+      navigate(getHomeRouteForRole(loggedUser?.role));
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error al iniciar sesión';
       setError(msg);

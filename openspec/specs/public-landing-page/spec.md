@@ -43,3 +43,33 @@ On mobile viewports, the header menu MUST collapse into a single toggle icon tha
 - THEN the system MUST show the navigation links
 - AND clicking the button again MUST hide the links
 
+---
+
+### Requirement: Public Viewport Scrollability
+
+All public-facing pages (routes: `/`, `/servicios`, `/equipo`, `/contacto`) MUST allow vertical scrolling of the viewport when content exceeds the window height.
+
+#### Scenario: Verify Public Pages Scroll
+- GIVEN the user is on a public route (`/`, `/servicios`, `/equipo`, `/contacto`)
+- WHEN the page content exceeds the viewport height
+- THEN the browser MUST display a vertical scrollbar
+- AND the user MUST be able to scroll to the bottom of the page to read the header, body, and footer content.
+
+---
+
+### Requirement: Dynamic Services and Staff
+
+The landing, services, and team public pages MUST display actual services and staff members fetched dynamically from the system backend database.
+
+#### Scenario: Fetch Active Services Dynamically
+- GIVEN the visitor opens the Services page or Landing page
+- WHEN the page loads
+- THEN the system MUST request active services from `/api/Servicios`
+- AND display them in the UI with their actual names, descriptions, and prices.
+
+#### Scenario: Fetch Veterinarians Dynamically
+- GIVEN the visitor opens the Team page or Landing page
+- WHEN the page loads
+- THEN the system MUST request active veterinarians from `/api/Veterinarios` without requiring authentication
+- AND display their names and specialties in the UI.
+

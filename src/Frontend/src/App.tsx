@@ -3,7 +3,7 @@ import ProtectedLayout from './components/Layout/ProtectedLayout';
 import ClientLayout from './components/Layout/ClientLayout';
 import RoleGuard from './components/Layout/RoleGuard';
 import { AuthLayout } from './components/Layout/AuthLayout';
-import { useAuth } from './context/AuthContext';
+import { useAuth, getHomeRouteForRole } from './context/AuthContext';
 
 // Views (Placeholder para probar la arquitectura)
 import Login from './views/Auth/Login';
@@ -58,10 +58,7 @@ function RootRedirect() {
   const { user, isAuthenticated, loading } = useAuth();
   if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (user?.role === 'Usuario' || user?.role === 'Cliente') return <Navigate to="/cliente/portal" replace />;
-  if (user?.role === 'Veterinario') return <Navigate to="/admin/mi-agenda" replace />;
-  if (user?.role === 'Recepcionista') return <Navigate to="/admin/agenda" replace />;
-  return <Navigate to="/admin/dashboard" replace />;
+  return <Navigate to={getHomeRouteForRole(user?.role)} replace />;
 }
 
 function App() {

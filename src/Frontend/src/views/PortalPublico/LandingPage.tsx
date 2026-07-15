@@ -1,10 +1,60 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import PublicHeader from './PublicHeader';
 import PublicFooter from './PublicFooter';
+import { ServiciosService, type Servicio } from '../../services/servicios.service';
+import consultaGeneralImg from '../../assets/Consulta General.png';
+import vacunacionImg from '../../assets/Vacunación.png';
+import cirugiaMenorImg from '../../assets/Cirugía Menor.png';
+import banoPeluqueriaImg from '../../assets/Baño y Peluquería.png';
+import desparasitacionImg from '../../assets/Desparacitación.png';
+
+const serviceImages: Record<string, string> = {
+  'Consulta General': consultaGeneralImg,
+  'Vacunación': vacunacionImg,
+  'Cirugía Menor': cirugiaMenorImg,
+  'Baño y Peluquería': banoPeluqueriaImg,
+  'Desparasitación': desparasitacionImg,
+};
+
+const serviceIcons: Record<string, string> = {
+  'Consulta General': 'stethoscope',
+  'Vacunación': 'vaccines',
+  'Cirugía Menor': 'healing',
+  'Baño y Peluquería': 'content_cut',
+  'Desparasitación': 'favorite',
+};
+
+const getServiceImage = (nombre: string) => {
+  return serviceImages[nombre] || consultaGeneralImg;
+};
+
+const getServiceIcon = (nombre: string) => {
+  return serviceIcons[nombre] || 'medical_services';
+};
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const [services, setServices] = useState<Servicio[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await ServiciosService.getServicios();
+        if (response.success && response.data && Array.isArray(response.data.servicios)) {
+          const activeServices = response.data.servicios.filter((s: Servicio) => s.activo);
+          setServices(activeServices);
+        }
+      } catch (err) {
+        console.error('Error fetching services:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -118,108 +168,159 @@ export default function LandingPage() {
             </p>
           </div>
           
-          <motion.div 
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6"
-          >
-            {/* Main Bento Card */}
+          {loading ? (
+            <div className="py-12 flex flex-col items-center justify-center gap-4">
+              <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+              <p className="font-body-sm text-body-muted animate-pulse">Cargando especialidades médicas...</p>
+            </div>
+          ) : services.length === 0 ? (
+            <div className="bg-surface-soft/40 rounded-3xl border border-hairline/60 p-12 text-center max-w-xl mx-auto my-6 shadow-sm">
+              <div className="bg-primary/10 text-primary w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="material-symbols-outlined text-[32px]">medical_services</span>
+              </div>
+              <h3 className="font-title-lg text-[20px] text-ink font-bold mb-2">No hay servicios disponibles en este momento</h3>
+              <p className="font-body-sm text-body-muted leading-relaxed">
+                Nuestro catálogo está siendo actualizado. Por favor regrese más tarde.
+              </p>
+            </div>
+          ) : (
             <motion.div 
-              variants={itemVariants}
-              className="md:col-span-2 bg-surface-soft/60 rounded-3xl p-8 border border-hairline/80 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative overflow-hidden group cursor-pointer"
-              onClick={() => navigate('/servicios')}
+              key={`landing-bento-${services.length}`}
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, amount: 0.1 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
             >
-              <div className="z-10">
-                <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-[28px]">stethoscope</span>
-                </div>
-                <h3 className="font-title-lg text-[24px] text-ink font-bold mb-3">Medicina General</h3>
-                <p className="font-body-md text-body-md text-body-muted max-w-md leading-relaxed">
-                  Chequeos de rutina, diagnósticos precisos y planes de tratamiento personalizados para mantener a tu mascota en su mejor estado de salud a lo largo de su vida.
-                </p>
-              </div>
-              <div className="mt-8 z-10">
-                <span className="text-primary font-bold inline-flex items-center gap-2 hover:text-primary-active transition-colors">
-                  Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-              </div>
-              {/* Decorative BG element */}
-              <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-tl-full translate-x-10 translate-y-10 group-hover:scale-105 transition-transform duration-500"></div>
-            </motion.div>
+              {services.slice(0, 5).map((svc, index) => {
+                const icon = getServiceIcon(svc.nombre);
+                const img = getServiceImage(svc.nombre);
 
-            {/* Secondary Card 1 */}
-            <motion.div 
-              variants={itemVariants}
-              className="bg-surface-soft/40 rounded-3xl p-6 border border-hairline/60 flex flex-col justify-between hover:shadow-lg transition-all duration-300 cursor-pointer"
-              onClick={() => navigate('/servicios')}
-            >
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-[28px]">healing</span>
-                </div>
-                <h3 className="font-title-lg text-[20px] text-ink font-bold mb-3">Cirugía</h3>
-                <p className="font-body-sm text-body-sm text-body-muted leading-relaxed">
-                  Quirófanos equipados con tecnología de punta para procedimientos seguros y efectivos.
-                </p>
-              </div>
-              <div className="mt-6">
-                <span className="text-secondary font-bold inline-flex items-center gap-2 hover:text-secondary/85 transition-colors text-[14px]">
-                  Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-              </div>
-            </motion.div>
+                if (index === 0) {
+                  return (
+                    <motion.div 
+                      key={svc.id}
+                      variants={itemVariants}
+                      className="md:col-span-2 bg-surface-soft/60 rounded-3xl p-8 border border-hairline/80 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative overflow-hidden group cursor-pointer"
+                      onClick={() => navigate('/servicios')}
+                    >
+                      <div className="z-10">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors duration-300">
+                          <span className="material-symbols-outlined text-[28px]">{icon}</span>
+                        </div>
+                        <h3 className="font-title-lg text-[24px] text-ink font-bold mb-3">{svc.nombre}</h3>
+                        <p className="font-body-md text-body-md text-body-muted max-w-md leading-relaxed line-clamp-3">
+                          {svc.descripcion || 'Sin descripción disponible.'}
+                        </p>
+                      </div>
+                      <div className="mt-8 z-10 flex items-center justify-between">
+                        <span className="text-primary font-bold text-lg">S/ {typeof svc.precio === 'number' ? svc.precio.toFixed(2) : Number(svc.precio || 0).toFixed(2)}</span>
+                        <span className="text-primary font-bold inline-flex items-center gap-2 hover:text-primary-active transition-colors group-hover:translate-x-1">
+                          Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </span>
+                      </div>
+                      <div className="absolute bottom-0 right-0 w-64 h-64 bg-primary/5 rounded-tl-full translate-x-10 translate-y-10 group-hover:scale-105 transition-transform duration-500"></div>
+                    </motion.div>
+                  );
+                }
 
-            {/* Secondary Card 2 */}
-            <motion.div 
-              variants={itemVariants}
-              className="bg-surface-soft/40 rounded-3xl p-6 border border-hairline/60 flex flex-col justify-between hover:shadow-lg transition-all duration-300 cursor-pointer"
-              onClick={() => navigate('/servicios')}
-            >
-              <div>
-                <div className="w-12 h-12 rounded-2xl bg-accent-teal/10 text-accent-teal flex items-center justify-center mb-6">
-                  <span className="material-symbols-outlined text-[28px]">vaccines</span>
-                </div>
-                <h3 className="font-title-lg text-[20px] text-ink font-bold mb-3">Vacunación</h3>
-                <p className="font-body-sm text-body-sm text-body-muted leading-relaxed">
-                  Esquemas preventivos completos para proteger a tu mascota contra las enfermedades más comunes.
-                </p>
-              </div>
-              <div className="mt-6">
-                <span className="text-accent-teal font-bold inline-flex items-center gap-2 hover:text-accent-teal/85 transition-colors text-[14px]">
-                  Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-              </div>
-            </motion.div>
+                if (index === 3) {
+                  return (
+                    <motion.div 
+                      key={svc.id}
+                      variants={itemVariants}
+                      className="md:col-span-2 bg-surface-soft/40 rounded-3xl p-6 border border-hairline/60 flex flex-col sm:flex-row items-center gap-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                      onClick={() => navigate('/servicios')}
+                    >
+                      <div className="flex-shrink-0 w-full sm:w-1/3 h-40 rounded-2xl overflow-hidden relative">
+                        <img 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+                          alt={svc.nombre} 
+                          src={img}
+                        />
+                      </div>
+                      <div className="flex flex-col justify-center flex-1 w-full">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center group-hover:bg-secondary group-hover:text-on-primary transition-colors duration-300">
+                            <span className="material-symbols-outlined text-[20px]">{icon}</span>
+                          </div>
+                          <span className="text-secondary font-bold">S/ {typeof svc.precio === 'number' ? svc.precio.toFixed(2) : Number(svc.precio || 0).toFixed(2)}</span>
+                        </div>
+                        <h3 className="font-title-lg text-[20px] text-ink font-bold mb-2">{svc.nombre}</h3>
+                        <p className="font-body-sm text-body-sm text-body-muted mb-4 leading-relaxed line-clamp-2">
+                          {svc.descripcion || 'Sin descripción disponible.'}
+                        </p>
+                        <span className="text-secondary font-bold inline-flex items-center gap-2 hover:text-secondary-active transition-colors text-[14px] group-hover:translate-x-1">
+                          Ver más <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                        </span>
+                      </div>
+                    </motion.div>
+                  );
+                }
 
-            {/* Secondary Bento Landscape Card */}
-            <motion.div 
-              variants={itemVariants}
-              className="md:col-span-2 bg-surface-soft/40 rounded-3xl p-6 border border-hairline/60 flex flex-col sm:flex-row items-center gap-6 hover:shadow-lg transition-all duration-300 cursor-pointer"
-              onClick={() => navigate('/servicios')}
-            >
-              <div className="flex-shrink-0 w-full sm:w-1/3 h-40 rounded-2xl overflow-hidden">
-                <img 
-                  className="w-full h-full object-cover" 
-                  alt="Perro poodle en peluquería"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuACA_f4gLaCH_JlDrVX8knDfyPo64MKSRH-Y4RpkJw7YyJaiD4wNdmSRsIlIAe-u3gDLWpTuIYSPtjoUpQVZZEAvK8v5r2_5-ZkAIfxfbFfBL0OPmPQiaoO8JCkjBNsxWPX8Ynu8KCz6j7cpZ8QsTK6ywR-YiEgkzHtjNfJry_Q_jUL_i13kUqajmFJ3LdoG4jYYLrZD88SpBkbuuZeSHoyB-0f0jlKvrFmhE-GCV--w_aAoPbdOdfU6Q"
-                />
-              </div>
-              <div className="flex flex-col justify-center flex-1">
-                <div className="w-10 h-10 rounded-xl bg-secondary/10 text-secondary flex items-center justify-center mb-3">
-                  <span className="material-symbols-outlined text-[20px]">content_cut</span>
-                </div>
-                <h3 className="font-title-lg text-[20px] text-ink font-bold mb-2">Peluquería y Spa</h3>
-                <p className="font-body-sm text-body-sm text-body-muted mb-4 leading-relaxed">
-                  Cuidados estéticos e higiene profesional para que tu mascota luzca y se sienta de maravilla.
-                </p>
-                <span className="text-secondary font-bold inline-flex items-center gap-2 hover:text-secondary-active transition-colors text-[14px]">
-                  Ver galería <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                </span>
-              </div>
+                if (index === 4) {
+                  return (
+                    <motion.div 
+                      key={svc.id}
+                      variants={itemVariants}
+                      className="md:col-span-3 bg-canvas rounded-3xl p-6 border border-hairline/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                      onClick={() => navigate('/servicios')}
+                    >
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-accent-teal/15 text-accent-teal flex items-center justify-center flex-shrink-0 group-hover:bg-accent-teal group-hover:text-on-primary transition-colors duration-300">
+                          <span className="material-symbols-outlined text-[30px] font-bold">{icon}</span>
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <h3 className="font-title-lg text-[22px] text-ink font-bold">{svc.nombre}</h3>
+                            <span className="bg-accent-teal/10 text-accent-teal font-bold px-3 py-0.5 rounded-full text-caption">S/ {typeof svc.precio === 'number' ? svc.precio.toFixed(2) : Number(svc.precio || 0).toFixed(2)}</span>
+                          </div>
+                          <p className="font-body-sm text-body-sm text-body-muted leading-relaxed line-clamp-1 max-w-2xl mt-1">
+                            {svc.descripcion || 'Sin descripción disponible.'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-accent-teal font-bold inline-flex items-center gap-2 hover:text-accent-teal/85 transition-colors text-body-md whitespace-nowrap group-hover:translate-x-1">
+                        Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </span>
+                    </motion.div>
+                  );
+                }
+
+                const textTheme = index === 1 ? 'text-secondary' : 'text-accent-teal';
+                const bgTheme = index === 1 ? 'bg-secondary/10' : 'bg-accent-teal/10';
+                const hoverTheme = index === 1 ? 'hover:text-secondary/85' : 'hover:text-accent-teal/85';
+                const hoverBg = index === 1 ? 'group-hover:bg-secondary group-hover:text-on-primary' : 'group-hover:bg-accent-teal group-hover:text-on-primary';
+
+                return (
+                  <motion.div 
+                    key={svc.id}
+                    variants={itemVariants}
+                    className="bg-surface-soft/40 rounded-3xl p-6 border border-hairline/60 flex flex-col justify-between hover:shadow-lg transition-all duration-300 cursor-pointer group"
+                    onClick={() => navigate('/servicios')}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <div className={`w-12 h-12 rounded-2xl ${bgTheme} ${textTheme} flex items-center justify-center ${hoverBg} transition-colors duration-300`}>
+                          <span className="material-symbols-outlined text-[28px]">{icon}</span>
+                        </div>
+                        <span className={`${textTheme} font-bold`}>S/ {typeof svc.precio === 'number' ? svc.precio.toFixed(2) : Number(svc.precio || 0).toFixed(2)}</span>
+                      </div>
+                      <h3 className="font-title-lg text-[20px] text-ink font-bold mb-3">{svc.nombre}</h3>
+                      <p className="font-body-sm text-body-sm text-body-muted leading-relaxed line-clamp-4">
+                        {svc.descripcion || 'Sin descripción disponible.'}
+                      </p>
+                    </div>
+                    <div className="mt-6">
+                      <span className={`${textTheme} font-bold inline-flex items-center gap-2 ${hoverTheme} transition-colors text-[14px] group-hover:translate-x-1`}>
+                        Saber más <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </motion.div>
-          </motion.div>
+          )}
         </div>
       </section>
 

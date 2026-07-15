@@ -1,39 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
+  /* Material 3 Color Tokens from Stitch prototype */
   --color-primary: #006a63;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #4fd1c5;
+  --color-on-primary-container: #005750;
   --color-primary-active: #00504a;
-  --color-primary-dim: #79f7ea;
-  --color-primary-disabled: #e6dfd8;
-  --color-ink: #141413;
-  --color-body-muted: #3d3d3a;
-  --color-body-strong: #252523;
-  --color-canvas: #faf9f5;
-  --color-surface-soft: #f5f0e8;
-  --color-surface-card: #efe9de;
-  --color-surface-dim: #e6d7d3;
-  --color-surface-bright: #fff8f6;
-  --color-hairline: #e6dfd8;
-  --color-error: #c64545;
+  --color-primary-dim: #5adace;
+  --color-primary-disabled: #e5e9eb;
+  
+  --color-secondary: #555f71;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #d6e0f6;
+  --color-on-secondary-container: #596376;
+  
+  --color-tertiary: #8e4e11;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #ffab67;
+  --color-on-tertiary-container: #773d00;
+  
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  
+  --color-background: #f7fafc;
+  --color-on-background: #181c1e;
+  --color-surface: #f7fafc;
+  --color-on-surface: #181c1e;
+  --color-surface-variant: #e0e3e5;
+  --color-on-surface-variant: #3c4947;
+  
+  --color-surface-container-low: #f1f4f6;
+  --color-surface-container: #ebeef0;
+  --color-surface-container-high: #e5e9eb;
+  --color-surface-container-lowest: #ffffff;
+  
+  --color-outline: #6c7a77;
+  --color-outline-variant: #bbc9c7;
+  
+  /* Fallbacks to match legacy variables mapping */
+  --color-ink: #181c1e;
+  --color-body-muted: #3c4947;
+  --color-body-strong: #181c1e;
+  --color-canvas: #f7fafc;
+  --color-surface-soft: #f1f4f6;
+  --color-surface-card: #ffffff;
+  --color-surface-dim: #d7dadc;
+  --color-surface-bright: #ffffff;
+  --color-hairline: #e5e9eb;
+  
   --color-success: #5db872;
   --color-accent-teal: #5db8a6;
-  --color-accent-amber: #e8a55a;
-  --color-secondary: #006494;
-  --color-secondary-container: #74c3fe;
+  --color-accent-amber: #ffab67;
 
-  --font-display-xl: Copernicus, "Tiempos Headline", serif;
-  --font-display-lg: Copernicus, "Tiempos Headline", serif;
-  --font-display-md: Copernicus, "Tiempos Headline", serif;
-  --font-display-sm: Copernicus, "Tiempos Headline", serif;
-  --font-title-lg: StyreneB, Inter, sans-serif;
-  --font-title-md: StyreneB, Inter, sans-serif;
-  --font-title-sm: StyreneB, Inter, sans-serif;
-  --font-body-md: StyreneB, Inter, sans-serif;
-  --font-body-sm: StyreneB, Inter, sans-serif;
-  --font-button: StyreneB, Inter, sans-serif;
-  --font-nav-link: StyreneB, Inter, sans-serif;
-  --font-caption: StyreneB, Inter, sans-serif;
+  /* Font Families */
+  --font-headline-lg-mobile: Quicksand, sans-serif;
+  --font-body-md: Quicksand, sans-serif;
+  --font-headline-lg: Quicksand, sans-serif;
+  --font-body-lg: Quicksand, sans-serif;
+  --font-label-sm: Quicksand, sans-serif;
+  --font-label-md: Quicksand, sans-serif;
+  --font-headline-md: Quicksand, sans-serif;
+
+  --font-display-xl: Quicksand, sans-serif;
+  --font-display-lg: Quicksand, sans-serif;
+  --font-display-md: Quicksand, sans-serif;
+  --font-display-sm: Quicksand, sans-serif;
+  --font-title-lg: Quicksand, sans-serif;
+  --font-title-md: Quicksand, sans-serif;
+  --font-title-sm: Quicksand, sans-serif;
+  --font-button: Quicksand, sans-serif;
+  --font-nav-link: Quicksand, sans-serif;
+  --font-caption: Quicksand, sans-serif;
   --font-code: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
   /* Spacing Scale (Matching Stitch Design system) */
@@ -45,10 +86,20 @@
   --spacing-xl: 32px;
   --spacing-xxl: 48px;
   --spacing-section: 96px;
-  --spacing-gutter: 1.5rem;
-  --spacing-margin: 2rem;
+  --spacing-gutter: 24px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 40px;
+  --spacing-container-max-width: 1200px;
 
-  /* Font Sizes Scale (Resolves typography sizes issue) */
+  /* Font Sizes Scale - Adjusted for compact laptop layout */
+  --text-headline-lg-mobile: 20px;
+  --text-body-md: 13.5px;
+  --text-headline-lg: 26px;
+  --text-body-lg: 15px;
+  --text-label-sm: 10.5px;
+  --text-label-md: 12.5px;
+  --text-headline-md: 19px;
+
   --text-display-xl: 3rem;
   --text-display-lg: 2rem;
   --text-display-md: 1.5rem;
@@ -56,13 +107,11 @@
   --text-title-lg: 1.25rem;
   --text-title-md: 1.125rem;
   --text-title-sm: 1rem;
-  --text-body-md: 0.95rem;
-  --text-body-sm: 0.85rem;
   --text-caption: 0.75rem;
   --text-caption-uppercase: 0.75rem;
   --text-code: 0.85rem;
 
-  /* Border Radius Scale (Matching Stitch Design system) */
+  /* Border Radius Scale */
   --radius-xs: 4px;
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -71,18 +120,18 @@
   --radius-pill: 9999px;
   --radius-full: 9999px;
 
-  /* Restablecer max-width predeterminados de Tailwind para evitar conflicto con la escala de espaciado (spacing scale) */
-  --max-width-xs: 20rem; /* 320px */
-  --max-width-sm: 24rem; /* 384px */
-  --max-width-md: 28rem; /* 448px */
-  --max-width-lg: 32rem; /* 512px */
-  --max-width-xl: 36rem; /* 576px */
-  --max-width-2xl: 42rem; /* 672px */
-  --max-width-3xl: 48rem; /* 768px */
-  --max-width-4xl: 56rem; /* 896px */
-  --max-width-5xl: 64rem; /* 1024px */
-  --max-width-6xl: 72rem; /* 1152px */
-  --max-width-7xl: 80rem; /* 1280px */
+  /* Max width overrides */
+  --max-width-xs: 20rem;
+  --max-width-sm: 24rem;
+  --max-width-md: 28rem;
+  --max-width-lg: 32rem;
+  --max-width-xl: 36rem;
+  --max-width-2xl: 42rem;
+  --max-width-3xl: 48rem;
+  --max-width-4xl: 56rem;
+  --max-width-5xl: 64rem;
+  --max-width-6xl: 72rem;
+  --max-width-7xl: 80rem;
 }
 
 /* Clases de utilidad personalizadas adicionales si son requeridas */
@@ -245,4 +294,23 @@
   width: 100%;
   height: 4px;
   background-color: #10b981; /* Emerald-500 */
+}
+
+/* Force layout height, reset defaults, and disable outer viewport scrollbars */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  width: 100%;
+  background-color: var(--color-background);
+  font-family: 'Quicksand', sans-serif;
+}
+
+/* Hide scrollbar utility class */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
