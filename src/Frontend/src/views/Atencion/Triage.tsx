@@ -33,17 +33,7 @@ export default function Triage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        // Load active pets
-        const petsData = await AtencionService.getTriageMascotas();
-        let finalPets = petsData || [];
-        if (state?.mascotaId && !finalPets.some((p) => p.id === state.mascotaId)) {
-          finalPets = [
-            { id: state.mascotaId, display: state.mascotaNombre || `Mascota #${state.mascotaId}` },
-            ...finalPets
-          ];
-        }
-        setMascotas(finalPets);
-
+        
         // Load today's appointments to link if possible
         const today = new Date().toISOString().split('T')[0];
         const start = `${today}T00:00:00`;
@@ -55,6 +45,33 @@ export default function Triage() {
           (c) => !['Completada', 'Cancelada', 'Rechazada', 'NoAsistio'].includes(c.extendedProps.estado)
         );
         setTodayCitas(activeCitas);
+
+        // Load active pets
+        const petsData = await AtencionService.getTriageMascotas();
+        let finalPets = petsData || [];
+
+        // Identify pets currently EnEspera (En Sala) that do not have triage yet
+        const petsEnSala = activeCitas
+          .filter((c) => c.extendedProps.estado === 'EnEspera' && !c.extendedProps.hasTriage)
+          .map((c) => ({
+            id: c.extendedProps.mascotaId!,
+            display: `📍 [EN SALA DE ESPERA] ${c.extendedProps.mascota} - ${c.extendedProps.propietario || 'Propietario'}`
+          }));
+
+        // Remove duplicates from finalPets if they are already in petsEnSala
+        const enSalaIds = petsEnSala.map((p) => p.id);
+        finalPets = finalPets.filter((p) => !enSalaIds.includes(p.id));
+
+        // Prepend En Sala pets to the list
+        let combinedPets = [...petsEnSala, ...finalPets];
+
+        if (state?.mascotaId && !combinedPets.some((p) => p.id === state.mascotaId)) {
+          combinedPets = [
+            { id: state.mascotaId, display: state.mascotaNombre ? `📍 [EN SALA DE ESPERA] ${state.mascotaNombre}` : `Mascota #${state.mascotaId}` },
+            ...combinedPets
+          ];
+        }
+        setMascotas(combinedPets);
       } catch (err) {
         console.error('Error loading triage form catalogs:', err);
         toast.error('No se pudo cargar la información del formulario.');

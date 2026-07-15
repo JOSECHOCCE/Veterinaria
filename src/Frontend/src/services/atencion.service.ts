@@ -41,10 +41,22 @@ export interface HistorialClinicoDto {
   motivoCita?: string;
 }
 
+export interface PendienteTriageDto {
+  citaId: number;
+  mascotaId: number;
+  mascotaNombre: string;
+  propietarioNombre: string;
+  motivoConsulta?: string | null;
+  veterinarioNombre?: string | null;
+  servicioNombre?: string | null;
+  fechaCita: string;
+}
+
 export interface TriageColaResponse {
   triages: TriageDto[];
   totalEsperando: number;
   totalEmergencias: number;
+  pendientesTriage?: PendienteTriageDto[];
 }
 
 export interface TriageMascotaDropdown {

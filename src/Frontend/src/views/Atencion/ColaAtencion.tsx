@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import AtencionService from '../../services/atencion.service';
-import type { TriageDto } from '../../services/atencion.service';
+import type { TriageDto, PendienteTriageDto } from '../../services/atencion.service';
 import Spinner from '../../components/common/Spinner';
 import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
 import PageHeader from '../../components/common/PageHeader';
+import { useAuth } from '../../context/AuthContext';
 
 const NIVEL_COLORS: Record<string, { bg: string; border: string; text: string; label: string; dot: string }> = {
   N1: { bg: 'bg-error/10', border: 'border-error/20', text: 'text-error', label: 'N1 - Emergencia', dot: 'bg-error animate-ping' },
@@ -17,8 +18,10 @@ const NIVEL_COLORS: Record<string, { bg: string; border: string; text: string; l
 
 export default function ColaAtencion() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   const [triages, setTriages] = useState<TriageDto[]>([]);
+  const [pendientesTriage, setPendientesTriage] = useState<PendienteTriageDto[]>([]);
   const [totalWaiting, setTotalWaiting] = useState<number>(0);
   const [totalEmergencies, setTotalEmergencies] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
@@ -37,6 +40,7 @@ export default function ColaAtencion() {
         setTriages(res.triages || []);
         setTotalWaiting(res.totalEsperando || 0);
         setTotalEmergencies(res.totalEmergencias || 0);
+        setPendientesTriage(res.pendientesTriage || []);
       }
     } catch (err: any) {
       console.error('Error fetching triage queue:', err);
@@ -172,6 +176,57 @@ export default function ColaAtencion() {
           </div>
         </div>
       </div>
+
+      {/* Pacientes en Espera de Triaje */}
+      {pendientesTriage.length > 0 && (user?.role === 'Recepcionista' || user?.role === 'Admin') && (
+        <div className="bg-[#fef7e0]/60 border border-[#b06000]/15 backdrop-blur-md rounded-xl p-lg mb-lg shadow-xs">
+          <div className="flex items-center gap-2 mb-md">
+            <span className="material-symbols-outlined text-[#b06000] animate-pulse">notifications_active</span>
+            <h3 className="font-title-md text-title-md text-[#b06000] font-bold">
+              Pacientes Recién Llegados - Pendientes de Triaje ({pendientesTriage.length})
+            </h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-[#b06000]/10 text-[#b06000] font-caption-uppercase text-caption-uppercase">
+                  <th className="py-2 px-md font-semibold">Mascota</th>
+                  <th className="py-2 px-md font-semibold">Responsable</th>
+                  <th className="py-2 px-md font-semibold">Motivo Consulta</th>
+                  <th className="py-2 px-md font-semibold">Veterinario Asignado</th>
+                  <th className="py-2 px-md text-right font-semibold">Acción</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#b06000]/10 text-ink">
+                {pendientesTriage.map((p) => (
+                  <tr key={p.citaId} className="hover:bg-[#fef7e0]/30 transition-colors">
+                    <td className="py-3 px-md font-bold">{p.mascotaNombre}</td>
+                    <td className="py-3 px-md font-medium text-body-sm">{p.propietarioNombre}</td>
+                    <td className="py-3 px-md text-secondary text-xs italic">{p.motivoConsulta || 'Sin especificar'}</td>
+                    <td className="py-3 px-md font-medium text-body-sm">{p.veterinarioNombre}</td>
+                    <td className="py-3 px-md text-right">
+                      <button
+                        onClick={() => navigate('/admin/triage', {
+                          state: {
+                            citaId: p.citaId,
+                            mascotaId: p.mascotaId,
+                            mascotaNombre: p.mascotaNombre,
+                            motivo: p.motivoConsulta
+                          }
+                        })}
+                        className="bg-[#b06000] hover:bg-[#904e00] text-white font-button text-xs py-1.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs font-bold inline-flex items-center gap-1"
+                      >
+                        <span className="material-symbols-outlined text-xs">edit_note</span>
+                        Realizar Triaje
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Toolbar & Filters */}
       <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { useAuth } from '../../context/AuthContext';
 import CitasService from '../../services/citas.service';
 import type { CalendarioEventDto, CitaDto } from '../../services/citas.service';
 import VeterinariosService from '../../services/veterinarios.service';
@@ -30,6 +31,7 @@ const ESTADO_COLORS: Record<string, { bg: string; border: string; text: string; 
 };
 
 export default function Agenda() {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -1009,16 +1011,53 @@ export default function Agenda() {
 
                     {activeCita.extendedProps.estado === 'EnEspera' && (
                       <div className="flex flex-col gap-3">
-                        <p className="font-body-sm text-body-sm text-outline-variant">
-                          El paciente se encuentra esperando en sala. Inicia su consulta clínica.
-                        </p>
-                        <button
-                          onClick={() => handleCambiarEstado(activeCita.id, 'EnAtencion')}
-                          className="w-full bg-accent-teal hover:opacity-95 text-ink font-button text-button py-2.5 px-md rounded-lg transition-all flex justify-center items-center gap-sm cursor-pointer shadow-sm font-bold"
-                        >
-                          <span className="material-symbols-outlined">stethoscope</span>
-                          Iniciar Atención Clínica
-                        </button>
+                        {user?.role === 'Recepcionista' ? (
+                          !activeCita.extendedProps.hasTriage ? (
+                            <>
+                              <p className="font-body-sm text-body-sm text-outline-variant">
+                                El paciente se encuentra en sala de espera. Registra sus signos vitales para enviarlo a la cola de atención.
+                              </p>
+                              <button
+                                onClick={() => navigate('/admin/triage', {
+                                  state: {
+                                    citaId: activeCita.id,
+                                    mascotaId: activeCita.extendedProps.mascotaId,
+                                    mascotaNombre: activeCita.extendedProps.mascota || activeCita.title?.split(' - ')[0],
+                                    motivo: activeCita.extendedProps.motivo
+                                  }
+                                })}
+                                className="w-full bg-[#4fd1c5] hover:bg-[#3dbdb1] text-white font-button text-button py-2.5 px-md rounded-lg transition-all flex justify-center items-center gap-sm cursor-pointer shadow-sm font-bold"
+                              >
+                                <span className="material-symbols-outlined">edit_note</span>
+                                Registrar Triage
+                              </button>
+                            </>
+                          ) : (
+                            <div className="bg-[#e6f4ea]/10 border border-[#137333]/20 text-[#137333] p-3 rounded-lg text-center text-xs font-semibold">
+                              ✓ Triaje registrado. Paciente en cola de espera médica.
+                            </div>
+                          )
+                        ) : (
+                          // Rol Veterinario / Admin
+                          activeCita.extendedProps.hasTriage ? (
+                            <>
+                              <p className="font-body-sm text-body-sm text-outline-variant">
+                                El paciente tiene el triaje listo. Inicia su consulta clínica.
+                              </p>
+                              <button
+                                onClick={() => handleCambiarEstado(activeCita.id, 'EnAtencion')}
+                                className="w-full bg-accent-teal hover:opacity-95 text-ink font-button text-button py-2.5 px-md rounded-lg transition-all flex justify-center items-center gap-sm cursor-pointer shadow-sm font-bold"
+                              >
+                                <span className="material-symbols-outlined">stethoscope</span>
+                                Iniciar Atención Clínica
+                              </button>
+                            </>
+                          ) : (
+                            <div className="bg-[#ba1a1a]/10 border border-[#ba1a1a]/20 text-[#ba1a1a] p-3 rounded-lg text-center text-xs font-semibold">
+                              ⚠️ Paciente en sala. Esperando registro de triaje en recepción.
+                            </div>
+                          )
+                        )}
                         <div className="grid grid-cols-2 gap-md mt-1">
                           <button
                             onClick={() => handleCambiarEstado(activeCita.id, 'NoAsistio')}
@@ -1028,9 +1067,9 @@ export default function Agenda() {
                           </button>
                           <button
                             onClick={() => handleCancelar(activeCita.id)}
-                            className="bg-[#252320] hover:bg-[#32302c] text-error border border-[#3a3834] font-button text-button py-2 px-md rounded-lg transition-colors cursor-pointer"
+                            className="bg-[#252320] hover:bg-[#32302c] text-error border border-[#3a3834] font-button text-button py-2 px-md rounded-lg transition-colors cursor-pointer font-semibold"
                           >
-                            Cancelar
+                            Cancelar Cita
                           </button>
                         </div>
                       </div>

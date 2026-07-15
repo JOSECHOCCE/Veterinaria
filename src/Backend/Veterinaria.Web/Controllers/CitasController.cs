@@ -53,6 +53,8 @@ public class CitasController : ControllerBase
     public async Task<ActionResult<Response<object>>> CalendarioData(DateTime? start, DateTime? end)
     {
         var citas = await _citaService.GetCitasParaCalendarioAsync(start, end);
+        var citaIds = citas.Select(c => c.Id).ToList();
+        var citasConTriage = await _citaService.GetCitasConTriageAsync(citaIds);
 
         var eventos = citas.Select(c => new
         {
@@ -87,7 +89,8 @@ public class CitasController : ControllerBase
                 motivo = c.Motivo,
                 propietario = c.Mascota?.Usuario?.Nombre,
                 duracion = c.Servicio?.DuracionMinutos ?? 30,
-                precio = c.Servicio?.Precio ?? 0
+                precio = c.Servicio?.Precio ?? 0,
+                hasTriage = citasConTriage.Contains(c.Id)
             }
         });
 

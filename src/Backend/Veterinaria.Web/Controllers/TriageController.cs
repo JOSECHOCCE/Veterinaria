@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Application.DTOs;
@@ -52,11 +53,35 @@ public class TriageController : ControllerBase
             fechaRegistro = t.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")
         }).ToList();
 
+        // Obtener citas de hoy en estado EnEspera (En Sala)
+        var hoy = DateTime.Today;
+        var queryCitasEnSala = _citaService.GetCitasQuery(true, null, "EnEspera", null, hoy, hoy);
+        var citasEnSala = await queryCitasEnSala.ToListAsync();
+
+        // IDs de citas que ya tienen triage activo en la cola
+        var triageCitaIds = triages.Where(t => t.CitaId.HasValue).Select(t => t.CitaId!.Value).ToList();
+
+        var pendientesTriage = citasEnSala
+            .Where(c => !triageCitaIds.Contains(c.Id))
+            .Select(c => new
+            {
+                citaId = c.Id,
+                mascotaId = c.MascotaId,
+                mascotaNombre = c.Mascota?.Nombre ?? "Mascota",
+                propietarioNombre = c.Mascota?.Usuario?.Nombre ?? "Propietario",
+                motivoConsulta = c.Motivo,
+                veterinarioNombre = c.Veterinario?.Nombre ?? "Veterinario",
+                servicioNombre = c.Servicio?.Nombre ?? "Servicio",
+                fechaCita = c.FechaHora.ToString("yyyy-MM-ddTHH:mm:ss")
+            })
+            .ToList();
+
         var result = new
         {
             Triages = triagesMapped,
             TotalEsperando = triages.Count(t => t.Estado == "EnEspera"),
-            TotalEmergencias = triages.Count(t => t.Nivel == "N1")
+            TotalEmergencias = triages.Count(t => t.Nivel == "N1"),
+            PendientesTriage = pendientesTriage
         };
 
         return Ok(Response<object>.Ok(result));

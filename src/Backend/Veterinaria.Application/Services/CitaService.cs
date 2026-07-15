@@ -616,4 +616,16 @@ public class CitaService : ICitaService
         
         return (true, cita, null);
     }
+
+    public async Task<List<int>> GetCitasConTriageAsync(List<int> citaIds)
+    {
+        if (citaIds == null || !citaIds.Any())
+            return new List<int>();
+
+        return await _unitOfWork.Triages.GetAll()
+            .Where(t => t.CitaId.HasValue && citaIds.Contains(t.CitaId.Value))
+            .Select(t => t.CitaId!.Value)
+            .Distinct()
+            .ToListAsync();
+    }
 }
