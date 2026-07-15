@@ -209,6 +209,11 @@ public class CitaService : ICitaService
         if (veterinario == null || !veterinario.Activo)
             return horariosDisponibles;
 
+        // Configurar zona horaria de Perú para la validación de horas pasadas
+        var tz = TimeZoneInfo.FindSystemTimeZoneById("America/Lima");
+        var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+        var localToday = localNow.Date;
+
         var diaSemana = (int)fecha.DayOfWeek;
         
         var horarioClinica = await _unitOfWork.HorariosClinica.GetAll().FirstOrDefaultAsync(h => h.DiaSemana == diaSemana);
@@ -234,7 +239,7 @@ public class CitaService : ICitaService
         {
             var slotDateTime = fechaBase.Add(horaActual);
             
-            if (fecha.Date == DateTime.Today && slotDateTime <= DateTime.Now)
+            if (fecha.Date == localToday && slotDateTime <= localNow)
             {
                 horaActual = horaActual.Add(TimeSpan.FromMinutes(slotDuracion));
                 continue;
@@ -303,10 +308,14 @@ public class CitaService : ICitaService
 
     public async Task<(bool EsValida, string? MensajeError)> ValidarFechaCitaAsync(int veterinarioId, DateTime fechaHora)
     {
-        if (fechaHora < DateTime.Now)
+        // Configurar zona horaria de Perú para validaciones en tiempo real
+        var tz = TimeZoneInfo.FindSystemTimeZoneById("America/Lima");
+        var localNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
+
+        if (fechaHora < localNow)
             return (false, "No se pueden programar citas en fechas pasadas.");
 
-        if (fechaHora > DateTime.Now.AddMonths(3))
+        if (fechaHora > localNow.AddMonths(3))
             return (false, "No se pueden programar citas con más de 3 meses de anticipación.");
 
         var veterinario = await _unitOfWork.Veterinarios.GetByIdAsync(veterinarioId);
