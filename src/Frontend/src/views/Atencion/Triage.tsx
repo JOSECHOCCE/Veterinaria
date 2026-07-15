@@ -34,10 +34,15 @@ export default function Triage() {
       try {
         setLoading(true);
         
-        // Load today's appointments to link if possible
-        const today = new Date().toISOString().split('T')[0];
-        const start = `${today}T00:00:00`;
-        const end = `${today}T23:59:59`;
+        // Load today's appointments to link if possible (using local timezone date to prevent UTC shift issues)
+        const localDate = new Date();
+        const year = localDate.getFullYear();
+        const month = String(localDate.getMonth() + 1).padStart(2, '0');
+        const day = String(localDate.getDate()).padStart(2, '0');
+        const localDateStr = `${year}-${month}-${day}`;
+        
+        const start = `${localDateStr}T00:00:00`;
+        const end = `${localDateStr}T23:59:59`;
         const citasData = await CitasService.getCalendarioData(start, end);
         
         // Filter appointments that aren't completed or canceled

@@ -53,9 +53,8 @@ public class TriageController : ControllerBase
             fechaRegistro = t.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")
         }).ToList();
 
-        // Obtener citas de hoy en estado EnEspera (En Sala)
-        var hoy = DateTime.Today;
-        var queryCitasEnSala = _citaService.GetCitasQuery(true, null, "EnEspera", null, hoy, hoy);
+        // Obtener todas las citas en estado EnEspera (En Sala) sin restricciones de fecha
+        var queryCitasEnSala = _citaService.GetCitasQuery(true, null, "EnEspera", null, null, null);
         var citasEnSala = await queryCitasEnSala.ToListAsync();
 
         // IDs de citas que ya tienen triage activo en la cola
