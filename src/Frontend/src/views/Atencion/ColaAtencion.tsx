@@ -108,6 +108,54 @@ export default function ColaAtencion() {
 
   const filteredTriages = getFilteredTriages();
 
+  const getTiempoLlegada = (fechaCita: string) => {
+    const diffMs = new Date().getTime() - new Date(fechaCita).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    return diffMins > 0 ? `Llegó hace ${diffMins} min` : 'Recién llegó';
+  };
+
+  const getCombinedQueue = () => {
+    const activeItems = filteredTriages.map(t => ({
+      ...t,
+      tipoRegistro: 'Triage' as const
+    }));
+
+    const pendingItems = pendientesTriage
+      .filter(p => {
+        if (buscar) {
+          const query = buscar.toLowerCase();
+          return p.mascotaNombre.toLowerCase().includes(query) || 
+                 p.propietarioNombre.toLowerCase().includes(query);
+        }
+        return true;
+      })
+      .map(p => ({
+        id: `pending-${p.citaId}`,
+        citaId: p.citaId,
+        mascotaId: p.mascotaId,
+        mascotaNombre: p.mascotaNombre,
+        propietarioNombre: p.propietarioNombre,
+        motivoConsulta: p.motivoConsulta,
+        veterinarioNombre: p.veterinarioNombre,
+        servicioNombre: p.servicioNombre,
+        fechaCita: p.fechaCita,
+        nivel: 'Pendiente',
+        estado: 'EnEspera',
+        tiempoEsperaEstimadoMin: 0,
+        consultorio: 'Sala de Espera',
+        sintomas: p.motivoConsulta,
+        tipoRegistro: 'Pendiente' as const
+      }));
+
+    if (selectedNivel !== 'all') {
+      return activeItems;
+    }
+
+    return [...pendingItems, ...activeItems];
+  };
+
+  const combinedQueue = getCombinedQueue();
+
   if (loading && triages.length === 0) {
     return (
       <div className="flex-grow flex items-center justify-center min-h-[400px]">
@@ -177,61 +225,6 @@ export default function ColaAtencion() {
         </div>
       </div>
 
-      {/* Pacientes en Espera de Triaje */}
-      {pendientesTriage.length > 0 && (user?.role === 'Recepcionista' || user?.role === 'Admin') && (
-        <div className="bg-[#fef7e0]/60 border border-[#b06000]/15 backdrop-blur-md rounded-xl p-lg mb-lg shadow-xs">
-          <div className="flex items-center gap-2 mb-md">
-            <span className="material-symbols-outlined text-[#b06000] animate-pulse">notifications_active</span>
-            <h3 className="font-title-md text-title-md text-[#b06000] font-bold">
-              Pacientes Recién Llegados - Pendientes de Triaje ({pendientesTriage.length})
-            </h3>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-[#b06000]/10 text-[#b06000] font-caption-uppercase text-caption-uppercase">
-                  <th className="py-2 px-md font-semibold">Hora Cita</th>
-                  <th className="py-2 px-md font-semibold">Mascota</th>
-                  <th className="py-2 px-md font-semibold">Responsable</th>
-                  <th className="py-2 px-md font-semibold">Motivo Consulta</th>
-                  <th className="py-2 px-md font-semibold">Veterinario Asignado</th>
-                  <th className="py-2 px-md text-right font-semibold">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#b06000]/10 text-ink">
-                {pendientesTriage.map((p) => (
-                  <tr key={p.citaId} className="hover:bg-[#fef7e0]/30 transition-colors">
-                    <td className="py-3 px-md font-bold text-[#b06000]">
-                      {new Date(p.fechaCita).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
-                    </td>
-                    <td className="py-3 px-md font-bold">{p.mascotaNombre}</td>
-                    <td className="py-3 px-md font-medium text-body-sm">{p.propietarioNombre}</td>
-                    <td className="py-3 px-md text-secondary text-xs italic">{p.motivoConsulta || 'Sin especificar'}</td>
-                    <td className="py-3 px-md font-medium text-body-sm">{p.veterinarioNombre}</td>
-                    <td className="py-3 px-md text-right">
-                      <button
-                        onClick={() => navigate('/admin/triage', {
-                          state: {
-                            citaId: p.citaId,
-                            mascotaId: p.mascotaId,
-                            mascotaNombre: p.mascotaNombre,
-                            motivo: p.motivoConsulta
-                          }
-                        })}
-                        className="bg-[#b06000] hover:bg-[#904e00] text-white font-button text-xs py-1.5 px-4 rounded-lg transition-colors cursor-pointer shadow-xs font-bold inline-flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-xs">edit_note</span>
-                        Realizar Triaje
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
       {/* Toolbar & Filters */}
       <div className="bg-surface-card rounded-xl border border-hairline shadow-sm overflow-hidden flex flex-col">
         <div className="p-lg border-b border-hairline bg-surface-soft/40 flex flex-col sm:flex-row sm:items-center justify-between gap-md">
@@ -266,13 +259,13 @@ export default function ColaAtencion() {
             </div>
 
             <div className="text-caption text-secondary font-caption">
-              Total en Cola: {filteredTriages.length}
+              Total en Cola: {combinedQueue.length}
             </div>
           </div>
         </div>
 
         {/* Data List */}
-        {filteredTriages.length === 0 ? (
+        {combinedQueue.length === 0 ? (
           <EmptyState
             title="Cola de espera vacía"
             description={buscar ? 'No hay pacientes en espera que coincidan con la búsqueda.' : 'No hay pacientes registrados en el triage actualmente.'}
@@ -295,8 +288,11 @@ export default function ColaAtencion() {
               </thead>
               <tbody className="divide-y divide-hairline">
                 <AnimatePresence mode="popLayout">
-                  {filteredTriages.map((t) => {
-                    const colors = NIVEL_COLORS[t.nivel] || { bg: 'bg-surface-dim', border: 'border-hairline', text: 'text-secondary', label: t.nivel, dot: 'bg-secondary' };
+                  {combinedQueue.map((t) => {
+                    const isPending = t.tipoRegistro === 'Pendiente';
+                    const colors = isPending 
+                      ? { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: 'Pendiente Triaje', dot: 'bg-amber-500 animate-pulse' }
+                      : (NIVEL_COLORS[t.nivel] || { bg: 'bg-surface-dim', border: 'border-hairline', text: 'text-secondary', label: t.nivel, dot: 'bg-secondary' });
                     
                     return (
                       <motion.tr
@@ -304,7 +300,7 @@ export default function ColaAtencion() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className={`hover:bg-surface-soft/30 transition-colors group ${t.estado === 'EnAtencion' ? 'bg-accent-teal/5 opacity-80' : ''}`}
+                        className={`hover:bg-surface-soft/30 transition-colors group ${t.estado === 'EnAtencion' ? 'bg-accent-teal/5 opacity-80' : ''} ${isPending ? 'bg-amber-50/10' : ''}`}
                       >
                         <td className="py-sm px-md">
                           <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-caption font-caption font-semibold ${colors.bg} ${colors.text} ${colors.border}`}>
@@ -323,7 +319,12 @@ export default function ColaAtencion() {
                           {t.sintomas || t.motivoConsulta || 'Sin observaciones'}
                         </td>
                         <td className="py-sm px-md">
-                          {t.estado === 'EnAtencion' ? (
+                          {isPending ? (
+                            <div className="flex items-center gap-1 font-body-sm text-amber-700 font-semibold bg-amber-50/60 px-2 py-1 rounded-md border border-amber-200/50 w-fit">
+                              <span className="material-symbols-outlined text-[16px] text-amber-600 animate-pulse">schedule</span>
+                              {getTiempoLlegada(t.fechaCita)}
+                            </div>
+                          ) : t.estado === 'EnAtencion' ? (
                             <span className="font-body-sm text-accent-teal font-semibold">Atendiendo</span>
                           ) : (
                             <div className="flex items-center gap-1 font-body-sm text-ink font-semibold">
@@ -333,11 +334,26 @@ export default function ColaAtencion() {
                           )}
                         </td>
                         <td className="py-sm px-md font-body-sm text-body-strong font-semibold">
-                          {t.consultorio || 'Sin asignar'}
+                          {isPending ? '-' : (t.consultorio || 'Sin asignar')}
                         </td>
                         <td className="py-sm px-md text-right">
                           <div className="flex justify-end gap-sm">
-                            {t.estado === 'EnEspera' ? (
+                            {isPending ? (
+                              <button
+                                onClick={() => navigate('/admin/triage', {
+                                  state: {
+                                    citaId: t.citaId,
+                                    mascotaId: t.mascotaId,
+                                    mascotaNombre: t.mascotaNombre,
+                                    motivo: t.motivoConsulta
+                                  }
+                                })}
+                                className="px-4 py-1.5 bg-[#b06000] hover:bg-[#904e00] text-white font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-bold"
+                              >
+                                <span className="material-symbols-outlined text-sm">edit_note</span>
+                                Hacer Triaje
+                              </button>
+                            ) : t.estado === 'EnEspera' ? (
                               <>
                                 <button
                                   onClick={() => handleMarcarAtendido(t.id!)}
