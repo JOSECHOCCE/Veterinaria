@@ -26,10 +26,10 @@ export default function PublicHeader() {
   };
 
   return (
-    <header className="bg-canvas border-b border-hairline docked full-width top-0 sticky z-50 shadow-sm">
-      <div className="flex justify-between items-center px-6 lg:px-12 py-3 w-full max-w-[1200px] mx-auto">
+    <header className="bg-canvas/80 backdrop-blur-md sticky top-0 w-full z-50 border-b border-hairline/30 shadow-sm">
+      <div className="flex justify-between items-center px-6 lg:px-12 py-4 w-full max-w-[1200px] mx-auto">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-          <span className="material-symbols-outlined text-primary text-[36px] font-bold">pets</span>
+          <span className="material-symbols-outlined text-primary text-[36px] font-bold icon-fill">pets</span>
           <span className="font-display-sm text-[20px] font-bold text-ink tracking-tight">VetCarePro</span>
         </div>
 
@@ -51,7 +51,7 @@ export default function PublicHeader() {
 
         <button
           onClick={handleCtaClick}
-          className="hidden md:block bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-full font-button text-button transition-all duration-300 shadow-md font-bold hover:shadow-lg active:scale-95 cursor-pointer"
+          className="hidden md:block bg-primary text-on-primary hover:bg-primary-active px-6 py-2.5 rounded-full font-button text-button transition-all duration-200 shadow-sm hover:scale-95 cursor-pointer font-bold"
         >
           {isAuthenticated ? 'Ir a mi Panel' : 'Iniciar Sesión'}
         </button>

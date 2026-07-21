@@ -118,16 +118,9 @@ export default function EquipoPublic() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.1 }}
-            className="grid grid-cols-1 md:grid-cols-12 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {vets.map((v, index) => {
-              const nameLower = v.veterinario.nombre.toLowerCase();
-              // Determine card grid settings based on index
-              const mod = index % 4;
-              let cardSize = 'md:col-span-4 flex-col';
-              if (mod === 0) cardSize = 'md:col-span-8 flex-col md:flex-row';
-              else if (mod === 3) cardSize = 'md:col-span-8 flex-col md:flex-row-reverse';
-
+            {vets.map((v) => {
               const img = getVetImage(v.veterinario.nombre);
               const icon = getVetIcon(v.veterinario.especialidad);
               const quote = getVetQuote(v.veterinario.nombre);
@@ -136,39 +129,40 @@ export default function EquipoPublic() {
                 <motion.article 
                   key={v.veterinario.id}
                   variants={cardVariants}
-                  className={`bg-canvas rounded-3xl border border-hairline/70 shadow-sm overflow-hidden flex hover:shadow-lg transition-all duration-300 group ${cardSize}`}
+                  className="bg-white rounded-3xl ambient-shadow overflow-hidden flex flex-col group transition-all duration-500 hover:shadow-lg border border-hairline/60 h-full"
                 >
                   {/* Image box */}
-                  <div className="w-full md:w-1/2 h-64 md:h-auto overflow-hidden relative min-h-[240px]">
+                  <div className="h-[280px] relative overflow-hidden">
                     <img 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       src={img}
                       alt={v.veterinario.nombre}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
 
                   {/* Text box */}
-                  <div className="p-8 flex flex-col justify-center flex-1">
-                    <div className="inline-flex items-center bg-primary/10 text-primary px-3 py-1 rounded-full font-caption text-caption w-fit mb-4 font-bold border border-primary/20">
-                      <span className="material-symbols-outlined text-[16px] mr-1.5 font-bold">{icon}</span>
+                  <div className="p-8 flex flex-col flex-grow bg-white">
+                    <div className="inline-flex items-center bg-[#e6fffa] text-primary px-4 py-2 rounded-full font-bold text-[12px] w-fit mb-4">
+                      <span className="material-symbols-outlined text-[18px] mr-2 icon-fill">{icon}</span>
                       {v.veterinario.especialidad}
                     </div>
-                    <h2 className="font-title-lg text-[22px] text-ink font-bold mb-3 group-hover:text-primary transition-colors duration-300">{v.veterinario.nombre}</h2>
-                    <p className="font-body-md text-body-md text-body-muted italic mb-6 leading-relaxed flex-grow">
+                    <h2 className="text-2xl font-bold text-ink mb-3 group-hover:text-primary transition-colors duration-300">{v.veterinario.nombre}</h2>
+                    <p className="text-base text-body-muted italic leading-relaxed mb-6 flex-grow">
                       {quote}
                     </p>
+                    
                     {(v.veterinario.email || v.veterinario.telefono) && (
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-auto pt-4 border-t border-hairline/60 text-body-muted">
                         {v.veterinario.telefono && (
                           <a href={`tel:${v.veterinario.telefono}`} className="flex items-center gap-1.5 font-caption text-caption text-ink font-bold hover:text-primary transition-colors">
-                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold">call</span>
+                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold icon-fill">call</span>
                             {v.veterinario.telefono}
                           </a>
                         )}
                         {v.veterinario.email && (
                           <a href={`mailto:${v.veterinario.email}`} className="flex items-center gap-1.5 font-caption text-caption text-ink font-bold hover:text-primary transition-colors">
-                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold">mail</span>
+                            <span className="material-symbols-outlined text-[18px] text-secondary font-bold icon-fill">mail</span>
                             {v.veterinario.email}
                           </a>
                         )}
@@ -182,18 +176,18 @@ export default function EquipoPublic() {
         )}
 
         {/* Recruitment CTA */}
-        <section className="bg-surface-soft/40 rounded-3xl p-8 md:p-12 mt-8 flex flex-col md:flex-row items-center justify-between gap-8 border border-hairline/60 shadow-sm">
+        <section className="bg-surface-soft/60 rounded-3xl p-10 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 border border-hairline/60 shadow-lg">
           <div className="md:w-2/3">
-            <h3 className="font-title-lg text-[24px] text-ink font-bold mb-3 flex items-center gap-2">
-              <span className="material-symbols-outlined text-primary text-[28px] font-bold">work</span>
+            <h3 className="text-[32px] leading-10 font-bold text-ink mb-4 flex items-center gap-3">
+              <span className="material-symbols-outlined text-primary text-[32px] icon-fill">work</span>
               Únete a Nosotros
             </h3>
-            <p className="font-body-md text-body-md text-body-muted leading-relaxed">
+            <p className="text-lg text-body-muted leading-relaxed">
               ¿Compartes nuestra pasión por el cuidado animal y la excelencia médica? Estamos siempre en la búsqueda de talento excepcional para sumar a nuestra familia. Ofrecemos un entorno de trabajo colaborativo, tecnología de punta y oportunidades de crecimiento continuo.
             </p>
           </div>
           <div className="md:w-1/3 flex justify-end w-full">
-            <button className="w-full md:w-auto bg-primary hover:bg-primary-active text-on-primary font-bold py-3 px-8 rounded-full font-button text-button transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 whitespace-nowrap cursor-pointer">
+            <button className="w-full md:w-auto bg-primary hover:bg-primary-active text-on-primary font-bold py-3 px-8 rounded-full font-button text-button transition-all duration-200 shadow-md hover:scale-95 active:scale-95 whitespace-nowrap cursor-pointer">
               Ver Vacantes
             </button>
           </div>

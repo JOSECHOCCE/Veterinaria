@@ -314,3 +314,9 @@ html, body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Soft Ambient Shadow for Cards Level 1 */
+.ambient-shadow {
+  box-shadow: 0px 4px 20px rgba(26, 83, 92, 0.05);
+}
+
