@@ -19,9 +19,9 @@ public class DashboardController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<Response<object>>> Index()
+    public async Task<ActionResult<Response<object>>> Index([FromQuery] string periodo = "mes")
     {
-        var dto = await _dashboardService.GetDashboardDataAsync();
+        var dto = await _dashboardService.GetDashboardDataAsync(periodo);
 
         var viewModel = new DashboardViewModel
         {

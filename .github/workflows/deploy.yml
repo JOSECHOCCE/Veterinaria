@@ -3,6 +3,8 @@ name: VetCare Pro - CI/CD pipeline
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 permissions:
   contents: read
@@ -45,7 +47,12 @@ jobs:
     - name: Install Dependencies
       run: |
         cd src/Frontend
-        npm install
+        npm ci
+
+    - name: Run Linter
+      run: |
+        cd src/Frontend
+        npm run lint
 
     - name: Build Frontend
       run: |
@@ -60,6 +67,7 @@ jobs:
 
   deploy-to-aws:
     name: Build Docker & Push to Amazon ECR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [test-backend, build-frontend]
     runs-on: ubuntu-latest
 
@@ -88,11 +96,12 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.AWS_ECR_REPOSITORY_NAME }}
-        IMAGE_TAG: latest
+        COMMIT_SHA: ${{ github.sha }}
       run: |
         cd src/Backend
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -t $ECR_REGISTRY/$ECR_REPOSITORY:sha-$COMMIT_SHA .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:sha-$COMMIT_SHA
 
     - name: Trigger AWS App Runner Deployment (Fallback if auto-deploy is disabled)
       run: |

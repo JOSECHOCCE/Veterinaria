@@ -15,6 +15,7 @@ export default function Sidebar() {
 
   if (user?.role === 'Admin') {
     menuItems = [
+      { name: 'Panel de Control', icon: 'dashboard', path: '/admin/dashboard' },
       { name: 'Agenda Operativa', icon: 'calendar', path: '/admin/agenda' },
       { name: 'Cola de Atención', icon: 'queue', path: '/admin/cola' },
       { name: 'Directorio Clientes', icon: 'person', path: '/admin/clientes' },
@@ -58,11 +59,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* CTA Nueva Cita */}
-        <button className="w-full bg-primary text-on-primary rounded-lg h-12 flex items-center justify-center gap-2 mb-4 hover:bg-surface-tint transition-colors cursor-pointer border-none shadow-sm shrink-0">
-          <span className="material-symbols-outlined">add</span>
-          <span className="font-label-md text-label-md">Nueva Cita</span>
-        </button>
 
         {/* Navigation Tabs */}
         <nav className="flex flex-col gap-1">

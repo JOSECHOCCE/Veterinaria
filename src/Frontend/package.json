@@ -1,7 +1,7 @@
 {
-  "name": "frontend",
+  "name": "vetcare-pro",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -18,6 +18,7 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1",
+    "recharts": "^3.10.1",
     "sonner": "^2.0.7",
     "tailwindcss": "^4.3.0"
   },

@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  database:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: vetcare_sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD:-VetCarePass2026!}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - vetcare_sql_data:/var/opt/mssql/data
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $${SA_PASSWORD:-VetCarePass2026!} -Q 'SELECT 1' -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./src/Backend
+      dockerfile: Dockerfile
+    container_name: vetcare_backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__VeterinariaDb=Server=database;Database=VeterinariaDb;User Id=sa;Password=${SA_PASSWORD:-VetCarePass2026!};TrustServerCertificate=True
+      - Jwt__Key=${JWT_KEY:-DevOnlySecretKey_ForLocalDevelopment_MinLength32Chars!}
+      - Jwt__Issuer=VeterinariaAPI
+      - Jwt__Audience=VeterinariaApp
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+volumes:
+  vetcare_sql_data:

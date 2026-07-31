@@ -62,8 +62,8 @@ export const dashboardService = {
   /**
    * Obtiene la información del Dashboard administrativo y operativo
    */
-  getDashboardData: async () => {
-    const response = await api.get('/api/Dashboard');
+  getDashboardData: async (periodo: 'hoy' | 'semana' | 'mes' = 'mes') => {
+    const response = await api.get('/api/Dashboard', { params: { periodo } });
     return response.data; // { success: true, data: DashboardViewModelDto }
   }
 };

@@ -4,5 +4,5 @@ namespace Veterinaria.Application.Interfaces;
 
 public interface IDashboardService
 {
-    Task<DashboardDto> GetDashboardDataAsync();
+    Task<DashboardDto> GetDashboardDataAsync(string periodo = "mes");
 }

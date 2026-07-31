@@ -56,8 +56,8 @@ public class DashboardServiceTests
         var c3 = new Cita { Id = 3, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(11), Estado = "Completada", MontoTotal = 50m, MontoPagado = 0m, EstadoPago = "Pendiente" };
         var c4 = new Cita { Id = 4, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(12), Estado = "Cancelada", MontoTotal = 50m, MontoPagado = 0m, EstadoPago = "Pendiente" };
 
-        // Cita futura
-        var cFutura = new Cita { Id = 5, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddDays(2).AddHours(14), Estado = "Confirmada" };
+        // Cita futura (mismo mes)
+        var cFutura = new Cita { Id = 5, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(5), Estado = "Confirmada" };
 
         // Pago
         var pago = new Pago { Id = 1, CitaId = 2, Monto = 50m, MetodoPago = "Tarjeta", FechaPago = hoy };

@@ -1,0 +1,156 @@
+{
+  "version": "0.1.0",
+  "exported_at": "2026-07-31 00:22:35",
+  "sessions": [
+    {
+      "id": "manual-save-Veterinaria",
+      "project": "veterinaria",
+      "directory": "C:\\Users\\yaran\\Documents\\antigravity\\Veterinaria",
+      "started_at": "2026-07-28 05:56:02"
+    },
+    {
+      "id": "manual-save-OPENSPECT",
+      "project": "openspect",
+      "directory": "C:\\Users\\yaran\\Documents\\antigravity\\OPENSPECT",
+      "started_at": "2026-07-28 06:00:16"
+    },
+    {
+      "id": "manual-save-JOSECHOCCE/Veterinaria",
+      "project": "josechocce/veterinaria",
+      "directory": "C:\\Users\\yaran\\Documents\\antigravity\\Veterinaria",
+      "started_at": "2026-07-31 00:06:08"
+    },
+    {
+      "id": "manual-save-veterinaria",
+      "project": "veterinaria",
+      "directory": "C:\\Users\\yaran\\Documents\\antigravity\\Veterinaria",
+      "started_at": "2026-07-31 00:09:53"
+    }
+  ],
+  "observations": [
+    {
+      "id": 1,
+      "sync_id": "obs-bf1b184fc8a194ab",
+      "session_id": "manual-save-Veterinaria",
+      "type": "manual",
+      "title": "Configured Gentle-AI and Engram for Antigravity",
+      "content": "What: Configured Gentle-AI ecosystem with Antigravity CLI and verified Engram v1.20.0 setup. Why: Workspace setup and memory initialization. Where: C:\\Users\\yaran\\Documents\\antigravity\\Veterinaria",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-28 05:56:02",
+      "created_at": "2026-07-28 05:56:02",
+      "updated_at": "2026-07-28 05:56:02"
+    },
+    {
+      "id": 2,
+      "sync_id": "obs-a87546faabc1fe1b",
+      "session_id": "manual-save-OPENSPECT",
+      "type": "decision",
+      "title": "Decided modular implementation strategy for veterinary system",
+      "content": "Decided to implement the veterinary management system module by module (Modulo 1: Auth -\u003e Modulo 2: Clientes -\u003e Modulo 3: Mascotas -\u003e Modulo 4: Servicios -\u003e Modulo 5: Agenda/Citas -\u003e Modulo 6: Atencion Clinica -\u003e Modulo 7: Pagos -\u003e Modulos 8-10) based on entity dependency chain.",
+      "project": "openspect",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-28 06:00:16",
+      "review_after": "2027-01-28 06:00:16",
+      "created_at": "2026-07-28 06:00:16",
+      "updated_at": "2026-07-28 06:00:16"
+    },
+    {
+      "id": 3,
+      "sync_id": "obs-8199203697195edb",
+      "session_id": "manual-save-Veterinaria",
+      "type": "architecture",
+      "title": "Dashboard POS Architecture \u0026 Period Filters Implementation",
+      "content": "What: Complete commercial POS/Veterinary dashboard redesign and time period filtering implementation for Veterinaria project. Where: src/Frontend/src/views/Dashboard/Dashboard.tsx, src/Frontend/src/components/dashboard/ (KpiCard.tsx, SalesTrendChart.tsx, CategoryDistributionChart.tsx, LowStockAlertBanner.tsx, TopServicesBarChart.tsx, RevenueByServiceChart.tsx, VetRankingTable.tsx, SpeciesDistributionChart.tsx), src/Backend/Veterinaria.Application/Services/DashboardService.cs, src/Backend/Veterinaria.Web/Controllers/DashboardController.cs. Stack: React 19 + Recharts + TailwindCSS v4 + .NET 10 Web API. Learned: Time period parameter 'periodo' ('hoy' | 'semana' | 'mes') was added to [FromQuery] string periodo in DashboardController and IDashboardService to calculate dynamic ranges in EF Core queries. Frontend Sidebar was also updated to add Panel de Control to Admin role and remove CTA button.",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-30 23:42:25",
+      "created_at": "2026-07-30 23:42:25",
+      "updated_at": "2026-07-30 23:42:25"
+    },
+    {
+      "id": 6,
+      "sync_id": "obs-341efaae35a7aef2",
+      "session_id": "manual-save-veterinaria",
+      "type": "decision",
+      "title": "Prioridades de Desarrollo y Lógica de Negocio Veterinaria",
+      "content": "Se estableció la hoja de ruta estratégica para VetCare Pro: 1) Prioridad 1: Corregir y pulir la lógica de negocio real de la veterinaria (flujo Citas -\u003e Triage/SOAP -\u003e Receta -\u003e Cobro/Pagos -\u003e Historial Clínico) y eliminar errores actuales. 2) Prioridad 2: Implementar el módulo de Inventario/Botica con base de datos real (Kardex, stock, lotes, vencimientos y ventas). 3) Prioridad 3: Automatizaciones de notificaciones en Backend .NET (sin n8n), Facturación Electrónica y Multi-tenancy. El modo de trabajo preferido es híbrido (OpenSpec + Engram).",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 2,
+      "last_seen_at": "2026-07-31 00:10:59",
+      "review_after": "2027-01-31 00:09:53",
+      "created_at": "2026-07-31 00:09:53",
+      "updated_at": "2026-07-31 00:10:59"
+    },
+    {
+      "id": 7,
+      "sync_id": "obs-2bc7247ed1e25f13",
+      "session_id": "manual-save-veterinaria",
+      "type": "preference",
+      "title": "Preferencia de Trabajo Gentle-AI Hibrido OpenSpec y Engram",
+      "content": "El usuario prefiere trabajar en modo Híbrido OpenSpec + Engram. Al ejecutar ssd-init o iniciar una nueva tarea, se debe consultar/confirmar explícitamente el modo de trabajo (Iterativo o SDD) y dónde persistir los artefactos.",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 2,
+      "last_seen_at": "2026-07-31 00:11:05",
+      "review_after": "2026-10-31 00:09:57",
+      "created_at": "2026-07-31 00:09:57",
+      "updated_at": "2026-07-31 00:11:05"
+    },
+    {
+      "id": 8,
+      "sync_id": "obs-43a3d79af91813ad",
+      "session_id": "manual-save-veterinaria",
+      "type": "architecture",
+      "title": "sdd-init/veterinaria",
+      "content": "# SDD Initialization Context (Veterinaria)\n\n- Stack: C# .NET 10 (Clean Architecture) + React 19 + TypeScript + Vite + TailwindCSS v4\n- Persistence Mode: hybrid (OpenSpec markdown files + Engram SQLite DB)\n- Strict TDD Mode: true\n- Database: SQL Server / PostgreSQL (Dockerized)\n- Target Domain: Veterinary Clinical \u0026 POS System (VetCare Pro)",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-31 00:15:17",
+      "created_at": "2026-07-31 00:15:17",
+      "updated_at": "2026-07-31 00:15:17"
+    },
+    {
+      "id": 9,
+      "sync_id": "obs-cc1ce9cc720116e6",
+      "session_id": "manual-save-veterinaria",
+      "type": "config",
+      "title": "sdd/veterinaria/testing-capabilities",
+      "content": "## Testing Capabilities\n\n**Strict TDD Mode**: enabled\n**Detected**: 2026-07-30\n\n### Test Runner\n- Command: dotnet test\n- Framework: xUnit (18 unit test suites in Veterinaria.Tests)\n\n### Test Layers\n| Layer | Available | Tool |\n|---|---|---|\n| Unit | ✅ | xUnit / Moq |\n| Integration | ✅ | WebApplicationFactory |\n| E2E | ✅ | Playwright (@playwright/test) |\n\n### Coverage\n- Available: ✅ (coverlet)\n\n### Quality Tools\n| Tool | Available | Command |\n|---|---|---|\n| Linter | ✅ | npm run lint |\n| Type checker | ✅ | npx tsc -b |\n| Formatter | ✅ | dotnet format |",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-31 00:15:26",
+      "created_at": "2026-07-31 00:15:26",
+      "updated_at": "2026-07-31 00:15:26"
+    },
+    {
+      "id": 10,
+      "sync_id": "obs-931c2531c7b87aa5",
+      "session_id": "manual-save-veterinaria",
+      "type": "config",
+      "title": "skill-registry",
+      "content": "Skill Registry Index for Veterinaria: sdd-init, sdd-explore, sdd-propose, sdd-spec, sdd-design, sdd-tasks, sdd-apply, sdd-verify, sdd-archive, sdd-onboard, go-testing, skill-creator, skill-improver, branch-pr, issue-creation, chained-pr, cognitive-doc-design, comment-writer, work-unit-commits. Registry file: .atl/skill-registry.md",
+      "project": "veterinaria",
+      "scope": "project",
+      "revision_count": 1,
+      "duplicate_count": 1,
+      "last_seen_at": "2026-07-31 00:15:30",
+      "created_at": "2026-07-31 00:15:30",
+      "updated_at": "2026-07-31 00:15:30"
+    }
+  ],
+  "prompts": null
+}

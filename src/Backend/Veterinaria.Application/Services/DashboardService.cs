@@ -14,7 +14,7 @@ public class DashboardService : IDashboardService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<DashboardDto> GetDashboardDataAsync()
+    public async Task<DashboardDto> GetDashboardDataAsync(string periodo = "mes")
     {
         var hoy = DateTime.Today;
         var inicioSemana = hoy.AddDays(-(int)hoy.DayOfWeek + (int)DayOfWeek.Monday);
@@ -24,6 +24,28 @@ public class DashboardService : IDashboardService
         var inicioMes = new DateTime(hoy.Year, hoy.Month, 1);
         var finMes = inicioMes.AddMonths(1).AddDays(-1);
         var proximosTresDias = hoy.AddDays(3);
+
+        // Definir rango para analíticas según parámetro `periodo`
+        DateTime inicioRango;
+        DateTime finRango;
+
+        switch (periodo?.ToLower())
+        {
+            case "hoy":
+                inicioRango = hoy;
+                finRango = hoy;
+                break;
+            case "semana":
+            case "7dias":
+                inicioRango = hoy.AddDays(-6);
+                finRango = hoy;
+                break;
+            case "mes":
+            default:
+                inicioRango = inicioMes;
+                finRango = finMes;
+                break;
+        }
 
         var dto = new DashboardDto();
 
@@ -48,10 +70,10 @@ public class DashboardService : IDashboardService
         dto.CitasSemanaCompletadas = citasSemana.Count(c => c.Estado == "Completada");
         dto.CitasSemanaPendientes = citasSemana.Count(c => c.Estado == "Pendiente" || c.Estado == "Confirmada");
 
-        // 3. Servicios más solicitados (top 5) - del mes actual
+        // 3. Servicios más solicitados (top 5) - del rango seleccionado
         var serviciosMasSolicitados = await _unitOfWork.Citas.GetAll()
             .Include(c => c.Servicio)
-            .Where(c => c.FechaHora.Date >= inicioMes && c.FechaHora.Date <= finMes)
+            .Where(c => c.FechaHora.Date >= inicioRango && c.FechaHora.Date <= finRango)
             .Where(c => c.Estado != "Cancelada")
             .GroupBy(c => new { c.ServicioId, c.Servicio.Nombre, c.Servicio.Precio })
             .Select(g => new ServicioEstadisticaDto
@@ -66,19 +88,18 @@ public class DashboardService : IDashboardService
 
         dto.ServiciosMasSolicitados = serviciosMasSolicitados;
 
-        // 4. Ingresos del mes
+        // 4. Ingresos del rango seleccionado
         var pagosMes = await _unitOfWork.Pagos.GetAll()
-            .Where(p => p.FechaPago.Month == hoy.Month && 
-                   p.FechaPago.Year == hoy.Year)
+            .Where(p => p.FechaPago.Date >= inicioRango && p.FechaPago.Date <= finRango)
             .ToListAsync();
 
         dto.IngresosMes = pagosMes.Sum(p => p.Monto);
         dto.PagosConfirmadosMes = pagosMes.Count;
 
-        // 5. Veterinarios más ocupados
+        // 5. Veterinarios más ocupados en el rango
         var veterinariosOcupados = await _unitOfWork.Citas.GetAll()
             .Include(c => c.Veterinario)
-            .Where(c => c.FechaHora.Date >= inicioMes && c.FechaHora.Date <= finMes)
+            .Where(c => c.FechaHora.Date >= inicioRango && c.FechaHora.Date <= finRango)
             .Where(c => c.Estado != "Cancelada")
             .GroupBy(c => new { c.VeterinarioId, c.Veterinario.Nombre, c.Veterinario.Especialidad })
             .Select(g => new
@@ -92,7 +113,7 @@ public class DashboardService : IDashboardService
             .Take(5)
             .ToListAsync();
 
-        // Calcular citas de la semana para cada veterinario
+        // Citas de la semana para cada veterinario
         var citasSemanaVets = await _unitOfWork.Citas.GetAll()
             .Where(c => c.FechaHora.Date >= inicioSemana && c.FechaHora.Date <= finSemana)
             .Where(c => c.Estado != "Cancelada")
@@ -108,10 +129,10 @@ public class DashboardService : IDashboardService
             CitasSemana = citasSemanaVets.FirstOrDefault(cs => cs.VeterinarioId == v.VeterinarioId)?.CitasSemana ?? 0
         }).ToList();
 
-        // 6. Mascotas atendidas por especie (del mes)
+        // 6. Mascotas atendidas por especie (del rango)
         var mascotasPorEspecie = await _unitOfWork.Citas.GetAll()
             .Include(c => c.Mascota)
-            .Where(c => c.FechaHora.Date >= inicioMes && c.FechaHora.Date <= finMes)
+            .Where(c => c.FechaHora.Date >= inicioRango && c.FechaHora.Date <= finRango)
             .Where(c => c.Estado == "Completada")
             .GroupBy(c => c.Mascota.Especie)
             .Select(g => new EspecieEstadisticaDto

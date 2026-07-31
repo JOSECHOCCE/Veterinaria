@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -103,6 +104,20 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<VeterinariaDbContext>()
 .AddDefaultTokenProviders();
 
+// Obtener clave JWT desde configuración o variable de entorno (Jwt__Key)
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        jwtKey = "DevOnlySecretKey_ForLocalDevelopment_MinLength32Chars!";
+    }
+    else
+    {
+        throw new InvalidOperationException("La clave secreta JWT ('Jwt:Key' o la variable de entorno 'Jwt__Key') no ha sido configurada.");
+    }
+}
+
 // Configurar Autenticación JWT en lugar de cookies
 builder.Services.AddAuthentication(options =>
 {
@@ -119,7 +134,7 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "SuperSecretKeyForVeterinariaApp2026!AwesomeKeyWithLength32"))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
     };
 
     // Permitir que SignalR autentique usando access_token del query string
@@ -181,6 +196,14 @@ builder.Services.AddHostedService<CitaStatusService>();
 // Agregar Razor Pages para Identity
 // builder.Services.AddRazorPages();
 
+// Configurar Forwarded Headers para proxies / AWS App Runner
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 var app = builder.Build();
 
 // Seed de datos iniciales (roles, usuarios, veterinarios, servicios, mascotas)
@@ -211,6 +234,8 @@ catch (Exception ex)
     Console.WriteLine("==========================================================================");
 }
 
+app.UseForwardedHeaders();
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
@@ -219,7 +244,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-// app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 // Servir el frontend compilado (Vite build) desde wwwroot
 app.UseDefaultFiles();
