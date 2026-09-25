@@ -57,8 +57,15 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Configurar CORS para el frontend en React
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
-                     ?? new string[] { "http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000" };
+var rawOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+                 ?? new string[] { "http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000" };
+
+var allowedOrigins = rawOrigins
+    .SelectMany(o => o.StartsWith("http", StringComparison.OrdinalIgnoreCase) 
+        ? new[] { o } 
+        : new[] { $"https://{o}", $"http://{o}" })
+    .Distinct()
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {

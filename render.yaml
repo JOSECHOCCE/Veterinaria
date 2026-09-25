@@ -30,15 +30,16 @@ services:
         value: https://vetcare-api.onrender.com
       - key: Cors__AllowedOrigins__0
         fromService:
-          type: static
+          type: web
           name: vetcare-frontend
-          property: url
+          property: host
 
   # -------------------------------------------------------------
   # 2. Frontend Web Client (React 19 + Vite Static Site)
   # -------------------------------------------------------------
-  - type: static
+  - type: web
     name: vetcare-frontend
+    runtime: static
     rootDir: src/Frontend
     buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
@@ -49,7 +50,7 @@ services:
         fromService:
           type: web
           name: vetcare-api
-          property: url
+          property: host
     routes:
       # Regla para Single Page Application (SPA / React Router)
       - type: rewrite
