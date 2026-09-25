@@ -311,25 +311,69 @@ static string ParsePostgreSqlConnectionString(string? connectionString)
     if (string.IsNullOrWhiteSpace(connectionString))
         return string.Empty;
 
+    connectionString = connectionString.Trim().Trim('"', '\'');
+
+    // Si ya viene en formato estándar ADO.NET (Host=... o Server=...)
+    if (connectionString.Contains("Host=", StringComparison.OrdinalIgnoreCase) ||
+        connectionString.Contains("Server=", StringComparison.OrdinalIgnoreCase))
+    {
+        if (!connectionString.Contains("SSL Mode=", StringComparison.OrdinalIgnoreCase))
+        {
+            connectionString = connectionString.TrimEnd(';') + ";SSL Mode=Require;Trust Server Certificate=true;";
+        }
+        return connectionString;
+    }
+
+    // Si viene en formato URI (postgres:// o postgresql://)
     if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
         connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
     {
         try
         {
-            var uri = new Uri(connectionString);
-            var userInfo = uri.UserInfo.Split(':');
-            var username = Uri.UnescapeDataString(userInfo[0]);
-            var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
-            var host = uri.Host;
-            var port = uri.Port > 0 ? uri.Port : 5432;
-            var database = uri.AbsolutePath.TrimStart('/');
+            var schemeEnd = connectionString.IndexOf("://", StringComparison.Ordinal);
+            var withoutScheme = connectionString.Substring(schemeEnd + 3);
 
-            // Supabase y servicios cloud en Render requieren SSL Mode=Require
-            return $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+            // Separar credenciales de host/db usando el último '@' antes de la primera '/'
+            var slashIndex = withoutScheme.IndexOf('/');
+            var atIndex = slashIndex >= 0 
+                ? withoutScheme.LastIndexOf('@', slashIndex) 
+                : withoutScheme.LastIndexOf('@');
+
+            if (atIndex > 0)
+            {
+                var userInfo = withoutScheme.Substring(0, atIndex);
+                var hostAndRest = withoutScheme.Substring(atIndex + 1);
+
+                var userColon = userInfo.IndexOf(':');
+                var username = userColon >= 0 ? userInfo.Substring(0, userColon) : userInfo;
+                var password = userColon >= 0 ? userInfo.Substring(userColon + 1) : "";
+
+                string hostPort;
+                string database = "postgres";
+
+                var restSlash = hostAndRest.IndexOf('/');
+                if (restSlash >= 0)
+                {
+                    hostPort = hostAndRest.Substring(0, restSlash);
+                    var dbPart = hostAndRest.Substring(restSlash + 1);
+                    var questionIndex = dbPart.IndexOf('?');
+                    database = questionIndex >= 0 ? dbPart.Substring(0, questionIndex) : dbPart;
+                }
+                else
+                {
+                    hostPort = hostAndRest;
+                }
+
+                var portColon = hostPort.IndexOf(':');
+                var host = portColon >= 0 ? hostPort.Substring(0, portColon) : hostPort;
+                var port = portColon >= 0 ? hostPort.Substring(portColon + 1) : "5432";
+
+                return $"Host={host};Port={port};Database={database};Username={Uri.UnescapeDataString(username)};Password={Uri.UnescapeDataString(password)};SSL Mode=Require;Trust Server Certificate=true;";
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            return connectionString;
+            Console.WriteLine($"Error parseando URI postgres: {ex.Message}");
         }
     }
 
