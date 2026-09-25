@@ -130,9 +130,9 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="flex-grow w-full max-w-7xl mx-auto flex flex-col gap-8 pb-12 select-none animate-fadeIn">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-5 pb-12 select-none animate-fadeIn">
       {/* Top Banner & Action Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-xs">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-white p-5 rounded-2xl border border-slate-100 shadow-xs">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-xl">🌤️</span>

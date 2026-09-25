@@ -11,6 +11,8 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Veterinaria.Domain.Contracts;
 
 namespace Veterinaria.Web.Controllers;
 
@@ -32,17 +34,20 @@ public class CitasController : ControllerBase
     private readonly ICitaService _citaService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly INotificacionService _notificacionService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CitasController(
         IMapper mapper,
         ICitaService citaService,
         UserManager<ApplicationUser> userManager,
-        INotificacionService notificacionService)
+        INotificacionService notificacionService,
+        IUnitOfWork unitOfWork)
     {
         _mapper = mapper;
         _citaService = citaService;
         _userManager = userManager;
         _notificacionService = notificacionService;
+        _unitOfWork = unitOfWork;
     }
 
     private bool IsAdmin() => User.IsInRole("Admin");
@@ -242,8 +247,48 @@ public class CitasController : ControllerBase
         if (result.Cita != null)
         {
             await _notificacionService.NotificarCitaCanceladaAsync(result.Cita);
+
+            // Sprint 2 (RF-009): Notify waitlist candidate if one was marked as Notificada
+            try
+            {
+                var fechaCita = result.Cita.FechaHora.Date;
+                var entradaNotificada = await _unitOfWork.ListaEsperas.GetAll()
+                    .Where(le => le.ServicioId == result.Cita.ServicioId
+                              && le.Estado == "Notificada"
+                              && le.FechaDeseada <= fechaCita
+                              && le.FechaDeseadaFin >= fechaCita)
+                    .OrderByDescending(le => le.FechaNotificacion)
+                    .FirstOrDefaultAsync();
+
+                if (entradaNotificada != null)
+                {
+                    await _notificacionService.NotificarListaEsperaDisponibleAsync(entradaNotificada, result.Cita);
+                }
+            }
+            catch
+            {
+                // Waitlist notification is a best-effort side-effect
+            }
         }
 
         return Ok(Response<object>.Ok("Cita cancelada."));
+    }
+
+    [HttpPost("{id}/check-in")]
+    public async Task<ActionResult<Response<object>>> CheckIn(int id)
+    {
+        try
+        {
+            var cita = await _citaService.CheckInCitaAsync(id);
+            return Ok(Response<object>.Ok(new { citaId = cita.Id, estado = cita.Estado }, "Check-in realizado correctamente."));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(Response<object>.Fail(ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(Response<object>.Fail(ex.Message));
+        }
     }
 }

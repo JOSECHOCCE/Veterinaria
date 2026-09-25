@@ -1,27 +1,26 @@
 using DotNet.Testcontainers.Builders;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Respawn;
-using Testcontainers.MsSql;
+using Testcontainers.PostgreSql;
 using Veterinaria.Infrastructure.Persistence;
 
 namespace Veterinaria.Tests.Integration.Fixtures;
 
 /// <summary>
-/// Factory personalizada que levanta un contenedor Docker con SQL Server
+/// Factory personalizada que levanta un contenedor Docker con PostgreSQL
 /// usando Testcontainers. Reemplaza el connection string de producción
 /// por el del contenedor temporal para las pruebas de integración.
 /// Integra Respawn para limpiar datos entre tests sin recrear la BD.
 /// </summary>
 public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private readonly MsSqlContainer _msSqlContainer = new MsSqlBuilder()
-        .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
+    private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder()
+        .WithImage("postgres:16-alpine")
         .WithPassword("TestP@ssw0rd!")
-        .WithWaitStrategy(Wait.ForUnixContainer().UntilPortIsAvailable(1433))
         .Build();
 
     /// <summary>
@@ -41,12 +40,12 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
 
     /// <summary>
     /// Se ejecuta ANTES de cualquier test.
-    /// Arranca el contenedor Docker con SQL Server.
+    /// Arranca el contenedor Docker con PostgreSQL.
     /// </summary>
     public async Task InitializeAsync()
     {
-        await _msSqlContainer.StartAsync();
-        ConnectionString = _msSqlContainer.GetConnectionString();
+        await _postgreSqlContainer.StartAsync();
+        ConnectionString = _postgreSqlContainer.GetConnectionString();
     }
 
     /// <summary>
@@ -55,7 +54,7 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
     /// </summary>
     public new async Task DisposeAsync()
     {
-        await _msSqlContainer.StopAsync();
+        await _postgreSqlContainer.StopAsync();
         await base.DisposeAsync();
     }
 
@@ -65,12 +64,12 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
     /// </summary>
     public async Task InitializeRespawnerAsync()
     {
-        await using var connection = new SqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
         await connection.OpenAsync();
 
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
-            DbAdapter = DbAdapter.SqlServer,
+            DbAdapter = DbAdapter.Postgres,
             // Preservar las tablas de Identity que contienen roles y configuración base.
             // También preservar __EFMigrationsHistory para que EF Core no se confunda.
             TablesToIgnore = new Respawn.Graph.Table[]
@@ -78,8 +77,8 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
                 "__EFMigrationsHistory",
                 "AspNetRoles"
             },
-            // Incluir todos los schemas
-            SchemasToInclude = new[] { "dbo" }
+            // Incluir esquema de PostgreSQL
+            SchemasToInclude = new[] { "public" }
         });
     }
 
@@ -89,7 +88,7 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
     /// </summary>
     public async Task ResetDatabaseAsync()
     {
-        await using var connection = new SqlConnection(ConnectionString);
+        await using var connection = new NpgsqlConnection(ConnectionString);
         await connection.OpenAsync();
         await _respawner.ResetAsync(connection);
     }
@@ -98,7 +97,7 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
     {
         builder.ConfigureServices(services =>
         {
-            // Remover el DbContext original que apunta a SQL Server local
+            // Remover el DbContext original
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<VeterinariaDbContext>));
 
@@ -116,10 +115,10 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
                 services.Remove(factoryDescriptor);
             }
 
-            // Registrar el DbContext apuntando al SQL Server del contenedor Docker
+            // Registrar el DbContext apuntando al PostgreSQL del contenedor Docker
             services.AddDbContext<VeterinariaDbContext>(options =>
             {
-                options.UseSqlServer(_msSqlContainer.GetConnectionString());
+                options.UseNpgsql(_postgreSqlContainer.GetConnectionString());
             });
 
             // Construir el service provider para aplicar migraciones
@@ -129,7 +128,6 @@ public class VeterinariaWebApplicationFactory : WebApplicationFactory<Program>, 
             var context = scope.ServiceProvider.GetRequiredService<VeterinariaDbContext>();
 
             // Crear todas las tablas basándose en el modelo de EF Core
-            // (equivalente a aplicar todas las migraciones)
             context.Database.EnsureCreated();
         });
 

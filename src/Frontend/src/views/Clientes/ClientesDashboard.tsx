@@ -104,7 +104,7 @@ export default function ClientesDashboard() {
   const totalPages = Math.ceil(totalItems / limit) || 1;
 
   return (
-    <div className="flex-1 flex flex-col min-w-0 p-6 md:pt-4 md:px-10 md:pb-10">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-6 pb-12 select-none animate-fadeIn">
       {/* Section Header */}
       <PageHeader
         title="Directorio de Clientes"

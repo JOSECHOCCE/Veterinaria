@@ -25,6 +25,9 @@ public interface INotificacionService
     Task NotificarNuevaCitaSolicitadaAsync(Cita cita);
     Task NotificarProximoControlAsync(HistorialClinico atencion);
     
+    // Lista de espera (Sprint 2, RF-009)
+    Task NotificarListaEsperaDisponibleAsync(ListaEspera entry, Cita citaCancelada);
+    
     // Procesamiento diario de alertas (Cron job / Manual trigger)
     Task ProcesarAlertasDiariasAsync();
 }

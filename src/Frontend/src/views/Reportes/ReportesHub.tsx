@@ -21,7 +21,7 @@ export default function ReportesHub() {
   }, [user, activeTab, isAdmin]);
 
   return (
-    <div className="flex-1 w-full max-w-6xl mx-auto flex flex-col gap-8 pb-12 select-none">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-6 pb-12 select-none animate-fadeIn">
       
       {/* Page Header */}
       <PageHeader

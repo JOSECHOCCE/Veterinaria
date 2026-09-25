@@ -56,8 +56,9 @@ public class DashboardServiceTests
         var c3 = new Cita { Id = 3, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(11), Estado = "Completada", MontoTotal = 50m, MontoPagado = 0m, EstadoPago = "Pendiente" };
         var c4 = new Cita { Id = 4, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(12), Estado = "Cancelada", MontoTotal = 50m, MontoPagado = 0m, EstadoPago = "Pendiente" };
 
-        // Cita futura (mismo mes)
-        var cFutura = new Cita { Id = 5, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = hoy.AddHours(5), Estado = "Confirmada" };
+        // Cita futura (si es fin de mes, se programa más tarde el mismo día para permanecer en el mismo mes)
+        bool esFinDeMes = hoy.AddDays(1).Month != hoy.Month;
+        var cFutura = new Cita { Id = 5, MascotaId = 1, ServicioId = 1, VeterinarioId = 1, FechaHora = esFinDeMes ? hoy.AddHours(14) : hoy.AddDays(1).AddHours(14), Estado = "Confirmada" };
 
         // Pago
         var pago = new Pago { Id = 1, CitaId = 2, Monto = 50m, MetodoPago = "Tarjeta", FechaPago = hoy };
@@ -75,9 +76,9 @@ public class DashboardServiceTests
         var result = await _sut.GetDashboardDataAsync();
 
         // Assert
-        Assert.AreEqual(4, result.CitasHoyTotal);
+        Assert.AreEqual(esFinDeMes ? 5 : 4, result.CitasHoyTotal);
         Assert.AreEqual(1, result.CitasHoyPendientes);
-        Assert.AreEqual(1, result.CitasHoyConfirmadas);
+        Assert.AreEqual(esFinDeMes ? 2 : 1, result.CitasHoyConfirmadas);
         Assert.AreEqual(1, result.CitasHoyCompletadas);
         Assert.AreEqual(1, result.CitasHoyCanceladas);
 

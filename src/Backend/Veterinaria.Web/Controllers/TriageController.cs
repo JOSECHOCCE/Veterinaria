@@ -53,8 +53,9 @@ public class TriageController : ControllerBase
             fechaRegistro = t.FechaRegistro.ToString("yyyy-MM-ddTHH:mm:ss")
         }).ToList();
 
-        // Obtener todas las citas en estado EnEspera (En Sala) sin restricciones de fecha
-        var queryCitasEnSala = _citaService.GetCitasQuery(true, null, "EnEspera", null, null, null);
+        // Obtener todas las citas en estado EnSalaDeEspera o EnEspera (En Sala) sin restricciones de fecha
+        var queryCitasEnSala = _citaService.GetCitasQuery(true, null, null, null, null, null)
+            .Where(c => c.Estado == "EnSalaDeEspera" || c.Estado == "EnEspera");
         var citasEnSala = await queryCitasEnSala.ToListAsync();
 
         // IDs de citas que ya tienen triage activo en la cola
@@ -157,4 +158,27 @@ public class TriageController : ControllerBase
 
         return Ok(Response<object>.Ok(result));
     }
+
+    [HttpPut("{id}/signos-vitales")]
+    public async Task<ActionResult<Response<object>>> RegistrarSignosVitales(int id, [FromBody] ActualizarSignosVitalesRequest req)
+    {
+        try
+        {
+            var triage = await _triageService.RegistrarSignosVitalesAsync(id, req.Nivel, req.Sintomas, req.Temperatura, req.FrecuenciaCardiaca, req.Peso);
+            return Ok(Response<object>.Ok(triage, "Signos vitales registrados correctamente."));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(Response<object>.Fail(ex.Message));
+        }
+    }
+}
+
+public class ActualizarSignosVitalesRequest
+{
+    public string Nivel { get; set; } = "N3";
+    public string? Sintomas { get; set; }
+    public decimal? Temperatura { get; set; }
+    public int? FrecuenciaCardiaca { get; set; }
+    public decimal? Peso { get; set; }
 }

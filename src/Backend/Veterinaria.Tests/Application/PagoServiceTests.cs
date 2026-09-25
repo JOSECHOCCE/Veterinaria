@@ -485,9 +485,194 @@ public class PagoServiceTests
         Assert.AreEqual("Parcial", r7.Pago!.TipoPago);
 
         // 8. Success with restante payment
+        // 8. Success with restante payment
         _context.ChangeTracker.Clear();
         var r8 = await _sut.RegistrarCobroManualAsync(1, 100, 60, "Efectivo", null, null, "Admin");
         Assert.IsTrue(r8.Success);
         Assert.AreEqual("Restante", r8.Pago!.TipoPago);
     }
+
+    [TestMethod]
+    public async Task CrearOrdenCobroDesdeConsultaAsync_DebeCrearOrdenPendienteConItems()
+    {
+        // Arrange
+        var cliente = new Usuario { Id = 1, Nombre = "Juan Perez" };
+        var mascota = new Mascota { Id = 1, Nombre = "Fido", UsuarioId = 1, Usuario = cliente };
+        var servicio = new Servicio { Id = 1, Nombre = "Consulta General", Precio = 50 };
+        var vet = new Veterinario { Id = 1 };
+        var cita = new Cita { Id = 10, MascotaId = 1, Mascota = mascota, ServicioId = 1, VeterinarioId = 1, MontoTotal = 50 };
+        var historial = new HistorialClinico { Id = 5, CitaId = 10, Cita = cita, Diagnostico = "Gripe" };
+
+        var prod = new Producto { Id = 1, Nombre = "Amoxicilina 250mg", Stock = 10, Precio = 20 };
+        var receta = new Receta { Id = 1, HistorialClinicoId = 5, MascotaId = 1, VeterinarioId = 1 };
+        var detalleReceta = new DetalleReceta { Id = 1, RecetaId = 1, ProductoId = 1, CantidadPrescrita = 2, EsStockInterno = true };
+        receta.Items.Add(detalleReceta);
+
+        await _context.Usuarios.AddAsync(cliente);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Veterinarios.AddAsync(vet);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(historial);
+        await _context.Productos.AddAsync(prod);
+        await _context.Recetas.AddAsync(receta);
+        await _context.DetalleRecetas.AddAsync(detalleReceta);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var orden = await _sut.CrearOrdenCobroDesdeConsultaAsync(5);
+
+        // Assert
+        Assert.IsNotNull(orden);
+        Assert.AreEqual("Pendiente", orden.Estado);
+        Assert.AreEqual(10, orden.CitaId);
+        Assert.AreEqual(1, orden.ClienteId);
+        Assert.AreEqual(90, orden.MontoTotal); // 50 (consulta) + 40 (2x20 medicina)
+        Assert.AreEqual(2, orden.Detalles.Count);
+    }
+
+    [TestMethod]
+    public async Task ProcesarPagoMixtoAsync_CuandoSumaCorrecta_DebeRegistrarPagoYDescontarStock()
+    {
+        // Arrange
+        var cliente = new Usuario { Id = 1, Nombre = "Maria Lopez" };
+        var mascota = new Mascota { Id = 1, Nombre = "Pelusa", UsuarioId = 1 };
+        var cita = new Cita { Id = 1, MontoTotal = 100, MontoPagado = 0, Estado = "Completada", EstadoPago = "Pendiente" };
+        var prod = new Producto { Id = 1, Nombre = "Antipulgas", Stock = 5, Precio = 50 };
+
+        var orden = new OrdenCobro { Id = 1, CitaId = 1, ClienteId = 1, MascotaId = 1, MontoTotal = 100, Estado = "Pendiente" };
+        var detalle1 = new DetalleOrdenCobro { Id = 1, OrdenCobroId = 1, TipoItem = "Servicio", Descripcion = "Consulta", Cantidad = 1, PrecioUnitario = 50, Subtotal = 50 };
+        var detalle2 = new DetalleOrdenCobro { Id = 2, OrdenCobroId = 1, TipoItem = "Medicamento", ProductoId = 1, Descripcion = "Antipulgas", Cantidad = 1, PrecioUnitario = 50, Subtotal = 50 };
+        orden.Detalles.Add(detalle1);
+        orden.Detalles.Add(detalle2);
+
+        await _context.Usuarios.AddAsync(cliente);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Citas.AddAsync(cita);
+        await _context.Productos.AddAsync(prod);
+        await _context.OrdenesCobro.AddAsync(orden);
+        await _context.SaveChangesAsync();
+
+        var dto = new Veterinaria.Application.DTOs.ProcesarPagoMixtoDto
+        {
+            OrdenCobroId = 1,
+            ClaveIdempotencia = "IDEMP-TEST-001",
+            MetodosPago = new System.Collections.Generic.List<Veterinaria.Application.DTOs.DetallePagoMetodoDto>
+            {
+                new() { MetodoPago = "Efectivo", Monto = 60, EstadoVerificacion = "Confirmado" },
+                new() { MetodoPago = "Yape", Monto = 40, NumeroOperacion = "123456", EstadoVerificacion = "PendienteVerificacion" }
+            }
+        };
+
+        // Act
+        var result = await _sut.ProcesarPagoMixtoAsync(dto, "CajeroAna");
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(result.Pago);
+        Assert.AreEqual("Pagada", orden.Estado);
+        Assert.AreEqual("Pagado", cita.EstadoPago);
+
+        var updatedProd = await _context.Productos.FindAsync(1);
+        Assert.AreEqual(4, updatedProd!.Stock); // 5 - 1 = 4
+
+        var kardex = await _context.MovimientosInventario.FirstOrDefaultAsync(m => m.ProductoId == 1);
+        Assert.IsNotNull(kardex);
+        Assert.AreEqual("SalidaVenta", kardex.TipoMovimiento);
+        Assert.AreEqual(1, kardex.Cantidad);
+    }
+
+    [TestMethod]
+    public async Task ProcesarPagoMixtoAsync_CuandoSumaIncorrecta_DebeRetornarError()
+    {
+        // Arrange
+        var orden = new OrdenCobro { Id = 2, MontoTotal = 100, Estado = "Pendiente" };
+        await _context.OrdenesCobro.AddAsync(orden);
+        await _context.SaveChangesAsync();
+
+        var dto = new Veterinaria.Application.DTOs.ProcesarPagoMixtoDto
+        {
+            OrdenCobroId = 2,
+            ClaveIdempotencia = "IDEMP-TEST-002",
+            MetodosPago = new System.Collections.Generic.List<Veterinaria.Application.DTOs.DetallePagoMetodoDto>
+            {
+                new() { MetodoPago = "Efectivo", Monto = 50 } // Solo 50 de 100
+            }
+        };
+
+        // Act
+        var result = await _sut.ProcesarPagoMixtoAsync(dto, "CajeroAna");
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Error!.Contains("no coincide"));
+    }
+
+    [TestMethod]
+    public async Task ProcesarPagoMixtoAsync_CuandoClaveIdempotenciaRepetida_DebeRechazarDuplicado()
+    {
+        // Arrange
+        var pagoPrevio = new Pago { Id = 1, CitaId = 1, Monto = 100, ClaveIdempotencia = "IDEMP-REPETIDA-999", FechaPago = DateTime.Now };
+        await _context.Pagos.AddAsync(pagoPrevio);
+        await _context.SaveChangesAsync();
+
+        var dto = new Veterinaria.Application.DTOs.ProcesarPagoMixtoDto
+        {
+            OrdenCobroId = 1,
+            ClaveIdempotencia = "IDEMP-REPETIDA-999",
+            MetodosPago = new System.Collections.Generic.List<Veterinaria.Application.DTOs.DetallePagoMetodoDto>
+            {
+                new() { MetodoPago = "Efectivo", Monto = 100 }
+            }
+        };
+
+        // Act
+        var result = await _sut.ProcesarPagoMixtoAsync(dto, "CajeroAna");
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Error!.Contains("ya fue procesado"));
+    }
+
+    [TestMethod]
+    public async Task CambiarEstadoVerificacionPagoAsync_DebeActualizarAEstadoVerificado()
+    {
+        // Arrange
+        var pago = new Pago { Id = 5, CitaId = 1, Monto = 50, MetodoPago = "Yape", EstadoVerificacion = "PendienteVerificacion" };
+        await _context.Pagos.AddAsync(pago);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var result = await _sut.CambiarEstadoVerificacionPagoAsync(5, "Verificado", "AdminPedro");
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        var updated = await _context.Pagos.FindAsync(5);
+        Assert.AreEqual("Verificado", updated!.EstadoVerificacion);
+    }
+
+    [TestMethod]
+    public async Task GetCierreCajaDiarioAsync_DebeCalcularTotalesDesglosadosPorMetodoYCajero()
+    {
+        // Arrange
+        var fecha = DateTime.Today;
+        var p1 = new Pago { Id = 1, CitaId = 1, Monto = 50, MetodoPago = "Efectivo", CajeroId = 1, NombreCajero = "Carlos", FechaPago = fecha, EstadoVerificacion = "Confirmado" };
+        var p2 = new Pago { Id = 2, CitaId = 2, Monto = 30, MetodoPago = "Yape", CajeroId = 1, NombreCajero = "Carlos", FechaPago = fecha, EstadoVerificacion = "PendienteVerificacion" };
+        var p3 = new Pago { Id = 3, CitaId = 3, Monto = 70, MetodoPago = "Tarjeta", CajeroId = 2, NombreCajero = "Lucia", FechaPago = fecha, EstadoVerificacion = "Confirmado" };
+
+        await _context.Pagos.AddRangeAsync(p1, p2, p3);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var cierre = await _sut.GetCierreCajaDiarioAsync(fecha);
+
+        // Assert
+        Assert.AreEqual(150, cierre.TotalGeneral);
+        Assert.AreEqual(50, cierre.TotalEfectivo);
+        Assert.AreEqual(70, cierre.TotalTarjeta);
+        Assert.AreEqual(30, cierre.TotalYape);
+        Assert.AreEqual(1, cierre.PagosPendientesVerificacionCount);
+        Assert.AreEqual(2, cierre.TotalesPorCajero.Count);
+    }
 }
+

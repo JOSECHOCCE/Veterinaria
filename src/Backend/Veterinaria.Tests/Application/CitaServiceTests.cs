@@ -18,6 +18,7 @@ public class CitaServiceTests
     private VeterinariaDbContext _context = null!;
     private UnitOfWork _unitOfWork = null!;
     private Mock<IAuditoriaService> _auditoriaServiceMock = null!;
+    private Mock<IRealTimeNotificationService> _realTimeMock = null!;
     private CitaService _sut = null!;
 
     [TestInitialize]
@@ -30,7 +31,8 @@ public class CitaServiceTests
         _context = new VeterinariaDbContext(options);
         _unitOfWork = new UnitOfWork(_context);
         _auditoriaServiceMock = new Mock<IAuditoriaService>();
-        _sut = new CitaService(_unitOfWork, _auditoriaServiceMock.Object);
+        _realTimeMock = new Mock<IRealTimeNotificationService>();
+        _sut = new CitaService(_unitOfWork, _auditoriaServiceMock.Object, _realTimeMock.Object);
     }
 
     [TestCleanup]
@@ -515,5 +517,102 @@ public class CitaServiceTests
         Assert.IsNotNull(result);
         Assert.AreEqual("Confirmada", result.Estado);
         Assert.AreEqual(60, result.MontoTotal);
+    }
+
+    [TestMethod]
+    public async Task CreateCitaAsync_AsignaConsultorioSegunTipoServicio_Grooming()
+    {
+        // Arrange
+        var servicioGrooming = new Servicio { Id = 10, Nombre = "Baño y Grooming Completo", Activo = true, DuracionMinutos = 45 };
+        var mascota = new Mascota { Id = 10, Nombre = "Bobby", Activo = true };
+        var vet = new Veterinario { Id = 10, Nombre = "Dr. Groomer", Activo = true, HorarioInicio = new TimeSpan(8, 0, 0), HorarioFin = new TimeSpan(18, 0, 0) };
+        var consultorioGrooming = new Consultorio { Id = 10, Nombre = "Área de Grooming", TipoEspacio = "AreaGrooming", Activo = true };
+
+        await _context.Servicios.AddAsync(servicioGrooming);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Veterinarios.AddAsync(vet);
+        await _context.Consultorios.AddAsync(consultorioGrooming);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var fechaCita = DateTime.Today.AddDays(1).Date.AddHours(11);
+        var cita = new Cita { MascotaId = 10, VeterinarioId = 10, ServicioId = 10, FechaHora = fechaCita, Estado = "Confirmada" };
+
+        // Act
+        var result = await _sut.CreateCitaAsync(cita, 40);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(10, result.ConsultorioId);
+    }
+
+    [TestMethod]
+    public async Task CreateCitaAsync_CuandoConsultorioOcupado_DebeLanzarExcepcion()
+    {
+        // Arrange
+        var servicio = new Servicio { Id = 20, Nombre = "Consulta General", Activo = true, DuracionMinutos = 30 };
+        var mascota1 = new Mascota { Id = 20, Nombre = "Perro 1", Activo = true };
+        var mascota2 = new Mascota { Id = 21, Nombre = "Perro 2", Activo = true };
+        var vet1 = new Veterinario { Id = 20, Nombre = "Vet 1", Activo = true, HorarioInicio = new TimeSpan(8, 0, 0), HorarioFin = new TimeSpan(18, 0, 0) };
+        var vet2 = new Veterinario { Id = 21, Nombre = "Vet 2", Activo = true, HorarioInicio = new TimeSpan(8, 0, 0), HorarioFin = new TimeSpan(18, 0, 0) };
+        
+        // Solo 1 consultorio disponible de tipo Consultorio
+        var unicoConsultorio = new Consultorio { Id = 20, Nombre = "Único Consultorio", TipoEspacio = "Consultorio", Activo = true };
+
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Mascotas.AddRangeAsync(mascota1, mascota2);
+        await _context.Veterinarios.AddRangeAsync(vet1, vet2);
+        await _context.Consultorios.AddAsync(unicoConsultorio);
+        
+        var fechaComun = DateTime.Today.AddDays(2).Date.AddHours(10); // 10:00 AM
+
+        // Cita 1 ocupa el único consultorio
+        var cita1 = new Cita { Id = 20, MascotaId = 20, VeterinarioId = 20, ServicioId = 20, ConsultorioId = 20, FechaHora = fechaComun, Estado = "Confirmada" };
+        await _context.Citas.AddAsync(cita1);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Intento de Cita 2 al mismo tiempo en el mismo consultorio
+        var cita2 = new Cita { MascotaId = 21, VeterinarioId = 21, ServicioId = 20, FechaHora = fechaComun, Estado = "Confirmada" };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _sut.CreateCitaAsync(cita2, 30));
+        Assert.AreEqual("No hay espacios físicos disponibles para este tipo de servicio en el horario seleccionado.", ex.Message);
+    }
+
+    [TestMethod]
+    public async Task CheckInCitaAsync_CuandoCitaConfirmada_DebeCambiarEstadoYCrearTriage()
+    {
+        // Arrange
+        var cita = new Cita { Id = 30, MascotaId = 1, VeterinarioId = 1, ServicioId = 1, FechaHora = DateTime.Today.AddHours(9), Estado = "Confirmada", Motivo = "Chequeo" };
+        await _context.Citas.AddAsync(cita);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var result = await _sut.CheckInCitaAsync(30);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("EnSalaDeEspera", result.Estado);
+
+        var triage = await _context.Triages.FirstOrDefaultAsync(t => t.CitaId == 30);
+        Assert.IsNotNull(triage);
+        Assert.AreEqual("EnEspera", triage.Estado);
+        Assert.AreEqual("Verde", triage.PrioridadColor);
+        Assert.AreEqual("N3", triage.Nivel);
+    }
+
+    [TestMethod]
+    public async Task CheckInCitaAsync_CuandoCitaCancelada_DebeLanzarExcepcion()
+    {
+        // Arrange
+        var cita = new Cita { Id = 31, MascotaId = 1, VeterinarioId = 1, ServicioId = 1, FechaHora = DateTime.Today.AddHours(9), Estado = "Cancelada" };
+        await _context.Citas.AddAsync(cita);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act & Assert
+        await Assert.ThrowsExceptionAsync<InvalidOperationException>(() => _sut.CheckInCitaAsync(31));
     }
 }

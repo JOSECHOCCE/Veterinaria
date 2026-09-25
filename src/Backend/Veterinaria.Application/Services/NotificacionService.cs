@@ -389,6 +389,31 @@ public class NotificacionService : INotificacionService
         }
     }
 
+    public async Task NotificarListaEsperaDisponibleAsync(ListaEspera entry, Cita citaCancelada)
+    {
+        var mascota = await _unitOfWork.Mascotas.GetByIdAsync(entry.MascotaId);
+        if (mascota == null) return;
+        var usuario = await _unitOfWork.Usuarios.GetByIdAsync(mascota.UsuarioId);
+        var servicio = await _unitOfWork.Servicios.GetByIdAsync(entry.ServicioId);
+
+        var titulo = "📋 ¡Cupo Disponible!";
+        var mensaje = $"Se ha liberado un cupo para {servicio?.Nombre ?? "el servicio solicitado"} el {citaCancelada.FechaHora:dd/MM/yyyy} a las {citaCancelada.FechaHora:HH:mm}. ¡Agenda tu cita antes de que otro lo tome!";
+
+        await CrearNotificacionAsync(
+            mascota.UsuarioId,
+            titulo,
+            mensaje,
+            "Info",
+            "bi-calendar-plus",
+            "/cliente/nueva-cita"
+        );
+
+        if (usuario != null && !string.IsNullOrEmpty(usuario.Email))
+        {
+            await _correoService.EnviarCorreoAsync(usuario.Email, titulo, mensaje);
+        }
+    }
+
     public async Task ProcesarAlertasDiariasAsync()
     {
         var ahora = DateTime.Now;

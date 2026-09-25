@@ -1,7 +1,10 @@
-using Microsoft.AspNetCore.Http;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Veterinaria.Application.Interfaces;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Infrastructure.Persistence;
@@ -22,27 +25,56 @@ public class AuditoriaService : IAuditoriaService
     public async Task RegistrarAccionAsync(string accion, string entidad, string entidadId, string detalle)
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        string? usuarioId = null;
-        string? usuarioEmail = null;
+        int? usuarioIdInt = null;
 
         if (httpContext?.User?.Identity?.IsAuthenticated == true)
         {
-            usuarioId = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            usuarioEmail = httpContext.User.FindFirst(ClaimTypes.Email)?.Value ?? httpContext.User.Identity.Name;
+            var uClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(uClaim, out int uid))
+            {
+                usuarioIdInt = uid;
+            }
         }
 
-        var auditoria = new Auditoria
+        string? ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
+
+        await RegistrarAccionAsync(usuarioIdInt, accion, entidad, entidadId, null, detalle, ipAddress);
+    }
+
+    public async Task RegistrarAccionAsync(int? usuarioId, string accion, string entidadNombre, string entidadId, string? datosPrevios, string? datosNuevos, string? ipAddress)
+    {
+        var log = new AuditoriaLog
         {
             UsuarioId = usuarioId,
-            UsuarioEmail = usuarioEmail ?? "Sistema/Anónimo",
             Accion = accion,
-            Entidad = entidad,
+            EntidadNombre = entidadNombre,
             EntidadId = entidadId,
-            Detalle = detalle,
+            DatosPreviosJson = datosPrevios,
+            DatosNuevosJson = datosNuevos,
+            IpAddress = ipAddress,
             Fecha = DateTime.UtcNow
         };
 
-        _context.Auditorias.Add(auditoria);
+        _context.AuditoriaLogs.Add(log);
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<AuditoriaLog>> ObtenerLogsAuditoriaAsync(DateTime? fechaInicio = null, DateTime? fechaFin = null)
+    {
+        var query = _context.AuditoriaLogs
+            .Include(a => a.Usuario)
+            .AsQueryable();
+
+        if (fechaInicio.HasValue)
+        {
+            query = query.Where(a => a.Fecha >= fechaInicio.Value);
+        }
+
+        if (fechaFin.HasValue)
+        {
+            query = query.Where(a => a.Fecha <= fechaFin.Value);
+        }
+
+        return await query.OrderByDescending(a => a.Fecha).ToListAsync();
     }
 }

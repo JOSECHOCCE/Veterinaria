@@ -13,11 +13,13 @@ public class CitaService : ICitaService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuditoriaService _auditoriaService;
+    private readonly IRealTimeNotificationService _realTimeService;
 
-    public CitaService(IUnitOfWork unitOfWork, IAuditoriaService auditoriaService)
+    public CitaService(IUnitOfWork unitOfWork, IAuditoriaService auditoriaService, IRealTimeNotificationService realTimeService)
     {
         _unitOfWork = unitOfWork;
         _auditoriaService = auditoriaService;
+        _realTimeService = realTimeService;
     }
 
     public async Task<List<Cita>> GetCitasParaCalendarioAsync(DateTime? fechaInicio, DateTime? fechaFin)
@@ -385,6 +387,7 @@ public class CitaService : ICitaService
 
         await _unitOfWork.Citas.AddAsync(cita);
         await _unitOfWork.CommitAsync();
+        await RegistrarAuditoriaUrgenciaSiAplicaAsync(cita);
         return cita;
     }
 
@@ -400,7 +403,30 @@ public class CitaService : ICitaService
 
         await _unitOfWork.Citas.AddAsync(cita);
         await _unitOfWork.CommitAsync();
+        await RegistrarAuditoriaUrgenciaSiAplicaAsync(cita);
         return cita;
+    }
+
+    private async Task RegistrarAuditoriaUrgenciaSiAplicaAsync(Cita cita)
+    {
+        // T5 SHOULD: urgencia bypasea disponibilidad — dejar rastro auditable + flag reasignación.
+        if (!cita.EsUrgencia)
+            return;
+
+        await _auditoriaService.RegistrarAccionAsync(
+            "Urgencia bypass disponibilidad",
+            "Cita",
+            cita.Id.ToString(),
+            $"Cita de urgencia #{cita.Id} vet {cita.VeterinarioId} fecha {cita.FechaHora:u} motivo: {cita.Motivo ?? "-"}.");
+
+        if (cita.ConsultorioId == null)
+        {
+            await _auditoriaService.RegistrarAccionAsync(
+                "Urgencia sin espacio - RequiereReasignacion",
+                "Cita",
+                cita.Id.ToString(),
+                $"Cita de urgencia #{cita.Id} sin consultorio libre; requiere reasignación manual.");
+        }
     }
 
     private async Task<bool> ValidarYConfigurarCitaAsync(Cita cita, string estadoInicial, decimal precioServicio)
@@ -446,12 +472,80 @@ public class CitaService : ICitaService
         }
 
         // Validar disponibilidad real (Reglas 1, 2, 3)
-        // Bypass si es urgencia y el admin forzó, pero el requerimiento base dice que urgecnia puede sobreescribir. Lo mantenemos simple.
+        // Bypass si es urgencia y el admin forzó, pero el requerimiento base dice que urgencia puede sobreescribir. Lo mantenemos simple.
         if (!cita.EsUrgencia)
         {
             var veterinarioDisponible = await VeterinarioDisponibleAsync(cita.VeterinarioId, cita.FechaHora, duracion);
             if (!veterinarioDisponible)
                 throw new InvalidOperationException("El bloque seleccionado ya no se encuentra disponible.");
+        }
+
+        // Asignación automática y validación de Espacio Físico / Consultorio (HU-027, HU-028, RF-083, RF-084, RF-085)
+        var nombreServicioLower = servicio.Nombre.ToLower();
+        string tipoEspacioRequerido = "Consultorio";
+        if (nombreServicioLower.Contains("cirugía") || nombreServicioLower.Contains("cirugia") || nombreServicioLower.Contains("odontología") || nombreServicioLower.Contains("odontologia"))
+        {
+            tipoEspacioRequerido = "SalaProcedimientos";
+        }
+        else if (nombreServicioLower.Contains("baño") || nombreServicioLower.Contains("peluquería") || nombreServicioLower.Contains("peluqueria") || nombreServicioLower.Contains("grooming"))
+        {
+            tipoEspacioRequerido = "AreaGrooming";
+        }
+
+        var consultoriosCandidatos = await _unitOfWork.Consultorios.GetAll()
+            .Where(c => c.Activo && (c.TipoEspacio == tipoEspacioRequerido || (tipoEspacioRequerido == "Consultorio" && c.TipoEspacio == "Consultorio")))
+            .ToListAsync();
+
+        if (!consultoriosCandidatos.Any())
+        {
+            // Fallback: Si no hay espacios configurados de ese tipo específico, buscar cualquier consultorio activo
+            consultoriosCandidatos = await _unitOfWork.Consultorios.GetAll()
+                .Where(c => c.Activo)
+                .ToListAsync();
+        }
+
+        if (consultoriosCandidatos.Any())
+        {
+            var citasDelDiaEspacios = await _unitOfWork.Citas.GetAll()
+                .Include(c => c.Servicio)
+                .Where(c => c.ConsultorioId.HasValue
+                         && c.FechaHora >= cita.FechaHora.Date
+                         && c.FechaHora < cita.FechaHora.Date.AddDays(1)
+                         && c.Estado != "Cancelada" && c.Estado != "Rechazada" && c.Estado != "NoAsistio")
+                .ToListAsync();
+
+            Consultorio? consultorioSeleccionado = null;
+
+            foreach (var cand in consultoriosCandidatos)
+            {
+                bool espacioOcupado = false;
+                foreach (var cExist in citasDelDiaEspacios.Where(x => x.ConsultorioId == cand.Id))
+                {
+                    var durExist = cExist.Servicio?.DuracionMinutos ?? 30;
+                    var finExist = cExist.FechaHora.AddMinutes(durExist);
+
+                    if (!(finNueva <= cExist.FechaHora || cita.FechaHora >= finExist))
+                    {
+                        espacioOcupado = true;
+                        break;
+                    }
+                }
+
+                if (!espacioOcupado)
+                {
+                    consultorioSeleccionado = cand;
+                    break;
+                }
+            }
+
+            if (consultorioSeleccionado != null)
+            {
+                cita.ConsultorioId = consultorioSeleccionado.Id;
+            }
+            else if (!cita.EsUrgencia)
+            {
+                throw new InvalidOperationException("No hay espacios físicos disponibles para este tipo de servicio en el horario seleccionado.");
+            }
         }
 
         cita.Estado = estadoInicial;
@@ -547,7 +641,6 @@ public class CitaService : ICitaService
             return (false, null, "Solo puedes cancelar citas con al menos 2 horas de anticipación.");
 
         cita.Estado = "Cancelada";
-        _unitOfWork.Citas.Update(cita);
         await _unitOfWork.CommitAsync();
 
         await _auditoriaService.RegistrarAccionAsync(
@@ -556,6 +649,35 @@ public class CitaService : ICitaService
             cita.Id.ToString(),
             $"Cancelada por {(isAdmin ? "Administración/Recepcionista" : "Cliente")}. UsuarioID: {currentUsuarioId}"
         );
+
+        // Sprint 2 (RF-009): Check waitlist for matching entries and notify first candidate
+        try
+        {
+            var fechaCita = cita.FechaHora.Date;
+            var idEspera = await _unitOfWork.ListaEsperas.GetAll()
+                .Where(le => le.ServicioId == cita.ServicioId
+                          && le.Estado == "Pendiente"
+                          && le.FechaDeseada.Date <= fechaCita
+                          && le.FechaDeseadaFin.Date >= fechaCita)
+                .OrderBy(le => le.FechaCreacion)
+                .Select(le => le.Id)
+                .FirstOrDefaultAsync();
+
+            if (idEspera > 0)
+            {
+                var entradaEspera = await _unitOfWork.ListaEsperas.GetByIdAsync(idEspera);
+                if (entradaEspera != null)
+                {
+                    entradaEspera.Estado = "Notificada";
+                    entradaEspera.FechaNotificacion = DateTime.UtcNow;
+                    await _unitOfWork.CommitAsync();
+                }
+            }
+        }
+        catch
+        {
+            // Waitlist notification failure should not block cancellation (already committed)
+        }
 
         return (true, cita, null);
     }
@@ -579,19 +701,20 @@ public class CitaService : ICitaService
     private static readonly Dictionary<string, string[]> _transicionesValidas = new()
     {
         ["ReservaTemporal"]         = new[] { "PendienteConfirmacion", "Libre" },
-        ["PendienteConfirmacion"]   = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
-        ["PendienteAsignacion"]     = new[] { "Confirmada", "Cancelada", "Rechazada" },
-        ["Confirmada"]              = new[] { "EnEspera", "EnAtencion", "Cancelada", "NoAsistio", "Reprogramada" },
-        ["Reprogramada"]            = new[] { "Confirmada", "EnEspera", "EnAtencion", "Cancelada" },
-        ["EnEspera"]                = new[] { "EnAtencion", "Cancelada", "NoAsistio" },
+        ["PendienteConfirmacion"]   = new[] { "Confirmada", "EnSalaDeEspera", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["PendienteAsignacion"]     = new[] { "Confirmada", "EnSalaDeEspera", "Cancelada", "Rechazada" },
+        ["Confirmada"]              = new[] { "EnEspera", "EnSalaDeEspera", "EnAtencion", "Cancelada", "NoAsistio", "Reprogramada" },
+        ["Reprogramada"]            = new[] { "Confirmada", "EnEspera", "EnSalaDeEspera", "EnAtencion", "Cancelada" },
+        ["EnEspera"]                = new[] { "EnAtencion", "EnSalaDeEspera", "Cancelada", "NoAsistio" },
+        ["EnSalaDeEspera"]          = new[] { "EnAtencion", "EnEspera", "Cancelada", "NoAsistio" },
         ["EnAtencion"]              = new[] { "Completada", "Cancelada" },
         ["Completada"]              = Array.Empty<string>(),
         ["Cancelada"]               = Array.Empty<string>(),
         ["Rechazada"]               = Array.Empty<string>(),
         ["NoAsistio"]               = Array.Empty<string>(),
         // Para backwards compatibility temporal si quedan datos viejos
-        ["Solicitada"]              = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
-        ["Pendiente"]               = new[] { "Confirmada", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["Solicitada"]              = new[] { "Confirmada", "EnSalaDeEspera", "Rechazada", "Cancelada", "PendienteAsignacion" },
+        ["Pendiente"]               = new[] { "Confirmada", "EnSalaDeEspera", "Rechazada", "Cancelada", "PendienteAsignacion" },
         ["EnProceso"]               = new[] { "Completada", "Cancelada" },
     };
 
@@ -624,6 +747,46 @@ public class CitaService : ICitaService
         await _unitOfWork.CommitAsync();
         
         return (true, cita, null);
+    }
+
+    public async Task<Cita> CheckInCitaAsync(int citaId)
+    {
+        var cita = await _unitOfWork.Citas.GetByIdAsync(citaId);
+        if (cita == null)
+            throw new KeyNotFoundException($"No se encontró la cita con ID {citaId}.");
+
+        if (cita.Estado != "Pendiente" && cita.Estado != "Confirmada" && cita.Estado != "EnEspera" && cita.Estado != "PendienteConfirmacion")
+            throw new InvalidOperationException($"Solo se puede realizar check-in a citas pendientes o confirmadas. Estado actual: '{cita.Estado}'.");
+
+        cita.Estado = "EnSalaDeEspera";
+        _unitOfWork.Citas.Update(cita);
+
+        var existingTriage = await _unitOfWork.Triages.GetAll()
+            .FirstOrDefaultAsync(t => t.CitaId == citaId);
+
+        if (existingTriage == null)
+        {
+            var nuevoTriage = new Triage
+            {
+                CitaId = cita.Id,
+                MascotaId = cita.MascotaId,
+                Nivel = cita.EsUrgencia ? "N1" : "N3",
+                PrioridadColor = cita.EsUrgencia ? "Rojo" : "Verde",
+                Sintomas = cita.Motivo,
+                MotivoConsulta = cita.Motivo,
+                Estado = "EnEspera",
+                Consultorio = "Sala de Espera",
+                TiempoEsperaEstimadoMin = cita.EsUrgencia ? 0 : 15,
+                FechaRegistro = DateTime.Now
+            };
+            await _unitOfWork.Triages.AddAsync(nuevoTriage);
+        }
+
+        await _unitOfWork.CommitAsync();
+        await _auditoriaService.RegistrarAccionAsync("CheckIn", "Cita", cita.Id.ToString(), $"Check-in realizado para paciente MascotaId={cita.MascotaId}.");
+        await _realTimeService.SendTriageQueueUpdatedAsync();
+
+        return cita;
     }
 
     public async Task<List<int>> GetCitasConTriageAsync(List<int> citaIds)

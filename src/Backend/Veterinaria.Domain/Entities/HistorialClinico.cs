@@ -18,9 +18,8 @@ public class HistorialClinico
 
     public int? FrecuenciaCardiaca { get; set; }
 
-    [Required]
     [MaxLength(1000)]
-    public string Diagnostico { get; set; } = default!;
+    public string? Diagnostico { get; set; }
 
     [MaxLength(1000)]
     public string? Tratamiento { get; set; }
@@ -41,6 +40,23 @@ public class HistorialClinico
     public string? Recomendaciones { get; set; }
 
     public DateTime? ProximoControl { get; set; }
+
+    // SOAP Format Fields (HU-007, RF-014)
+    [MaxLength(1000)]
+    public string? Subjetivo { get; set; }
+
+    [MaxLength(1000)]
+    public string? Objetivo { get; set; }
+
+    [MaxLength(1000)]
+    public string? Analisis { get; set; }
+
+    [MaxLength(1000)]
+    public string? Plan { get; set; }
+
+    // Post-closure clarification notes (RNF-022)
+    [MaxLength(2000)]
+    public string? Addendum { get; set; }
 
     public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
 

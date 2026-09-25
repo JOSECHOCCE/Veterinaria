@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin,Recepcionista")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario,Cliente")]
 [ApiController]
 [Route("api/[controller]")]
 public class ServiciosController : ControllerBase
@@ -25,9 +25,7 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous] // Allow clients to see the list? RF-18 says "El cliente solo ve los servicios activos" but the controller itself can just check roles. Let's keep it as is, but if they want to expose it, the [AllowAnonymous] isn't secure. Actually, we should use the same roles as other modules. Wait, the module says:
-    // "Visible para recepción y administrador. El cliente solo ve los servicios activos al momento de agendar."
-    // I'll keep the Authorize for all roles and filter in UI, or just "Admin,Recepcionista,Cliente"
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario,Cliente")]
     public ActionResult<Response<object>> Index(string? q, bool? mostrarInactivos, int page = 1)
     {
         // For security, if User is not Admin/Recepcionista, force mostrarInactivos = false
@@ -53,7 +51,7 @@ public class ServiciosController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize(Roles = "Admin,Recepcionista")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
     public async Task<ActionResult<Response<object>>> Details(int id)
     {
         var servicio = await _servicioService.GetServicioWithCitasAsync(id);

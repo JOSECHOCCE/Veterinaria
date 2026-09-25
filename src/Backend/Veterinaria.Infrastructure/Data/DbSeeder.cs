@@ -35,6 +35,9 @@ public static class DbSeeder
         // 6. Seed Servicios
         await SeedServiciosAsync(context);
 
+        // 6.5 Seed Consultorios / Espacios Físicos (RF-086)
+        await SeedConsultoriosAsync(context);
+
         // 7. Seed Mascotas (asociadas al usuario normal)
         await SeedMascotasAsync(context, usuarioNormal, isDevelopment);
 
@@ -276,17 +279,14 @@ public static class DbSeeder
 
     private static async Task SeedServiciosAsync(VeterinariaDbContext context)
     {
-        if (await context.Servicios.AnyAsync())
-            return;
-
-        var servicios = new List<Servicio>
+        var referenciaServicios = new List<Servicio>
         {
             new Servicio
             {
                 Nombre = "Consulta General",
                 Descripcion = "Evaluación completa del estado de salud de la mascota, incluyendo examen físico, revisión de signos vitales y recomendaciones.",
                 Precio = 50.00m,
-                DuracionMinutos = 45,
+                DuracionMinutos = 20,
                 Activo = true
             },
             new Servicio
@@ -294,36 +294,84 @@ public static class DbSeeder
                 Nombre = "Vacunación",
                 Descripcion = "Aplicación de vacunas según el calendario de vacunación. Incluye vacunas antirrábica, parvovirus, moquillo, entre otras.",
                 Precio = 80.00m,
-                DuracionMinutos = 30,
-                Activo = true
-            },
-            new Servicio
-            {
-                Nombre = "Cirugía Menor",
-                Descripcion = "Procedimientos quirúrgicos menores como esterilización, extracción de tumores pequeños, suturas y otros.",
-                Precio = 300.00m,
-                DuracionMinutos = 120,
-                Activo = true
-            },
-            new Servicio
-            {
-                Nombre = "Baño y Peluquería",
-                Descripcion = "Servicio completo de higiene que incluye baño con shampoo especializado, secado, corte de pelo y limpieza de oídos.",
-                Precio = 40.00m,
-                DuracionMinutos = 60,
+                DuracionMinutos = 15,
                 Activo = true
             },
             new Servicio
             {
                 Nombre = "Desparasitación",
                 Descripcion = "Tratamiento antiparasitario interno y externo. Incluye evaluación previa y recomendaciones de prevención.",
+                Precio = 40.00m,
+                DuracionMinutos = 15,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Control / Seguimiento",
+                Descripcion = "Revisión post-tratamiento y evaluación de evolución del paciente.",
+                Precio = 30.00m,
+                DuracionMinutos = 15,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Curación de Heridas Menores",
+                Descripcion = "Limpieza, desinfección y curación de laceraciones y heridas superficiales.",
                 Precio = 60.00m,
+                DuracionMinutos = 20,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Cirugía Menor",
+                Descripcion = "Procedimientos quirúrgicos menores como esterilización, extracción de tumores pequeños, suturas y otros en sala de procedimientos.",
+                Precio = 300.00m,
+                DuracionMinutos = 60,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Laboratorio - Toma de Muestra",
+                Descripcion = "Toma y procesamiento de muestras sanguíneas, coprológicas u orina.",
+                Precio = 70.00m,
+                DuracionMinutos = 15,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Radiología / Ecografía",
+                Descripcion = "Examen de diagnóstico por imagen para evaluación de tejidos y estructuras internas.",
+                Precio = 120.00m,
                 DuracionMinutos = 30,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Baño y Peluquería (Grooming)",
+                Descripcion = "Servicio completo de higiene que incluye baño con shampoo especializado, secado, corte de pelo y limpieza de oídos.",
+                Precio = 45.00m,
+                DuracionMinutos = 60,
+                Activo = true
+            },
+            new Servicio
+            {
+                Nombre = "Odontología Básica",
+                Descripcion = "Profilaxis dental, limpieza ultrasónica y destartraje en sala de procedimientos.",
+                Precio = 150.00m,
+                DuracionMinutos = 45,
                 Activo = true
             }
         };
 
-        context.Servicios.AddRange(servicios);
+        foreach (var s in referenciaServicios)
+        {
+            var existe = await context.Servicios.AnyAsync(x => x.Nombre.ToLower() == s.Nombre.ToLower());
+            if (!existe)
+            {
+                context.Servicios.Add(s);
+            }
+        }
+
         await context.SaveChangesAsync();
     }
 
@@ -493,6 +541,28 @@ public static class DbSeeder
         };
 
         context.Triages.Add(triageMax);
+        await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedConsultoriosAsync(VeterinariaDbContext context)
+    {
+        var espaciosDefecto = new List<Consultorio>
+        {
+            new Consultorio { Nombre = "Consultorio 1", TipoEspacio = "Consultorio", Capacidad = 1, Activo = true },
+            new Consultorio { Nombre = "Consultorio 2", TipoEspacio = "Consultorio", Capacidad = 1, Activo = true },
+            new Consultorio { Nombre = "Sala de Procedimientos", TipoEspacio = "SalaProcedimientos", Capacidad = 1, Activo = true },
+            new Consultorio { Nombre = "Área de Grooming", TipoEspacio = "AreaGrooming", Capacidad = 1, Activo = true }
+        };
+
+        foreach (var e in espaciosDefecto)
+        {
+            var existe = await context.Consultorios.AnyAsync(x => x.Nombre.ToLower() == e.Nombre.ToLower());
+            if (!existe)
+            {
+                context.Consultorios.Add(e);
+            }
+        }
+
         await context.SaveChangesAsync();
     }
 }

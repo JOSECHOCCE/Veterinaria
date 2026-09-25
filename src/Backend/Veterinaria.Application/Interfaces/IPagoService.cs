@@ -19,4 +19,12 @@ public interface IPagoService
     Task<(bool Success, string Message)> AnularPagoAsync(int pagoId, string motivo);
     Task<List<Pago>> GetPagosPorUsuarioAsync(int usuarioId);
     Task<(bool Success, Pago? Pago, string? Error)> RegistrarCobroManualAsync(int citaId, decimal montoTotalAjustado, decimal montoAbonado, string metodoPago, string? referencia, string? observacion, string usuarioOperador);
+
+    // Sprint 6: Ordenes de cobro, cobro mixto, idempotencia, verificaciones y cierre de caja
+    Task<OrdenCobro> CrearOrdenCobroDesdeConsultaAsync(int historialClinicoId);
+    Task<List<OrdenCobroDto>> GetOrdenesCobroPendientesAsync();
+    Task<(bool Success, Pago? Pago, string? Error)> ProcesarPagoMixtoAsync(ProcesarPagoMixtoDto dto, string usuarioOperador);
+    Task<List<Pago>> GetPagosPendientesVerificacionAsync();
+    Task<(bool Success, string Message)> CambiarEstadoVerificacionPagoAsync(int pagoId, string nuevoEstado, string usuarioAdmin);
+    Task<CierreCajaDto> GetCierreCajaDiarioAsync(DateTime fecha, int? cajeroId = null);
 }

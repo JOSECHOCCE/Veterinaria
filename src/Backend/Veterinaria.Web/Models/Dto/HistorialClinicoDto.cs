@@ -21,10 +21,9 @@ public class HistorialClinicoDto
 
     public bool Cerrado { get; set; }
 
-    [Required(ErrorMessage = "El diagnóstico es requerido")]
     [MaxLength(1000, ErrorMessage = "El diagnóstico no puede exceder 1000 caracteres")]
     [Display(Name = "Diagnóstico")]
-    public string Diagnostico { get; set; } = default!;
+    public string? Diagnostico { get; set; }
 
     [MaxLength(1000, ErrorMessage = "El tratamiento no puede exceder 1000 caracteres")]
     [Display(Name = "Tratamiento")]
@@ -69,4 +68,27 @@ public class HistorialClinicoDto
 
     [Display(Name = "Motivo de la Cita")]
     public string? MotivoCita { get; set; }
+
+    // Campos SOAP (RF-014)
+    [MaxLength(1000)]
+    public string? Subjetivo { get; set; }
+
+    [MaxLength(1000)]
+    public string? Objetivo { get; set; }
+
+    [MaxLength(1000)]
+    public string? Analisis { get; set; }
+
+    [MaxLength(1000)]
+    public string? Plan { get; set; }
+
+    [MaxLength(2000)]
+    public string? Addendum { get; set; }
+}
+
+public class AddendumDto
+{
+    [Required(ErrorMessage = "La nota aclaratoria es requerida")]
+    [MaxLength(2000)]
+    public string Nota { get; set; } = default!;
 }

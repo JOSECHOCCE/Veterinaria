@@ -28,5 +28,13 @@ public class Producto
 
     public bool Activo { get; set; } = true;
 
+    public bool RequiereReceta { get; set; } = false;
+
+    public int LeadTimeDias { get; set; } = 3;
+
+    public int StockSeguridad { get; set; } = 5;
+
+    public DateTime? FechaVencimiento { get; set; }
+
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 }

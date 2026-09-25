@@ -9,6 +9,7 @@ import ErrorMessage from '../../components/common/ErrorMessage';
 import EmptyState from '../../components/common/EmptyState';
 import PageHeader from '../../components/common/PageHeader';
 import { useAuth } from '../../context/AuthContext';
+import { useTriageRealtime } from '../../hooks/useTriageRealtime';
 
 const NIVEL_COLORS: Record<string, { bg: string; border: string; text: string; label: string; dot: string }> = {
   N1: { bg: 'bg-error/10', border: 'border-error/20', text: 'text-error', label: 'N1 - Emergencia', dot: 'bg-error animate-ping' },
@@ -53,13 +54,18 @@ export default function ColaAtencion() {
   useEffect(() => {
     fetchCola(false);
     
-    // Polling silencioso de 10 segundos para actualizar la cola y los tiempos en tiempo real
+    // Fallback: polling silencioso cada 30s por si la conexión SignalR se pierde
     const interval = setInterval(() => {
       fetchCola(true);
-    }, 10000);
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [fetchCola]);
+
+  // RNF-007: Actualización en tiempo real via SignalR (latencia < 3s)
+  useTriageRealtime(useCallback(() => {
+    fetchCola(true);
+  }, [fetchCola]));
 
   const handleIniciarConsulta = async (triage: TriageDto) => {
     if (!triage.id) return;
@@ -300,125 +306,206 @@ export default function ColaAtencion() {
             onAction={() => navigate('/admin/triage')}
           />
         ) : (
-          <div className="overflow-x-auto relative">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-surface-soft border-b border-hairline">
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-40">Prioridad</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Mascota / Paciente</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Responsable</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Síntomas / Motivo</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-40">Espera Est.</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-36">Consultorio</th>
-                  <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-right w-48">Acción</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-hairline">
-                <AnimatePresence mode="popLayout">
-                  {combinedQueue.map((t) => {
-                    const isPending = t.tipoRegistro === 'Pendiente';
-                    const colors = isPending 
-                      ? { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: 'Pendiente Triaje', dot: 'bg-amber-500 animate-pulse' }
-                      : (NIVEL_COLORS[t.nivel] || { bg: 'bg-surface-dim', border: 'border-hairline', text: 'text-secondary', label: t.nivel, dot: 'bg-secondary' });
-                    
-                    return (
-                      <motion.tr
-                        key={t.id}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className={`hover:bg-surface-soft/30 transition-colors group ${t.estado === 'EnAtencion' ? 'bg-accent-teal/5 opacity-80' : ''} ${isPending ? 'bg-amber-50/10' : ''}`}
-                      >
-                        <td className="py-sm px-md">
-                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-caption font-caption font-semibold ${colors.bg} ${colors.text} ${colors.border}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}></span>
-                            {colors.label}
-                          </span>
-                        </td>
-                        <td className="py-sm px-md">
-                          <div className="font-body-md text-ink font-bold">{t.mascotaNombre}</div>
-                          <div className="font-caption text-caption text-secondary mt-0.5">ID Mascota: {t.mascotaId}</div>
-                        </td>
-                        <td className="py-sm px-md font-body-sm text-body-strong font-medium">
-                          {t.propietarioNombre}
-                        </td>
-                        <td className="py-sm px-md font-body-sm text-secondary max-w-xs truncate">
-                          {t.sintomas || t.motivoConsulta || 'Sin observaciones'}
-                        </td>
-                        <td className="py-sm px-md">
-                          {isPending ? (
-                            <div className="flex items-center gap-1 font-body-sm text-amber-700 font-semibold bg-amber-50/60 px-2 py-1 rounded-md border border-amber-200/50 w-fit">
-                              <span className="material-symbols-outlined text-[16px] text-amber-600 animate-pulse">schedule</span>
-                              {getTiempoLlegada(t.fechaCita)}
-                            </div>
-                          ) : t.estado === 'EnAtencion' ? (
-                            <span className="font-body-sm text-accent-teal font-semibold">Atendiendo</span>
-                          ) : (
-                            <div className="flex items-center gap-1 font-body-sm text-ink font-semibold">
-                              <span className="material-symbols-outlined text-[16px] text-secondary">schedule</span>
-                              {t.tiempoEsperaEstimadoMin} min
-                            </div>
-                          )}
-                        </td>
-                        <td className="py-sm px-md font-body-sm text-body-strong font-semibold">
-                          {isPending ? '-' : (t.consultorio || 'Sin asignar')}
-                        </td>
-                        <td className="py-sm px-md text-right">
-                          <div className="flex justify-end gap-sm">
+          <>
+            {/* Mobile View: Cards (< 768px) */}
+            <div className="md:hidden divide-y divide-hairline">
+              <AnimatePresence mode="popLayout">
+                {combinedQueue.map((t) => {
+                  const isPending = t.tipoRegistro === 'Pendiente';
+                  const colors = isPending 
+                    ? { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: 'Pendiente Triaje', dot: 'bg-amber-500 animate-pulse' }
+                    : (NIVEL_COLORS[t.nivel] || { bg: 'bg-surface-dim', border: 'border-hairline', text: 'text-secondary', label: t.nivel, dot: 'bg-secondary' });
+
+                  return (
+                    <motion.div
+                      key={t.id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="p-4 flex flex-col gap-3 bg-surface-card hover:bg-surface-soft/20 border-b border-hairline"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold ${colors.bg} ${colors.text} ${colors.border}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}></span>
+                          {colors.label}
+                        </span>
+                        <div className="text-xs font-semibold text-secondary">
+                          {isPending ? getTiempoLlegada(t.fechaCita) : `${t.tiempoEsperaEstimadoMin} min`}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-bold text-ink text-lg">{t.mascotaNombre}</div>
+                          <div className="text-xs text-secondary">Dueño: <span className="font-medium text-ink">{t.propietarioNombre}</span></div>
+                        </div>
+                        <div className="text-xs font-medium text-secondary bg-surface-soft px-2 py-1 rounded">
+                          {t.consultorio || 'Sala de Espera'}
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-secondary line-clamp-2 bg-surface-soft/50 p-2 rounded border border-hairline">
+                        {t.sintomas || t.motivoConsulta || 'Sin observaciones'}
+                      </p>
+
+                      <div className="pt-2 flex justify-end">
+                        {isPending ? (
+                          <button
+                            onClick={() => navigate('/admin/triage', {
+                              state: { citaId: t.citaId, mascotaId: t.mascotaId, mascotaNombre: t.mascotaNombre, motivo: t.motivoConsulta }
+                            })}
+                            className="w-full py-2.5 bg-[#b06000] text-white font-bold text-sm rounded-lg flex items-center justify-center gap-2"
+                          >
+                            <span className="material-symbols-outlined text-sm">edit_note</span>
+                            Hacer Triaje
+                          </button>
+                        ) : t.estado === 'EnEspera' ? (
+                          <button
+                            onClick={() => handleIniciarConsulta(t)}
+                            disabled={!t.citaId}
+                            className="w-full py-2.5 bg-primary text-on-primary font-bold text-sm rounded-lg flex items-center justify-center gap-2 disabled:opacity-50"
+                          >
+                            <span className="material-symbols-outlined text-sm">stethoscope</span>
+                            Atender Paciente
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t, from: '/admin/cola' } })}
+                            className="w-full py-2.5 bg-surface-soft text-accent-teal font-semibold text-sm rounded-lg flex items-center justify-center gap-2 border border-hairline"
+                          >
+                            <span className="material-symbols-outlined text-sm">lock_open</span>
+                            En Evolución
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+
+            {/* Desktop Table View (>= 768px) */}
+            <div className="hidden md:block overflow-x-auto relative">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-surface-soft border-b border-hairline">
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-40">Prioridad</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Mascota / Paciente</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Responsable</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider">Síntomas / Motivo</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-40">Espera Est.</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider w-36">Consultorio</th>
+                    <th className="py-3 px-lg font-caption-uppercase text-caption-uppercase text-secondary font-medium tracking-wider text-right w-48">Acción</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-hairline">
+                  <AnimatePresence mode="popLayout">
+                    {combinedQueue.map((t) => {
+                      const isPending = t.tipoRegistro === 'Pendiente';
+                      const colors = isPending 
+                        ? { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', label: 'Pendiente Triaje', dot: 'bg-amber-500 animate-pulse' }
+                        : (NIVEL_COLORS[t.nivel] || { bg: 'bg-surface-dim', border: 'border-hairline', text: 'text-secondary', label: t.nivel, dot: 'bg-secondary' });
+                      
+                      return (
+                        <motion.tr
+                          key={t.id}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className={`hover:bg-surface-soft/30 transition-colors group ${t.estado === 'EnAtencion' ? 'bg-accent-teal/5 opacity-80' : ''} ${isPending ? 'bg-amber-50/10' : ''}`}
+                        >
+                          <td className="py-sm px-md">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-caption font-caption font-semibold ${colors.bg} ${colors.text} ${colors.border}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`}></span>
+                              {colors.label}
+                            </span>
+                          </td>
+                          <td className="py-sm px-md">
+                            <div className="font-body-md text-ink font-bold">{t.mascotaNombre}</div>
+                            <div className="font-caption text-caption text-secondary mt-0.5">ID Mascota: {t.mascotaId}</div>
+                          </td>
+                          <td className="py-sm px-md font-body-sm text-body-strong font-medium">
+                            {t.propietarioNombre}
+                          </td>
+                          <td className="py-sm px-md font-body-sm text-secondary max-w-xs truncate">
+                            {t.sintomas || t.motivoConsulta || 'Sin observaciones'}
+                          </td>
+                          <td className="py-sm px-md">
                             {isPending ? (
-                              <button
-                                onClick={() => navigate('/admin/triage', {
-                                  state: {
-                                    citaId: t.citaId,
-                                    mascotaId: t.mascotaId,
-                                    mascotaNombre: t.mascotaNombre,
-                                    motivo: t.motivoConsulta
-                                  }
-                                })}
-                                className="px-4 py-1.5 bg-[#b06000] hover:bg-[#904e00] text-white font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-bold"
-                              >
-                                <span className="material-symbols-outlined text-sm">edit_note</span>
-                                Hacer Triaje
-                              </button>
-                            ) : t.estado === 'EnEspera' ? (
-                              <>
-                                <button
-                                  onClick={() => handleMarcarAtendido(t.id!)}
-                                  title="Marcar Atendido"
-                                  className="w-9 h-9 flex items-center justify-center border border-hairline rounded hover:bg-surface-soft text-secondary hover:text-ink transition-colors cursor-pointer"
-                                >
-                                  <span className="material-symbols-outlined text-[18px]">done</span>
-                                </button>
-                                <button
-                                  onClick={() => handleIniciarConsulta(t)}
-                                  disabled={!t.citaId}
-                                  title={t.citaId ? 'Iniciar evolución clínica' : 'Falta cita médica asignada'}
-                                  className="px-4 py-1.5 bg-primary hover:bg-primary-active text-on-primary font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs disabled:opacity-50"
-                                >
-                                  <span className="material-symbols-outlined text-sm">stethoscope</span>
-                                  Atender
-                                </button>
-                              </>
+                              <div className="flex items-center gap-1 font-body-sm text-amber-700 font-semibold bg-amber-50/60 px-2 py-1 rounded-md border border-amber-200/50 w-fit">
+                                <span className="material-symbols-outlined text-[16px] text-amber-600 animate-pulse">schedule</span>
+                                {getTiempoLlegada(t.fechaCita)}
+                              </div>
+                            ) : t.estado === 'EnAtencion' ? (
+                              <span className="font-body-sm text-accent-teal font-semibold">Atendiendo</span>
                             ) : (
-                              <button
-                                onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t, from: '/admin/cola' } })}
-                                className="px-4 py-1.5 bg-surface-soft hover:bg-surface-soft-active border border-hairline text-accent-teal font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-semibold"
-                                title="Retomar evolución clínica"
-                              >
-                                <span className="material-symbols-outlined text-sm">lock_open</span>
-                                En evolución
-                              </button>
+                              <div className="flex items-center gap-1 font-body-sm text-ink font-semibold">
+                                <span className="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+                                {t.tiempoEsperaEstimadoMin} min
+                              </div>
                             )}
-                          </div>
-                        </td>
-                      </motion.tr>
-                    );
-                  })}
-                </AnimatePresence>
-              </tbody>
-            </table>
-          </div>
+                          </td>
+                          <td className="py-sm px-md font-body-sm text-body-strong font-semibold">
+                            {isPending ? '-' : (t.consultorio || 'Sin asignar')}
+                          </td>
+                          <td className="py-sm px-md text-right">
+                            <div className="flex justify-end gap-sm">
+                              {isPending ? (
+                                <button
+                                  onClick={() => navigate('/admin/triage', {
+                                    state: {
+                                      citaId: t.citaId,
+                                      mascotaId: t.mascotaId,
+                                      mascotaNombre: t.mascotaNombre,
+                                      motivo: t.motivoConsulta
+                                    }
+                                  })}
+                                  className="px-4 py-1.5 bg-[#b06000] hover:bg-[#904e00] text-white font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-bold"
+                                >
+                                  <span className="material-symbols-outlined text-sm">edit_note</span>
+                                  Hacer Triaje
+                                </button>
+                              ) : t.estado === 'EnEspera' ? (
+                                <>
+                                  <button
+                                    onClick={() => handleMarcarAtendido(t.id!)}
+                                    title="Marcar Atendido"
+                                    className="w-9 h-9 flex items-center justify-center border border-hairline rounded hover:bg-surface-soft text-secondary hover:text-ink transition-colors cursor-pointer"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">done</span>
+                                  </button>
+                                  <button
+                                    onClick={() => handleIniciarConsulta(t)}
+                                    disabled={!t.citaId}
+                                    title={t.citaId ? 'Iniciar evolución clínica' : 'Falta cita médica asignada'}
+                                    className="px-4 py-1.5 bg-primary hover:bg-primary-active text-on-primary font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs disabled:opacity-50"
+                                  >
+                                    <span className="material-symbols-outlined text-sm">stethoscope</span>
+                                    Atender
+                                  </button>
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => navigate(`/admin/atencion/${t.citaId}`, { state: { triage: t, from: '/admin/cola' } })}
+                                  className="px-4 py-1.5 bg-surface-soft hover:bg-surface-soft-active border border-hairline text-accent-teal font-button text-button rounded-lg transition-colors flex items-center gap-xs cursor-pointer shadow-xs font-semibold"
+                                  title="Retomar evolución clínica"
+                                >
+                                  <span className="material-symbols-outlined text-sm">lock_open</span>
+                                  En evolución
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </AnimatePresence>
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
+
       </div>
     </div>
   );

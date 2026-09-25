@@ -139,6 +139,18 @@ public class HistorialesClinicosController : ControllerBase
         return Ok(Response<object>.Ok(citaId, "Atención clínica cerrada. La cita pasó a estado Completada."));
     }
 
+    [HttpPost("{id}/addendum")]
+    [Authorize(Roles = "Admin,Veterinario")]
+    public async Task<ActionResult<Response<object>>> AgregarAddendum(int id, [FromBody] AddendumDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Nota)) return BadRequest(Response<object>.Fail("La nota aclaratoria no puede estar vacía."));
+
+        var (success, actualizado, error) = await _historialService.AgregarAddendumAsync(id, dto.Nota, GetUserEmail() ?? "Sistema", IsAdmin());
+        if (!success) return BadRequest(Response<object>.Fail(error ?? "Error al agregar nota aclaratoria."));
+
+        return Ok(Response<object>.Ok(actualizado?.CitaId, "Nota aclaratoria (Addendum) registrada exitosamente."));
+    }
+
     [HttpGet("descargarpdf/{citaId}")]
     public async Task<ActionResult<Response<object>>> DescargarPDF(int citaId)
     {

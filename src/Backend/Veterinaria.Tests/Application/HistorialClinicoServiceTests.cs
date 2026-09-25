@@ -614,5 +614,119 @@ public class HistorialClinicoServiceTests
         var pet = await _context.Mascotas.FindAsync(7);
         Assert.AreEqual(10.5m, pet!.Peso);
     }
+
+    [TestMethod]
+    public async Task ActualizarBorradorAsync_DebeGuardarCamposSOAP()
+    {
+        var usuario = new Usuario { Id = 30, Nombre = "Owner30", Email = "owner30@test.com" };
+        var mascota = new Mascota { Id = 30, Nombre = "Fido30", UsuarioId = 30 };
+        var servicio = new Servicio { Id = 30, Nombre = "Consulta", Activo = true };
+        var veterinario = new Veterinario { Id = 30, Nombre = "Vet30", Email = "vet@test.com", Activo = true };
+        var cita = new Cita { Id = 30, MascotaId = 30, VeterinarioId = 30, ServicioId = 30, Estado = "EnAtencion" };
+        var historial = new HistorialClinico { Id = 30, CitaId = 30, Cerrado = false, Diagnostico = "Previo" };
+
+        await _context.Usuarios.AddAsync(usuario);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Veterinarios.AddAsync(veterinario);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(historial);
+        await _context.SaveChangesAsync();
+
+        var dto = new HistorialClinico
+        {
+            Id = 30,
+            Subjetivo = "Paciente decaído",
+            Objetivo = "Temp 38.5C",
+            Analisis = "Gastroenteritis leve",
+            Plan = "Dieta blanda y probióticos"
+        };
+
+        var result = await _sut.ActualizarBorradorAsync(dto, "vet@test.com", true);
+
+        Assert.IsTrue(result.Success, result.Error);
+        Assert.AreEqual("Paciente decaído", result.Historial!.Subjetivo);
+        Assert.AreEqual("Temp 38.5C", result.Historial.Objetivo);
+        Assert.AreEqual("Gastroenteritis leve", result.Historial.Analisis);
+        Assert.AreEqual("Dieta blanda y probióticos", result.Historial.Plan);
+    }
+
+    [TestMethod]
+    public async Task AgregarAddendumAsync_CuandoHistorialCerrado_DebeAgregarNotaConTimestamp()
+    {
+        var usuario = new Usuario { Id = 31, Nombre = "Owner31", Email = "owner31@test.com" };
+        var mascota = new Mascota { Id = 31, Nombre = "Fido31", UsuarioId = 31 };
+        var servicio = new Servicio { Id = 31, Nombre = "Consulta", Activo = true };
+        var veterinario = new Veterinario { Id = 31, Nombre = "Vet31", Email = "vet@test.com", Activo = true };
+        var cita = new Cita { Id = 31, MascotaId = 31, VeterinarioId = 31, ServicioId = 31, Estado = "Completada" };
+        var historial = new HistorialClinico { Id = 31, CitaId = 31, Cerrado = true, Diagnostico = "Ok" };
+
+        await _context.Usuarios.AddAsync(usuario);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Veterinarios.AddAsync(veterinario);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(historial);
+        await _context.SaveChangesAsync();
+
+        var result = await _sut.AgregarAddendumAsync(31, "Aclaración posterior", "vet@test.com", true);
+
+        Assert.IsTrue(result.Success, result.Error);
+        Assert.IsNotNull(result.Historial?.Addendum);
+        Assert.IsTrue(result.Historial!.Addendum!.Contains("Aclaración posterior"));
+        Assert.IsTrue(result.Historial.Addendum.Contains("vet@test.com"));
+    }
+
+    [TestMethod]
+    public async Task CerrarAtencionAsync_CuandoServicioCirugiaSinConsentimiento_DebeRetornarError()
+    {
+        var usuario = new Usuario { Id = 32, Nombre = "Owner32", Email = "owner32@test.com" };
+        var mascota = new Mascota { Id = 32, Nombre = "Fido32", UsuarioId = 32 };
+        var servicioCirugia = new Servicio { Id = 32, Nombre = "Cirugía Menor", Activo = true };
+        var veterinario = new Veterinario { Id = 32, Nombre = "Vet32", Email = "vet@test.com", Activo = true };
+        var cita = new Cita { Id = 32, MascotaId = 32, VeterinarioId = 32, ServicioId = 32, Estado = "EnAtencion", MontoTotal = 150m };
+        var historial = new HistorialClinico { Id = 32, CitaId = 32, Cerrado = false, Diagnostico = "Requiere intervención" };
+
+        await _context.Usuarios.AddAsync(usuario);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicioCirugia);
+        await _context.Veterinarios.AddAsync(veterinario);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(historial);
+        await _context.SaveChangesAsync();
+
+        var result = await _sut.CerrarAtencionAsync(32, "vet@test.com", true);
+
+        Assert.IsFalse(result.Success);
+        Assert.IsTrue(result.Error!.Contains("consentimiento informado"));
+    }
+
+    [TestMethod]
+    public async Task CerrarAtencionAsync_DebeGenerarOrdenDeCobroPendiente()
+    {
+        var usuario = new Usuario { Id = 33, Nombre = "Owner33", Email = "owner33@test.com" };
+        var mascota = new Mascota { Id = 33, Nombre = "Fido33", UsuarioId = 33 };
+        var servicio = new Servicio { Id = 33, Nombre = "Consulta General", Activo = true };
+        var veterinario = new Veterinario { Id = 33, Nombre = "Vet33", Email = "vet@test.com", Activo = true };
+        var cita = new Cita { Id = 33, MascotaId = 33, VeterinarioId = 33, ServicioId = 33, Estado = "EnAtencion", MontoTotal = 50m };
+        var historial = new HistorialClinico { Id = 33, CitaId = 33, Cerrado = false, Diagnostico = "Control sano" };
+
+        await _context.Usuarios.AddAsync(usuario);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Veterinarios.AddAsync(veterinario);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(historial);
+        await _context.SaveChangesAsync();
+
+        var result = await _sut.CerrarAtencionAsync(33, "vet@test.com", true);
+
+        Assert.IsTrue(result.Success, result.Error);
+
+        var pago = await _context.Pagos.FirstOrDefaultAsync(p => p.CitaId == 33);
+        Assert.IsNotNull(pago);
+        Assert.AreEqual(50m, pago!.Monto);
+        Assert.AreEqual("Pendiente", pago.MetodoPago);
+    }
 }
 

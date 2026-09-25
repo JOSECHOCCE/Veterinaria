@@ -78,6 +78,36 @@ public class CitaStatusService : BackgroundService
             }
         }
 
+        // 0.5 (RF-007, Sprint 2) Recordatorio 2h antes: notificar a citas Confirmadas
+        // que ocurran dentro de las próximas 1-3h. Misma deduplicación que 24h.
+        var ventana2hInicio = ahora.AddHours(1);
+        var ventana2hFin = ahora.AddHours(3);
+        var citasParaRecordar2h = await context.Citas
+            .Include(c => c.Mascota)
+            .Where(c => c.Estado == "Confirmada"
+                     && c.FechaHora >= ventana2hInicio
+                     && c.FechaHora <= ventana2hFin)
+            .ToListAsync();
+
+        foreach (var cita in citasParaRecordar2h)
+        {
+            try
+            {
+                var url = $"/Citas/Details/{cita.Id}";
+                var yaEnviado2h = await context.Notificaciones
+                    .AnyAsync(n => n.UrlAccion == url && n.Titulo.Contains("Recordatorio")
+                               && n.FechaCreacion >= ahora.AddHours(-4)); // Only check recent to avoid re-sending
+                if (yaEnviado2h) continue;
+
+                await notificacionService.NotificarRecordatorioCitaAsync(cita);
+                _logger.LogInformation($"Recordatorio 2h enviado para cita {cita.Id}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error enviando recordatorio 2h para cita {cita.Id}");
+            }
+        }
+
         // 1. Citas pendientes que ya pasaron hace más de 30 minutos -> Marcar como "NoAsistio"
         var citasNoAsistidas = await context.Citas
             .Where(c => c.Estado == "Solicitada" || c.Estado == "Pendiente" || c.Estado == "Confirmada" || c.Estado == "EnEspera")

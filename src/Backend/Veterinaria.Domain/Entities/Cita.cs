@@ -39,6 +39,7 @@ public class Cita
     public int MascotaId { get; set; }
     public int VeterinarioId { get; set; }
     public int ServicioId { get; set; }
+    public int? ConsultorioId { get; set; }
 
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
@@ -46,10 +47,15 @@ public class Cita
     public DateTime? FechaExpiracionReserva { get; set; }
     public bool EsUrgencia { get; set; } = false;
 
+    // T5 SHOULD: flag derivado sin migración — urgencia sin consultorio requiere reasignación.
+    [NotMapped]
+    public bool RequiereReasignacion => EsUrgencia && ConsultorioId == null;
+
     // Navegación
     public virtual Mascota Mascota { get; set; } = default!;
     public virtual Veterinario Veterinario { get; set; } = default!;
     public virtual Servicio Servicio { get; set; } = default!;
+    public virtual Consultorio? Consultorio { get; set; }
 
     // Relaciones
     public virtual HistorialClinico? Historial { get; set; }

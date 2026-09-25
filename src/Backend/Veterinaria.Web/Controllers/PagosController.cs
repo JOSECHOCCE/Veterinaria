@@ -217,9 +217,75 @@ public class PagosController : ControllerBase
 
         return Ok(Response<object>.Ok(pagosDto));
     }
+
+    [HttpGet("ordenes-cobro")]
+    [Authorize(Roles = "Admin,Recepcionista,Veterinario")]
+    public async Task<ActionResult<Response<List<OrdenCobroDto>>>> GetOrdenesCobroPendientes()
+    {
+        var ordenes = await _pagoService.GetOrdenesCobroPendientesAsync();
+        return Ok(Response<List<OrdenCobroDto>>.Ok(ordenes));
+    }
+
+    [HttpPost("cobrar-mixto")]
+    [Authorize(Roles = "Admin,Recepcionista")]
+    public async Task<ActionResult<Response<object>>> ProcesarPagoMixto([FromBody] ProcesarPagoMixtoDto dto)
+    {
+        var usuarioOperador = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Email) ?? "Cajero";
+        var (success, pago, error) = await _pagoService.ProcesarPagoMixtoAsync(dto, usuarioOperador);
+
+        if (!success)
+        {
+            return BadRequest(Response<object>.Fail(error ?? "Error al procesar cobro mixto."));
+        }
+
+        return Ok(Response<object>.Ok(new
+        {
+            Message = $"Cobro procesado exitosamente. Pago ID: {pago?.Id}",
+            PagoId = pago?.Id,
+            EstadoVerificacion = pago?.EstadoVerificacion
+        }));
+    }
+
+    [HttpGet("yape-plin-pendientes")]
+    [Authorize(Roles = "Admin,Recepcionista")]
+    public async Task<ActionResult<Response<object>>> GetPagosPendientesVerificacion()
+    {
+        var pagos = await _pagoService.GetPagosPendientesVerificacionAsync();
+        var dtos = _mapper.Map<List<PagoDto>>(pagos);
+        return Ok(Response<object>.Ok(dtos));
+    }
+
+    [HttpPut("{id}/verificacion")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<Response<object>>> CambiarEstadoVerificacionPago(int id, [FromBody] CambiarVerificacionRequest req)
+    {
+        var usuarioAdmin = User.Identity?.Name ?? User.FindFirstValue(ClaimTypes.Email) ?? "Admin";
+        var (success, message) = await _pagoService.CambiarEstadoVerificacionPagoAsync(id, req.NuevoEstado, usuarioAdmin);
+
+        if (!success)
+        {
+            return BadRequest(Response<object>.Fail(message));
+        }
+
+        return Ok(Response<object>.Ok(new { Message = message }));
+    }
+
+    [HttpGet("cierre-caja")]
+    [Authorize(Roles = "Admin,Recepcionista")]
+    public async Task<ActionResult<Response<CierreCajaDto>>> GetCierreCajaDiario([FromQuery] DateTime? fecha, [FromQuery] int? cajeroId)
+    {
+        var fechaConsulta = fecha ?? DateTime.Today;
+        var cierre = await _pagoService.GetCierreCajaDiarioAsync(fechaConsulta, cajeroId);
+        return Ok(Response<CierreCajaDto>.Ok(cierre));
+    }
 }
 
 public class AnularPagoRequest
 {
     public string Motivo { get; set; } = string.Empty;
+}
+
+public class CambiarVerificacionRequest
+{
+    public string NuevoEstado { get; set; } = "Verificado"; // "Verificado", "Rechazado"
 }

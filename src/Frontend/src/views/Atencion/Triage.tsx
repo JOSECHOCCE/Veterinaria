@@ -145,7 +145,7 @@ export default function Triage() {
   }
 
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-6 pb-12 select-none animate-fadeIn">
       {/* Header */}
       <PageHeader
         title="Registro de Triage"

@@ -21,6 +21,24 @@ public interface IUnitOfWork : IAsyncDisposable, IDisposable
     IGenericRepository<HorarioClinica> HorariosClinica { get; }
     IGenericRepository<HorarioVeterinario> HorariosVeterinario { get; }
     IGenericRepository<BloqueoAgenda> BloqueosAgenda { get; }
+    IGenericRepository<Consultorio> Consultorios { get; }
+    IGenericRepository<ListaEspera> ListaEsperas { get; }
+    IGenericRepository<Presupuesto> Presupuestos { get; }
+    IGenericRepository<DetallePresupuesto> DetallePresupuestos { get; }
+    IGenericRepository<Receta> Recetas { get; }
+    IGenericRepository<DetalleReceta> DetalleRecetas { get; }
+    IGenericRepository<MovimientoInventario> MovimientosInventario { get; }
+    IGenericRepository<OrdenCobro> OrdenesCobro { get; }
+    IGenericRepository<DetalleOrdenCobro> DetallesOrdenCobro { get; }
+    IGenericRepository<SeguimientoPostAtencion> SeguimientosPostAtencion { get; }
+    IGenericRepository<RecordatorioVacuna> RecordatoriosVacunas { get; }
+    IGenericRepository<AuditoriaLog> AuditoriaLogs { get; }
 
     Task<int> CommitAsync();
+
+    // T6 SHOULD: transacciones explícitas para atomicidad caja (no-op en providers no relacionales).
+    bool SoportaTransacciones { get; }
+    Task BeginTransactionAsync();
+    Task CommitTransactionAsync();
+    Task RollbackTransactionAsync();
 }

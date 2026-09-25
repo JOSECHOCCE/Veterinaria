@@ -244,11 +244,12 @@ public class PortalClienteService : IPortalClienteService
         if (mascota == null || mascota.UsuarioId != usuarioId)
             return Response<IEnumerable<object>>.Fail("Mascota no encontrada o acceso denegado.");
 
+        // T8 SHOULD: el portal cliente NUNCA expone borradores (Cerrado=false).
         var historiales = await _unitOfWork.HistorialesClinicos.GetAll()
             .Include(h => h.Cita)
                 .ThenInclude(c => c.Servicio)
             .Include(h => h.Cita.Veterinario)
-            .Where(h => h.Cita.MascotaId == mascotaId)
+            .Where(h => h.Cita.MascotaId == mascotaId && h.Cerrado)
             .OrderByDescending(h => h.FechaRegistro)
             .Select(h => new
             {

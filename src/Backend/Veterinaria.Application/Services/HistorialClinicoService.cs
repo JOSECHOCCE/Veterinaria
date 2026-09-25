@@ -27,14 +27,22 @@ public class HistorialClinicoService : IHistorialClinicoService
             .FirstOrDefaultAsync(m => m.Id == mascotaId);
     }
 
-    public async Task<List<HistorialClinico>> GetHistorialesByMascotaIdAsync(int mascotaId)
+    // T8 SHOULD (decisión documentada): el historial del cliente solo expone atenciones
+    // Cerradas; los borradores (Cerrado=false) solo los ve el equipo interno con
+    // incluirBorradores:true. El portal cliente filtra por su cuenta (doble seguro).
+    public async Task<List<HistorialClinico>> GetHistorialesByMascotaIdAsync(int mascotaId, bool incluirBorradores = false)
     {
-        return await _unitOfWork.HistorialesClinicos.GetAll()
+        var query = _unitOfWork.HistorialesClinicos.GetAll()
             .Include(h => h.Cita)
                 .ThenInclude(c => c.Veterinario)
             .Include(h => h.Cita)
                 .ThenInclude(c => c.Servicio)
-            .Where(h => h.Cita.MascotaId == mascotaId && h.Cerrado) // Historiales cerrados visibles (RF-42) o todos? Mostrar todos, pero el cliente no debería ver borradores. Dejémoslo todos por ahora, el controller filtra si es cliente.
+            .Where(h => h.Cita.MascotaId == mascotaId);
+
+        if (!incluirBorradores)
+            query = query.Where(h => h.Cerrado);
+
+        return await query
             .OrderByDescending(h => h.Cita.FechaHora)
             .ToListAsync();
     }
@@ -131,21 +139,50 @@ public class HistorialClinicoService : IHistorialClinicoService
         if (!isAdmin && historial.Cita.Veterinario != null && historial.Cita.Veterinario.Email != userEmail)
             return (false, null, "Solo el veterinario asignado a la cita puede editar la atención.");
 
-        historial.Diagnostico = historialDto.Diagnostico;
-        historial.Tratamiento = historialDto.Tratamiento;
-        historial.Medicamentos = historialDto.Medicamentos;
-        historial.Observaciones = historialDto.Observaciones;
-        historial.MotivoConsulta = historialDto.MotivoConsulta;
-        historial.Hallazgos = historialDto.Hallazgos;
-        historial.Recomendaciones = historialDto.Recomendaciones;
-        historial.ProximoControl = historialDto.ProximoControl;
+        historial.Diagnostico = historialDto.Diagnostico ?? historial.Diagnostico;
+        historial.Tratamiento = historialDto.Tratamiento ?? historial.Tratamiento;
+        historial.Medicamentos = historialDto.Medicamentos ?? historial.Medicamentos;
+        historial.Observaciones = historialDto.Observaciones ?? historial.Observaciones;
+        historial.MotivoConsulta = historialDto.MotivoConsulta ?? historial.MotivoConsulta;
+        historial.Hallazgos = historialDto.Hallazgos ?? historial.Hallazgos;
+        historial.Recomendaciones = historialDto.Recomendaciones ?? historial.Recomendaciones;
+        historial.ProximoControl = historialDto.ProximoControl ?? historial.ProximoControl;
         historial.PesoActual = historialDto.PesoActual;
-        historial.Temperatura = historialDto.Temperatura;
-        historial.FrecuenciaCardiaca = historialDto.FrecuenciaCardiaca;
+        historial.Temperatura = historialDto.Temperatura ?? historial.Temperatura;
+        historial.FrecuenciaCardiaca = historialDto.FrecuenciaCardiaca ?? historial.FrecuenciaCardiaca;
+
+        // SOAP fields (RF-014)
+        historial.Subjetivo = historialDto.Subjetivo ?? historial.Subjetivo;
+        historial.Objetivo = historialDto.Objetivo ?? historial.Objetivo;
+        historial.Analisis = historialDto.Analisis ?? historial.Analisis;
+        historial.Plan = historialDto.Plan ?? historial.Plan;
 
         if (historial.PesoActual.HasValue && historial.Cita?.Mascota != null)
         {
             historial.Cita.Mascota.Peso = historial.PesoActual;
+        }
+
+        await _unitOfWork.CommitAsync();
+        return (true, historial, null);
+    }
+
+    public async Task<(bool Success, HistorialClinico? Historial, string? Error)> AgregarAddendumAsync(int historialId, string nota, string userEmail, bool isAdmin)
+    {
+        var historial = await GetHistorialByIdAsync(historialId);
+        if (historial == null) return (false, null, "Historial no encontrado.");
+
+        if (!historial.Cerrado) return (false, null, "Solo se pueden agregar notas aclaratorias a historiales cerrados.");
+
+        var timestamp = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm UTC");
+        var addendumEntry = $"[{timestamp} por {userEmail}]: {nota}";
+
+        if (string.IsNullOrWhiteSpace(historial.Addendum))
+        {
+            historial.Addendum = addendumEntry;
+        }
+        else
+        {
+            historial.Addendum += "\n" + addendumEntry;
         }
 
         await _unitOfWork.CommitAsync();
@@ -162,16 +199,33 @@ public class HistorialClinicoService : IHistorialClinicoService
         if (!isAdmin && historial.Cita?.Veterinario != null && historial.Cita.Veterinario.Email != userEmail)
             return (false, "Solo el veterinario asignado puede cerrar la atención.");
 
+        var cita = historial.Cita;
+        if (cita == null) return (false, "Cita asociada no encontrada.");
+
+        // Rule: Surgical / Anesthetic / Hospitalization services require an accepted consent form
+        var servicioNombre = cita.Servicio?.Nombre?.ToLower() ?? "";
+        bool esProcedimientoAltoRiesgo = servicioNombre.Contains("cirugía") || servicioNombre.Contains("cirugia") ||
+                                          servicioNombre.Contains("anestesia") || servicioNombre.Contains("hospitalización");
+
+        if (esProcedimientoAltoRiesgo)
+        {
+            var tieneConsentimientoAceptado = await _unitOfWork.Consentimientos.GetAll()
+                .AnyAsync(c => c.MascotaId == cita.MascotaId && c.Aceptado);
+
+            if (!tieneConsentimientoAceptado)
+            {
+                return (false, "Este procedimiento requiere un consentimiento informado firmado y aceptado antes de cerrar la atención.");
+            }
+        }
+
         historial.Cerrado = true;
 
-        // RF-41: Cerrar atención clínica cambia estado de cita a Completada
-        var cita = historial.Cita;
-        if (cita != null && (cita.Estado == "EnAtencion" || cita.Estado == "EnProceso"))
+        if (cita.Estado == "EnAtencion" || cita.Estado == "EnProceso")
         {
             cita.Estado = "Completada";
         }
 
-        // Update associated Triage status to "Atendido" to remove it from the active queue
+        // Update associated Triage status to "Atendido"
         var triage = await _unitOfWork.Triages.GetAll()
             .AsTracking()
             .FirstOrDefaultAsync(t => t.CitaId == citaId && (t.Estado == "EnEspera" || t.Estado == "EnAtencion"));
@@ -180,9 +234,50 @@ public class HistorialClinicoService : IHistorialClinicoService
             triage.Estado = "Atendido";
         }
 
+        // RF-018: Auto-generate pending OrdenCobro / Pago for reception/caja
+        var existePago = await _unitOfWork.Pagos.GetAll().AnyAsync(p => p.CitaId == citaId);
+        if (!existePago)
+        {
+            // Calculate total: Cita base fee + Accepted budgets + In-house prescription items
+            decimal montoTotal = cita.MontoTotal;
+
+            // Add accepted budget items
+            var presupuestosAceptados = await _unitOfWork.Presupuestos.GetAll()
+                .Where(p => p.CitaId == citaId && p.Estado == "Aceptado")
+                .SumAsync(p => (decimal?)p.MontoTotal) ?? 0m;
+
+            montoTotal += presupuestosAceptados;
+
+            // Add in-house prescription items
+            var receta = await _unitOfWork.Recetas.GetAll()
+                .Include(r => r.Items)
+                    .ThenInclude(i => i.Producto)
+                .FirstOrDefaultAsync(r => r.HistorialClinicoId == historial.Id);
+
+            if (receta != null && receta.Items != null)
+            {
+                var montoRecetaInterna = receta.Items
+                    .Where(i => i.EsStockInterno && i.Producto != null)
+                    .Sum(i => i.CantidadPrescrita * (i.Producto?.Precio ?? 0m));
+
+                montoTotal += montoRecetaInterna;
+            }
+
+            var nuevoPago = new Pago
+            {
+                CitaId = cita.Id,
+                Monto = montoTotal,
+                MetodoPago = "Pendiente",
+                TipoPago = "Completo",
+                Observacion = "Orden de cobro generada automáticamente al cerrar atención médica.",
+                FechaPago = DateTime.UtcNow
+            };
+
+            await _unitOfWork.Pagos.AddAsync(nuevoPago);
+        }
+
         await _unitOfWork.CommitAsync();
 
-        // Notificar en tiempo real al cliente
         if (cita != null)
         {
             await _notificacionService.NotificarCitaCompletadaAsync(cita);

@@ -270,4 +270,120 @@ public class VentaServiceTests
         Assert.IsNotNull(result);
         Assert.AreEqual(40m, result.Total);
     }
+
+    [TestMethod]
+    public async Task RegistrarVentaAsync_VentaLibre_DebeCompletarVentaYRegistrarKardex()
+    {
+        // Arrange
+        var prod = new Producto { Id = 20, Nombre = "Champú Mascota", Activo = true, Stock = 10, Precio = 25m, RequiereReceta = false };
+        await _context.Productos.AddAsync(prod);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var venta = new Venta
+        {
+            Id = 100,
+            MetodoPago = "Efectivo",
+            Detalles = new List<DetalleVenta> { new() { ProductoId = 20, Cantidad = 3 } }
+        };
+
+        // Act
+        var result = await _sut.RegistrarVentaAsync(venta);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(75m, result.Total);
+        var dbProd = await _context.Productos.FindAsync(20);
+        Assert.AreEqual(7, dbProd!.Stock); // 10 - 3 = 7
+
+        var kardex = await _context.MovimientosInventario.FirstOrDefaultAsync(m => m.ProductoId == 20);
+        Assert.IsNotNull(kardex);
+        Assert.AreEqual("SalidaVenta", kardex.TipoMovimiento);
+        Assert.AreEqual(3, kardex.Cantidad);
+    }
+
+    [TestMethod]
+    public async Task RegistrarVentaAsync_ProductoRestringidoSinReceta_DebeLanzarExcepcion()
+    {
+        // Arrange
+        var prodRestringido = new Producto { Id = 21, Nombre = "Amoxicilina 500mg", Activo = true, Stock = 10, Precio = 30m, RequiereReceta = true };
+        await _context.Productos.AddAsync(prodRestringido);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var venta = new Venta
+        {
+            Id = 101,
+            MetodoPago = "Efectivo",
+            RecetaId = null, // Sin receta médica
+            Detalles = new List<DetalleVenta> { new() { ProductoId = 21, Cantidad = 1 } }
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await _sut.RegistrarVentaAsync(venta));
+        Assert.IsTrue(ex.Message.Contains("requiere una receta médica válida"));
+    }
+
+    [TestMethod]
+    public async Task RegistrarVentaAsync_ProductoRestringidoConRecetaInvalida_DebeLanzarExcepcion()
+    {
+        // Arrange
+        var prodRestringido = new Producto { Id = 22, Nombre = "Anestésico Local", Activo = true, Stock = 5, Precio = 50m, RequiereReceta = true };
+        var receta = new Receta { Id = 50, HistorialClinicoId = 1, MascotaId = 1, VeterinarioId = 1 };
+        // Receta sin items del producto 22
+        await _context.Productos.AddAsync(prodRestringido);
+        await _context.Recetas.AddAsync(receta);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var venta = new Venta
+        {
+            Id = 102,
+            MetodoPago = "Efectivo",
+            RecetaId = 50,
+            Detalles = new List<DetalleVenta> { new() { ProductoId = 22, Cantidad = 1 } }
+        };
+
+        // Act & Assert
+        var ex = await Assert.ThrowsExactlyAsync<InvalidOperationException>(async () => await _sut.RegistrarVentaAsync(venta));
+        Assert.IsTrue(ex.Message.Contains("no autoriza la venta"));
+    }
+
+    [TestMethod]
+    public async Task RegistrarVentaAsync_ProductoRestringidoConRecetaValida_DebeCompletarVenta()
+    {
+        // Arrange
+        var prodRestringido = new Producto { Id = 23, Nombre = "Antibiótico Canino", Activo = true, Stock = 8, Precio = 40m, RequiereReceta = true };
+        var receta = new Receta { Id = 51, HistorialClinicoId = 1, MascotaId = 1, VeterinarioId = 1 };
+        var detalleReceta = new DetalleReceta { Id = 10, RecetaId = 51, ProductoId = 23, CantidadPrescrita = 2 };
+        receta.Items.Add(detalleReceta);
+
+        await _context.Productos.AddAsync(prodRestringido);
+        await _context.Recetas.AddAsync(receta);
+        await _context.DetalleRecetas.AddAsync(detalleReceta);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        var venta = new Venta
+        {
+            Id = 103,
+            MetodoPago = "Tarjeta",
+            RecetaId = 51,
+            Detalles = new List<DetalleVenta> { new() { ProductoId = 23, Cantidad = 2 } }
+        };
+
+        // Act
+        var result = await _sut.RegistrarVentaAsync(venta);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(80m, result.Total);
+        var dbProd = await _context.Productos.FindAsync(23);
+        Assert.AreEqual(6, dbProd!.Stock); // 8 - 2 = 6
+
+        var kardex = await _context.MovimientosInventario.FirstOrDefaultAsync(m => m.ProductoId == 23);
+        Assert.IsNotNull(kardex);
+        Assert.AreEqual("SalidaVenta", kardex.TipoMovimiento);
+        Assert.AreEqual(2, kardex.Cantidad);
+    }
 }

@@ -29,5 +29,11 @@ public class ProductoDto
 
     public bool Activo { get; set; } = true;
 
+    public int LeadTimeDias { get; set; } = 3;
+
+    public int StockSeguridad { get; set; } = 5;
+
+    public DateTime? FechaVencimiento { get; set; }
+
     public DateTime FechaCreacion { get; set; }
 }

@@ -14,7 +14,7 @@ using Veterinaria.Web.Services;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin,Recepcionista")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario")]
 [ApiController]
 [Route("api/[controller]")]
 public class VentasController : ControllerBase
@@ -88,7 +88,8 @@ public class VentasController : ControllerBase
             var venta = _mapper.Map<Venta>(dto);
             
             // Registrar y procesar
-            await _ventaService.RegistrarVentaAsync(venta);
+            var registradoPor = User.Identity?.Name ?? "Caja Mostrador";
+            await _ventaService.RegistrarVentaAsync(venta, registradoPor);
 
             // Cargar datos del cliente y de los productos para la respuesta
             var ventaCompletada = await _ventaService.GetVentaByIdAsync(venta.Id);
@@ -109,7 +110,8 @@ public class VentasController : ControllerBase
     [HttpPost("Cancel/{id}")]
     public async Task<ActionResult<Response<object>>> Cancel(int id)
     {
-        var success = await _ventaService.CancelarVentaAsync(id);
+        var registradoPor = User.Identity?.Name ?? "Caja Mostrador";
+        var success = await _ventaService.CancelarVentaAsync(id, registradoPor);
         if (!success)
         {
             return BadRequest(Response<object>.Fail("No se pudo cancelar la venta. Puede que ya esté cancelada o no exista."));

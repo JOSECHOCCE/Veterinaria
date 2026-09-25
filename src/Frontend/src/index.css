@@ -89,27 +89,27 @@
   --spacing-gutter: 24px;
   --spacing-margin-mobile: 16px;
   --spacing-margin-desktop: 40px;
-  --spacing-container-max-width: 1200px;
+  --spacing-container-max-width: 1600px;
 
-  /* Font Sizes Scale - Adjusted for compact laptop layout */
-  --text-headline-lg-mobile: 20px;
-  --text-body-md: 13.5px;
-  --text-headline-lg: 26px;
-  --text-body-lg: 15px;
-  --text-label-sm: 10.5px;
-  --text-label-md: 12.5px;
-  --text-headline-md: 19px;
+  /* Font Sizes Scale - Legibilidad optimizada de lectura */
+  --text-headline-lg-mobile: 22px;
+  --text-body-md: 14px;
+  --text-headline-lg: 28px;
+  --text-body-lg: 16px;
+  --text-label-sm: 11.5px;
+  --text-label-md: 13px;
+  --text-headline-md: 20px;
 
   --text-display-xl: 3rem;
-  --text-display-lg: 2rem;
-  --text-display-md: 1.5rem;
-  --text-display-sm: 1.25rem;
+  --text-display-lg: 2.25rem;
+  --text-display-md: 1.75rem;
+  --text-display-sm: 1.35rem;
   --text-title-lg: 1.25rem;
   --text-title-md: 1.125rem;
   --text-title-sm: 1rem;
-  --text-caption: 0.75rem;
-  --text-caption-uppercase: 0.75rem;
-  --text-code: 0.85rem;
+  --text-caption: 0.8rem;
+  --text-caption-uppercase: 0.8rem;
+  --text-code: 0.875rem;
 
   /* Border Radius Scale */
   --radius-xs: 4px;
@@ -131,7 +131,7 @@
   --max-width-4xl: 56rem;
   --max-width-5xl: 64rem;
   --max-width-6xl: 72rem;
-  --max-width-7xl: 80rem;
+  --max-width-7xl: 84rem;
 }
 
 /* Clases de utilidad personalizadas adicionales si son requeridas */

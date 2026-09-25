@@ -30,6 +30,28 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HorarioClinica> HorariosClinica => Set<HorarioClinica>();
     public DbSet<HorarioVeterinario> HorariosVeterinario => Set<HorarioVeterinario>();
     public DbSet<BloqueoAgenda> BloqueosAgenda => Set<BloqueoAgenda>();
+    public DbSet<Consultorio> Consultorios => Set<Consultorio>();
+    public DbSet<ListaEspera> ListaEsperas => Set<ListaEspera>();
+
+    // Sprint 4: Presupuestos y Recetas
+    public DbSet<Presupuesto> Presupuestos => Set<Presupuesto>();
+    public DbSet<DetallePresupuesto> DetallePresupuestos => Set<DetallePresupuesto>();
+    public DbSet<Receta> Recetas => Set<Receta>();
+    public DbSet<DetalleReceta> DetalleRecetas => Set<DetalleReceta>();
+
+    // Sprint 5: Inventario Kardex
+    public DbSet<MovimientoInventario> MovimientosInventario => Set<MovimientoInventario>();
+
+    // Sprint 6: Caja y Ordenes de Cobro
+    public DbSet<OrdenCobro> OrdenesCobro => Set<OrdenCobro>();
+    public DbSet<DetalleOrdenCobro> DetallesOrdenCobro => Set<DetalleOrdenCobro>();
+
+    // Sprint 8: Post-atención y Recordatorios Automáticos
+    public DbSet<SeguimientoPostAtencion> SeguimientosPostAtencion => Set<SeguimientoPostAtencion>();
+    public DbSet<RecordatorioVacuna> RecordatoriosVacunas => Set<RecordatorioVacuna>();
+
+    // Sprint 9: Seguridad, Reportes y Cumplimiento
+    public DbSet<AuditoriaLog> AuditoriaLogs => Set<AuditoriaLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -470,6 +492,23 @@ public class VeterinariaDbContext : IdentityDbContext<ApplicationUser>
                 .WithMany()
                 .HasForeignKey(d => d.ProductoId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Consultorio
+        modelBuilder.Entity<Consultorio>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Nombre).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.TipoEspacio).IsRequired().HasMaxLength(50);
+        });
+
+        // Cita -> Consultorio
+        modelBuilder.Entity<Cita>(entity =>
+        {
+            entity.HasOne(c => c.Consultorio)
+                .WithMany(s => s.Citas)
+                .HasForeignKey(c => c.ConsultorioId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

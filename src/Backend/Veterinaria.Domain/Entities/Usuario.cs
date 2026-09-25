@@ -28,6 +28,9 @@ public class Usuario
 
     public bool Activo { get; set; } = true;
 
+    public bool EsAnonimizado { get; set; } = false;
+    public DateTime? FechaAnonimizacion { get; set; }
+
     public bool RecibirRecordatorios { get; set; } = true; // Preferencia del cliente para recordatorios no críticos
 
     public DateTime FechaRegistro { get; set; }

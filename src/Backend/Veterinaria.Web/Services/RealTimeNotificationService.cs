@@ -19,4 +19,10 @@ public class RealTimeNotificationService : IRealTimeNotificationService
         await _hubContext.Clients.Group($"User_{applicationUserId}")
             .SendAsync("RecibirNotificacion", notificationData);
     }
+
+    /// <inheritdoc />
+    public async Task SendTriageQueueUpdatedAsync()
+    {
+        await _hubContext.Clients.All.SendAsync("TriageQueueUpdated");
+    }
 }

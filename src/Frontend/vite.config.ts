@@ -6,8 +6,8 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [tailwindcss(), react()],
   build: {
-    // Emitir build directo a wwwroot del backend para servir en una sola URL
-    outDir: '../Backend/Veterinaria.Web/wwwroot',
+    // Si se especifica BUILD_OUT_DIR se usa, de lo contrario dist por defecto
+    outDir: process.env.BUILD_OUT_DIR || 'dist',
     emptyOutDir: true,
   },
   server: {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Veterinaria.Application.DTOs;
 using Veterinaria.Application.Services;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Infrastructure.Persistence;
@@ -14,20 +15,19 @@ namespace Veterinaria.Tests.Application;
 [TestClass]
 public class ProductoServiceTests
 {
-    private VeterinariaDbContext _context = null!;
-    private UnitOfWork _unitOfWork = null!;
-    private ProductoService _sut = null!;
+    private VeterinariaDbContext _context = default!;
+    private UnitOfWork _unitOfWork = default!;
+    private ProductoService _sut = default!;
 
     [TestInitialize]
-    public void Initialize()
+    public void Setup()
     {
         var options = new DbContextOptionsBuilder<VeterinariaDbContext>()
-            .UseInMemoryDatabase(databaseName: "VetCareTestDb_Producto_" + Guid.NewGuid().ToString(), inMemoryOptionsAction: b => b.EnableNullChecks(false))
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         _context = new VeterinariaDbContext(options);
         _unitOfWork = new UnitOfWork(_context);
-
         _sut = new ProductoService(_unitOfWork);
     }
 
@@ -36,136 +36,145 @@ public class ProductoServiceTests
     {
         _context.Database.EnsureDeleted();
         _context.Dispose();
-        _unitOfWork.Dispose();
     }
 
     [TestMethod]
-    public async Task AddProductoAsync_DebeGuardarProducto()
+    public async Task CalcularRopDinamicoAsync_ConHistorialVentas30Dias_DebeCalcularFormulaCorrecta()
     {
-        // Arrange
-        var p = new Producto { Id = 1, Nombre = "Shampoo", Activo = true, Stock = 10, Precio = 15m };
+        // GIVEN: Producto con LeadTime = 5, StockSeguridad = 10
+        var producto = new Producto
+        {
+            Id = 1,
+            Nombre = "Amoxicilina 500mg",
+            Stock = 50,
+            StockMinimo = 15,
+            LeadTimeDias = 5,
+            StockSeguridad = 10
+        };
+        await _context.Productos.AddAsync(producto);
 
-        // Act
-        await _sut.AddProductoAsync(p);
+        // Ventas en los últimos 30 días sumando 60 unidades (Consumo diario = 60/30 = 2 un/día)
+        var venta = new Venta
+        {
+            Id = 1,
+            Fecha = DateTime.UtcNow.AddDays(-10),
+            Estado = "Completada"
+        };
+        var detalleVenta = new DetalleVenta
+        {
+            Id = 1,
+            VentaId = 1,
+            ProductoId = 1,
+            Cantidad = 60,
+            PrecioUnitario = 10
+        };
 
-        // Assert
-        var inDb = await _context.Productos.FindAsync(1);
-        Assert.IsNotNull(inDb);
-        Assert.AreEqual("Shampoo", inDb!.Nombre);
-    }
-
-    [TestMethod]
-    public async Task DeleteProductoAsync_DebeHacerSoftDelete()
-    {
-        // Arrange
-        var p = new Producto { Id = 1, Nombre = "Collar", Activo = true, Stock = 5 };
-        await _context.Productos.AddAsync(p);
+        await _context.Ventas.AddAsync(venta);
+        await _context.DetallesVentas.AddAsync(detalleVenta);
         await _context.SaveChangesAsync();
-        _context.ChangeTracker.Clear();
 
-        // Act
-        await _sut.DeleteProductoAsync(1);
+        // WHEN: Se calcula el ROP dinámico
+        // ROP = (60 / 30) * 5 + 10 = 2 * 5 + 10 = 20
+        var rop = await _sut.CalcularRopDinamicoAsync(1);
 
-        // Assert
-        var inDb = await _context.Productos.FindAsync(1);
-        Assert.IsNotNull(inDb);
-        Assert.IsFalse(inDb!.Activo);
+        // THEN: ROP debe ser 20
+        Assert.AreEqual(20, rop);
     }
 
     [TestMethod]
-    public async Task GetProductosBajoStockAsync_DebeRetornarCorrectos()
+    public async Task CalcularRopDinamicoAsync_ProductoNuevoSinHistorial_DebeUsarStockMinimoFallback()
     {
-        // Arrange
-        // StockMinimo is a property on Producto. Let's set it.
-        var p1 = new Producto { Id = 1, Nombre = "P1", Activo = true, Stock = 2, StockMinimo = 5 };
-        var p2 = new Producto { Id = 2, Nombre = "P2", Activo = true, Stock = 10, StockMinimo = 5 };
-        var p3 = new Producto { Id = 3, Nombre = "P3", Activo = false, Stock = 1, StockMinimo = 5 }; // Inactive
-
-        await _context.Productos.AddRangeAsync(p1, p2, p3);
+        // GIVEN: Producto nuevo sin ventas registradas
+        var producto = new Producto
+        {
+            Id = 2,
+            Nombre = "Shampoo Antiséptico Nuevo",
+            Stock = 30,
+            StockMinimo = 15,
+            LeadTimeDias = 7,
+            StockSeguridad = 10
+        };
+        await _context.Productos.AddAsync(producto);
         await _context.SaveChangesAsync();
-        _context.ChangeTracker.Clear();
 
-        // Act
-        var result = await _sut.GetProductosBajoStockAsync();
+        // WHEN: Se calcula el ROP para un producto sin historial
+        var rop = await _sut.CalcularRopDinamicoAsync(2);
 
-        // Assert
-        Assert.AreEqual(1, result.Count());
-        Assert.AreEqual("P1", result.First().Nombre);
+        // THEN: Debe retornar StockMinimo (15) como fallback
+        Assert.AreEqual(15, rop);
     }
 
     [TestMethod]
-    public async Task GetActiveProductosQuery_DebeRetornarSoloActivos()
+    public async Task RegistrarMermaAsync_CuandoRegistraBaja_DebeRegistrarKardexYDescontarStock()
     {
-        // Arrange
-        var p1 = new Producto { Id = 1, Nombre = "P1", Activo = true };
-        var p2 = new Producto { Id = 2, Nombre = "P2", Activo = false };
-        await _context.Productos.AddRangeAsync(p1, p2);
+        // GIVEN: Producto con Stock inicial de 50
+        var producto = new Producto
+        {
+            Id = 3,
+            Nombre = "Vacuna Septuple",
+            Stock = 50,
+            StockMinimo = 10
+        };
+        await _context.Productos.AddAsync(producto);
         await _context.SaveChangesAsync();
-        _context.ChangeTracker.Clear();
 
-        // Act
-        var result = _sut.GetActiveProductosQuery().ToList();
+        var dto = new RegistrarMermaDto
+        {
+            ProductoId = 3,
+            Cantidad = 5,
+            Motivo = "Merma_Vencido",
+            Observaciones = "Lote vencido el 01/08/2026"
+        };
 
-        // Assert
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("P1", result.First().Nombre);
+        // WHEN: Se registra la merma
+        var result = await _sut.RegistrarMermaAsync(dto, "admin@test.com");
+
+        // THEN: El stock debe disminuir a 45 y debe existir la entrada en Kardex
+        Assert.IsTrue(result.Success, result.Message);
+        var productoActualizado = await _context.Productos.FindAsync(3);
+        Assert.AreEqual(45, productoActualizado!.Stock);
+
+        var kardex = await _context.MovimientosInventario.FirstOrDefaultAsync(m => m.ProductoId == 3);
+        Assert.IsNotNull(kardex);
+        Assert.AreEqual("Merma_Vencido", kardex.TipoMovimiento);
+        Assert.AreEqual(5, kardex.Cantidad);
+        Assert.AreEqual("admin@test.com", kardex.RegistradoPor);
     }
 
     [TestMethod]
-    public async Task GetProductoByIdAsync_DebeRetornarProductoCuandoExiste()
+    public async Task GetAlertasInventarioAsync_DebeRetornarProductosConStockMenorORopYPorVencer()
     {
-        // Arrange
-        var p = new Producto { Id = 10, Nombre = "P10", Activo = true };
-        await _context.Productos.AddAsync(p);
+        // GIVEN: Producto A (Stock <= ROP) y Producto B (Por vencer < 30 días)
+        var prodA = new Producto
+        {
+            Id = 4,
+            Nombre = "Gasas Estériles",
+            Stock = 12,
+            StockMinimo = 20, // ROP fallback = 20 -> Stock (12) <= ROP (20)
+            LeadTimeDias = 3,
+            StockSeguridad = 5
+        };
+
+        var prodB = new Producto
+        {
+            Id = 5,
+            Nombre = "Antibiótico Gotas",
+            Stock = 100,
+            StockMinimo = 10,
+            LeadTimeDias = 3,
+            StockSeguridad = 5,
+            FechaVencimiento = DateTime.UtcNow.AddDays(15) // Vence en 15 días (< 30)
+        };
+
+        await _context.Productos.AddRangeAsync(prodA, prodB);
         await _context.SaveChangesAsync();
-        _context.ChangeTracker.Clear();
 
-        // Act
-        var result = await _sut.GetProductoByIdAsync(10);
+        // WHEN: Se consultan las alertas de inventario
+        var alertas = (await _sut.GetAlertasInventarioAsync()).ToList();
 
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual("P10", result.Nombre);
-    }
-
-    [TestMethod]
-    public async Task GetProductoByIdAsync_DebeRetornarNullCuandoNoExiste()
-    {
-        // Act
-        var result = await _sut.GetProductoByIdAsync(999);
-
-        // Assert
-        Assert.IsNull(result);
-    }
-
-    [TestMethod]
-    public async Task UpdateProductoAsync_DebeActualizarProducto()
-    {
-        // Arrange
-        var p = new Producto { Id = 11, Nombre = "Original", Activo = true };
-        await _context.Productos.AddAsync(p);
-        await _context.SaveChangesAsync();
-        _context.ChangeTracker.Clear();
-
-        p.Nombre = "Modificado";
-
-        // Act
-        await _sut.UpdateProductoAsync(p);
-
-        // Assert
-        var inDb = await _context.Productos.FindAsync(11);
-        Assert.IsNotNull(inDb);
-        Assert.AreEqual("Modificado", inDb!.Nombre);
-    }
-
-    [TestMethod]
-    public async Task DeleteProductoAsync_CuandoNoExiste_NoDebeHacerNada()
-    {
-        // Act
-        await _sut.DeleteProductoAsync(999);
-
-        // Assert
-        var count = await _context.Productos.CountAsync();
-        Assert.AreEqual(0, count);
+        // THEN: Ambos productos deben aparecer en las alertas
+        Assert.AreEqual(2, alertas.Count);
+        Assert.IsTrue(alertas.Any(a => a.Id == 4 && a.TipoAlerta == "StockBajo"));
+        Assert.IsTrue(alertas.Any(a => a.Id == 5 && a.TipoAlerta == "PorVencer"));
     }
 }

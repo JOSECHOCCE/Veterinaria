@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using Veterinaria.Application.Interfaces;
 using Veterinaria.Application.Services;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Infrastructure.Persistence;
@@ -16,6 +18,7 @@ public class TriageServiceTests
 {
     private VeterinariaDbContext _context = null!;
     private UnitOfWork _unitOfWork = null!;
+    private Mock<IRealTimeNotificationService> _realTimeMock = null!;
     private TriageService _sut = null!;
 
     [TestInitialize]
@@ -27,8 +30,8 @@ public class TriageServiceTests
 
         _context = new VeterinariaDbContext(options);
         _unitOfWork = new UnitOfWork(_context);
-
-        _sut = new TriageService(_unitOfWork);
+        _realTimeMock = new Mock<IRealTimeNotificationService>();
+        _sut = new TriageService(_unitOfWork, _realTimeMock.Object);
     }
 
     [TestCleanup]
@@ -147,5 +150,50 @@ public class TriageServiceTests
         Assert.AreEqual(2, result.Count);
         Assert.AreEqual("Alpha", result[0].Nombre); // Alphabetical ordering
         Assert.AreEqual("Zoe", result[1].Nombre);
+    }
+
+    [TestMethod]
+    public async Task RegistrarSignosVitalesAsync_DebeActualizarSignosYColor()
+    {
+        // Arrange
+        var triage = new Triage { Id = 20, Nivel = "N3", PrioridadColor = "Verde", Estado = "EnEspera" };
+        await _context.Triages.AddAsync(triage);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var result = await _sut.RegistrarSignosVitalesAsync(20, "N1", "Fiebre alta", 39.5m, 120, 15.2m);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("N1", result.Nivel);
+        Assert.AreEqual("Rojo", result.PrioridadColor);
+        Assert.AreEqual(39.5m, result.Temperatura);
+        Assert.AreEqual(120, result.FrecuenciaCardiaca);
+        Assert.AreEqual(15.2m, result.PesoEstimado);
+    }
+
+    [TestMethod]
+    public async Task CambiarEstadoTriageAsync_DebeActualizarEstadoYTriageYCita()
+    {
+        // Arrange
+        var cita = new Cita { Id = 50, MascotaId = 1, VeterinarioId = 1, ServicioId = 1, Estado = "EnSalaDeEspera" };
+        var triage = new Triage { Id = 21, CitaId = 50, MascotaId = 1, Nivel = "N2", Estado = "EnEspera" };
+        await _context.Citas.AddAsync(cita);
+        await _context.Triages.AddAsync(triage);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var result = await _sut.CambiarEstadoTriageAsync(21, "EnAtencion", "Consultorio 1");
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual("EnAtencion", result.Estado);
+        Assert.AreEqual("Consultorio 1", result.Consultorio);
+
+        var citaInDb = await _context.Citas.FindAsync(50);
+        Assert.IsNotNull(citaInDb);
+        Assert.AreEqual("EnAtencion", citaInDb!.Estado);
     }
 }

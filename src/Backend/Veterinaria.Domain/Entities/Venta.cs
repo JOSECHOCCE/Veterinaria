@@ -23,6 +23,11 @@ public class Venta
     [ForeignKey("ClienteId")]
     public virtual Usuario? Cliente { get; set; }
 
+    public int? RecetaId { get; set; }
+
+    [ForeignKey("RecetaId")]
+    public virtual Receta? Receta { get; set; }
+
     [Required]
     [MaxLength(30)]
     public string Estado { get; set; } = "Completada"; // "Completada", "Cancelada"

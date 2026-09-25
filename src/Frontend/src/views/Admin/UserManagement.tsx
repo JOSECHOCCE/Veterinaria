@@ -305,7 +305,7 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="p-6 md:p-8 flex-1 w-full max-w-container-max mx-auto flex flex-col gap-6">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-6 pb-12 select-none animate-fadeIn">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

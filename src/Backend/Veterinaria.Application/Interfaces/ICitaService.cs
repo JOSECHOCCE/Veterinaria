@@ -30,5 +30,6 @@ public interface ICitaService
     Task<(bool Success, Cita? Cita, string? Error)> CancelarCitaAsync(int id, bool isAdmin, int? currentUsuarioId);
     Task<(bool Success, Cita? Cita)> CompletarCitaAsync(int id);
     Task<(bool Success, Cita? Cita, string? Error)> CambiarEstadoAsync(int id, string nuevoEstado);
+    Task<Cita> CheckInCitaAsync(int citaId);
     Task<List<int>> GetCitasConTriageAsync(List<int> citaIds);
 }

@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.HttpOverrides;
+// Habilitar compatibilidad de timestamps para PostgreSQL / Npgsql
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,9 +74,26 @@ builder.Services.AddCors(options =>
 // Configurar SignalR para notificaciones en tiempo real
 builder.Services.AddSignalR();
 
-// Configurar Entity Framework Core con SQL Server
+// Configurar Entity Framework Core con PostgreSQL / Supabase
+var rawConnectionString = builder.Configuration.GetConnectionString("VeterinariaDb")
+    ?? builder.Configuration["DATABASE_URL"]
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
+var connectionString = ParsePostgreSqlConnectionString(rawConnectionString);
+
 builder.Services.AddDbContext<VeterinariaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("VeterinariaDb")));
+{
+    if (!string.IsNullOrWhiteSpace(connectionString))
+    {
+        options.UseNpgsql(connectionString, npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorCodesToAdd: null);
+        });
+    }
+});
 
 // Configurar ASP.NET Core Identity
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
@@ -165,7 +184,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddHttpContextAccessor();
 
 // Configurar Servicios de Aplicación (Arquitectura Cebolla)
-builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAuditoriaService, Veterinaria.Web.Services.AuditoriaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAuditoriaService, Veterinaria.Application.Services.AuditoriaService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IAnonymizationService, Veterinaria.Application.Services.AnonymizationService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IClienteService, Veterinaria.Application.Services.ClienteService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IMascotaService, Veterinaria.Application.Services.MascotaService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IServicioService, Veterinaria.Application.Services.ServicioService>();
@@ -178,6 +198,7 @@ builder.Services.AddScoped<Veterinaria.Application.Interfaces.IHistorialClinicoS
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.ITriageService, Veterinaria.Application.Services.TriageService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IConsentimientoService, Veterinaria.Application.Services.ConsentimientoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.INotificacionService, Veterinaria.Application.Services.NotificacionService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPostAtencionService, Veterinaria.Application.Services.PostAtencionService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IRealTimeNotificationService, Veterinaria.Web.Services.RealTimeNotificationService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IProductoService, Veterinaria.Application.Services.ProductoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IVentaService, Veterinaria.Application.Services.VentaService>();
@@ -186,12 +207,20 @@ builder.Services.AddScoped<Veterinaria.Application.Interfaces.IUsuarioService, V
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.ICorreoService, Veterinaria.Web.Services.CorreoService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPortalClienteService, Veterinaria.Application.Services.PortalClienteService>();
 builder.Services.AddScoped<Veterinaria.Application.Interfaces.IReporteService, Veterinaria.Application.Services.ReporteService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IConsultorioService, Veterinaria.Application.Services.ConsultorioService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IPresupuestoService, Veterinaria.Application.Services.PresupuestoService>();
+builder.Services.AddScoped<Veterinaria.Application.Interfaces.IRecetaService, Veterinaria.Application.Services.RecetaService>();
 
 // Configurar Servicio de generación de PDFs (Sigue en Web por ser infraestructura visual o si se desea se puede mover después)
 builder.Services.AddScoped<PdfService>();
 
 // Servicio en segundo plano para actualizar estados de citas automáticamente
 builder.Services.AddHostedService<CitaStatusService>();
+
+// Servicio de respaldo automático de base de datos
+builder.Services.AddSingleton<Veterinaria.Application.Services.DatabaseBackupService>();
+builder.Services.AddSingleton<Veterinaria.Application.Interfaces.IDatabaseBackupService>(sp => sp.GetRequiredService<Veterinaria.Application.Services.DatabaseBackupService>());
+builder.Services.AddHostedService(sp => sp.GetRequiredService<Veterinaria.Application.Services.DatabaseBackupService>());
 
 // Agregar Razor Pages para Identity
 // builder.Services.AddRazorPages();
@@ -227,10 +256,10 @@ try
 catch (Exception ex)
 {
     Console.WriteLine("==========================================================================");
-    Console.WriteLine($"⚠️ ADVERTENCIA: No se pudo conectar o migrar la Base de Datos (SQL Server).");
+    Console.WriteLine($"⚠️ ADVERTENCIA: No se pudo conectar o migrar la Base de Datos (PostgreSQL / Supabase).");
     Console.WriteLine($"Detalle: {ex.Message}");
-    Console.WriteLine("El servidor web seguirá funcionando, pero las funciones que dependan de la");
-    Console.WriteLine("base de datos requerirán que inicies tu instancia local de SQL Server.");
+    Console.WriteLine("Verifica que las credenciales de Supabase / PostgreSQL o el servicio local");
+    Console.WriteLine("estén activos y que la cadena de conexión sea válida.");
     Console.WriteLine("==========================================================================");
 }
 
@@ -269,4 +298,35 @@ app.MapHub<NotificacionHub>("/notificacionHub");
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+static string ParsePostgreSqlConnectionString(string? connectionString)
+{
+    if (string.IsNullOrWhiteSpace(connectionString))
+        return string.Empty;
+
+    if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase) ||
+        connectionString.StartsWith("postgresql://", StringComparison.OrdinalIgnoreCase))
+    {
+        try
+        {
+            var uri = new Uri(connectionString);
+            var userInfo = uri.UserInfo.Split(':');
+            var username = Uri.UnescapeDataString(userInfo[0]);
+            var password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : "";
+            var host = uri.Host;
+            var port = uri.Port > 0 ? uri.Port : 5432;
+            var database = uri.AbsolutePath.TrimStart('/');
+
+            // Supabase y servicios cloud en Render requieren SSL Mode=Require
+            return $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+        }
+        catch
+        {
+            return connectionString;
+        }
+    }
+
+    return connectionString;
+}
+
 public partial class Program { }

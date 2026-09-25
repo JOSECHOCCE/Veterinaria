@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Veterinaria.Domain.Contracts;
 using Veterinaria.Domain.Entities;
 using Veterinaria.Infrastructure.Persistence;
@@ -25,6 +27,18 @@ public class UnitOfWork : IUnitOfWork
     public IGenericRepository<HorarioClinica> HorariosClinica { get; private set; }
     public IGenericRepository<HorarioVeterinario> HorariosVeterinario { get; private set; }
     public IGenericRepository<BloqueoAgenda> BloqueosAgenda { get; private set; }
+    public IGenericRepository<Consultorio> Consultorios { get; private set; }
+    public IGenericRepository<ListaEspera> ListaEsperas { get; private set; }
+    public IGenericRepository<Presupuesto> Presupuestos { get; private set; }
+    public IGenericRepository<DetallePresupuesto> DetallePresupuestos { get; private set; }
+    public IGenericRepository<Receta> Recetas { get; private set; }
+    public IGenericRepository<DetalleReceta> DetalleRecetas { get; private set; }
+    public IGenericRepository<MovimientoInventario> MovimientosInventario { get; private set; }
+    public IGenericRepository<OrdenCobro> OrdenesCobro { get; private set; }
+    public IGenericRepository<DetalleOrdenCobro> DetallesOrdenCobro { get; private set; }
+    public IGenericRepository<SeguimientoPostAtencion> SeguimientosPostAtencion { get; private set; }
+    public IGenericRepository<RecordatorioVacuna> RecordatoriosVacunas { get; private set; }
+    public IGenericRepository<AuditoriaLog> AuditoriaLogs { get; private set; }
 
     public UnitOfWork(VeterinariaDbContext context)
     {
@@ -46,11 +60,53 @@ public class UnitOfWork : IUnitOfWork
         HorariosClinica = new GenericRepository<HorarioClinica>(_context);
         HorariosVeterinario = new GenericRepository<HorarioVeterinario>(_context);
         BloqueosAgenda = new GenericRepository<BloqueoAgenda>(_context);
+        Consultorios = new GenericRepository<Consultorio>(_context);
+        ListaEsperas = new GenericRepository<ListaEspera>(_context);
+        Presupuestos = new GenericRepository<Presupuesto>(_context);
+        DetallePresupuestos = new GenericRepository<DetallePresupuesto>(_context);
+        Recetas = new GenericRepository<Receta>(_context);
+        DetalleRecetas = new GenericRepository<DetalleReceta>(_context);
+        MovimientosInventario = new GenericRepository<MovimientoInventario>(_context);
+        OrdenesCobro = new GenericRepository<OrdenCobro>(_context);
+        DetallesOrdenCobro = new GenericRepository<DetalleOrdenCobro>(_context);
+        SeguimientosPostAtencion = new GenericRepository<SeguimientoPostAtencion>(_context);
+        RecordatoriosVacunas = new GenericRepository<RecordatorioVacuna>(_context);
+        AuditoriaLogs = new GenericRepository<AuditoriaLog>(_context);
     }
 
     public async Task<int> CommitAsync()
     {
         return await _context.SaveChangesAsync();
+    }
+
+    // T6 SHOULD: transacciones explícitas; no-op cuando el provider no es relacional (tests InMemory).
+    private IDbContextTransaction? _transaccionActual;
+
+    public bool SoportaTransacciones => _context.Database.IsRelational();
+
+    public async Task BeginTransactionAsync()
+    {
+        if (!SoportaTransacciones || _transaccionActual != null)
+            return;
+        _transaccionActual = await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitTransactionAsync()
+    {
+        if (_transaccionActual == null)
+            return;
+        await _transaccionActual.CommitAsync();
+        await _transaccionActual.DisposeAsync();
+        _transaccionActual = null;
+    }
+
+    public async Task RollbackTransactionAsync()
+    {
+        if (_transaccionActual == null)
+            return;
+        await _transaccionActual.RollbackAsync();
+        await _transaccionActual.DisposeAsync();
+        _transaccionActual = null;
     }
 
     public async ValueTask DisposeAsync()

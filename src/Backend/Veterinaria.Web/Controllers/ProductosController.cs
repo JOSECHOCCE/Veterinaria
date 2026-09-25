@@ -130,4 +130,37 @@ public class ProductosController : ControllerBase
         await _productoService.DeleteProductoAsync(id);
         return Ok(Response<object>.Ok("Producto eliminado exitosamente."));
     }
+
+    [HttpPost("{id}/recalcular-rop")]
+    public async Task<ActionResult<Response<int>>> RecalcularRop(int id)
+    {
+        var rop = await _productoService.CalcularRopDinamicoAsync(id);
+        return Ok(Response<int>.Ok(rop, $"Punto de reorden calculado: {rop} unidades."));
+    }
+
+    [HttpPost("merma")]
+    public async Task<ActionResult<Response<bool>>> RegistrarMerma([FromBody] RegistrarMermaDto dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(Response<bool>.Fail("Datos de merma inválidos."));
+        }
+
+        var usuario = User.Identity?.Name ?? "Sistema";
+        var result = await _productoService.RegistrarMermaAsync(dto, usuario);
+
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [HttpGet("alertas")]
+    public async Task<ActionResult<Response<IEnumerable<ProductoAlertaDto>>>> GetAlertas()
+    {
+        var alertas = await _productoService.GetAlertasInventarioAsync();
+        return Ok(Response<IEnumerable<ProductoAlertaDto>>.Ok(alertas));
+    }
 }

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Veterinaria.Web.Controllers;
 
-[Authorize(Roles = "Admin,Recepcionista")]
+[Authorize(Roles = "Admin,Recepcionista,Veterinario")]
 [ApiController]
 [Route("api/[controller]")]
 public class ClientesController : ControllerBase

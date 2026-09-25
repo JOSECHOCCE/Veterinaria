@@ -140,6 +140,20 @@ export const AtencionService = {
   },
 
   /**
+   * Realiza el check-in de una cita
+   */
+  async checkInCita(citaId: number): Promise<void> {
+    await api.post(`/api/Citas/${citaId}/check-in`);
+  },
+
+  /**
+   * Registra los signos vitales de un triage
+   */
+  async registrarSignosVitales(id: number, data: { nivel: string; sintomas?: string; temperatura?: number; frecuenciaCardiaca?: number; peso?: number }): Promise<void> {
+    await api.put(`/api/Triage/${id}/signos-vitales`, data);
+  },
+
+  /**
    * Cierra de manera irreversible la atención clínica de una cita
    */
   async cerrarAtencion(citaId: number) {

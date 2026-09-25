@@ -321,7 +321,7 @@ export default function Agenda() {
   }
 
   return (
-    <div className="flex-grow flex flex-col min-w-0 select-none p-gutter">
+    <div className="flex-grow w-full max-w-[1600px] mx-auto flex flex-col gap-6 pb-12 select-none animate-fadeIn">
       {/* Page Header */}
       <PageHeader
         title="Agenda de la Clínica"

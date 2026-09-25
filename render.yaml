@@ -1,0 +1,57 @@
+# Render Blueprint Specification for VetCare Pro
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  # -------------------------------------------------------------
+  # 1. Backend Web Service (.NET 10 Web API Container)
+  # -------------------------------------------------------------
+  - type: web
+    name: vetcare-api
+    runtime: docker
+    dockerfilePath: ./src/Backend/Dockerfile
+    dockerContext: ./src/Backend
+    plan: free
+    region: oregon
+    healthCheckPath: /swagger
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_HTTP_PORTS
+        value: 8080
+      # Cadena de conexión de Supabase (Connection Pooling o Direct):
+      # Formato: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+      - key: ConnectionStrings__VeterinariaDb
+        sync: false
+      - key: Jwt__Key
+        generateValue: true
+      - key: Jwt__Issuer
+        value: https://vetcare-api.onrender.com
+      - key: Jwt__Audience
+        value: https://vetcare-api.onrender.com
+      - key: Cors__AllowedOrigins__0
+        fromService:
+          type: static
+          name: vetcare-frontend
+          property: url
+
+  # -------------------------------------------------------------
+  # 2. Frontend Web Client (React 19 + Vite Static Site)
+  # -------------------------------------------------------------
+  - type: static
+    name: vetcare-frontend
+    rootDir: src/Frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22.12.0
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: vetcare-api
+          property: url
+    routes:
+      # Regla para Single Page Application (SPA / React Router)
+      - type: rewrite
+        source: /*
+        destination: /index.html

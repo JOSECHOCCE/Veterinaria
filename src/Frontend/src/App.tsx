@@ -29,6 +29,8 @@ import MiAgenda from './views/Atencion/MiAgenda';
 import HistorialClinicoMascota from './views/Atencion/HistorialClinicoMascota';
 import GestionPagos from './views/Pagos/GestionPagos';
 import RegistrarCobro from './views/Pagos/RegistrarCobro';
+import GestionProductos from './views/Productos/GestionProductos';
+import GestionVentas from './views/Ventas/GestionVentas';
 import PortalCliente from './views/PortalCliente/PortalCliente';
 import MisMascotas from './views/PortalCliente/MisMascotas';
 import MisCitas from './views/PortalCliente/MisCitas';
@@ -90,9 +92,13 @@ function App() {
         <Route path="configuracion" element={<ConfiguracionView />} />
         <Route path="cola" element={<ColaAtencion />} />
         <Route path="triage" element={<Triage />} />
+        <Route path="triaje" element={<Triage />} />
+        <Route path="atencion" element={<ColaAtencion />} />
         <Route path="atencion/:citaId" element={<HistoriaClinicaSOAP />} />
         <Route path="mi-agenda" element={<MiAgenda />} />
         <Route path="mascotas/:id/historial" element={<HistorialClinicoMascota />} />
+        <Route path="productos" element={<GestionProductos />} />
+        <Route path="ventas" element={<GestionVentas />} />
         <Route path="pagos" element={<GestionPagos />} />
         <Route path="pagos/registrar/:citaId" element={<RegistrarCobro />} />
         <Route path="notificaciones" element={<CentroNotificaciones />} />

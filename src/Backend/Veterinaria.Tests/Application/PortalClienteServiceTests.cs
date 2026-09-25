@@ -363,7 +363,7 @@ public class PortalClienteServiceTests
         var servicio = new Servicio { Id = 1, Nombre = "Consulta", Activo = true };
         var vet = new Veterinario { Id = 1, Nombre = "Dr. House", Activo = true };
         var cita = new Cita { Id = 1, MascotaId = 5, ServicioId = 1, VeterinarioId = 1, Estado = "Completada" };
-        var historial = new HistorialClinico { Id = 1, CitaId = 1, MotivoConsulta = "Tos", Hallazgos = "Ninguno", Diagnostico = "Gripe", Tratamiento = "Jarabe", Medicamentos = "Jarabe", Recomendaciones = "Descanso", FechaRegistro = DateTime.Now };
+        var historial = new HistorialClinico { Id = 1, CitaId = 1, MotivoConsulta = "Tos", Hallazgos = "Ninguno", Diagnostico = "Gripe", Tratamiento = "Jarabe", Medicamentos = "Jarabe", Recomendaciones = "Descanso", FechaRegistro = DateTime.Now, Cerrado = true }; // T8: portal solo expone cerrados
 
         await _context.Usuarios.AddAsync(user);
         await _context.Mascotas.AddAsync(mascota);
@@ -380,6 +380,34 @@ public class PortalClienteServiceTests
         // Assert
         Assert.IsTrue(result.Success);
         Assert.AreEqual(1, result.Data!.Count());
+    }
+
+    [TestMethod]
+    public async Task GetHistorialMascotaAsync_CuandoBorrador_NoDebeExponerlo()
+    {
+        // Arrange (T8 SHOULD): borrador (Cerrado=false) no visible en portal cliente.
+        var user = new Usuario { Id = 1, Nombre = "Juan", Rol = "Cliente" };
+        var mascota = new Mascota { Id = 5, Nombre = "Fido", UsuarioId = 1 };
+        var servicio = new Servicio { Id = 1, Nombre = "Consulta", Activo = true };
+        var vet = new Veterinario { Id = 1, Nombre = "Dr. House", Activo = true };
+        var cita = new Cita { Id = 1, MascotaId = 5, ServicioId = 1, VeterinarioId = 1, Estado = "EnAtencion" };
+        var borrador = new HistorialClinico { Id = 1, CitaId = 1, MotivoConsulta = "Tos", Diagnostico = "Pendiente", FechaRegistro = DateTime.Now, Cerrado = false };
+
+        await _context.Usuarios.AddAsync(user);
+        await _context.Mascotas.AddAsync(mascota);
+        await _context.Servicios.AddAsync(servicio);
+        await _context.Veterinarios.AddAsync(vet);
+        await _context.Citas.AddAsync(cita);
+        await _context.HistorialesClinicos.AddAsync(borrador);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var result = await _sut.GetHistorialMascotaAsync(1, 5);
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(0, result.Data!.Count());
     }
 
     [TestMethod]

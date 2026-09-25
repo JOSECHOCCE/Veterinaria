@@ -20,6 +20,8 @@ public class VentaDto
 
     public string? ClienteNombre { get; set; }
 
+    public int? RecetaId { get; set; }
+
     [MaxLength(30)]
     public string Estado { get; set; } = "Completada"; // "Completada", "Cancelada"
 
