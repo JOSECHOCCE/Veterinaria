@@ -1,8 +1,21 @@
 import axios from 'axios';
 
-// Usar el proxy local de Vite en desarrollo ('') o la URL de producción especificada
+// Normalizar la URL base del backend:
+// Si viene vacía (desarrollo local), usa '' para aprovechar el proxy de Vite.
+// Si viene como nombre de servicio interno de Render (ej. 'vetcare-api-2yul') o sin protocolo,
+// se normaliza a URL HTTPS pública completa.
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').trim();
+export const getNormalizedApiUrl = (url: string = rawApiUrl): string => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url.replace(/\/+$/, '');
+  if (url.includes('.onrender.com')) return `https://${url}`.replace(/\/+$/, '');
+  return `https://${url}.onrender.com`.replace(/\/+$/, '');
+};
+
+export const API_BASE_URL = getNormalizedApiUrl();
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '',
+  baseURL: API_BASE_URL,
   withCredentials: true, // Obligatorio para enviar/recibir cookies de sesión de Identity
   headers: {
     'Content-Type': 'application/json',

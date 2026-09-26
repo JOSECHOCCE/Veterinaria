@@ -18,8 +18,8 @@ services:
         value: Production
       - key: ASPNETCORE_HTTP_PORTS
         value: 8080
-      # Cadena de conexión de Supabase (Connection Pooling o Direct):
-      # Formato: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+      # Cadena de conexión de Supabase (Session Mode en puerto 5432 para migraciones EF Core):
+      # Formato: postgresql://postgres.[project-ref]:[password]@aws-0-[region].pooler.supabase.com:5432/postgres
       - key: ConnectionStrings__VeterinariaDb
         sync: false
       - key: Jwt__Key
@@ -47,10 +47,7 @@ services:
       - key: NODE_VERSION
         value: 22.12.0
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: vetcare-api
-          property: host
+        value: https://vetcare-api-2yul.onrender.com
     routes:
       # Regla para Single Page Application (SPA / React Router)
       - type: rewrite

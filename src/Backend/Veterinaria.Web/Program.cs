@@ -69,9 +69,26 @@ var allowedOrigins = rawOrigins
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", builder =>
+    options.AddPolicy("CorsPolicy", policy =>
     {
-        builder.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin =>
+               {
+                   if (string.IsNullOrWhiteSpace(origin)) return false;
+                   try
+                   {
+                       var uri = new Uri(origin);
+                       var host = uri.Host;
+                       if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || host == "127.0.0.1")
+                           return true;
+                       if (host.EndsWith(".onrender.com", StringComparison.OrdinalIgnoreCase))
+                           return true;
+                       return allowedOrigins.Any(o => o.Contains(host, StringComparison.OrdinalIgnoreCase));
+                   }
+                   catch
+                   {
+                       return false;
+                   }
+               })
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials();
@@ -251,6 +268,7 @@ try
         
         // Aplicar migraciones automáticamente en producción al iniciar
         Console.WriteLine("Aplicando migraciones de base de datos...");
+        context.Database.SetCommandTimeout(180);
         await context.Database.MigrateAsync();
         Console.WriteLine("Migraciones aplicadas con éxito.");
 

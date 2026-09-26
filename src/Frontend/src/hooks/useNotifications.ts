@@ -3,6 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import { toast } from 'sonner';
 import notificacionesService from '../services/notificaciones.service';
 import RealtimeToastCard from '../components/Notifications/RealtimeToastCard';
+import { API_BASE_URL } from '../services/api';
 
 interface ServerNotification {
   id: number;
@@ -35,8 +36,9 @@ export function useNotifications() {
     // Configurar la conexión con el Hub de SignalR.
     // accessTokenFactory: el JWT se envía como query string (?access_token=...)
     // ya que los WebSockets no permiten cabeceras Authorization personalizadas.
+    const hubUrl = import.meta.env.VITE_SIGNALR_URL || (API_BASE_URL ? `${API_BASE_URL}/notificacionHub` : '/notificacionHub');
     const newConnection = new signalR.HubConnectionBuilder()
-      .withUrl(import.meta.env.VITE_SIGNALR_URL || '/notificacionHub', {
+      .withUrl(hubUrl, {
         accessTokenFactory: () => window.localStorage.getItem('token') || ''
       })
       .withAutomaticReconnect()

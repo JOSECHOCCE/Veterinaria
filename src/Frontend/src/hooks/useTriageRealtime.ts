@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import * as signalR from '@microsoft/signalr';
+import { API_BASE_URL } from '../services/api';
 
 /**
  * Hook that listens for real-time triage queue updates via SignalR (RNF-007).
@@ -20,8 +21,9 @@ export function useTriageRealtime(onQueueUpdated: () => void) {
     const token = window.localStorage.getItem('token');
     if (!token) return;
 
+    const hubUrl = import.meta.env.VITE_SIGNALR_URL || (API_BASE_URL ? `${API_BASE_URL}/notificacionHub` : '/notificacionHub');
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(import.meta.env.VITE_SIGNALR_URL || '/notificacionHub', {
+      .withUrl(hubUrl, {
         accessTokenFactory: () => window.localStorage.getItem('token') || ''
       })
       .withAutomaticReconnect([0, 1000, 3000, 5000, 10000])
