@@ -80,7 +80,8 @@ builder.Services.AddCors(options =>
                        var host = uri.Host;
                        if (host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || host == "127.0.0.1")
                            return true;
-                       if (host.EndsWith(".onrender.com", StringComparison.OrdinalIgnoreCase))
+                       if (host.EndsWith(".onrender.com", StringComparison.OrdinalIgnoreCase) ||
+                           host.EndsWith("menteclara.world", StringComparison.OrdinalIgnoreCase))
                            return true;
                        return allowedOrigins.Any(o => o.Contains(host, StringComparison.OrdinalIgnoreCase));
                    }
